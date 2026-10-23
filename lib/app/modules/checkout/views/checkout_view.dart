@@ -5,7 +5,7 @@ import '../../../models/enums.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
-import '../../../widgets/option_chip.dart';
+import '../../../ui/option_chip.dart';
 import '../controllers/checkout_controller.dart';
 import '../widgets/payment_fields.dart';
 import '../widgets/sale_complete.dart';

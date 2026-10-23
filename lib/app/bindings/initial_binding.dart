@@ -1,18 +1,30 @@
 import 'package:get/get.dart';
 
 import '../data/database/app_database.dart';
+import '../data/repositories/audit_repository.dart';
 import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/day_close_repository.dart';
 import '../data/repositories/outbox_repository.dart';
+import '../data/repositories/role_repository.dart';
 import '../data/repositories/sale_repository.dart';
+import '../data/repositories/settings_repository.dart';
 import '../data/repositories/staff_repository.dart';
+import '../data/repositories/staff_stats_repository.dart';
 import '../data/repositories/stock_repository.dart';
 import '../modules/till/controllers/cart_controller.dart';
 import '../services/auth_service.dart';
+import '../services/backup/backup_service.dart';
 import '../services/device_service.dart';
+import '../services/permission_service.dart';
+import '../services/session_service.dart';
+import '../services/settings_service.dart';
+import '../services/status_service.dart';
+import '../services/staff_photo_service.dart';
 import '../services/sync_service.dart';
+import '../ui/approval_prompt.dart';
 
-/// App-wide services. Runs once, before the first route.
+/// App-wide services: the composition root. Runs once per app start (and
+/// again after a restore restarts the app).
 class InitialBinding extends Bindings {
   InitialBinding({this.database});
 
@@ -24,15 +36,24 @@ class InitialBinding extends Bindings {
     final db = Get.put(database ?? AppDatabase(), permanent: true);
     final device = Get.put(DeviceService(db), permanent: true);
 
+    final audit = Get.put(AuditRepository(db, device), permanent: true);
     Get.lazyPut(() => CatalogRepository(db), fenix: true);
     Get.lazyPut(() => StockRepository(db, device), fenix: true);
-    Get.lazyPut(() => DayCloseRepository(db, device), fenix: true);
-    Get.lazyPut(() => SaleRepository(db, Get.find(), Get.find(), device), fenix: true);
-    Get.lazyPut(() => StaffRepository(db, device), fenix: true);
+    Get.lazyPut(() => DayCloseRepository(db, device, audit), fenix: true);
+    Get.lazyPut(() => SaleRepository(db, Get.find(), Get.find(), audit, device), fenix: true);
+    Get.lazyPut(() => RoleRepository(db, device, audit), fenix: true);
+    final staff = Get.put(StaffRepository(db, device, audit), permanent: true);
+    Get.lazyPut(() => StaffStatsRepository(db), fenix: true);
+    Get.put(StaffPhotoService(staff), permanent: true);
     Get.lazyPut(() => OutboxRepository(db), fenix: true);
 
-    Get.put(AuthService(Get.find()), permanent: true);
-    Get.put(SyncService(Get.find()), permanent: true);
+    final settings = Get.put(SettingsService(SettingsRepository(db, device, audit)), permanent: true);
+    final auth = Get.put(AuthService(Get.find(), audit), permanent: true);
+    Get.put(PermissionService(auth), permanent: true).prompter = showApprovalPrompt;
+    Get.put(SessionService(auth, settings), permanent: true);
+    final sync = Get.put(SyncService(Get.find()), permanent: true);
+    final backups = Get.put(BackupService(db, audit, settings), permanent: true);
+    Get.put(StatusService(backups, audit, settings, sync), permanent: true);
 
     // Shared by the till and checkout.
     Get.put(CartController(), permanent: true);

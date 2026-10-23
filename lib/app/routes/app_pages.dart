@@ -6,16 +6,14 @@ import '../modules/close_day/bindings/close_day_binding.dart';
 import '../modules/close_day/views/close_day_view.dart';
 import '../modules/setup/bindings/setup_binding.dart';
 import '../modules/setup/views/setup_view.dart';
+import '../modules/shell/bindings/shell_binding.dart';
+import '../modules/shell/views/shell_view.dart';
 import '../modules/sign_in/bindings/sign_in_binding.dart';
 import '../modules/sign_in/views/sign_in_view.dart';
-import '../modules/staff/bindings/staff_binding.dart';
-import '../modules/staff/views/staff_view.dart';
+import '../modules/staff_profile/bindings/staff_profile_binding.dart';
+import '../modules/staff_profile/views/staff_profile_view.dart';
 import '../modules/start/bindings/start_binding.dart';
 import '../modules/start/views/start_view.dart';
-import '../modules/till/bindings/till_binding.dart';
-import '../modules/till/views/till_view.dart';
-import '../modules/today/bindings/today_binding.dart';
-import '../modules/today/views/today_view.dart';
 import 'app_routes.dart';
 import 'auth_middleware.dart';
 
@@ -38,10 +36,11 @@ abstract final class AppPages {
       page: () => const SignInView(),
       binding: SignInBinding(),
     ),
+    // Everything after sign-in lives in the shell (Sell and Manage).
     GetPage<void>(
-      name: Routes.till,
-      page: () => const TillView(),
-      binding: TillBinding(),
+      name: Routes.shell,
+      page: () => const ShellView(),
+      binding: ShellBinding(),
       middlewares: [AuthMiddleware()],
     ),
     // Drawn as a sheet over the till, so the route is see-through.
@@ -55,22 +54,18 @@ abstract final class AppPages {
       transitionDuration: const Duration(milliseconds: 180),
     ),
     GetPage<void>(
-      name: Routes.today,
-      page: () => const TodayView(),
-      binding: TodayBinding(),
-      middlewares: [AuthMiddleware()],
-    ),
-    GetPage<void>(
       name: Routes.closeDay,
       page: () => const CloseDayView(),
       binding: CloseDayBinding(),
       middlewares: [AuthMiddleware()],
     ),
+    // Who may see or change what is decided inside (own profile, or
+    // "Manage staff").
     GetPage<void>(
-      name: Routes.staff,
-      page: () => const StaffView(),
-      binding: StaffBinding(),
-      middlewares: [OwnerMiddleware()],
+      name: Routes.staffProfile,
+      page: () => const StaffProfileView(),
+      binding: StaffProfileBinding(),
+      middlewares: [AuthMiddleware()],
     ),
   ];
 }

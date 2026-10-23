@@ -1,0 +1,95 @@
+import 'dart:async';
+
+import 'package:get/get.dart';
+
+import '../core/settings.dart';
+import '../data/repositories/audit_repository.dart';
+import '../models/audit.dart';
+import 'backup/backup_service.dart';
+import 'settings_service.dart';
+import 'sync_service.dart';
+
+enum StatusLevel { ok, info, warning, problem }
+
+enum StatusItem { localBackup, offsiteBackup, activityLog, sync }
+
+class StatusCheck {
+  const StatusCheck(this.item, this.level, {this.at, this.count});
+
+  final StatusItem item;
+  final StatusLevel level;
+
+  /// When the thing last happened (backups).
+  final DateTime? at;
+
+  /// Waiting items (sync).
+  final int? count;
+}
+
+/// "Is everything safe?": backups, the activity log chain and sync, in one
+/// place. The header shows the worst level.
+class StatusService extends GetxService {
+  StatusService(this._backups, this._audit, this._settings, this._sync, {DateTime Function()? clock})
+      : _clock = clock ?? DateTime.now;
+
+  final BackupService _backups;
+  final AuditRepository _audit;
+  final SettingsService _settings;
+  final SyncService _sync;
+  final DateTime Function() _clock;
+
+  final checks = <StatusCheck>[].obs;
+  final chain = Rxn<AuditChainStatus>();
+
+  Timer? _timer;
+  StreamSubscription<int>? _syncSub;
+
+  StatusLevel get overall => checks.fold(
+        StatusLevel.ok,
+        (worst, c) => c.level.index > worst.index ? c.level : worst,
+      );
+
+  @override
+  void onInit() {
+    super.onInit();
+    _timer = Timer.periodic(const Duration(minutes: 10), (_) => refresh());
+    _syncSub = _sync.waitingSales.listen((_) => refresh(checkChain: false));
+  }
+
+  @override
+  void onClose() {
+    _timer?.cancel();
+    _syncSub?.cancel();
+    super.onClose();
+  }
+
+  Future<void> refresh({bool checkChain = true}) async {
+    final now = _clock();
+    final local = await _backups.lastLocalBackupAt();
+    final offsite = await _backups.lastOffsiteBackupAt();
+    if (checkChain || chain.value == null) chain.value = await _audit.verifyChain();
+    final reminderDays = _settings.get(AppSettings.offsiteBackupDays);
+
+    StatusLevel age(DateTime? at, Duration warnAfter, Duration problemAfter) {
+      if (at == null) return StatusLevel.warning;
+      final gone = now.difference(at);
+      if (gone > problemAfter) return StatusLevel.problem;
+      if (gone > warnAfter) return StatusLevel.warning;
+      return StatusLevel.ok;
+    }
+
+    final waiting = _sync.waitingSales.value;
+    checks.assignAll([
+      StatusCheck(StatusItem.localBackup,
+          age(local, const Duration(days: 2), const Duration(days: 7)),
+          at: local),
+      StatusCheck(StatusItem.offsiteBackup,
+          age(offsite, Duration(days: reminderDays), Duration(days: reminderDays * 2)),
+          at: offsite),
+      StatusCheck(StatusItem.activityLog,
+          chain.value?.isIntact ?? true ? StatusLevel.ok : StatusLevel.problem),
+      // TODO(sync): becomes a warning when sync is on and stuck.
+      StatusCheck(StatusItem.sync, StatusLevel.info, count: waiting),
+    ]);
+  }
+}

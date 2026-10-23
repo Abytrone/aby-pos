@@ -1,22 +1,46 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
 
+import '../../core/permissions.dart';
+import '../../models/audit.dart';
 import '../../models/enums.dart';
 import '../../models/sale.dart';
 import '../../services/ids.dart';
 import 'converters.dart';
+import 'schema_versions.dart';
 import 'seed.dart';
 import 'tables.dart';
 
 part 'app_database.g.dart';
 
-/// Meta keys.
+/// Device-local values that never sync.
 abstract final class MetaKeys {
   static const deviceId = 'device_id';
-  static const shopName = 'shop_name';
+  static const lastLocalBackupAt = 'last_local_backup_at';
+  static const lastOffsiteBackupAt = 'last_offsite_backup_at';
+  static const backupPasswordHash = 'backup_password_hash';
 }
+
+/// Where the on-device database lives. The backup and restore code uses the
+/// same path, so keep this the single source.
+// TODO(storage): on Windows this is the user's Documents folder. Consider
+// moving to the app support folder with a one-time file move.
+Future<File> databaseFile() async =>
+    File(p.join((await getApplicationDocumentsDirectory()).path, 'aby_pos.sqlite'));
+
+/// Stable row ID for a setting, so every device of a shop writes the same
+/// row for a shop setting, and one row per device for device settings.
+String settingRowId(String key, SettingScope scope, String deviceId) =>
+    const Uuid().v5(
+      Namespace.url.value,
+      scope == SettingScope.shop ? 'aby:setting:shop:$key' : 'aby:setting:$deviceId:$key',
+    );
 
 @DriftDatabase(tables: [
   Categories,
@@ -28,8 +52,12 @@ abstract final class MetaKeys {
   SaleLines,
   Payments,
   StockMovements,
+  Roles,
   StaffMembers,
+  StaffPhotos,
   DayCloses,
+  AuditLog,
+  Settings,
   Outbox,
   Meta,
 ])
@@ -38,12 +66,18 @@ class AppDatabase extends _$AppDatabase {
   /// (`NativeDatabase.memory()`). [seedDemoShop] fills a brand-new database
   /// with the Scoops Tamale menu.
   AppDatabase([QueryExecutor? executor, this.seedDemoShop = true])
-      : super(executor ?? driftDatabase(name: 'aby_pos'));
+      : super(executor ??
+            driftDatabase(
+              name: 'aby_pos',
+              native: DriftNativeOptions(
+                databasePath: () async => (await databaseFile()).path,
+              ),
+            ));
 
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -54,22 +88,64 @@ class AppDatabase extends _$AppDatabase {
           await m.createIndex(Index('sales_created',
               'CREATE INDEX sales_created ON sales (created_at)'));
         },
-        onUpgrade: (m, from, to) async {
+        onUpgrade: stepByStep(
           // v2: staff sign-in and day close.
-          if (from < 2) {
-            await m.createTable(staffMembers);
-            await m.createTable(dayCloses);
-            await m.addColumn(sales, sales.cashierId);
-            await m.addColumn(sales, sales.voidedById);
-            await customStatement(
-                "DELETE FROM meta WHERE key = 'cashier_name'");
-          }
-        },
+          from1To2: (m, schema) async {
+            await m.createTable(schema.staff);
+            await m.createTable(schema.dayCloses);
+            await m.addColumn(schema.sales, schema.sales.cashierId);
+            await m.addColumn(schema.sales, schema.sales.voidedById);
+            await customStatement("DELETE FROM meta WHERE key = 'cashier_name'");
+          },
+          // v3: roles and permissions, audit log, settings.
+          from2To3: (m, schema) async {
+            final deviceId = await _ensureDeviceId();
+            await m.createTable(schema.roles);
+            await _insertBuiltInRoles(deviceId);
+            await m.alterTable(TableMigration(
+              schema.staff,
+              columnTransformer: {
+                schema.staff.roleId: CustomExpression<String>(
+                  "CASE role WHEN 'owner' THEN '${BuiltInRole.owner.id}' "
+                  "ELSE '${BuiltInRole.cashier.id}' END",
+                ),
+              },
+              newColumns: [schema.staff.roleId],
+            ));
+            await m.createTable(schema.auditLog);
+            await m.createTable(schema.settings);
+            final shopName = await readMeta('shop_name');
+            if (shopName != null) {
+              await writeSettingRow(
+                  'shop.name', SettingScope.shop, jsonEncode(shopName), deviceId);
+              await customStatement("DELETE FROM meta WHERE key = 'shop_name'");
+            }
+          },
+          // v4: staff profiles and photos.
+          from3To4: (m, schema) async {
+            final staff = schema.staff;
+            for (final column in [
+              staff.phone,
+              staff.email,
+              staff.address,
+              staff.emergencyName,
+              staff.emergencyPhone,
+              staff.idNumber,
+              staff.dateOfBirth,
+              staff.startedOn,
+              staff.notes,
+            ]) {
+              await m.addColumn(staff, column);
+            }
+            await m.createTable(schema.staffPhotos);
+          },
+        ),
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
           final deviceId = await _ensureDeviceId();
-          if (details.wasCreated && seedDemoShop) {
-            await seedScoopsTamale(this, deviceId: deviceId);
+          if (details.wasCreated) {
+            await _insertBuiltInRoles(deviceId);
+            if (seedDemoShop) await seedScoopsTamale(this, deviceId: deviceId);
           }
         },
       );
@@ -82,6 +158,37 @@ class AppDatabase extends _$AppDatabase {
     return id;
   }
 
+  /// Raw SQL so it works inside any migration step, whatever the current
+  /// table classes look like. Not written to the outbox: every device
+  /// creates the same rows with the same IDs.
+  Future<void> _insertBuiltInRoles(String deviceId) async {
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    const names = {
+      BuiltInRole.owner: 'Owner',
+      BuiltInRole.manager: 'Manager',
+      BuiltInRole.cashier: 'Cashier',
+      BuiltInRole.stockKeeper: 'Stock keeper',
+    };
+    for (final role in BuiltInRole.values) {
+      await customStatement(
+        'INSERT OR IGNORE INTO roles (id, created_at, updated_at, device_id, name, '
+        'built_in, permissions, max_discount_percent, sort_order) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          role.id,
+          now,
+          now,
+          deviceId,
+          names[role],
+          role.name,
+          const PermissionSetConverter().toSql(role.defaultPermissions),
+          role.defaultMaxDiscount,
+          role.index,
+        ],
+      );
+    }
+  }
+
   Future<String?> readMeta(String key) async {
     final row = await (select(meta)..where((t) => t.key.equals(key)))
         .getSingleOrNull();
@@ -90,6 +197,26 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> writeMeta(String key, String value) =>
       into(meta).insertOnConflictUpdate(MetaCompanion.insert(key: key, value: value));
+
+  Future<void> deleteMeta(String key) =>
+      (delete(meta)..where((t) => t.key.equals(key))).go();
+
+  /// Writes a settings row without the outbox (seed and migrations).
+  /// SettingsRepository is the tracked path for everything else.
+  Future<void> writeSettingRow(
+    String key,
+    SettingScope scope,
+    String valueJson,
+    String deviceId,
+  ) async {
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    await customStatement(
+      'INSERT INTO settings (id, created_at, updated_at, device_id, key, scope, value) '
+      'VALUES (?, ?, ?, ?, ?, ?, ?) '
+      'ON CONFLICT(id) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at',
+      [settingRowId(key, scope, deviceId), now, now, deviceId, key, scope.name, valueJson],
+    );
+  }
 
   /// Inserts a row into a syncable table and records it in the outbox.
   /// Call inside a transaction so both land or neither does.

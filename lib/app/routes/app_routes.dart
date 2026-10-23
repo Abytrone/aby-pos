@@ -2,9 +2,12 @@ abstract final class Routes {
   static const start = '/start';
   static const setup = '/setup';
   static const signIn = '/sign-in';
-  static const till = '/';
+
+  /// Sell and Manage, after sign-in.
+  static const shell = '/';
   static const checkout = '/checkout';
-  static const today = '/today';
   static const closeDay = '/close-day';
-  static const staff = '/staff';
+
+  /// Argument: the staff ID.
+  static const staffProfile = '/staff-profile';
 }

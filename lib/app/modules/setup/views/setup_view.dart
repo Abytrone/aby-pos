@@ -6,6 +6,7 @@ import '../../../services/pin_hasher.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_mark.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/l10n.dart';
 import '../controllers/setup_controller.dart';
 
 class SetupView extends GetView<SetupController> {
@@ -14,6 +15,7 @@ class SetupView extends GetView<SetupController> {
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).extension<AbyColors>()!;
+    final l = context.l10n;
     final pinFormat = [
       FilteringTextInputFormatter.digitsOnly,
       LengthLimitingTextInputFormatter(PinHasher.pinLength),
@@ -24,28 +26,34 @@ class SetupView extends GetView<SetupController> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(AbySpace.s6),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
+              constraints: const BoxConstraints(maxWidth: 440),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Center(child: AbyMark(size: 56)),
                   const SizedBox(height: AbySpace.s4),
-                  Text('Set up ${controller.shopName}',
+                  Text(l.setupTitle,
                       textAlign: TextAlign.center,
                       style: AbyText.title.copyWith(color: c.ink)),
                   const SizedBox(height: AbySpace.s2),
                   Text(
-                    "You're the owner. Pick a ${PinHasher.pinLength}-digit PIN to "
-                    'sign in and to approve voids. You can add cashiers later.',
+                    l.setupIntro(PinHasher.pinLength),
                     textAlign: TextAlign.center,
                     style: AbyText.body.copyWith(color: c.inkMuted),
                   ),
                   const SizedBox(height: AbySpace.s6),
                   TextField(
+                    controller: controller.shopField,
+                    textCapitalization: TextCapitalization.words,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(labelText: l.setupShopName),
+                  ),
+                  const SizedBox(height: AbySpace.s4),
+                  TextField(
                     controller: controller.nameField,
                     textCapitalization: TextCapitalization.words,
                     textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(labelText: 'Your name'),
+                    decoration: InputDecoration(labelText: l.setupYourName),
                   ),
                   const SizedBox(height: AbySpace.s4),
                   TextField(
@@ -54,7 +62,7 @@ class SetupView extends GetView<SetupController> {
                     keyboardType: TextInputType.number,
                     inputFormatters: pinFormat,
                     textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(labelText: 'PIN'),
+                    decoration: InputDecoration(labelText: l.pinLabel),
                   ),
                   const SizedBox(height: AbySpace.s4),
                   TextField(
@@ -64,7 +72,7 @@ class SetupView extends GetView<SetupController> {
                     inputFormatters: pinFormat,
                     textInputAction: TextInputAction.done,
                     onSubmitted: (_) => controller.createOwner(),
-                    decoration: const InputDecoration(labelText: 'PIN again'),
+                    decoration: InputDecoration(labelText: l.pinAgainLabel),
                   ),
                   Obx(() => Padding(
                         padding: const EdgeInsets.symmetric(vertical: AbySpace.s4),
@@ -73,8 +81,20 @@ class SetupView extends GetView<SetupController> {
                       )),
                   Obx(() => FilledButton(
                         onPressed: controller.saving.value ? null : controller.createOwner,
-                        child: const Text('Create owner and start'),
+                        child: Text(l.setupCreateOwner),
                       )),
+                  const SizedBox(height: AbySpace.s6),
+                  const Divider(),
+                  const SizedBox(height: AbySpace.s3),
+                  Text(l.setupMovingDevice,
+                      textAlign: TextAlign.center,
+                      style: AbyText.body.copyWith(color: c.inkMuted)),
+                  const SizedBox(height: AbySpace.s2),
+                  OutlinedButton.icon(
+                    onPressed: controller.restore,
+                    icon: const Icon(Icons.settings_backup_restore),
+                    label: Text(l.setupRestore),
+                  ),
                 ],
               ),
             ),

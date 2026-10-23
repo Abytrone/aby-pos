@@ -4,8 +4,11 @@ import 'package:get/get.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_mark.dart';
 import '../../../theme/aby_theme.dart';
-import '../../../widgets/option_chip.dart';
-import '../../../widgets/pin_pad.dart';
+import '../../../ui/l10n.dart';
+import '../../../ui/option_chip.dart';
+import '../../../ui/permission_labels.dart';
+import '../../../ui/pin_pad.dart';
+import '../../../ui/staff_avatar.dart';
 import '../controllers/sign_in_controller.dart';
 
 class SignInView extends GetView<SignInController> {
@@ -34,7 +37,7 @@ class SignInView extends GetView<SignInController> {
                 ),
               ]),
               const SizedBox(height: AbySpace.s6),
-              Text("Who's on the till?", style: AbyText.heading.copyWith(color: c.ink)),
+              Text(context.l10n.signInWho, style: AbyText.heading.copyWith(color: c.ink)),
               const SizedBox(height: AbySpace.s3),
               Wrap(
                 spacing: AbySpace.s2,
@@ -42,8 +45,9 @@ class SignInView extends GetView<SignInController> {
                 children: [
                   for (final person in controller.staff)
                     OptionChip(
+                      leading: StaffAvatar(staff: person, radius: 14),
                       label: person.name,
-                      trailing: person.role.label,
+                      trailing: roleName(context.l10n, person.role),
                       selected: selected == person,
                       onTap: () => controller.select(person),
                     ),
@@ -52,11 +56,11 @@ class SignInView extends GetView<SignInController> {
             ],
           );
           final pad = selected == null
-              ? Text('Pick your name.', style: AbyText.body.copyWith(color: c.inkMuted))
+              ? Text(context.l10n.signInPickName, style: AbyText.body.copyWith(color: c.inkMuted))
               : PinPad(
                   // A new pad (cleared digits) for each person.
                   key: ValueKey(selected.id),
-                  title: 'PIN for ${selected.name}',
+                  title: context.l10n.pinFor(selected.name),
                   onSubmit: controller.submitPin,
                 );
           return LayoutBuilder(builder: (context, constraints) {

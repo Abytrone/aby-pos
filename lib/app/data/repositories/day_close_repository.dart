@@ -1,18 +1,22 @@
 import 'package:drift/drift.dart';
 
+import '../../models/audit.dart';
 import '../../models/day_close.dart';
 import '../../models/enums.dart';
 import '../../models/staff.dart';
 import '../../services/device_service.dart';
 import '../../services/ids.dart';
+import '../../services/money.dart';
 import '../database/app_database.dart';
+import 'audit_repository.dart';
 
 /// End-of-day cash-up for this device's drawer.
 class DayCloseRepository {
-  DayCloseRepository(this._db, this._device);
+  DayCloseRepository(this._db, this._device, this._audit);
 
   final AppDatabase _db;
   final DeviceInfo _device;
+  final AuditRepository _audit;
 
   Future<DayCloseRow?> _lastClose() => (_db.select(_db.dayCloses)
         ..where((d) => d.deviceId.equals(_device.deviceId) & d.deletedAt.isNull())
@@ -107,7 +111,17 @@ class DayCloseRepository {
           note: Value(trimmedNote == null || trimmedNote.isEmpty ? null : trimmedNote),
         ),
       );
-      return _toModel(row);
+      final close = _toModel(row);
+      final diff = close.difference;
+      await _audit.record(
+        action: AuditAction.dayClosed,
+        actor: closedBy,
+        entity: 'day_closes',
+        entityId: close.id,
+        summary: 'Closed day: ${close.salesCount} sales, ${formatMoney(close.salesTotal)}, '
+            '${diff == 0 ? 'balanced' : '${diff > 0 ? 'over' : 'short'} ${formatMoney(diff.abs())}'}',
+      );
+      return close;
     });
   }
 

@@ -1,0 +1,599 @@
+{
+  "@@locale": "en",
+  "commonCancel": "Cancel",
+  "commonSave": "Save",
+  "commonDone": "Done",
+  "commonContinue": "Continue",
+  "commonCopy": "Copy",
+  "commonCopied": "Copied.",
+  "commonMore": "More",
+  "commonRefresh": "Refresh",
+  "navSell": "Sell",
+  "navToday": "Today",
+  "navStaff": "Staff",
+  "navActivity": "Activity",
+  "navSettings": "Settings",
+  "navManage": "Manage",
+  "pinLabel": "PIN",
+  "pinAgainLabel": "PIN again",
+  "pinNewLabel": "New PIN",
+  "pinWrong": "Wrong PIN. Try again.",
+  "pinMismatch": "The PINs don't match.",
+  "signInWho": "Who's on the till?",
+  "signInPickName": "Pick your name.",
+  "setupTitle": "Set up your shop",
+  "setupShopName": "Shop name",
+  "setupYourName": "Your name",
+  "setupCreateOwner": "Create owner and start",
+  "setupShopNameMissing": "Enter the shop name.",
+  "setupNameMissing": "Enter your name.",
+  "setupMovingDevice": "Moving to a new device? Bring everything across from a backup.",
+  "setupRestore": "Restore from a backup",
+  "userMenu": "Signed in",
+  "userSwitch": "Switch user",
+  "userLock": "Lock",
+  "userSwitchTitle": "Hand over the till",
+  "userSwitchNobody": "There is nobody else to switch to.",
+  "approvalTitle": "Approval needed",
+  "approvalPinTitle": "PIN of the person approving",
+  "approvalWrongPin": "That PIN can't approve this.",
+  "statusCentreTitle": "Is everything safe?",
+  "statusAllSafe": "All safe",
+  "statusNeedsAttention": "Needs attention",
+  "statusProblem": "Problem",
+  "statusLocalBackup": "Backup on this device",
+  "statusOffsiteBackup": "Backup off this device",
+  "statusActivityLog": "Activity log",
+  "statusSync": "Sync",
+  "statusNever": "Never",
+  "statusChainIntact": "Checked. Nothing has been changed.",
+  "statusChainBroken": "Entries were changed or removed outside Aby.",
+  "statusNothingWaiting": "Nothing waiting.",
+  "statusOpenActivity": "Open activity",
+  "timeJustNow": "just now",
+  "todaySales": "Sales",
+  "todayNoSales": "No sales yet today.",
+  "closeDayButton": "Close day",
+  "closeDayApprovalReason": "Close the day and count the drawer.",
+  "voidConfirm": "Void sale",
+  "voidKeep": "Keep sale",
+  "staffAdd": "Add staff",
+  "staffPeople": "People",
+  "staffRoles": "Roles",
+  "staffName": "Name",
+  "staffRole": "Role",
+  "staffPickRole": "Pick a role.",
+  "staffChangePin": "Change PIN",
+  "staffChangeRole": "Change role",
+  "staffDeactivate": "Deactivate",
+  "staffReactivate": "Reactivate",
+  "staffCantDeactivateSelf": "You can't deactivate yourself.",
+  "staffDeactivateBody": "They won't be able to sign in. Their sales and history stay.",
+  "roleOwner": "Owner",
+  "roleManager": "Manager",
+  "roleCashier": "Cashier",
+  "roleStockKeeper": "Stock keeper",
+  "rolesAdd": "New role",
+  "rolesName": "Role name",
+  "rolesMaxDiscount": "Highest discount without approval",
+  "rolesMaxDiscountHelp": "Bigger discounts will need someone with a higher limit.",
+  "rolesOwnerFixed": "Owners can always do everything. This role cannot be changed.",
+  "rolesSaved": "Role saved.",
+  "rolesBuiltIn": "Built in",
+  "rolesEverything": "Everything",
+  "rolesDelete": "Delete role",
+  "rolesDeleteBody": "Nobody has this role. It will be removed from the list.",
+  "rolesCannotGrant": "You can't give a role permissions you don't have yourself.",
+  "permSell": "Sell",
+  "permOverridePrice": "Change a price at the till",
+  "permRefund": "Give refunds",
+  "permRefundWithoutReceipt": "Refund without a receipt",
+  "permVoidSale": "Void sales",
+  "permNoSale": "Open the drawer without a sale",
+  "permEditProducts": "Add and edit products",
+  "permChangePrices": "Change prices",
+  "permReceiveStock": "Receive stock",
+  "permAdjustStock": "Adjust stock",
+  "permApproveStockCount": "Approve stock counts",
+  "permGiveCredit": "Sell on credit",
+  "permWriteOffCredit": "Write off credit",
+  "permCloseDay": "Close the day",
+  "permPayOut": "Pay out from the drawer",
+  "permViewReports": "See reports",
+  "permViewCostAndProfit": "See costs and profit",
+  "permManageStaff": "Manage staff",
+  "permManageRoles": "Manage roles",
+  "permChangeSettings": "Change settings",
+  "permViewActivityLog": "See the activity log",
+  "permExportData": "Export data and backups",
+  "permRestoreBackup": "Restore a backup",
+  "permGroupSell": "Selling",
+  "permGroupCatalogue": "Products and stock",
+  "permGroupCustomers": "Customers",
+  "permGroupCash": "Cash",
+  "permGroupReports": "Reports",
+  "permGroupAdmin": "Admin",
+  "auditSignedIn": "Signed in",
+  "auditSignInFailed": "Wrong PIN",
+  "auditLockedOut": "Locked out",
+  "auditLocked": "Till locked",
+  "auditApprovalRefused": "Approval locked",
+  "auditSaleVoided": "Sale voided",
+  "auditDayClosed": "Day closed",
+  "auditStaffAdded": "Staff added",
+  "auditStaffPinChanged": "PIN changed",
+  "auditStaffRoleChanged": "Role changed",
+  "auditStaffDeactivated": "Staff deactivated",
+  "auditStaffReactivated": "Staff reactivated",
+  "auditRoleCreated": "Role created",
+  "auditRoleUpdated": "Role changed",
+  "auditRoleDeleted": "Role deleted",
+  "auditSettingChanged": "Setting changed",
+  "auditBackupCreated": "Backup made",
+  "auditBackupExported": "Backup sent",
+  "auditBackupRestored": "Backup restored",
+  "activitySubtitle": "Every sensitive action, who did it and who approved it.",
+  "activityEmpty": "Nothing here for these filters.",
+  "activityEveryone": "Everyone",
+  "activityFilterAll": "All",
+  "activityFilterImportant": "Important",
+  "activityFilterSignIns": "Sign-ins",
+  "activityFilterSales": "Sales",
+  "activityFilterStaff": "Staff and roles",
+  "activityFilterSettings": "Settings and data",
+  "activityBefore": "Before",
+  "activityAfter": "After",
+  "activityChainIntact": "Checked: the activity log has not been changed.",
+  "rangeToday": "Today",
+  "rangeWeek": "Last 7 days",
+  "rangeMonth": "Last 30 days",
+  "rangeAll": "All time",
+  "settingsSearch": "Search settings",
+  "settingsNoMatch": "No settings match.",
+  "settingsSaved": "Saved.",
+  "settingsNotSet": "Not set",
+  "settingsApprovalReason": "Change a shop setting.",
+  "settingsGroupShop": "Shop",
+  "settingsGroupDay": "Business day",
+  "settingsGroupSecurity": "Security",
+  "settingsGroupDevice": "This device",
+  "settingsGroupData": "Backup and restore",
+  "settingsGroupAbout": "About",
+  "settingsShopName": "Shop name",
+  "settingsShopPhone": "Phone",
+  "settingsShopAddress": "Address or landmark",
+  "settingsDayStart": "Day starts at",
+  "settingsDayStartHelp": "Sales before this time count on the previous day.",
+  "settingsAutoLock": "Lock the till after",
+  "settingsAutoLockHelp": "When nobody touches it. The cart is kept.",
+  "settingsAutoLockOff": "Never",
+  "settingsDeviceName": "Device name",
+  "settingsTheme": "Colours",
+  "settingsThemeSystem": "Same as the device",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  "settingsLargeText": "Larger text",
+  "settingsLanguage": "Language",
+  "settingsLanguageMore": "More languages are coming.",
+  "settingsAutoBackup": "Back up every day",
+  "settingsBackupsKeep": "Backups to keep on this device",
+  "settingsOffsiteReminder": "Remind me to send a backup every",
+  "settingsVersion": "Version",
+  "settingsDeviceId": "Device ID",
+  "settingsDataVersion": "Data version",
+  "backupNow": "Back up now",
+  "backupDone": "Backup saved on this device.",
+  "backupFailed": "The backup didn't work. Try again.",
+  "backupOnDevice": "Backups on this device",
+  "backupNoneYet": "No backups yet.",
+  "backupSend": "Send a backup off this device",
+  "backupSendHelp": "The file is locked with this password. Keep it somewhere safe: without it the backup cannot be opened.",
+  "backupPassword": "Backup password",
+  "backupPasswordSet": "Set a backup password",
+  "backupPasswordChange": "Change the backup password",
+  "backupPasswordNew": "New backup password",
+  "backupPasswordAgain": "Backup password again",
+  "backupPasswordHelp": "Used to lock backups that leave this device. Old backups keep their old password.",
+  "backupPasswordMismatch": "The passwords don't match.",
+  "backupPasswordSaved": "Backup password saved.",
+  "backupPasswordWrong": "That isn't the backup password.",
+  "backupEncrypting": "Making and locking the backup...",
+  "backupWhere": "Where should it go?",
+  "backupShare": "Share (WhatsApp, Drive, email...)",
+  "backupSaveToFolder": "Save to a folder or USB stick",
+  "backupShareUnavailable": "Sharing is not available here. Save to a folder instead.",
+  "backupSent": "Backup sent. Keep the password safe.",
+  "backupRestore": "Restore",
+  "backupRestoreFromFile": "Restore from a file",
+  "backupPickFile": "Pick the backup file",
+  "backupChecking": "Checking the backup...",
+  "backupRestoring": "Restoring...",
+  "backupRestoreConfirmTitle": "Replace everything on this device?",
+  "backupNoSales": "none",
+  "auditStaffDetailsChanged": "Details changed",
+  "commonClear": "Clear",
+  "profileTitle": "Staff profile",
+  "profileMine": "My profile",
+  "profileEdit": "Edit details",
+  "profileNotAllowed": "You can only see your own profile.",
+  "profileActive": "Active",
+  "profileDeactivated": "Deactivated",
+  "profileChangePhoto": "Change photo",
+  "profileTakePhoto": "Take a photo",
+  "profileChoosePhoto": "Choose a photo",
+  "profileRemovePhoto": "Remove photo",
+  "profilePhotoSaved": "Photo saved.",
+  "profileContact": "Contact",
+  "profilePhone": "Phone",
+  "profilePhoneHelp": "For example 024 123 4567.",
+  "profileEmail": "Email",
+  "profileAddress": "Address or landmark",
+  "profileEmergency": "Emergency contact",
+  "profileEmergencyName": "Name and relationship",
+  "profileIdentityWork": "Identity and work",
+  "profileManagerOnly": "Only a manager can change these.",
+  "profileGhanaCard": "Ghana Card number",
+  "profileGhanaCardHelp": "For example GHA-123456789-0.",
+  "profileDateOfBirth": "Date of birth",
+  "profileStartedOn": "Started work",
+  "profileNotes": "Notes",
+  "profilePhoneInvalid": "That doesn't look like a Ghana phone number.",
+  "profileEmailInvalid": "That doesn't look like an email address.",
+  "profileIdInvalid": "A Ghana Card number looks like GHA-123456789-0.",
+  "profileSaved": "Details saved.",
+  "profileCurrentPin": "Current PIN",
+  "profilePinReason": "Change someone else's PIN.",
+  "profilePerformance": "Performance",
+  "profileSalesToday": "Sales today",
+  "profileSales30": "Last 30 days",
+  "profileAverageSale": "Average sale",
+  "profileVoids": "Voids",
+  "profileCloses": "Day closes",
+  "profileClosesBalanced": "All balanced",
+  "profileSecurity": "Security",
+  "profileLastSignIn": "Last signed in",
+  "profileWrongPins": "Wrong PINs",
+  "profileRecentActivity": "Recent activity",
+  "pinMustBeDigits": "The PIN must be {count} digits.",
+  "@pinMustBeDigits": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pinTooManyTries": "Too many tries. Wait {seconds} seconds.",
+  "@pinTooManyTries": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "pinFor": "PIN for {name}",
+  "@pinFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setupIntro": "You're the owner. Pick a {digits}-digit PIN to sign in and to approve things like voids. You can add staff later.",
+  "@setupIntro": {
+    "placeholders": {
+      "digits": {
+        "type": "int"
+      }
+    }
+  },
+  "approvalNeeds": "Needs someone who can: {permission}",
+  "@approvalNeeds": {
+    "placeholders": {
+      "permission": {
+        "type": "String"
+      }
+    }
+  },
+  "statusLast": "Last: {when}",
+  "@statusLast": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "statusSalesWaiting": "{count, plural, =1{1 sale saved on this device. Will sync when online.} other{{count} sales saved on this device. Will sync when online.}}",
+  "@statusSalesWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeMinutesAgo": "{count, plural, =1{1 minute ago} other{{count} minutes ago}}",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeHoursAgo": "{count, plural, =1{1 hour ago} other{{count} hours ago}}",
+  "@timeHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeDaysAgo": "{count, plural, =1{1 day ago} other{{count} days ago}}",
+  "@timeDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "voidConfirmTitle": "Void sale {number}?",
+  "@voidConfirmTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "voidConfirmBody": "{total} will come off today's takings and the items go back into stock. This cannot be undone.",
+  "@voidConfirmBody": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "voidApprovalReason": "Void sale {number}",
+  "@voidApprovalReason": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "voidDone": "Sale {number} voided.",
+  "@voidDone": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "staffAdded": "{name} added.",
+  "@staffAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "staffPinChanged": "PIN changed for {name}.",
+  "@staffPinChanged": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "staffRoleChanged": "Role changed for {name}.",
+  "@staffRoleChanged": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "staffDeactivated": "{name} deactivated.",
+  "@staffDeactivated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "staffReactivated": "{name} can sign in again.",
+  "@staffReactivated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "staffYou": "{name} (you)",
+  "@staffYou": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "staffDeactivatedRole": "{role}, deactivated",
+  "@staffDeactivatedRole": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "staffNewPinFor": "New PIN for {name}",
+  "@staffNewPinFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "staffChangeRoleFor": "Role for {name}",
+  "@staffChangeRoleFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "staffDeactivateTitle": "Deactivate {name}?",
+  "@staffDeactivateTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesDeleteTitle": "Delete {name}?",
+  "@rolesDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesDeleted": "{name} deleted.",
+  "@rolesDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesPeople": "{count, plural, =0{Nobody} =1{1 person} other{{count} people}}",
+  "@rolesPeople": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rolesPermissionCount": "{count, plural, =1{1 permission} other{{count} permissions}}",
+  "@rolesPermissionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "activityApprovedBy": "approved by {name}",
+  "@activityApprovedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "activityChainBroken": "Warning: the activity log was changed outside Aby, from entry {seq}. Keep this device as it is and check your backups.",
+  "@activityChainBroken": {
+    "placeholders": {
+      "seq": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsMinutes": "{count, plural, =1{1 minute} other{{count} minutes}}",
+  "@settingsMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@settingsDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupPasswordTooShort": "Use at least {count} characters.",
+  "@backupPasswordTooShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupShareSubject": "{shop} backup",
+  "@backupShareSubject": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "backupRestoreConfirmBody": "This backup is from {shop}: {sales} sales, last sale {lastSale}. Everything on this device will be replaced. A copy of what is here now is kept first.",
+  "@backupRestoreConfirmBody": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      },
+      "sales": {
+        "type": "int"
+      },
+      "lastSale": {
+        "type": "String"
+      }
+    }
+  },
+  "profileInAbySince": "In Aby since {date}",
+  "@profileInAbySince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "profileSalesCount": "{count, plural, =0{No sales} =1{1 sale} other{{count} sales}}",
+  "@profileSalesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileVoidsApproved": "{count, plural, =0{None approved for others} =1{1 approved for others} other{{count} approved for others}}",
+  "@profileVoidsApproved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileClosesOver": "Over {amount} in total",
+  "@profileClosesOver": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "profileClosesShort": "Short {amount} in total",
+  "@profileClosesShort": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "profileAge": "{years} years old",
+  "@profileAge": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "profileTenure": "{months, plural, =0{Less than a month} =1{1 month} other{{months} months}}",
+  "@profileTenure": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  }
+}

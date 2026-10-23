@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 
 import '../../models/enums.dart';
@@ -15,7 +17,8 @@ Future<void> seedScoopsTamale(AppDatabase db, {required String deviceId}) async 
   var order = 0;
 
   await db.transaction(() async {
-    await db.writeMeta(MetaKeys.shopName, 'Scoops Tamale');
+    await db.writeSettingRow(
+        'shop.name', SettingScope.shop, jsonEncode('Scoops Tamale'), deviceId);
 
     Future<String> category(String name, CategoryTone tone) async {
       final id = newId();

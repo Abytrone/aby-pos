@@ -2,38 +2,41 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '../../../core/permissions.dart';
+import '../../../core/settings.dart';
 import '../../../data/repositories/day_close_repository.dart';
 import '../../../data/repositories/sale_repository.dart';
 import '../../../models/sale.dart';
-import '../../../models/staff.dart';
 import '../../../routes/app_routes.dart';
-import '../../../services/auth_service.dart';
 import '../../../services/device_service.dart';
+import '../../../services/permission_service.dart';
+import '../../../services/settings_service.dart';
+import '../../../ui/l10n.dart';
 
-/// Today's takings and sales, with voiding.
+/// The current business day's takings and sales, with voiding.
 class TodayController extends GetxController {
   final SaleRepository _sales = Get.find();
   final DayCloseRepository _closes = Get.find();
-  final AuthService _auth = Get.find();
+  final PermissionService _permissions = Get.find();
+  final SettingsService _settings = Get.find();
   final DeviceInfo _device = Get.find<DeviceService>();
 
   final sales = <Sale>[].obs;
   final summary = const TodaySummary().obs;
   final loading = true.obs;
-  final message = RxnString();
 
   /// Sales on this device up to this number are in a closed day.
   final closedUpTo = 0.obs;
 
   StreamSubscription<List<Sale>>? _sub;
 
-  bool get isOwner => _auth.isOwner;
-
   @override
   void onInit() {
     super.onInit();
     _loadLock();
-    _sub = _sales.watchToday().listen((list) {
+    _sub = _sales
+        .watchToday(dayStartMinutes: _settings.get(AppSettings.businessDayStart))
+        .listen((list) {
       sales.assignAll(list);
       summary.value = TodaySummary.fromSales(list);
       loading.value = false;
@@ -53,33 +56,31 @@ class TodayController extends GetxController {
   bool isLocked(Sale sale) =>
       sale.deviceId == _device.deviceId && sale.number <= closedUpTo.value;
 
-  bool canVoid(Sale sale) => !sale.isVoided && !isLocked(sale);
-
-  /// A cashier needs an owner to approve a void.
-  bool get needsApproval => !_auth.isOwner;
-
-  Future<Staff?> approveAsOwner(String pin) => _auth.approveAsOwner(pin);
-
-  /// Voids a sale (after the view has asked for confirmation and, for a
-  /// cashier, an owner's PIN). Records the owner who approved it.
-  Future<void> voidSale(Sale sale, {Staff? approvedBy}) async {
-    final by = approvedBy ?? _auth.user;
-    if (!by.isOwner) {
-      message.value = 'Only an owner can void a sale.';
-      return;
-    }
+  /// Voids a sale after the view has asked for confirmation. Someone allowed
+  /// to void must approve when the signed-in person cannot. Returns the
+  /// message to show, or null if cancelled.
+  Future<String?> voidSale(Sale sale) async {
+    final l = appL10n();
+    final auth = await _permissions.authorize(
+      Permission.voidSale,
+      reason: l.voidApprovalReason(sale.displayNumber),
+    );
+    if (auth == null) return null;
     try {
-      await _sales.voidSale(sale.id, by: by);
-      message.value = 'Sale ${sale.displayNumber} voided.';
+      await _sales.voidSale(sale.id, actor: auth.actor, approver: auth.approver);
+      return l.voidDone(sale.displayNumber);
     } on SaleException catch (e) {
-      message.value = e.message;
+      return e.message;
     }
   }
 
   Future<void> openCloseDay() async {
-    await Get.toNamed<void>(Routes.closeDay);
+    final auth = await _permissions.authorize(
+      Permission.closeDay,
+      reason: appL10n().closeDayApprovalReason,
+    );
+    if (auth == null) return;
+    await Get.toNamed<void>(Routes.closeDay, arguments: auth);
     await _loadLock();
   }
-
-  void openStaff() => Get.toNamed<void>(Routes.staff);
 }

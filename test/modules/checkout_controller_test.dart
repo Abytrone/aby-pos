@@ -1,3 +1,4 @@
+import 'package:aby_pos/app/data/repositories/audit_repository.dart';
 import 'package:aby_pos/app/data/repositories/sale_repository.dart';
 import 'package:aby_pos/app/data/repositories/staff_repository.dart';
 import 'package:aby_pos/app/models/models.dart';
@@ -35,6 +36,11 @@ class FakeSaleRepository implements SaleRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+class FakeAuditRepository implements AuditRepository {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 class FakeStaffRepository implements StaffRepository {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -48,7 +54,7 @@ void main() {
   setUp(() {
     Get.testMode = true;
     sales = Get.put<SaleRepository>(FakeSaleRepository()) as FakeSaleRepository;
-    Get.put(AuthService(FakeStaffRepository())).signInAsNew(cashier);
+    Get.put(AuthService(FakeStaffRepository(), FakeAuditRepository())).signInAsNew(cashier);
     cart = Get.put(CartController());
     cart.add(vanillaCone, variant: double_, addons: [sprinkles]); // 25.00
     checkout = Get.put(CheckoutController());

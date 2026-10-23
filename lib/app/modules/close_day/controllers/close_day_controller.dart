@@ -5,12 +5,16 @@ import '../../../data/repositories/day_close_repository.dart';
 import '../../../models/day_close.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/money.dart';
+import '../../../services/permission_service.dart';
 
 /// Cash-up: compare the counted drawer with what the till expects, then
 /// close the period so its sales are locked.
 class CloseDayController extends GetxController {
   final DayCloseRepository _closes = Get.find();
   final AuthService _auth = Get.find();
+
+  /// Who opened this screen (and who approved it), from TodayController.
+  final Authorization? _authorization = Get.arguments as Authorization?;
 
   final period = Rxn<OpenPeriod>();
   final history = <DayClose>[].obs;
@@ -80,7 +84,7 @@ class CloseDayController extends GetxController {
       closed.value = await _closes.closeDay(
         openingFloat: openingFloat!,
         countedCash: counted!,
-        closedBy: _auth.user,
+        closedBy: _authorization?.authority ?? _auth.user,
         note: noteField.text,
       );
       history.assignAll(await _closes.history());

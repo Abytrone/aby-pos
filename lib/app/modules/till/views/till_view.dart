@@ -5,7 +5,6 @@ import '../../../models/catalog.dart';
 import '../../../models/enums.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
-import '../../../theme/aby_mark.dart';
 import '../../../theme/aby_theme.dart';
 import '../controllers/till_controller.dart';
 import '../widgets/cart_panel.dart';
@@ -13,8 +12,9 @@ import '../widgets/category_dot.dart';
 import '../widgets/product_tile.dart';
 import '../widgets/variant_sheet.dart';
 
-/// Wide enough to show the cart beside the menu (a 10-inch tablet in landscape).
-const _sideBySideWidth = 840.0;
+/// Wide enough to show the cart beside the menu (a 10-inch tablet in
+/// landscape, after the navigation rail).
+const _sideBySideWidth = 760.0;
 const _cartWidth = 380.0;
 
 class TillView extends GetView<TillController> {
@@ -23,54 +23,42 @@ class TillView extends GetView<TillController> {
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).extension<AbyColors>()!;
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
+    return Obx(() {
+      if (controller.loading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      return LayoutBuilder(builder: (context, constraints) {
+        final menu = _Menu(
+          controller: controller,
+          onPickerOpened: () => _showPicker(context),
+        );
+        if (constraints.maxWidth >= _sideBySideWidth) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: menu),
+              Container(
+                width: _cartWidth,
+                decoration: BoxDecoration(
+                  color: c.surfaceRaised,
+                  border: Border(left: BorderSide(color: c.line, width: 1.5)),
+                ),
+                child: CartPanel(onPay: controller.pay),
+              ),
+            ],
+          );
+        }
+        return Column(
           children: [
-            _Header(controller: controller),
-            const Divider(height: 1),
-            Expanded(
-              child: Obx(() {
-                if (controller.loading.value) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                return LayoutBuilder(builder: (context, constraints) {
-                  final menu = _Menu(
-                    controller: controller,
-                    onPickerOpened: () => _showPicker(context),
-                  );
-                  if (constraints.maxWidth >= _sideBySideWidth) {
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(child: menu),
-                        Container(
-                          width: _cartWidth,
-                          decoration: BoxDecoration(
-                            color: c.surfaceRaised,
-                            border: Border(left: BorderSide(color: c.line, width: 1.5)),
-                          ),
-                          child: CartPanel(onPay: controller.pay),
-                        ),
-                      ],
-                    );
-                  }
-                  return Column(
-                    children: [
-                      Expanded(child: menu),
-                      _CompactCartBar(
-                        controller: controller,
-                        onOpenCart: () => _showCart(context),
-                      ),
-                    ],
-                  );
-                });
-              }),
+            Expanded(child: menu),
+            _CompactCartBar(
+              controller: controller,
+              onOpenCart: () => _showCart(context),
             ),
           ],
-        ),
-      ),
-    );
+        );
+      });
+    });
   }
 
   void _showPicker(BuildContext context) {
@@ -98,78 +86,6 @@ class TillView extends GetView<TillController> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AbyRadius.lg)),
       ),
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header({required this.controller});
-
-  final TillController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = Theme.of(context).extension<AbyColors>()!;
-    final badge = Obx(() => AbySyncBadge(
-          waiting: controller.sync.waitingSales.value,
-          offline: !controller.sync.online.value,
-        ));
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AbySpace.s4, vertical: AbySpace.s2),
-      child: LayoutBuilder(builder: (context, constraints) {
-        // Phones: no shop name, the badge shrinks to fit, lock is icon-only.
-        final narrow = constraints.maxWidth < 600;
-        return Row(
-          children: [
-            const AbyMark(size: 36),
-            const SizedBox(width: AbySpace.s3),
-            if (narrow)
-              Expanded(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: badge,
-                ),
-              )
-            else ...[
-              Expanded(
-                child: Obx(() => Text(
-                      controller.shopName.value,
-                      style: AbyText.heading.copyWith(color: c.ink),
-                      overflow: TextOverflow.ellipsis,
-                    )),
-              ),
-              badge,
-            ],
-            const SizedBox(width: AbySpace.s2),
-            TextButton(
-              onPressed: controller.openToday,
-              style: TextButton.styleFrom(minimumSize: const Size(AbySize.tapPos, AbySize.tapPos)),
-              child: const Text('Today'),
-            ),
-            Obx(() {
-              final name = controller.auth.currentUser.value?.name ?? '';
-              final style = TextButton.styleFrom(
-                foregroundColor: c.ink,
-                minimumSize: const Size(AbySize.tapPos, AbySize.tapPos),
-              );
-              return narrow
-                  ? IconButton(
-                      tooltip: 'Lock ($name)',
-                      onPressed: controller.lock,
-                      style: style,
-                      icon: const Icon(Icons.lock_outline),
-                    )
-                  : TextButton.icon(
-                      onPressed: controller.lock,
-                      style: style,
-                      icon: const Icon(Icons.lock_outline),
-                      label: Text(name),
-                    );
-            }),
-          ],
-        );
-      }),
     );
   }
 }

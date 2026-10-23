@@ -1,4 +1,10 @@
+import 'package:aby_pos/app/core/permissions.dart';
 import 'package:aby_pos/app/data/database/app_database.dart';
+import 'package:aby_pos/app/data/repositories/audit_repository.dart';
+import 'package:aby_pos/app/data/repositories/day_close_repository.dart';
+import 'package:aby_pos/app/data/repositories/sale_repository.dart';
+import 'package:aby_pos/app/data/repositories/staff_repository.dart';
+import 'package:aby_pos/app/data/repositories/stock_repository.dart';
 import 'package:aby_pos/app/models/models.dart';
 import 'package:aby_pos/app/services/device_service.dart';
 import 'package:drift/drift.dart';
@@ -20,12 +26,43 @@ class FakeDevice implements DeviceInfo {
 
   @override
   final String deviceId;
-  @override
-  String get shopName => 'Test shop';
 }
 
-const owner = Staff(id: 'st-owner', name: 'Kofi', role: StaffRole.owner);
-const cashier = Staff(id: 'st-cashier', name: 'Ama', role: StaffRole.cashier);
+Role builtInRole(BuiltInRole r, String name) => Role(
+      id: r.id,
+      name: name,
+      builtIn: r,
+      permissions: r.defaultPermissions,
+      maxDiscountPercent: r.defaultMaxDiscount,
+    );
+
+final ownerRole = builtInRole(BuiltInRole.owner, 'Owner');
+final cashierRole = builtInRole(BuiltInRole.cashier, 'Cashier');
+
+/// Not stored: fine wherever only the ID and name are written (sales, audit).
+final owner = Staff(id: 'st-owner', name: 'Kofi', role: ownerRole);
+final cashier = Staff(id: 'st-cashier', name: 'Ama', role: cashierRole);
+
+/// Every repository wired to one database, as InitialBinding does.
+class Repos {
+  Repos._(this.db, this.device) : audit = AuditRepository(db, device) {
+    stock = StockRepository(db, device);
+    closes = DayCloseRepository(db, device, audit);
+    sales = SaleRepository(db, stock, closes, audit, device);
+    staff = StaffRepository(db, device, audit);
+  }
+
+  static Future<Repos> open(AppDatabase db) async =>
+      Repos._(db, FakeDevice((await db.readMeta(MetaKeys.deviceId))!));
+
+  final AppDatabase db;
+  final FakeDevice device;
+  final AuditRepository audit;
+  late final StockRepository stock;
+  late final DayCloseRepository closes;
+  late final SaleRepository sales;
+  late final StaffRepository staff;
+}
 
 /// Catalogue fixtures, prices in pesewas.
 const sprinkles = Addon(id: 'a-sprinkles', name: 'Sprinkles', price: 300);

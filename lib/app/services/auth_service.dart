@@ -1,6 +1,9 @@
 import 'package:get/get.dart';
 
+import '../core/permissions.dart';
+import '../data/repositories/audit_repository.dart';
 import '../data/repositories/staff_repository.dart';
+import '../models/audit.dart';
 import '../models/staff.dart';
 
 enum SignInResult { ok, wrongPin, lockedOut }
@@ -12,12 +15,13 @@ class LockedOutException implements Exception {
 }
 
 /// Who is on the till right now. Held in memory only: restarting the app
-/// signs everyone out.
+/// signs everyone out. Sign-ins, failures and locks go to the audit log.
 class AuthService extends GetxService {
-  AuthService(this._staff, {DateTime Function()? clock})
+  AuthService(this._staff, this._audit, {DateTime Function()? clock})
       : _clock = clock ?? DateTime.now;
 
   final StaffRepository _staff;
+  final AuditRepository _audit;
   final DateTime Function() _clock;
 
   static const maxAttempts = 5;
@@ -28,23 +32,24 @@ class AuthService extends GetxService {
   final _failures = <String, int>{};
   final _lockedUntil = <String, DateTime>{};
 
-  /// Lockout key for owner approvals, which are not tied to one person.
+  /// Lockout key for approvals, which are not tied to one person.
   static const _approvalKey = '#approval';
 
   bool get isSignedIn => currentUser.value != null;
-  bool get isOwner => currentUser.value?.isOwner ?? false;
 
   /// The signed-in person. Only call where sign-in is guaranteed (the
   /// routes are guarded by AuthMiddleware).
   Staff get user => currentUser.value!;
 
-  /// Time left before [staffId] may try again, or null.
-  Duration? lockedFor(String staffId) {
-    final until = _lockedUntil[staffId];
+  bool can(Permission permission) => currentUser.value?.can(permission) ?? false;
+
+  /// Time left before [key] (a staff ID) may try again, or null.
+  Duration? lockedFor(String key) {
+    final until = _lockedUntil[key];
     if (until == null) return null;
     final left = until.difference(_clock());
     if (left <= Duration.zero) {
-      _lockedUntil.remove(staffId);
+      _lockedUntil.remove(key);
       return null;
     }
     return left;
@@ -55,23 +60,40 @@ class AuthService extends GetxService {
     if (lockedFor(staff.id) != null) return SignInResult.lockedOut;
     if (await _staff.verifyPin(staff.id, pin)) {
       _failures.remove(staff.id);
-      currentUser.value = staff;
+      // Reload so a role changed on another screen takes effect.
+      currentUser.value = await _staff.find(staff.id) ?? staff;
+      await _audit.record(action: AuditAction.signedIn, actor: staff, summary: '${staff.name} signed in');
       return SignInResult.ok;
     }
-    return _fail(staff.id) ? SignInResult.lockedOut : SignInResult.wrongPin;
+    final locked = _fail(staff.id);
+    await _audit.record(
+      action: locked ? AuditAction.lockedOut : AuditAction.signInFailed,
+      actor: staff,
+      summary: locked
+          ? '${staff.name} locked out after $maxAttempts wrong PINs'
+          : 'Wrong PIN for ${staff.name}',
+    );
+    return locked ? SignInResult.lockedOut : SignInResult.wrongPin;
   }
 
-  /// The owner whose PIN this is (for approving a cashier's void), or null.
-  /// Throws [LockedOutException] after [maxAttempts] wrong PINs.
-  Future<Staff?> approveAsOwner(String pin) async {
+  /// The person with this PIN who may do [permission], or null for a wrong
+  /// PIN. Throws [LockedOutException] after [maxAttempts] wrong PINs.
+  Future<Staff?> approveWithPin(String pin, Permission permission) async {
     final wait = lockedFor(_approvalKey);
     if (wait != null) throw LockedOutException(wait);
-    final owner = await _staff.ownerWithPin(pin);
-    if (owner != null) {
+    final approver = await _staff.approverWithPin(pin, permission);
+    if (approver != null) {
       _failures.remove(_approvalKey);
-      return owner;
+      return approver;
     }
-    if (_fail(_approvalKey)) throw const LockedOutException(lockout);
+    if (_fail(_approvalKey)) {
+      await _audit.record(
+        action: AuditAction.approvalRefused,
+        actor: currentUser.value,
+        summary: 'Approval locked after $maxAttempts wrong PINs (${permission.name})',
+      );
+      throw const LockedOutException(lockout);
+    }
     return null;
   }
 
@@ -90,5 +112,15 @@ class AuthService extends GetxService {
   /// Signs in without a PIN, straight after the owner account is created.
   void signInAsNew(Staff staff) => currentUser.value = staff;
 
-  void signOut() => currentUser.value = null;
+  /// Back to sign-in. [auto] when the idle timer did it.
+  Future<void> lock({bool auto = false}) async {
+    final who = currentUser.value;
+    if (who == null) return;
+    currentUser.value = null;
+    await _audit.record(
+      action: AuditAction.locked,
+      actor: who,
+      summary: auto ? 'Till locked after no activity' : '${who.name} locked the till',
+    );
+  }
 }

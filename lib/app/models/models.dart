@@ -1,3 +1,4 @@
+export 'audit.dart';
 export 'cart_line.dart';
 export 'catalog.dart';
 export 'day_close.dart';

@@ -1,12 +1,16 @@
 import 'package:drift/drift.dart';
 
+import '../../core/business_day.dart';
+import '../../models/audit.dart';
 import '../../models/cart_line.dart';
 import '../../models/enums.dart';
 import '../../models/sale.dart';
 import '../../models/staff.dart';
 import '../../services/device_service.dart';
 import '../../services/ids.dart';
+import '../../services/money.dart';
 import '../database/app_database.dart';
+import 'audit_repository.dart';
 import 'day_close_repository.dart';
 import 'stock_repository.dart';
 
@@ -20,11 +24,12 @@ class SaleException implements Exception {
 }
 
 class SaleRepository {
-  SaleRepository(this._db, this._stock, this._closes, this._device);
+  SaleRepository(this._db, this._stock, this._closes, this._audit, this._device);
 
   final AppDatabase _db;
   final StockRepository _stock;
   final DayCloseRepository _closes;
+  final AuditRepository _audit;
   final DeviceInfo _device;
 
   /// Saves a sale with its lines, payment, stock movements and outbox rows
@@ -154,10 +159,12 @@ class SaleRepository {
     return (current ?? 0) + 1;
   }
 
-  /// Marks a sale as voided, records who did it (or approved it), and puts
-  /// its items back into stock. One transaction, with outbox rows. Sales in
-  /// a closed day are locked.
-  Future<void> voidSale(String saleId, {required Staff by}) {
+  /// Marks a sale as voided and puts its items back into stock. Records who
+  /// asked ([actor]) and who approved, if someone else did ([approver]).
+  /// One transaction, with outbox and audit rows. Sales in a closed day are
+  /// locked.
+  Future<void> voidSale(String saleId, {required Staff actor, Staff? approver, String? reason}) {
+    final by = approver ?? actor;
     return _db.transaction(() async {
       final sale = await (_db.select(_db.sales)
             ..where((s) => s.id.equals(saleId)))
@@ -198,6 +205,15 @@ class SaleRepository {
           at: now,
         );
       }
+      await _audit.record(
+        action: AuditAction.saleVoided,
+        actor: actor,
+        approver: approver,
+        entity: 'sales',
+        entityId: saleId,
+        summary: 'Voided ${formatSaleNumber(sale.number)} (${formatMoney(sale.total)})'
+            '${reason == null || reason.trim().isEmpty ? '' : ': ${reason.trim()}'}',
+      );
     });
   }
 
@@ -216,10 +232,10 @@ class SaleRepository {
     return query.watch().asyncMap(_withDetails);
   }
 
-  Stream<List<Sale>> watchToday() {
-    final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day);
-    return watchSales(from: start, to: start.add(const Duration(days: 1)));
+  /// Sales in the current business day (see BusinessDay).
+  Stream<List<Sale>> watchToday({required int dayStartMinutes}) {
+    final day = BusinessDay.containing(DateTime.now(), startMinutes: dayStartMinutes);
+    return watchSales(from: day.start, to: day.end);
   }
 
   Future<List<Sale>> _withDetails(List<SaleRow> rows) async {

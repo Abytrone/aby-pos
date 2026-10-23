@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../models/audit.dart';
 import '../../models/enums.dart';
 import 'converters.dart';
 
@@ -139,6 +140,19 @@ class StockMovements extends Table with SyncColumns {
   TextColumn get note => text().nullable()();
 }
 
+/// Named sets of permissions. Built-in roles have fixed IDs (BuiltInRole).
+@DataClassName('RoleRow')
+class Roles extends Table with SyncColumns {
+  TextColumn get name => text()();
+
+  /// BuiltInRole name, or null for roles the owner made.
+  TextColumn get builtIn => text().nullable()();
+  TextColumn get permissions =>
+      text().map(const PermissionSetConverter()).withDefault(const Constant('[]'))();
+  IntColumn get maxDiscountPercent => integer().withDefault(const Constant(0))();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+}
+
 /// People who can sign in. The PIN is stored only as a salted hash.
 @DataClassName('StaffRow')
 class StaffMembers extends Table with SyncColumns {
@@ -146,11 +160,40 @@ class StaffMembers extends Table with SyncColumns {
   String get tableName => 'staff';
 
   TextColumn get name => text()();
-  TextColumn get role => textEnum<StaffRole>()();
+  TextColumn get roleId => text().references(Roles, #id)();
 
   /// See PinHasher for the format.
   TextColumn get pinHash => text()();
   BoolColumn get active => boolean().withDefault(const Constant(true))();
+
+  // Profile (v4). All optional.
+  TextColumn get phone => text().nullable()();
+  TextColumn get email => text().nullable()();
+
+  /// Where they live, as people give directions ("behind the Lamashegu mosque").
+  TextColumn get address => text().nullable()();
+  TextColumn get emergencyName => text().nullable()();
+  TextColumn get emergencyPhone => text().nullable()();
+
+  /// Ghana Card number, e.g. GHA-123456789-0.
+  TextColumn get idNumber => text().nullable()();
+  DateTimeColumn get dateOfBirth => dateTime().nullable()();
+  DateTimeColumn get startedOn => dateTime().nullable()();
+  TextColumn get notes => text().nullable()();
+}
+
+/// Staff photos, small and kept apart from staff rows so they stay out of
+/// sync payloads. Not synced; included in backups because they are in the
+/// database.
+// TODO(sync): upload photos as files once the API has storage for them.
+@DataClassName('StaffPhotoRow')
+class StaffPhotos extends Table {
+  TextColumn get staffId => text().references(StaffMembers, #id)();
+  BlobColumn get image => blob()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {staffId};
 }
 
 /// A cash-up for one device's drawer. Covers every sale after the previous
@@ -176,6 +219,47 @@ class DayCloses extends Table with SyncColumns {
   IntColumn get expectedCash => integer()();
   IntColumn get countedCash => integer()();
   TextColumn get note => text().nullable()();
+}
+
+/// Tamper-evident record of sensitive actions. Each row stores the hash of
+/// the previous row on the same device, so editing or deleting a row breaks
+/// the chain. Rows are never updated or deleted by the app.
+@DataClassName('AuditRow')
+class AuditLog extends Table with SyncColumns {
+  /// Position in this device's chain, from 1. Unique with deviceId.
+  IntColumn get seq => integer()();
+
+  /// Milliseconds since epoch (UTC); hashed, so stored exactly.
+  IntColumn get atMs => integer()();
+  TextColumn get action => textEnum<AuditAction>()();
+  TextColumn get actorId => text().nullable()();
+  TextColumn get actorName => text().nullable()();
+  TextColumn get approverId => text().nullable()();
+  TextColumn get approverName => text().nullable()();
+  TextColumn get entity => text().nullable()();
+  TextColumn get entityId => text().nullable()();
+  TextColumn get summary => text()();
+
+  /// JSON, e.g. {"before": ..., "after": ...}.
+  TextColumn get details => text().nullable()();
+  TextColumn get prevHash => text()();
+  TextColumn get hash => text()();
+
+  @override
+  List<Set<Column<Object>>> get uniqueKeys => [
+        {deviceId, seq},
+      ];
+}
+
+/// Typed settings (see SettingsService). Row IDs are derived from the key
+/// (and device, for device settings) so every device writes the same row.
+@DataClassName('SettingRow')
+class Settings extends Table with SyncColumns {
+  TextColumn get key => text()();
+  TextColumn get scope => textEnum<SettingScope>()();
+
+  /// JSON-encoded value.
+  TextColumn get value => text()();
 }
 
 /// Changes waiting to go to the server. Written in the same transaction as

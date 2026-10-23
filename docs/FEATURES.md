@@ -1048,6 +1048,17 @@ Restructure the app, keep the data safe, and give the owner control.
   centre.
 - `APP-06` localisation setup (English only, with the plumbing ready).
 
+**Status (23 October 2026): built.** Schema version 3. What was left for later:
+
+- The domain-events layer and use cases (section 18, items 1 and 3). Phase 1 writes audit entries
+  inside each repository transaction instead. Use cases arrive with Phase 2, where the catalogue
+  rules need them.
+- English text on the older screens (till, checkout, close day). Every new screen uses the ARB
+  file.
+- From `SET-02`: only the groups that have settings today (Shop, Business day, Security, This
+  device, Backup and restore, About). Selling, Payments, Tax and Features come with their phases.
+- From `DAT-05`: storage space and printer status. Those come with hardware (phase 5).
+
 ### Phase 2: Catalogue and stock, managed locally
 
 - `CAT-01` product management, `CAT-02` categories, `SEL-02` modifier groups (replacing the

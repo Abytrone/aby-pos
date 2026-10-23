@@ -1,0 +1,71 @@
+import '../core/permissions.dart';
+import '../models/audit.dart';
+import '../models/staff.dart';
+import 'l10n.dart';
+
+String permissionLabel(AppLocalizations l, Permission p) => switch (p) {
+      Permission.sell => l.permSell,
+      Permission.overridePrice => l.permOverridePrice,
+      Permission.refund => l.permRefund,
+      Permission.refundWithoutReceipt => l.permRefundWithoutReceipt,
+      Permission.voidSale => l.permVoidSale,
+      Permission.noSale => l.permNoSale,
+      Permission.editProducts => l.permEditProducts,
+      Permission.changePrices => l.permChangePrices,
+      Permission.receiveStock => l.permReceiveStock,
+      Permission.adjustStock => l.permAdjustStock,
+      Permission.approveStockCount => l.permApproveStockCount,
+      Permission.giveCredit => l.permGiveCredit,
+      Permission.writeOffCredit => l.permWriteOffCredit,
+      Permission.closeDay => l.permCloseDay,
+      Permission.payOut => l.permPayOut,
+      Permission.viewReports => l.permViewReports,
+      Permission.viewCostAndProfit => l.permViewCostAndProfit,
+      Permission.manageStaff => l.permManageStaff,
+      Permission.manageRoles => l.permManageRoles,
+      Permission.changeSettings => l.permChangeSettings,
+      Permission.viewActivityLog => l.permViewActivityLog,
+      Permission.exportData => l.permExportData,
+      Permission.restoreBackup => l.permRestoreBackup,
+    };
+
+String permissionGroupLabel(AppLocalizations l, PermissionGroup g) => switch (g) {
+      PermissionGroup.sell => l.permGroupSell,
+      PermissionGroup.catalogue => l.permGroupCatalogue,
+      PermissionGroup.customers => l.permGroupCustomers,
+      PermissionGroup.cash => l.permGroupCash,
+      PermissionGroup.reports => l.permGroupReports,
+      PermissionGroup.admin => l.permGroupAdmin,
+    };
+
+/// Built-in roles show in the user's language; others as the owner named them.
+String roleName(AppLocalizations l, Role role) => switch (role.builtIn) {
+      BuiltInRole.owner => l.roleOwner,
+      BuiltInRole.manager => l.roleManager,
+      BuiltInRole.cashier => l.roleCashier,
+      BuiltInRole.stockKeeper => l.roleStockKeeper,
+      null => role.name,
+    };
+
+String auditActionLabel(AppLocalizations l, AuditAction a) => switch (a) {
+      AuditAction.signedIn => l.auditSignedIn,
+      AuditAction.signInFailed => l.auditSignInFailed,
+      AuditAction.lockedOut => l.auditLockedOut,
+      AuditAction.locked => l.auditLocked,
+      AuditAction.approvalRefused => l.auditApprovalRefused,
+      AuditAction.saleVoided => l.auditSaleVoided,
+      AuditAction.dayClosed => l.auditDayClosed,
+      AuditAction.staffAdded => l.auditStaffAdded,
+      AuditAction.staffPinChanged => l.auditStaffPinChanged,
+      AuditAction.staffDetailsChanged => l.auditStaffDetailsChanged,
+      AuditAction.staffRoleChanged => l.auditStaffRoleChanged,
+      AuditAction.staffDeactivated => l.auditStaffDeactivated,
+      AuditAction.staffReactivated => l.auditStaffReactivated,
+      AuditAction.roleCreated => l.auditRoleCreated,
+      AuditAction.roleUpdated => l.auditRoleUpdated,
+      AuditAction.roleDeleted => l.auditRoleDeleted,
+      AuditAction.settingChanged => l.auditSettingChanged,
+      AuditAction.backupCreated => l.auditBackupCreated,
+      AuditAction.backupExported => l.auditBackupExported,
+      AuditAction.backupRestored => l.auditBackupRestored,
+    };

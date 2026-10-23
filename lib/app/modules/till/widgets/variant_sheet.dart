@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
-import '../../../widgets/option_chip.dart';
+import '../../../ui/option_chip.dart';
 import '../controllers/till_controller.dart';
 
 /// Pick a size and toppings, then add to the cart.

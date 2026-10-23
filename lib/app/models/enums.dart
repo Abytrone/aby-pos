@@ -18,10 +18,5 @@ enum StockReason { sale, restock, waste, adjustment }
 
 enum OutboxOperation { insert, update, delete }
 
-enum StaffRole {
-  owner('Owner'),
-  cashier('Cashier');
-
-  const StaffRole(this.label);
-  final String label;
-}
+/// Settings either apply to the whole shop (and sync) or to this device only.
+enum SettingScope { shop, device }

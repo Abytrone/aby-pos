@@ -1,0 +1,353 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:isolate';
+
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:sqlite3/sqlite3.dart';
+
+import '../../core/settings.dart';
+import '../../data/database/app_database.dart';
+import '../../data/repositories/audit_repository.dart';
+import '../../models/audit.dart';
+import '../../models/staff.dart';
+import '../pin_hasher.dart';
+import '../settings_service.dart';
+import 'backup_codec.dart';
+
+class BackupException implements Exception {
+  const BackupException(this.message);
+  final String message;
+
+  @override
+  String toString() => 'BackupException: $message';
+}
+
+/// What a backup file holds, read before restoring it.
+class BackupPreview {
+  const BackupPreview({
+    required this.databasePath,
+    required this.shopName,
+    required this.salesCount,
+    required this.schemaVersion,
+    this.lastSaleAt,
+  });
+
+  /// A plain SQLite copy, ready to restore (decrypted if it came from an
+  /// `.abybak`).
+  final String databasePath;
+  final String shopName;
+  final int salesCount;
+  final int schemaVersion;
+  final DateTime? lastSaleAt;
+}
+
+/// A backup kept on this device.
+class LocalBackup {
+  const LocalBackup({required this.file, required this.createdAt, required this.sizeBytes});
+
+  final File file;
+  final DateTime createdAt;
+  final int sizeBytes;
+}
+
+/// Local snapshots (automatic and at day close), encrypted off-device
+/// backups, and restore.
+class BackupService {
+  BackupService(
+    this._db,
+    this._audit,
+    this._settings, {
+    Future<Directory> Function()? backupsDirectory,
+    Future<Directory> Function()? tempDirectory,
+    Future<File> Function()? liveDatabaseFile,
+    this.iterations = BackupCodec.defaultIterations,
+  })  : _backupsDirectory = backupsDirectory ?? _defaultBackupsDirectory,
+        _tempDirectory = tempDirectory ?? getTemporaryDirectory,
+        _liveDatabaseFile = liveDatabaseFile ?? databaseFile;
+
+  final AppDatabase _db;
+  final AuditRepository _audit;
+  final SettingsService _settings;
+  final Future<Directory> Function() _backupsDirectory;
+  final Future<Directory> Function() _tempDirectory;
+  final Future<File> Function() _liveDatabaseFile;
+
+  /// Key-stretching rounds for new `.abybak` files (lower in tests).
+  final int iterations;
+
+  static Future<Directory> _defaultBackupsDirectory() async =>
+      Directory(p.join((await getApplicationSupportDirectory()).path, 'backups'));
+
+  static const _localPrefix = 'aby-';
+  static const _pendingRestoreKey = 'pending_restore_audit';
+  static const minPasswordLength = 6;
+
+  // ---------------------------------------------------------------------------
+  // Local snapshots
+
+  /// Copies the live database (consistent, while open) and checks the copy.
+  /// Keeps the newest [AppSettings.backupsToKeep].
+  Future<LocalBackup> createLocalBackup({Staff? by, bool record = true}) async {
+    final dir = await _backupsDirectory();
+    await dir.create(recursive: true);
+    final now = DateTime.now();
+    final path = p.join(dir.path, '$_localPrefix${_stamp(now)}.sqlite');
+    final file = File(path);
+    if (await file.exists()) await file.delete();
+    await _db.customStatement('VACUUM INTO ?', [path]);
+    try {
+      await _inspect(path);
+    } catch (_) {
+      if (await file.exists()) await file.delete();
+      rethrow;
+    }
+    await _db.writeMeta(MetaKeys.lastLocalBackupAt, now.toUtc().toIso8601String());
+    await _prune(dir);
+    if (record) {
+      await _audit.record(
+        action: AuditAction.backupCreated,
+        actor: by,
+        entity: 'backup',
+        entityId: p.basename(path),
+        summary: by == null ? 'Automatic backup' : 'Backup made by ${by.name}',
+      );
+    }
+    return LocalBackup(file: file, createdAt: now, sizeBytes: await file.length());
+  }
+
+  /// The daily automatic backup, if it is switched on and due.
+  Future<LocalBackup?> autoBackupIfDue() async {
+    if (!_settings.get(AppSettings.autoBackupDaily)) return null;
+    final last = await lastLocalBackupAt();
+    if (last != null && DateTime.now().difference(last) < const Duration(hours: 20)) return null;
+    return createLocalBackup();
+  }
+
+  Future<List<LocalBackup>> listLocalBackups() async {
+    final dir = await _backupsDirectory();
+    if (!await dir.exists()) return const [];
+    final backups = <LocalBackup>[];
+    await for (final entity in dir.list()) {
+      if (entity is! File) continue;
+      final name = p.basename(entity.path);
+      if (!name.startsWith(_localPrefix) || !name.endsWith('.sqlite')) continue;
+      final stat = await entity.stat();
+      backups.add(LocalBackup(file: entity, createdAt: stat.modified, sizeBytes: stat.size));
+    }
+    backups.sort((a, b) => b.file.path.compareTo(a.file.path));
+    return backups;
+  }
+
+  Future<DateTime?> lastLocalBackupAt() async =>
+      DateTime.tryParse(await _db.readMeta(MetaKeys.lastLocalBackupAt) ?? '')?.toLocal();
+
+  Future<DateTime?> lastOffsiteBackupAt() async =>
+      DateTime.tryParse(await _db.readMeta(MetaKeys.lastOffsiteBackupAt) ?? '')?.toLocal();
+
+  Future<void> _prune(Directory dir) async {
+    final keep = _settings.get(AppSettings.backupsToKeep).clamp(1, 365);
+    final all = await listLocalBackups();
+    for (final old in all.skip(keep)) {
+      await old.file.delete();
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Backup password and off-device backups
+
+  Future<bool> hasBackupPassword() async =>
+      (await _db.readMeta(MetaKeys.backupPasswordHash)) != null;
+
+  Future<bool> checkBackupPassword(String password) async {
+    final stored = await _db.readMeta(MetaKeys.backupPasswordHash);
+    return stored != null && PinHasher.verify(password, stored);
+  }
+
+  /// Only a hash is kept; the password itself is never stored.
+  Future<void> setBackupPassword(String password) async {
+    if (password.length < minPasswordLength) {
+      throw const BackupException('Use at least $minPasswordLength characters.');
+    }
+    await _db.writeMeta(MetaKeys.backupPasswordHash, PinHasher.hash(password));
+  }
+
+  /// Makes a fresh snapshot and encrypts it. Returns the `.abybak` file in
+  /// the temp folder, ready to share or save. Call [markOffsiteDone] once
+  /// it has actually left the device.
+  Future<File> exportEncrypted({
+    required String password,
+    required String shopName,
+    required Staff by,
+  }) async {
+    if (!await checkBackupPassword(password)) {
+      throw const BackupException("That isn't the backup password.");
+    }
+    final snapshot = await createLocalBackup(by: by, record: false);
+    final encrypted = await BackupCodec.encrypt(
+      await snapshot.file.readAsBytes(),
+      password,
+      iterations: iterations,
+    );
+    final tmp = await _tempDirectory();
+    final safeShop = shopName.replaceAll(RegExp(r'[^A-Za-z0-9]+'), '-').replaceAll(RegExp(r'^-|-$'), '');
+    final out = File(p.join(tmp.path, '${safeShop.isEmpty ? 'Aby' : safeShop}-${_stamp(DateTime.now())}.abybak'));
+    await out.writeAsBytes(encrypted, flush: true);
+    return out;
+  }
+
+  Future<void> markOffsiteDone({required String where, required Staff by}) async {
+    await _db.writeMeta(MetaKeys.lastOffsiteBackupAt, DateTime.now().toUtc().toIso8601String());
+    await _audit.record(
+      action: AuditAction.backupExported,
+      actor: by,
+      entity: 'backup',
+      summary: 'Backup sent off the device ($where)',
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Restore
+
+  /// Opens a backup (`.abybak` needs [password]; a local `.sqlite` does not)
+  /// and checks it. Throws [BackupDecryptException] or [BackupException].
+  Future<BackupPreview> inspectFile(File file, {String? password}) async {
+    final bytes = await file.readAsBytes();
+    String path = file.path;
+    if (BackupCodec.looksLikeBackup(bytes)) {
+      if (password == null || password.isEmpty) {
+        throw const BackupDecryptException('Enter the backup password.');
+      }
+      final clear = await BackupCodec.decrypt(bytes, password);
+      final tmp = await _tempDirectory();
+      path = p.join(tmp.path, 'restore-${_stamp(DateTime.now())}.sqlite');
+      await File(path).writeAsBytes(clear, flush: true);
+    }
+    return _inspect(path);
+  }
+
+  Future<BackupPreview> _inspect(String path) async {
+    final result = await Isolate.run(() => _readDatabaseSummary(path));
+    if (result case {'error': final String error}) throw BackupException(error);
+    final version = result['version'] as int;
+    if (version > _db.schemaVersion) {
+      throw const BackupException('This backup is from a newer version of Aby. Update the app first.');
+    }
+    return BackupPreview(
+      databasePath: path,
+      shopName: result['shop'] as String,
+      salesCount: result['sales'] as int,
+      schemaVersion: version,
+      lastSaleAt: result['lastSale'] == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch((result['lastSale'] as int) * 1000),
+    );
+  }
+
+  /// Replaces the live database with [preview]. Makes a safety backup of
+  /// the current data first. The database is closed afterwards: the caller
+  /// must restart the app (AppRestarter) to open the restored data.
+  Future<void> restore(BackupPreview preview, {Staff? by}) async {
+    if (await _hasData()) await createLocalBackup(by: by);
+
+    // Leave a note in the restored file; the audit entry is written after
+    // the restart, once the restored database is open and migrated.
+    final note = jsonEncode({
+      'by': by?.name,
+      'byId': by?.id,
+      'shop': preview.shopName,
+      'sales': preview.salesCount,
+      'at': DateTime.now().toUtc().toIso8601String(),
+    });
+    final restoredPath = preview.databasePath;
+    await Isolate.run(() {
+      final db = sqlite3.open(restoredPath);
+      try {
+        db.execute(
+          'INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)',
+          [_pendingRestoreKey, note],
+        );
+      } finally {
+        db.close();
+      }
+    });
+
+    final live = await _liveDatabaseFile();
+    await _db.close();
+    for (final suffix in ['-wal', '-shm', '-journal']) {
+      final f = File('${live.path}$suffix');
+      if (await f.exists()) await f.delete();
+    }
+    await File(preview.databasePath).copy(live.path);
+  }
+
+  /// Call once after start-up: records a restore that just happened.
+  Future<void> finishPendingRestore() async {
+    final note = await _db.readMeta(_pendingRestoreKey);
+    if (note == null) return;
+    final data = Map<String, dynamic>.from(jsonDecode(note) as Map);
+    await _db.transaction(() async {
+      await _audit.record(
+        action: AuditAction.backupRestored,
+        actorId: data['byId'] as String?,
+        actorName: data['by'] as String?,
+        entity: 'backup',
+        summary: 'Restored a backup of ${data['shop']} (${data['sales']} sales)',
+      );
+      await _db.deleteMeta(_pendingRestoreKey);
+    });
+  }
+
+  Future<bool> _hasData() async {
+    final row = await _db.customSelect('SELECT COUNT(*) AS n FROM sales').getSingle();
+    return row.read<int>('n') > 0;
+  }
+
+  static String _stamp(DateTime t) {
+    String two(int n) => n.toString().padLeft(2, '0');
+    // Milliseconds too: a restore's safety copy can follow a snapshot within a second.
+    return '${t.year}${two(t.month)}${two(t.day)}-${two(t.hour)}${two(t.minute)}${two(t.second)}'
+        '-${t.millisecond.toString().padLeft(3, '0')}';
+  }
+}
+
+/// Runs in an isolate. Checks the file is a healthy Aby database and reads
+/// what the restore preview shows.
+Map<String, Object?> _readDatabaseSummary(String path) {
+  final Database db;
+  try {
+    db = sqlite3.open(path, mode: OpenMode.readOnly);
+  } catch (_) {
+    return {'error': 'The file could not be opened as a database.'};
+  }
+  try {
+    final integrity = db.select('PRAGMA integrity_check').first.values.first;
+    if (integrity != 'ok') return {'error': 'The backup is damaged ($integrity).'};
+    final tables = db
+        .select("SELECT name FROM sqlite_master WHERE type = 'table'")
+        .map((r) => r['name'] as String)
+        .toSet();
+    if (!tables.containsAll({'meta', 'sales', 'products'})) {
+      return {'error': 'This is not an Aby database.'};
+    }
+    String shop = 'Unknown shop';
+    if (tables.contains('settings')) {
+      final rows = db.select("SELECT value FROM settings WHERE key = 'shop.name' AND deleted_at IS NULL");
+      if (rows.isNotEmpty) shop = jsonDecode(rows.first['value'] as String) as String;
+    } else {
+      final rows = db.select("SELECT value FROM meta WHERE key = 'shop_name'");
+      if (rows.isNotEmpty) shop = rows.first['value'] as String;
+    }
+    final sales = db.select('SELECT COUNT(*) AS n, MAX(created_at) AS last FROM sales').first;
+    return {
+      'version': db.userVersion,
+      'shop': shop,
+      'sales': sales['n'] as int,
+      'lastSale': sales['last'] as int?,
+    };
+  } catch (e) {
+    return {'error': 'The backup could not be read.'};
+  } finally {
+    db.close();
+  }
+}

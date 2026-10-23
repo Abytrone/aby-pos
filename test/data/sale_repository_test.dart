@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:aby_pos/app/data/database/app_database.dart';
+import 'package:aby_pos/app/core/settings.dart';
+import 'package:aby_pos/app/data/repositories/audit_repository.dart';
 import 'package:aby_pos/app/data/repositories/catalog_repository.dart';
 import 'package:aby_pos/app/data/repositories/day_close_repository.dart';
 import 'package:aby_pos/app/data/repositories/outbox_repository.dart';
@@ -35,6 +37,7 @@ void main() {
   late SaleRepository repo;
   late StockRepository stock;
   late DayCloseRepository closes;
+  late AuditRepository audit;
   late List<Product> menu;
 
   Product named(String name) => menu.firstWhere((p) => p.name == name);
@@ -48,15 +51,17 @@ void main() {
     db = memoryDb();
     device = FakeDevice((await db.readMeta(MetaKeys.deviceId))!);
     stock = StockRepository(db, device);
-    closes = DayCloseRepository(db, device);
-    repo = SaleRepository(db, stock, closes, device);
+    audit = AuditRepository(db, device);
+    closes = DayCloseRepository(db, device, audit);
+    repo = SaleRepository(db, stock, closes, audit, device);
     menu = await CatalogRepository(db).products();
   });
 
   tearDown(() => db.close());
 
   test('seeds the Scoops Tamale menu without outbox rows', () async {
-    expect(await db.readMeta(MetaKeys.shopName), 'Scoops Tamale');
+    final shop = await db.customSelect("SELECT value FROM settings WHERE key = 'shop.name'").getSingle();
+    expect(AppSettings.shopName.decode(jsonDecode(shop.read<String>('value'))), 'Scoops Tamale');
     expect(menu.map((p) => p.name), containsAll(['Vanilla cone', 'Milkshake', 'Waffle']));
     final cup = named('Ice cream cup');
     expect(cup.variants.map((v) => v.price), [2000, 2500, 3200]);
@@ -127,7 +132,7 @@ void main() {
   });
 
   test('writes nothing when a step fails part-way', () async {
-    final failing = SaleRepository(db, ExplodingStock(db, device), closes, device);
+    final failing = SaleRepository(db, ExplodingStock(db, device), closes, audit, device);
     await expectLater(
       failing.completeSale(
       cashier: cashier,
@@ -185,7 +190,7 @@ void main() {
       payment: const PaymentInput.cash(tendered: 3600),
     );
 
-    await repo.voidSale(done.saleId, by: owner);
+    await repo.voidSale(done.saleId, actor: cashier, approver: owner);
 
     final sale = await db.select(db.sales).getSingle();
     expect(sale.status, SaleStatus.voided);
@@ -199,8 +204,13 @@ void main() {
         .get();
     expect(updates.single.recordId, done.saleId);
 
+    final entry = (await audit.list()).firstWhere((e) => e.action == AuditAction.saleVoided);
+    expect(entry.actorName, 'Ama');
+    expect(entry.approverName, 'Kofi');
+    expect(entry.entityId, done.saleId);
+
     await expectLater(
-      repo.voidSale(done.saleId, by: owner),
+      repo.voidSale(done.saleId, actor: owner),
       throwsA(isA<SaleException>()),
     );
   });
@@ -214,9 +224,9 @@ void main() {
       cashier: cashier,
         lines: [CartLine(product: waffle, quantity: 2)],
         payment: const PaymentInput.momo(momoReference: 'MP123'));
-    await repo.voidSale(a.saleId, by: owner);
+    await repo.voidSale(a.saleId, actor: owner);
 
-    final sales = await repo.watchToday().first;
+    final sales = await repo.watchToday(dayStartMinutes: 0).first;
     expect(sales, hasLength(2));
     expect(sales.first.number, 2, reason: 'newest first');
     expect(sales.first.itemCount, 2);
@@ -235,7 +245,7 @@ void main() {
         lines: [CartLine(product: named('Waffle'))],
         payment: const PaymentInput.cash(tendered: 1200));
     expect(await outbox.watchPendingSalesCount().first, 1);
-    await repo.voidSale(done.saleId, by: owner);
+    await repo.voidSale(done.saleId, actor: owner);
     expect(await outbox.watchPendingSalesCount().first, 1);
   });
 }
