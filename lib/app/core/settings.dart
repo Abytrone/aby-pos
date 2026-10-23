@@ -24,6 +24,16 @@ abstract final class AppSettings {
   static const businessDayStart =
       Setting<int>('day.startMinutes', SettingScope.shop, 5 * 60);
 
+  // Selling
+  /// off | inclusive (prices include tax) | exclusive (tax added at the till).
+  static const taxMode = Setting<String>('tax.mode', SettingScope.shop, 'off');
+
+  /// Sell even when the till thinks an item has run out.
+  static const allowNegativeStock = Setting<bool>('stock.allowNegative', SettingScope.shop, true);
+
+  /// Products below this gross margin are flagged.
+  static const targetMarginPercent = Setting<int>('pricing.targetMargin', SettingScope.shop, 50);
+
   // Security
   /// Lock the till after this many idle minutes; 0 turns it off.
   static const autoLockMinutes =
@@ -50,6 +60,9 @@ abstract final class AppSettings {
     shopPhone,
     shopAddress,
     businessDayStart,
+    taxMode,
+    allowNegativeStock,
+    targetMarginPercent,
     autoLockMinutes,
     autoBackupDaily,
     backupsToKeep,

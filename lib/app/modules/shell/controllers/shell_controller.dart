@@ -20,22 +20,29 @@ enum Workspace { sell, manage }
 /// The places in the app. A section shows only to people allowed [permission]
 /// (null: everyone signed in).
 enum ShellSection {
-  sell(Icons.point_of_sale_outlined, Icons.point_of_sale, Workspace.sell, Permission.sell),
+  sell(Icons.point_of_sale_outlined, Icons.point_of_sale, Workspace.sell, {Permission.sell}),
   today(Icons.today_outlined, Icons.today, Workspace.sell, null),
-  staff(Icons.badge_outlined, Icons.badge, Workspace.manage, Permission.manageStaff),
-  activity(Icons.history_outlined, Icons.history, Workspace.manage, Permission.viewActivityLog),
+  products(Icons.sell_outlined, Icons.sell, Workspace.manage, {Permission.editProducts, Permission.changePrices}),
+  stock(Icons.inventory_2_outlined, Icons.inventory_2, Workspace.manage,
+      {Permission.receiveStock, Permission.adjustStock, Permission.approveStockCount}),
+  staff(Icons.badge_outlined, Icons.badge, Workspace.manage, {Permission.manageStaff}),
+  activity(Icons.history_outlined, Icons.history, Workspace.manage, {Permission.viewActivityLog}),
   settings(Icons.settings_outlined, Icons.settings, Workspace.manage, null);
 
-  const ShellSection(this.icon, this.selectedIcon, this.workspace, this.permission);
+  const ShellSection(this.icon, this.selectedIcon, this.workspace, this.anyOf);
 
   final IconData icon;
   final IconData selectedIcon;
   final Workspace workspace;
-  final Permission? permission;
+
+  /// Shown to people with any of these; null for everyone signed in.
+  final Set<Permission>? anyOf;
 
   String label(AppLocalizations l) => switch (this) {
         ShellSection.sell => l.navSell,
         ShellSection.today => l.navToday,
+        ShellSection.products => l.navProducts,
+        ShellSection.stock => l.navStock,
         ShellSection.staff => l.navStaff,
         ShellSection.activity => l.navActivity,
         ShellSection.settings => l.navSettings,
@@ -60,7 +67,7 @@ class ShellController extends GetxController {
   /// Reactive: reads the signed-in person.
   List<ShellSection> get sections => [
         for (final s in ShellSection.values)
-          if (s.permission == null || auth.can(s.permission!)) s,
+          if (s.anyOf == null || s.anyOf!.any(auth.can)) s,
       ];
 
   String get shopName => _settings.get(AppSettings.shopName);

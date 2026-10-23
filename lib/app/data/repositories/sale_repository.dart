@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 
 import '../../core/business_day.dart';
+import '../../core/tax.dart';
+import '../../core/units.dart';
 import '../../models/audit.dart';
 import '../../models/cart_line.dart';
 import '../../models/enums.dart';
@@ -32,18 +34,25 @@ class SaleRepository {
   final AuditRepository _audit;
   final DeviceInfo _device;
 
-  /// Saves a sale with its lines, payment, stock movements and outbox rows
-  /// in one transaction: all of it is written, or none of it.
+  /// Saves a sale with its lines, taxes, payment, stock movements (from
+  /// recipes) and outbox rows in one transaction: all of it is written, or
+  /// none of it.
   Future<CompletedSale> completeSale({
     required List<CartLine> lines,
     required PaymentInput payment,
     required Staff cashier,
+    TaxMode taxMode = TaxMode.off,
   }) async {
     if (lines.isEmpty) throw const SaleException('The cart is empty.');
     if (lines.any((l) => l.quantity < 1)) {
       throw const SaleException('Every line needs a quantity of at least 1.');
     }
-    final total = lines.fold(0, (sum, l) => sum + l.lineTotal);
+    final taxes = [
+      for (final l in lines) computeTax(l.lineTotal, [for (final t in l.product.taxes) t.spec], taxMode),
+    ];
+    final subtotal = lines.fold(0, (sum, l) => sum + l.lineTotal);
+    final taxTotal = taxes.fold(0, (sum, t) => sum + t.taxTotal);
+    final total = taxMode == TaxMode.exclusive ? subtotal + taxTotal : subtotal;
     final change = _validatePayment(payment, total);
 
     return _db.transaction(() async {
@@ -60,14 +69,32 @@ class SaleRepository {
           deviceId: _device.deviceId,
           number: number,
           status: SaleStatus.completed,
-          subtotal: total,
+          subtotal: subtotal,
           total: total,
+          taxTotal: Value(taxTotal),
           cashierId: Value(cashier.id),
           cashierName: cashier.name,
         ),
       );
 
-      for (final line in lines) {
+      // Stock used, summed per stock item across the sale.
+      final used = <String, int>{};
+      final costs = <String, int>{};
+      for (final (i, line) in lines.indexed) {
+        var lineCost = 0;
+        Future<void> consume(List<(String, int, int)> recipe, int times) async {
+          for (final (item, qty, costMilli) in recipe) {
+            used[item] = (used[item] ?? 0) + qty * times;
+            costs[item] = costMilli;
+            lineCost += costOf(qty * times, costMilli);
+          }
+        }
+
+        await consume(await _recipe(variantId: line.variant.id), line.quantity);
+        for (final option in line.options) {
+          await consume(await _recipe(optionId: option.id), line.quantity);
+        }
+
         await _db.insertTracked(
           _db.saleLines,
           SaleLinesCompanion.insert(
@@ -77,25 +104,53 @@ class SaleRepository {
             deviceId: _device.deviceId,
             saleId: saleId,
             productId: line.product.id,
-            variantId: Value(line.variant?.id),
+            variantId: Value(line.variant.id),
             productName: line.product.name,
-            variantName: Value(line.variant?.name),
+            variantName: Value(line.variant.name),
             quantity: line.quantity,
             unitPrice: line.unitPrice,
             lineTotal: line.lineTotal,
             addons: Value([
-              for (final a in line.addons)
-                SoldAddon(id: a.id, name: a.name, price: a.price),
+              for (final o in line.options) SoldAddon(id: o.id, name: o.name, price: o.priceDelta),
             ]),
+            costTotal: Value(lineCost),
+            taxTotal: Value(taxes[i].taxTotal),
           ),
         );
+      }
+
+      for (final MapEntry(key: item, value: qty) in used.entries) {
         await _stock.record(
-          productId: line.product.id,
-          variantId: line.variant?.id,
-          quantityChange: -line.quantity,
+          stockItemId: item,
+          quantityChange: -qty,
           reason: StockReason.sale,
+          unitCostMilli: costs[item],
           saleId: saleId,
+          byName: cashier.name,
           at: now,
+        );
+      }
+
+      // Tax per rate, for the tax report.
+      final byRate = <String, (TaxRateSpec, int)>{};
+      for (final t in taxes.expand((t) => t.taxes)) {
+        final prev = byRate[t.rate.id];
+        byRate[t.rate.id] = (t.rate, (prev?.$2 ?? 0) + t.amount);
+      }
+      for (final (rate, amount) in byRate.values) {
+        await _db.insertTracked(
+          _db.saleTaxes,
+          SaleTaxesCompanion.insert(
+            id: newId(),
+            createdAt: now,
+            updatedAt: now,
+            deviceId: _device.deviceId,
+            saleId: saleId,
+            taxRateId: rate.id,
+            name: rate.name,
+            rateBp: rate.rateBp,
+            amount: amount,
+          ),
         );
       }
 
@@ -126,6 +181,18 @@ class SaleRepository {
         changeDue: change,
       );
     });
+  }
+
+  /// (stock item, quantity, cost per base unit now) for a variant or option.
+  Future<List<(String, int, int)>> _recipe({String? variantId, String? optionId}) async {
+    final rows = await _db.customSelect(
+      'SELECT r.stock_item_id AS item, r.quantity AS qty, s.cost_milli AS cost '
+      'FROM recipe_items r JOIN stock_items s ON s.id = r.stock_item_id '
+      'WHERE r.deleted_at IS NULL AND ${variantId != null ? 'r.variant_id' : 'r.option_id'} = ?',
+      variables: [Variable.withString(variantId ?? optionId!)],
+      readsFrom: {_db.recipeItems, _db.stockItems},
+    ).get();
+    return [for (final r in rows) (r.read<String>('item'), r.read<int>('qty'), r.read<int>('cost'))];
   }
 
   /// Returns the change due, or throws if the payment is not acceptable.
@@ -191,17 +258,22 @@ class SaleRepository {
         ),
       );
 
-      final lines = await (_db.select(_db.saleLines)
-            ..where((l) => l.saleId.equals(saleId)))
+      // Put back exactly what the sale took (stock items from v5, products
+      // for older sales).
+      final taken = await (_db.select(_db.stockMovements)
+            ..where((m) => m.saleId.equals(saleId) & m.reason.equalsValue(StockReason.sale)))
           .get();
-      for (final line in lines) {
+      for (final m in taken) {
         await _stock.record(
-          productId: line.productId,
-          variantId: line.variantId,
-          quantityChange: line.quantity,
+          stockItemId: m.stockItemId,
+          productId: m.productId,
+          variantId: m.variantId,
+          quantityChange: -m.quantityChange,
           reason: StockReason.adjustment,
+          unitCostMilli: m.unitCostMilli,
           saleId: saleId,
           note: 'Void ${formatSaleNumber(sale.number)}',
+          byName: by.name,
           at: now,
         );
       }

@@ -1618,6 +1618,1092 @@ abstract class AppLocalizations {
   /// **'Recent activity'**
   String get profileRecentActivity;
 
+  /// No description provided for @navProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Products'**
+  String get navProducts;
+
+  /// No description provided for @navStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock'**
+  String get navStock;
+
+  /// No description provided for @activityFilterCatalogue.
+  ///
+  /// In en, this message translates to:
+  /// **'Products and stock'**
+  String get activityFilterCatalogue;
+
+  /// No description provided for @auditProductCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Product added'**
+  String get auditProductCreated;
+
+  /// No description provided for @auditProductUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Product changed'**
+  String get auditProductUpdated;
+
+  /// No description provided for @auditProductArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Product archived'**
+  String get auditProductArchived;
+
+  /// No description provided for @auditProductRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Product restored'**
+  String get auditProductRestored;
+
+  /// No description provided for @auditPriceChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Price changed'**
+  String get auditPriceChanged;
+
+  /// No description provided for @auditCategorySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Category changed'**
+  String get auditCategorySaved;
+
+  /// No description provided for @auditOptionGroupSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Options changed'**
+  String get auditOptionGroupSaved;
+
+  /// No description provided for @auditTaxRateSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax changed'**
+  String get auditTaxRateSaved;
+
+  /// No description provided for @auditStockItemSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock item changed'**
+  String get auditStockItemSaved;
+
+  /// No description provided for @auditStockReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery received'**
+  String get auditStockReceived;
+
+  /// No description provided for @auditStockAdjusted.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock corrected'**
+  String get auditStockAdjusted;
+
+  /// No description provided for @auditStockWasted.
+  ///
+  /// In en, this message translates to:
+  /// **'Waste logged'**
+  String get auditStockWasted;
+
+  /// No description provided for @auditStockCountPosted.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock count posted'**
+  String get auditStockCountPosted;
+
+  /// No description provided for @auditSupplierSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier changed'**
+  String get auditSupplierSaved;
+
+  /// No description provided for @auditSupplierPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier paid'**
+  String get auditSupplierPaid;
+
+  /// No description provided for @auditPriceScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Price scheduled'**
+  String get auditPriceScheduled;
+
+  /// No description provided for @auditPricesBulkChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Prices changed in bulk'**
+  String get auditPricesBulkChanged;
+
+  /// No description provided for @auditCatalogueImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Products imported'**
+  String get auditCatalogueImported;
+
+  /// No description provided for @cartTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax'**
+  String get cartTax;
+
+  /// No description provided for @cartTaxIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes tax'**
+  String get cartTaxIncluded;
+
+  /// No description provided for @cartTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get cartTotal;
+
+  /// No description provided for @tileOut.
+  ///
+  /// In en, this message translates to:
+  /// **'None left'**
+  String get tileOut;
+
+  /// No description provided for @pickerSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get pickerSize;
+
+  /// No description provided for @pickerRemoveOne.
+  ///
+  /// In en, this message translates to:
+  /// **'One less'**
+  String get pickerRemoveOne;
+
+  /// No description provided for @groupOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get groupOptional;
+
+  /// No description provided for @productsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Products'**
+  String get productsTab;
+
+  /// No description provided for @categoriesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categoriesTab;
+
+  /// No description provided for @optionsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Options'**
+  String get optionsTab;
+
+  /// No description provided for @taxTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax'**
+  String get taxTab;
+
+  /// No description provided for @productsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New product'**
+  String get productsNew;
+
+  /// No description provided for @productsSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search name or barcode'**
+  String get productsSearch;
+
+  /// No description provided for @productsAllCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get productsAllCategories;
+
+  /// No description provided for @productsFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get productsFilterAll;
+
+  /// No description provided for @productsFilterOnTill.
+  ///
+  /// In en, this message translates to:
+  /// **'On the till'**
+  String get productsFilterOnTill;
+
+  /// No description provided for @productsFilterOffTill.
+  ///
+  /// In en, this message translates to:
+  /// **'Off the till'**
+  String get productsFilterOffTill;
+
+  /// No description provided for @productsFilterLowMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Low margin'**
+  String get productsFilterLowMargin;
+
+  /// No description provided for @productsFilterArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get productsFilterArchived;
+
+  /// No description provided for @productsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No products here.'**
+  String get productsNone;
+
+  /// No description provided for @productsNoCost.
+  ///
+  /// In en, this message translates to:
+  /// **'No cost set'**
+  String get productsNoCost;
+
+  /// No description provided for @productsDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate'**
+  String get productsDuplicate;
+
+  /// No description provided for @productsArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get productsArchive;
+
+  /// No description provided for @productsRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get productsRestore;
+
+  /// No description provided for @productsArchiveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It comes off the till and the lists. Past sales keep it, and you can restore it later.'**
+  String get productsArchiveBody;
+
+  /// No description provided for @productsEditReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Change products.'**
+  String get productsEditReason;
+
+  /// No description provided for @productsArchiveReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive a product.'**
+  String get productsArchiveReason;
+
+  /// No description provided for @productsDuplicateReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy a product.'**
+  String get productsDuplicateReason;
+
+  /// No description provided for @categoriesNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New category'**
+  String get categoriesNew;
+
+  /// No description provided for @categoriesEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change category'**
+  String get categoriesEdit;
+
+  /// No description provided for @categoriesName.
+  ///
+  /// In en, this message translates to:
+  /// **'Category name'**
+  String get categoriesName;
+
+  /// No description provided for @categoriesColour.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get categoriesColour;
+
+  /// No description provided for @categoriesInside.
+  ///
+  /// In en, this message translates to:
+  /// **'Put it inside'**
+  String get categoriesInside;
+
+  /// No description provided for @categoriesTopLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing (top level)'**
+  String get categoriesTopLevel;
+
+  /// No description provided for @categoriesHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get categoriesHidden;
+
+  /// No description provided for @categoriesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No categories yet.'**
+  String get categoriesNone;
+
+  /// No description provided for @optionsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New options'**
+  String get optionsNew;
+
+  /// No description provided for @optionsEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change options'**
+  String get optionsEdit;
+
+  /// No description provided for @optionsName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get optionsName;
+
+  /// No description provided for @optionsNameHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'For example Toppings, Sugar level or Sauce.'**
+  String get optionsNameHelp;
+
+  /// No description provided for @optionsMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Must pick at least'**
+  String get optionsMin;
+
+  /// No description provided for @optionsMinHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'0 makes it optional.'**
+  String get optionsMinHelp;
+
+  /// No description provided for @optionsMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Can pick up to'**
+  String get optionsMax;
+
+  /// No description provided for @optionsMaxHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty: no limit.'**
+  String get optionsMaxHelp;
+
+  /// No description provided for @optionsRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'The same option can be picked twice'**
+  String get optionsRepeat;
+
+  /// No description provided for @optionsRepeatHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'For example double sprinkles.'**
+  String get optionsRepeatHelp;
+
+  /// No description provided for @optionsOptionName.
+  ///
+  /// In en, this message translates to:
+  /// **'Option'**
+  String get optionsOptionName;
+
+  /// No description provided for @optionsExtra.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra'**
+  String get optionsExtra;
+
+  /// No description provided for @optionsRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove option'**
+  String get optionsRemove;
+
+  /// No description provided for @optionsDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticked when the picker opens'**
+  String get optionsDefault;
+
+  /// No description provided for @optionsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add option'**
+  String get optionsAdd;
+
+  /// No description provided for @optionsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No options yet.'**
+  String get optionsNone;
+
+  /// No description provided for @optionsUnused.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on any product yet.'**
+  String get optionsUnused;
+
+  /// No description provided for @taxModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How tax works here'**
+  String get taxModeTitle;
+
+  /// No description provided for @taxModeOff.
+  ///
+  /// In en, this message translates to:
+  /// **'No tax'**
+  String get taxModeOff;
+
+  /// No description provided for @taxModeInclusive.
+  ///
+  /// In en, this message translates to:
+  /// **'Prices include tax'**
+  String get taxModeInclusive;
+
+  /// No description provided for @taxModeExclusive.
+  ///
+  /// In en, this message translates to:
+  /// **'Add tax at the till'**
+  String get taxModeExclusive;
+
+  /// No description provided for @taxModeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Most shops in Ghana show prices with tax included. Only turn tax on if the shop is registered.'**
+  String get taxModeHelp;
+
+  /// No description provided for @taxRates.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax rates'**
+  String get taxRates;
+
+  /// No description provided for @taxNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No tax rates.'**
+  String get taxNone;
+
+  /// No description provided for @taxNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New tax rate'**
+  String get taxNew;
+
+  /// No description provided for @taxEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change tax rate'**
+  String get taxEdit;
+
+  /// No description provided for @taxName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get taxName;
+
+  /// No description provided for @taxNameHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'As it should appear on receipts.'**
+  String get taxNameHelp;
+
+  /// No description provided for @taxRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate'**
+  String get taxRate;
+
+  /// No description provided for @taxRateInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a rate like 15 or 2.5.'**
+  String get taxRateInvalid;
+
+  /// No description provided for @taxCompound.
+  ///
+  /// In en, this message translates to:
+  /// **'Charged on top of the other taxes'**
+  String get taxCompound;
+
+  /// No description provided for @taxCompoundHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'VAT in Ghana is charged on the price plus NHIL and GETFund.'**
+  String get taxCompoundHelp;
+
+  /// No description provided for @taxApprovalReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Change tax settings.'**
+  String get taxApprovalReason;
+
+  /// No description provided for @taxAccountant.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the rates and which products they apply to with your accountant. Aby does not decide tax for you.'**
+  String get taxAccountant;
+
+  /// No description provided for @editorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change product'**
+  String get editorTitle;
+
+  /// No description provided for @editorSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Product saved.'**
+  String get editorSaved;
+
+  /// No description provided for @editorName.
+  ///
+  /// In en, this message translates to:
+  /// **'Product name'**
+  String get editorName;
+
+  /// No description provided for @editorCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get editorCategory;
+
+  /// No description provided for @editorTileLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Size line on the tile'**
+  String get editorTileLine;
+
+  /// No description provided for @editorTileLineHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional, for example \"500 ml\".'**
+  String get editorTileLineHelp;
+
+  /// No description provided for @editorDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get editorDescription;
+
+  /// No description provided for @editorOnTill.
+  ///
+  /// In en, this message translates to:
+  /// **'On the till'**
+  String get editorOnTill;
+
+  /// No description provided for @editorOnTillHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Off: kept, but cashiers cannot sell it.'**
+  String get editorOnTillHelp;
+
+  /// No description provided for @editorPrices.
+  ///
+  /// In en, this message translates to:
+  /// **'Prices'**
+  String get editorPrices;
+
+  /// No description provided for @editorPricesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'One price, or several sizes or kinds, each with its own price and recipe.'**
+  String get editorPricesHelp;
+
+  /// No description provided for @editorAddSizes.
+  ///
+  /// In en, this message translates to:
+  /// **'Add sizes or kinds'**
+  String get editorAddSizes;
+
+  /// No description provided for @editorAddVariant.
+  ///
+  /// In en, this message translates to:
+  /// **'Add another'**
+  String get editorAddVariant;
+
+  /// No description provided for @editorVariantName.
+  ///
+  /// In en, this message translates to:
+  /// **'Size or kind'**
+  String get editorVariantName;
+
+  /// No description provided for @editorVariantNameHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'For example Small, Double scoop, 500 ml.'**
+  String get editorVariantNameHelp;
+
+  /// No description provided for @editorPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get editorPrice;
+
+  /// No description provided for @editorCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost'**
+  String get editorCost;
+
+  /// No description provided for @editorCostFromRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'From the recipe'**
+  String get editorCostFromRecipe;
+
+  /// No description provided for @editorCostHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get editorCostHelp;
+
+  /// No description provided for @editorMoveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get editorMoveUp;
+
+  /// No description provided for @editorMoveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get editorMoveDown;
+
+  /// No description provided for @editorRemoveVariant.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get editorRemoveVariant;
+
+  /// No description provided for @editorBarcodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Barcodes'**
+  String get editorBarcodes;
+
+  /// No description provided for @editorAddBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Add barcode'**
+  String get editorAddBarcode;
+
+  /// No description provided for @editorBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode'**
+  String get editorBarcode;
+
+  /// No description provided for @editorBarcodeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Type it, or scan it with a barcode scanner.'**
+  String get editorBarcodeHelp;
+
+  /// No description provided for @editorOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Options'**
+  String get editorOptions;
+
+  /// No description provided for @editorNoOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'No option groups yet. Add them on the Options tab.'**
+  String get editorNoOptions;
+
+  /// No description provided for @editorTaxes.
+  ///
+  /// In en, this message translates to:
+  /// **'Taxes'**
+  String get editorTaxes;
+
+  /// No description provided for @editorNoTaxes.
+  ///
+  /// In en, this message translates to:
+  /// **'No tax rates. Set them up on the Tax tab.'**
+  String get editorNoTaxes;
+
+  /// No description provided for @editorTaxesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Only used when tax is on (Products, Tax).'**
+  String get editorTaxesHelp;
+
+  /// No description provided for @editorPriceMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a price for each size or kind.'**
+  String get editorPriceMissing;
+
+  /// No description provided for @editorCostInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the cost.'**
+  String get editorCostInvalid;
+
+  /// No description provided for @editorRecipeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the recipe amounts.'**
+  String get editorRecipeInvalid;
+
+  /// No description provided for @editorCategoryMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a category.'**
+  String get editorCategoryMissing;
+
+  /// No description provided for @editorPriceReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Change prices.'**
+  String get editorPriceReason;
+
+  /// No description provided for @recipeUses.
+  ///
+  /// In en, this message translates to:
+  /// **'What it uses'**
+  String get recipeUses;
+
+  /// No description provided for @recipeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Each sale takes these from stock and works out the cost.'**
+  String get recipeHelp;
+
+  /// No description provided for @recipeItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock item'**
+  String get recipeItem;
+
+  /// No description provided for @recipeAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get recipeAmount;
+
+  /// No description provided for @recipeRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get recipeRemove;
+
+  /// No description provided for @recipeAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add stock item'**
+  String get recipeAdd;
+
+  /// No description provided for @recipeNoStockItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Add stock items first (Stock)'**
+  String get recipeNoStockItems;
+
+  /// No description provided for @stockNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New stock item'**
+  String get stockNew;
+
+  /// No description provided for @stockEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change stock item'**
+  String get stockEdit;
+
+  /// No description provided for @stockSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search stock'**
+  String get stockSearch;
+
+  /// No description provided for @stockFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get stockFilterAll;
+
+  /// No description provided for @stockFilterRetired.
+  ///
+  /// In en, this message translates to:
+  /// **'Retired'**
+  String get stockFilterRetired;
+
+  /// No description provided for @stockNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No stock items here.'**
+  String get stockNone;
+
+  /// No description provided for @stockLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get stockLow;
+
+  /// No description provided for @stockName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get stockName;
+
+  /// No description provided for @stockNameHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'What you buy, for example Wafer cones or Vanilla ice cream.'**
+  String get stockNameHelp;
+
+  /// No description provided for @stockUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Counted in'**
+  String get stockUnit;
+
+  /// No description provided for @unitPieces.
+  ///
+  /// In en, this message translates to:
+  /// **'Pieces'**
+  String get unitPieces;
+
+  /// No description provided for @unitWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight (g, kg)'**
+  String get unitWeight;
+
+  /// No description provided for @unitVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume (ml, L)'**
+  String get unitVolume;
+
+  /// No description provided for @stockCostHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliveries update this to the average cost.'**
+  String get stockCostHelp;
+
+  /// No description provided for @stockReorderAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Low below'**
+  String get stockReorderAt;
+
+  /// No description provided for @stockReorderQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Usually order'**
+  String get stockReorderQty;
+
+  /// No description provided for @stockReorderHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Both optional.'**
+  String get stockReorderHelp;
+
+  /// No description provided for @stockCostInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the cost.'**
+  String get stockCostInvalid;
+
+  /// No description provided for @stockQuantityInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the amount.'**
+  String get stockQuantityInvalid;
+
+  /// No description provided for @stockEditReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Change stock items.'**
+  String get stockEditReason;
+
+  /// No description provided for @stockOnHand.
+  ///
+  /// In en, this message translates to:
+  /// **'On hand'**
+  String get stockOnHand;
+
+  /// No description provided for @stockHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get stockHistory;
+
+  /// No description provided for @stockNoMovements.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing yet.'**
+  String get stockNoMovements;
+
+  /// No description provided for @stockLogWaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Log waste'**
+  String get stockLogWaste;
+
+  /// No description provided for @stockAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct stock'**
+  String get stockAdjust;
+
+  /// No description provided for @stockRetire.
+  ///
+  /// In en, this message translates to:
+  /// **'Retire'**
+  String get stockRetire;
+
+  /// No description provided for @stockRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get stockRestore;
+
+  /// No description provided for @stockUsedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Used by'**
+  String get stockUsedBy;
+
+  /// No description provided for @stockUsedByNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No product uses it yet.'**
+  String get stockUsedByNone;
+
+  /// No description provided for @stockLess.
+  ///
+  /// In en, this message translates to:
+  /// **'There is less'**
+  String get stockLess;
+
+  /// No description provided for @stockMore.
+  ///
+  /// In en, this message translates to:
+  /// **'There is more'**
+  String get stockMore;
+
+  /// No description provided for @stockHowMuch.
+  ///
+  /// In en, this message translates to:
+  /// **'How much'**
+  String get stockHowMuch;
+
+  /// No description provided for @stockNoteOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get stockNoteOptional;
+
+  /// No description provided for @stockWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Why'**
+  String get stockWhy;
+
+  /// No description provided for @stockAdjusted.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock corrected.'**
+  String get stockAdjusted;
+
+  /// No description provided for @stockWasted.
+  ///
+  /// In en, this message translates to:
+  /// **'Waste logged.'**
+  String get stockWasted;
+
+  /// No description provided for @moveSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold'**
+  String get moveSale;
+
+  /// No description provided for @moveReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get moveReceived;
+
+  /// No description provided for @moveAdjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Correction'**
+  String get moveAdjustment;
+
+  /// No description provided for @moveCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock count'**
+  String get moveCount;
+
+  /// No description provided for @wasteMelted.
+  ///
+  /// In en, this message translates to:
+  /// **'Melted'**
+  String get wasteMelted;
+
+  /// No description provided for @wastePowerCut.
+  ///
+  /// In en, this message translates to:
+  /// **'Power cut'**
+  String get wastePowerCut;
+
+  /// No description provided for @wasteExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get wasteExpired;
+
+  /// No description provided for @wasteDamaged.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropped or damaged'**
+  String get wasteDamaged;
+
+  /// No description provided for @wasteStaffMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get wasteStaffMeal;
+
+  /// No description provided for @wasteSample.
+  ///
+  /// In en, this message translates to:
+  /// **'Free sample'**
+  String get wasteSample;
+
+  /// No description provided for @wasteOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get wasteOther;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -1869,6 +2955,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{months, plural, =0{Less than a month} =1{1 month} other{{months} months}}'**
   String profileTenure(int months);
+
+  /// No description provided for @tileFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'from {price}'**
+  String tileFrom(String price);
+
+  /// No description provided for @tileLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} left'**
+  String tileLeft(int count);
+
+  /// No description provided for @pickerAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {price}'**
+  String pickerAdd(String price);
+
+  /// No description provided for @groupUpTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {max}'**
+  String groupUpTo(int max);
+
+  /// No description provided for @groupPickExactly.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick {count}'**
+  String groupPickExactly(int count);
+
+  /// No description provided for @groupPickAtLeast.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least {count}'**
+  String groupPickAtLeast(int count);
+
+  /// No description provided for @groupPickBetween.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick {min} to {max}'**
+  String groupPickBetween(int min, int max);
+
+  /// No description provided for @productsVariantCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} prices'**
+  String productsVariantCount(int count);
+
+  /// No description provided for @productsMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% margin'**
+  String productsMargin(int percent);
+
+  /// No description provided for @productsArchiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive {name}?'**
+  String productsArchiveTitle(String name);
+
+  /// No description provided for @productsArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} archived.'**
+  String productsArchived(String name);
+
+  /// No description provided for @productsRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} restored.'**
+  String productsRestored(String name);
+
+  /// No description provided for @productsDuplicated.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy of {name} added, off the till until you check it.'**
+  String productsDuplicated(String name);
+
+  /// No description provided for @optionsUsedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'On: {names}'**
+  String optionsUsedBy(String names);
+
+  /// No description provided for @optionsPriceInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the extra price for \"{name}\".'**
+  String optionsPriceInvalid(String name);
+
+  /// No description provided for @taxExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: a GH₵ 100.00 sale is {base} plus {tax} tax, {total} in all.'**
+  String taxExample(String base, String tax, String total);
+
+  /// No description provided for @editorMarginLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% margin, {profit} each'**
+  String editorMarginLine(int percent, String profit);
+
+  /// No description provided for @stockFilterLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low ({count})'**
+  String stockFilterLow(int count);
+
+  /// No description provided for @stockTotalValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Worth {value} at cost'**
+  String stockTotalValue(String value);
+
+  /// No description provided for @stockCostEach.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} per {unit}'**
+  String stockCostEach(String price, String unit);
+
+  /// No description provided for @stockCostPer.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost per {unit}'**
+  String stockCostPer(String unit);
+
+  /// No description provided for @stockWorth.
+  ///
+  /// In en, this message translates to:
+  /// **'Worth {value} ({price} per {unit})'**
+  String stockWorth(String value, String price, String unit);
+
+  /// No description provided for @stockReorderLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Low below {amount}'**
+  String stockReorderLine(String amount);
+
+  /// No description provided for @stockLogWasteOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Waste: {name}'**
+  String stockLogWasteOf(String name);
+
+  /// No description provided for @stockAdjustOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct: {name}'**
+  String stockAdjustOf(String name);
+
+  /// No description provided for @stockAdjustReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct stock of {name}.'**
+  String stockAdjustReason(String name);
+
+  /// No description provided for @stockWasteReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Log waste of {name}.'**
+  String stockWasteReason(String name);
+
+  /// No description provided for @moveWaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Waste: {reason}'**
+  String moveWaste(String reason);
 }
 
 class _AppLocalizationsDelegate

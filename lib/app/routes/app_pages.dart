@@ -4,6 +4,8 @@ import '../modules/checkout/bindings/checkout_binding.dart';
 import '../modules/checkout/views/checkout_view.dart';
 import '../modules/close_day/bindings/close_day_binding.dart';
 import '../modules/close_day/views/close_day_view.dart';
+import '../modules/product_editor/bindings/product_editor_binding.dart';
+import '../modules/product_editor/views/product_editor_view.dart';
 import '../modules/setup/bindings/setup_binding.dart';
 import '../modules/setup/views/setup_view.dart';
 import '../modules/shell/bindings/shell_binding.dart';
@@ -13,6 +15,8 @@ import '../modules/sign_in/views/sign_in_view.dart';
 import '../modules/staff_profile/bindings/staff_profile_binding.dart';
 import '../modules/staff_profile/views/staff_profile_view.dart';
 import '../modules/start/bindings/start_binding.dart';
+import '../modules/stock_item/bindings/stock_item_binding.dart';
+import '../modules/stock_item/views/stock_item_view.dart';
 import '../modules/start/views/start_view.dart';
 import 'app_routes.dart';
 import 'auth_middleware.dart';
@@ -65,6 +69,18 @@ abstract final class AppPages {
       name: Routes.staffProfile,
       page: () => const StaffProfileView(),
       binding: StaffProfileBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage<void>(
+      name: Routes.productEditor,
+      page: () => const ProductEditorView(),
+      binding: ProductEditorBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage<void>(
+      name: Routes.stockItem,
+      page: () => const StockItemView(),
+      binding: StockItemBinding(),
       middlewares: [AuthMiddleware()],
     ),
   ];

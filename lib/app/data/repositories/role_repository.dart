@@ -45,7 +45,7 @@ class RoleRepository {
     required Set<Permission> permissions,
     required int maxDiscountPercent,
     required Staff by,
-  }) {
+  }) async {
     final trimmed = _checkName(name);
     return _db.transaction(() async {
       final now = DateTime.now();
@@ -81,7 +81,7 @@ class RoleRepository {
     required Set<Permission> permissions,
     required int maxDiscountPercent,
     required Staff by,
-  }) {
+  }) async {
     final trimmed = _checkName(name);
     return _db.transaction(() async {
       final row = await _row(roleId);

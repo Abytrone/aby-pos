@@ -11,6 +11,7 @@ import '../data/repositories/settings_repository.dart';
 import '../data/repositories/staff_repository.dart';
 import '../data/repositories/staff_stats_repository.dart';
 import '../data/repositories/stock_repository.dart';
+import '../domain/catalogue_rules.dart';
 import '../modules/till/controllers/cart_controller.dart';
 import '../services/auth_service.dart';
 import '../services/backup/backup_service.dart';
@@ -37,8 +38,9 @@ class InitialBinding extends Bindings {
     final device = Get.put(DeviceService(db), permanent: true);
 
     final audit = Get.put(AuditRepository(db, device), permanent: true);
-    Get.lazyPut(() => CatalogRepository(db), fenix: true);
-    Get.lazyPut(() => StockRepository(db, device), fenix: true);
+    Get.lazyPut(() => CatalogRepository(db, device, audit), fenix: true);
+    Get.lazyPut(() => CatalogueRules(Get.find()), fenix: true);
+    Get.lazyPut(() => StockRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => DayCloseRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => SaleRepository(db, Get.find(), Get.find(), audit, device), fenix: true);
     Get.lazyPut(() => RoleRepository(db, device, audit), fenix: true);

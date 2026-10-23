@@ -19,7 +19,25 @@ enum AuditAction {
   settingChanged,
   backupCreated,
   backupExported,
-  backupRestored;
+  backupRestored,
+  productCreated,
+  productUpdated,
+  productArchived,
+  productRestored,
+  priceChanged,
+  categorySaved,
+  optionGroupSaved,
+  taxRateSaved,
+  stockItemSaved,
+  stockReceived,
+  stockAdjusted,
+  stockWasted,
+  stockCountPosted,
+  supplierSaved,
+  supplierPaid,
+  priceScheduled,
+  pricesBulkChanged,
+  catalogueImported;
 
   /// Actions an owner should notice first.
   bool get isSensitive => const {
@@ -31,6 +49,12 @@ enum AuditAction {
         AuditAction.roleUpdated,
         AuditAction.roleDeleted,
         AuditAction.backupRestored,
+        AuditAction.priceChanged,
+        AuditAction.pricesBulkChanged,
+        AuditAction.stockAdjusted,
+        AuditAction.stockWasted,
+        AuditAction.stockCountPosted,
+        AuditAction.supplierPaid,
       }.contains(this);
 }
 

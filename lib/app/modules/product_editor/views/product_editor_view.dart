@@ -1,0 +1,245 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../../services/money.dart';
+import '../../../theme/aby_colors.dart';
+import '../../../theme/aby_theme.dart';
+import '../../../ui/dialogs.dart';
+import '../../../ui/l10n.dart';
+import '../../../ui/layout.dart';
+import '../../../ui/section_page.dart';
+import '../../till/widgets/category_dot.dart';
+import '../../till/widgets/variant_sheet.dart' show groupRule;
+import '../controllers/product_editor_controller.dart';
+import '../widgets/variant_card.dart';
+
+class ProductEditorView extends StatelessWidget {
+  const ProductEditorView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).extension<AbyColors>()!;
+    final l = context.l10n;
+    return GetBuilder<ProductEditorController>(builder: (ctl) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(ctl.isNew ? l.productsNew : l.editorTitle),
+          backgroundColor: c.surface,
+          surfaceTintColor: Colors.transparent,
+          toolbarHeight: 64,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: AbySpace.s4),
+              child: FilledButton(
+                onPressed: ctl.loading || ctl.saving
+                    ? null
+                    : () async {
+                        if (await ctl.save()) {
+                          Get.back<void>();
+                          showMessage(l.editorSaved);
+                        }
+                      },
+                child: Text(l.commonSave),
+              ),
+            ),
+          ],
+        ),
+        body: ctl.loading
+            ? const Center(child: CircularProgressIndicator())
+            : Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 900),
+                  child: ListView(padding: const EdgeInsets.all(AbySpace.s4), children: [
+                    if (ctl.error != null)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: AbySpace.s4),
+                        padding: const EdgeInsets.all(AbySpace.s3),
+                        decoration: BoxDecoration(
+                          color: c.dangerSoft,
+                          borderRadius: BorderRadius.circular(AbyRadius.sm),
+                        ),
+                        child: Text(ctl.error!, style: AbyText.body.copyWith(color: c.danger)),
+                      ),
+                    _Basics(ctl: ctl),
+                    const SizedBox(height: AbySpace.s6),
+                    _Prices(ctl: ctl),
+                    const SizedBox(height: AbySpace.s6),
+                    _OptionsAndTax(ctl: ctl),
+                    const SizedBox(height: AbySpace.s8),
+                  ]),
+                ),
+              ),
+      );
+    });
+  }
+}
+
+class _Basics extends StatelessWidget {
+  const _Basics({required this.ctl});
+
+  final ProductEditorController ctl;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).extension<AbyColors>()!;
+    final l = context.l10n;
+    final categories = ctl.catalogue!.categories;
+    final photo = Column(children: [
+      ClipRRect(
+        borderRadius: BorderRadius.circular(AbyRadius.md),
+        child: SizedBox.square(
+          dimension: 120,
+          child: ctl.photo != null
+              ? Image.memory(ctl.photo!, fit: BoxFit.cover)
+              : ColoredBox(color: c.surfaceSunken, child: Icon(Icons.image_outlined, size: 40, color: c.lineStrong)),
+        ),
+      ),
+      const SizedBox(height: AbySpace.s2),
+      Wrap(spacing: AbySpace.s1, children: [
+        FutureBuilder<bool>(
+          future: ctl.cameraAvailable,
+          builder: (_, snap) => snap.data == true
+              ? IconButton(
+                  tooltip: l.profileTakePhoto,
+                  onPressed: () => ctl.pickPhoto(ImageSource.camera),
+                  icon: const Icon(Icons.photo_camera_outlined),
+                )
+              : const SizedBox.shrink(),
+        ),
+        IconButton(
+          tooltip: l.profileChoosePhoto,
+          onPressed: () => ctl.pickPhoto(ImageSource.gallery),
+          icon: const Icon(Icons.photo_library_outlined),
+        ),
+        if (ctl.photo != null)
+          IconButton(
+            tooltip: l.profileRemovePhoto,
+            onPressed: ctl.removePhoto,
+            icon: const Icon(Icons.delete_outline),
+          ),
+      ]),
+    ]);
+    final fields = Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      TextField(
+        controller: ctl.name,
+        autofocus: ctl.isNew,
+        textCapitalization: TextCapitalization.words,
+        decoration: InputDecoration(labelText: l.editorName),
+      ),
+      const SizedBox(height: AbySpace.s3),
+      DropdownButtonFormField<String>(
+        initialValue: ctl.categoryId,
+        decoration: InputDecoration(labelText: l.editorCategory),
+        items: [
+          for (final cat in categories)
+            DropdownMenuItem(
+              value: cat.id,
+              child: Row(children: [
+                if (cat.parentId != null) const SizedBox(width: AbySpace.s4),
+                CategoryDot(tone: cat.tone),
+                const SizedBox(width: AbySpace.s2),
+                Text(cat.name),
+              ]),
+            ),
+        ],
+        onChanged: ctl.setCategory,
+      ),
+      const SizedBox(height: AbySpace.s3),
+      TextField(
+        controller: ctl.detail,
+        decoration: InputDecoration(labelText: l.editorTileLine, helperText: l.editorTileLineHelp),
+      ),
+      const SizedBox(height: AbySpace.s3),
+      TextField(
+        controller: ctl.description,
+        maxLines: 2,
+        textCapitalization: TextCapitalization.sentences,
+        decoration: InputDecoration(labelText: l.editorDescription),
+      ),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        title: Text(l.editorOnTill),
+        subtitle: Text(l.editorOnTillHelp, style: AbyText.caption.copyWith(color: c.inkMuted)),
+        value: ctl.active,
+        onChanged: ctl.setActive,
+      ),
+    ]);
+    return context.isNarrow
+        ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [photo, const SizedBox(height: AbySpace.s4), fields])
+        : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            photo,
+            const SizedBox(width: AbySpace.s6),
+            Expanded(child: fields),
+          ]);
+  }
+}
+
+class _Prices extends StatelessWidget {
+  const _Prices({required this.ctl});
+
+  final ProductEditorController ctl;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).extension<AbyColors>()!;
+    final l = context.l10n;
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Text(l.editorPrices.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
+      const SizedBox(height: AbySpace.s1),
+      Text(l.editorPricesHelp, style: AbyText.caption.copyWith(color: c.inkMuted)),
+      const SizedBox(height: AbySpace.s3),
+      for (final (i, v) in ctl.variants.indexed)
+        VariantCard(ctl: ctl, form: v, index: i, single: ctl.variants.length == 1),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: OutlinedButton.icon(
+          onPressed: ctl.addVariant,
+          icon: const Icon(Icons.add),
+          label: Text(ctl.variants.length == 1 ? l.editorAddSizes : l.editorAddVariant),
+        ),
+      ),
+    ]);
+  }
+}
+
+class _OptionsAndTax extends StatelessWidget {
+  const _OptionsAndTax({required this.ctl});
+
+  final ProductEditorController ctl;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final groups = ctl.catalogue!.groups.where((g) => g.active).toList();
+    final taxes = ctl.catalogue!.taxRates.where((t) => t.active).toList();
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      GroupCard(
+        title: l.editorOptions,
+        footer: groups.isEmpty ? l.editorNoOptions : null,
+        children: [
+          for (final g in groups)
+            CheckboxListTile(
+              title: Text(g.name),
+              subtitle: Text('${groupRule(l, g)}  ·  ${g.options.map((o) => o.priceDelta == 0 ? o.name : '${o.name} +${formatMoney(o.priceDelta)}').join(', ')}'),
+              value: ctl.groupIds.contains(g.id),
+              onChanged: (v) => ctl.toggleGroup(g.id, v ?? false),
+            ),
+        ],
+      ),
+      GroupCard(
+        title: l.editorTaxes,
+        footer: taxes.isEmpty ? l.editorNoTaxes : l.editorTaxesHelp,
+        children: [
+          for (final t in taxes)
+            CheckboxListTile(
+              title: Text('${t.name}  ${t.percent}'),
+              value: ctl.taxIds.contains(t.id),
+              onChanged: (v) => ctl.toggleTax(t.id, v ?? false),
+            ),
+        ],
+      ),
+    ]);
+  }
+}

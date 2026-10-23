@@ -25,44 +25,250 @@ class Categories extends Table with SyncColumns {
   TextColumn get name => text()();
   TextColumn get tone => textEnum<CategoryTone>()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+
+  /// A sub-category's parent (two levels at most). v5.
+  TextColumn get parentId => text().nullable()();
+  BoolColumn get active => boolean().withDefault(const Constant(true))();
 }
 
 @DataClassName('ProductRow')
 class Products extends Table with SyncColumns {
   TextColumn get categoryId => text().references(Categories, #id)();
   TextColumn get name => text()();
-  TextColumn get detail => text().nullable()();
 
-  /// Pesewas.
-  IntColumn get basePrice => integer()();
+  /// Short line on the till tile, e.g. "500 ml".
+  TextColumn get detail => text().nullable()();
+  TextColumn get description => text().nullable()();
+
+  /// Shown on the till and sellable.
   BoolColumn get active => boolean().withDefault(const Constant(true))();
+
+  /// Archived products are kept for history but hidden everywhere else.
+  DateTimeColumn get archivedAt => dateTime().nullable()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
 }
 
+/// What is actually sold and priced. Every product has at least one; a
+/// product with one unnamed variant is a "simple" product.
 @DataClassName('VariantRow')
 class ProductVariants extends Table with SyncColumns {
   TextColumn get productId => text().references(Products, #id)();
-  TextColumn get name => text()();
+
+  /// "Single scoop", "500 ml". Null for a simple product's only variant.
+  TextColumn get name => text().nullable()();
 
   /// Pesewas.
   IntColumn get price => integer()();
-  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
-}
 
-@DataClassName('AddonRow')
-class Addons extends Table with SyncColumns {
-  TextColumn get name => text()();
-
-  /// Pesewas.
-  IntColumn get price => integer()();
+  /// Pesewas. Used when the variant has no recipe to work its cost out.
+  IntColumn get manualCost => integer().nullable()();
   BoolColumn get active => boolean().withDefault(const Constant(true))();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
 }
 
-@DataClassName('ProductAddonRow')
-class ProductAddons extends Table with SyncColumns {
+/// A set of extras or choices on a product: "Toppings", "Sugar level".
+@DataClassName('OptionGroupRow')
+class OptionGroups extends Table with SyncColumns {
+  TextColumn get name => text()();
+
+  /// How many must be picked (0 = optional).
+  IntColumn get minSelect => integer().withDefault(const Constant(0))();
+
+  /// How many may be picked; null = no limit.
+  IntColumn get maxSelect => integer().nullable()();
+
+  /// The same option may be picked more than once (double sprinkles).
+  BoolColumn get allowRepeat => boolean().withDefault(const Constant(false))();
+  BoolColumn get active => boolean().withDefault(const Constant(true))();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+}
+
+@DataClassName('OptionRow')
+class OptionItems extends Table with SyncColumns {
+  TextColumn get groupId => text().references(OptionGroups, #id)();
+  TextColumn get name => text()();
+
+  /// Pesewas added to the price (may be 0).
+  IntColumn get priceDelta => integer().withDefault(const Constant(0))();
+
+  /// Picked already when the picker opens.
+  BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
+  BoolColumn get active => boolean().withDefault(const Constant(true))();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+}
+
+@DataClassName('ProductOptionGroupRow')
+class ProductOptionGroups extends Table with SyncColumns {
   TextColumn get productId => text().references(Products, #id)();
-  TextColumn get addonId => text().references(Addons, #id)();
+  TextColumn get groupId => text().references(OptionGroups, #id)();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+}
+
+/// What the shop buys and keeps: cones (pieces), vanilla (ml), sprinkles (g).
+@DataClassName('StockItemRow')
+class StockItems extends Table with SyncColumns {
+  TextColumn get name => text()();
+  TextColumn get unit => textEnum<StockUnit>()();
+
+  /// Thousandths of a pesewa per base unit (piece, g or ml), so one cone
+  /// from a GH₵ 33 pack of 24 (137.5 pesewas) is exact: 137500.
+  IntColumn get costMilli => integer().withDefault(const Constant(0))();
+
+  /// Base units. Below this, the item shows as low.
+  IntColumn get reorderPoint => integer().nullable()();
+  IntColumn get reorderQty => integer().nullable()();
+  TextColumn get supplierId => text().nullable()();
+  BoolColumn get active => boolean().withDefault(const Constant(true))();
+}
+
+/// What a variant (or an option) uses up each time it is sold.
+@DataClassName('RecipeItemRow')
+class RecipeItems extends Table with SyncColumns {
+  TextColumn get variantId => text().nullable().references(ProductVariants, #id)();
+  TextColumn get optionId => text().nullable().references(OptionItems, #id)();
+  TextColumn get stockItemId => text().references(StockItems, #id)();
+
+  /// Base units.
+  IntColumn get quantity => integer()();
+}
+
+@DataClassName('TaxRateRow')
+class TaxRates extends Table with SyncColumns {
+  TextColumn get name => text()();
+
+  /// Basis points: 1500 = 15%.
+  IntColumn get rateBp => integer()();
+
+  /// Charged on the price plus the non-compound taxes (as VAT is on top of
+  /// NHIL and GETFund).
+  BoolColumn get compound => boolean().withDefault(const Constant(false))();
+  BoolColumn get active => boolean().withDefault(const Constant(true))();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+}
+
+@DataClassName('ProductTaxRow')
+class ProductTaxes extends Table with SyncColumns {
+  TextColumn get productId => text().references(Products, #id)();
+  TextColumn get taxRateId => text().references(TaxRates, #id)();
+}
+
+@DataClassName('BarcodeRow')
+class Barcodes extends Table with SyncColumns {
+  TextColumn get code => text()();
+  TextColumn get variantId => text().references(ProductVariants, #id)();
+}
+
+/// Product photos, small, kept out of sync payloads (like staff photos).
+// TODO(sync): upload as files once the API has storage for them.
+@DataClassName('ProductPhotoRow')
+class ProductPhotos extends Table {
+  TextColumn get productId => text().references(Products, #id)();
+  BlobColumn get image => blob()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {productId};
+}
+
+/// A price that takes effect on a date.
+@DataClassName('PriceChangeRow')
+class PriceChanges extends Table with SyncColumns {
+  TextColumn get variantId => text().references(ProductVariants, #id)();
+
+  /// Pesewas.
+  IntColumn get newPrice => integer()();
+
+  /// Start of the business day it applies from.
+  DateTimeColumn get effectiveOn => dateTime()();
+  DateTimeColumn get appliedAt => dateTime().nullable()();
+  DateTimeColumn get cancelledAt => dateTime().nullable()();
+  TextColumn get createdByName => text()();
+}
+
+@DataClassName('SupplierRow')
+class Suppliers extends Table with SyncColumns {
+  TextColumn get name => text()();
+  TextColumn get phone => text().nullable()();
+  TextColumn get email => text().nullable()();
+  TextColumn get address => text().nullable()();
+  TextColumn get notes => text().nullable()();
+
+  /// Days they give us to pay; null = pay on delivery.
+  IntColumn get paymentTermsDays => integer().nullable()();
+  BoolColumn get active => boolean().withDefault(const Constant(true))();
+}
+
+/// What the shop owes each supplier, as a ledger: the balance is the sum.
+@DataClassName('SupplierEntryRow')
+class SupplierLedger extends Table with SyncColumns {
+  TextColumn get supplierId => text().references(Suppliers, #id)();
+  TextColumn get kind => textEnum<SupplierEntryKind>()();
+
+  /// Pesewas. Positive: we owe more (a delivery). Negative: we paid.
+  IntColumn get amount => integer()();
+  TextColumn get method => textEnum<SupplierPaymentMethod>().nullable()();
+  TextColumn get receiptId => text().nullable()();
+  TextColumn get reference => text().nullable()();
+  TextColumn get note => text().nullable()();
+  TextColumn get byName => text()();
+}
+
+/// A delivery received ("goods received note").
+@DataClassName('StockReceiptRow')
+class StockReceipts extends Table with SyncColumns {
+  /// Per-device sequence, shown as "GRN-0001".
+  IntColumn get number => integer()();
+  TextColumn get supplierId => text().nullable().references(Suppliers, #id)();
+  TextColumn get invoiceRef => text().nullable()();
+
+  /// Pesewas.
+  IntColumn get total => integer()();
+
+  /// Pesewas paid on delivery (the rest is owed to the supplier).
+  IntColumn get paidNow => integer().withDefault(const Constant(0))();
+  TextColumn get note => text().nullable()();
+  TextColumn get receivedById => text()();
+  TextColumn get receivedByName => text()();
+}
+
+@DataClassName('StockReceiptLineRow')
+class StockReceiptLines extends Table with SyncColumns {
+  TextColumn get receiptId => text().references(StockReceipts, #id)();
+  TextColumn get stockItemId => text().references(StockItems, #id)();
+
+  /// Base units.
+  IntColumn get quantity => integer()();
+
+  /// Thousandths of a pesewa per base unit.
+  IntColumn get unitCostMilli => integer()();
+
+  /// Pesewas.
+  IntColumn get lineTotal => integer()();
+}
+
+@DataClassName('StockCountRow')
+class StockCounts extends Table with SyncColumns {
+  TextColumn get status => textEnum<StockCountStatus>()();
+
+  /// Counters do not see what the till expects.
+  BoolColumn get blind => boolean().withDefault(const Constant(true))();
+  TextColumn get note => text().nullable()();
+  TextColumn get startedById => text()();
+  TextColumn get startedByName => text()();
+  DateTimeColumn get postedAt => dateTime().nullable()();
+  TextColumn get postedById => text().nullable()();
+  TextColumn get postedByName => text().nullable()();
+}
+
+@DataClassName('StockCountLineRow')
+class StockCountLines extends Table with SyncColumns {
+  TextColumn get countId => text().references(StockCounts, #id)();
+  TextColumn get stockItemId => text().references(StockItems, #id)();
+
+  /// On hand when this line was counted. Sales after that are on top.
+  IntColumn get expected => integer()();
+  IntColumn get counted => integer()();
+  TextColumn get countedByName => text()();
 }
 
 @DataClassName('SaleRow')
@@ -84,6 +290,9 @@ class Sales extends Table with SyncColumns {
   /// Who voided (or, for a cashier, which owner approved it).
   TextColumn get voidedById => text().nullable()();
   TextColumn get voidedBy => text().nullable()();
+
+  /// Pesewas of tax in the total. v5.
+  IntColumn get taxTotal => integer().withDefault(const Constant(0))();
 
   @override
   List<Set<Column<Object>>> get uniqueKeys => [
@@ -107,8 +316,27 @@ class SaleLines extends Table with SyncColumns {
 
   /// Pesewas.
   IntColumn get lineTotal => integer()();
+  /// The options picked, as sold (JSON). Named addons for history.
   TextColumn get addons =>
       text().map(const SoldAddonsConverter()).withDefault(const Constant('[]'))();
+
+  /// Pesewas: what the stock used cost (recipes), for profit. v5.
+  IntColumn get costTotal => integer().withDefault(const Constant(0))();
+
+  /// Pesewas of tax in (or on top of) the line. v5.
+  IntColumn get taxTotal => integer().withDefault(const Constant(0))();
+}
+
+/// Tax on a sale, per rate, for the tax report.
+@DataClassName('SaleTaxRow')
+class SaleTaxes extends Table with SyncColumns {
+  TextColumn get saleId => text().references(Sales, #id)();
+  TextColumn get taxRateId => text()();
+  TextColumn get name => text()();
+  IntColumn get rateBp => integer()();
+
+  /// Pesewas.
+  IntColumn get amount => integer()();
 }
 
 @DataClassName('PaymentRow')
@@ -132,12 +360,26 @@ class Payments extends Table with SyncColumns {
 /// for an item; never overwrite a level.
 @DataClassName('StockMovementRow')
 class StockMovements extends Table with SyncColumns {
-  TextColumn get productId => text().references(Products, #id)();
+  /// v1-v4 movements were per product; from v5 they are per stock item.
+  TextColumn get productId => text().nullable().references(Products, #id)();
   TextColumn get variantId => text().nullable().references(ProductVariants, #id)();
+  TextColumn get stockItemId => text().nullable().references(StockItems, #id)();
+
+  /// Base units for stock items.
   IntColumn get quantityChange => integer()();
   TextColumn get reason => textEnum<StockReason>()();
+
+  /// Waste reason, or other detail.
+  TextColumn get subReason => text().nullable()();
+
+  /// Cost per base unit at the time (thousandths of a pesewa).
+  IntColumn get unitCostMilli => integer().nullable()();
   TextColumn get saleId => text().nullable().references(Sales, #id)();
+
+  /// The delivery or stock count this came from.
+  TextColumn get refId => text().nullable()();
   TextColumn get note => text().nullable()();
+  TextColumn get byName => text().nullable()();
 }
 
 /// Named sets of permissions. Built-in roles have fixed IDs (BuiltInRole).

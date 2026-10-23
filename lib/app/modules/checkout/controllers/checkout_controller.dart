@@ -97,6 +97,7 @@ class CheckoutController extends GetxController {
         lines: cart.lines.toList(),
         payment: payment,
         cashier: _auth.user,
+        taxMode: cart.taxMode,
       );
       cart.clear();
     } on SaleException catch (e) {

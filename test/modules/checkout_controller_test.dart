@@ -1,3 +1,4 @@
+import 'package:aby_pos/app/core/tax.dart';
 import 'package:aby_pos/app/data/repositories/audit_repository.dart';
 import 'package:aby_pos/app/data/repositories/sale_repository.dart';
 import 'package:aby_pos/app/data/repositories/staff_repository.dart';
@@ -19,6 +20,7 @@ class FakeSaleRepository implements SaleRepository {
     required List<CartLine> lines,
     required PaymentInput payment,
     required Staff cashier,
+    TaxMode taxMode = TaxMode.off,
   }) async {
     if (failWith != null) throw failWith!;
     calls.add((lines, payment, cashier));
@@ -56,7 +58,7 @@ void main() {
     sales = Get.put<SaleRepository>(FakeSaleRepository()) as FakeSaleRepository;
     Get.put(AuthService(FakeStaffRepository(), FakeAuditRepository())).signInAsNew(cashier);
     cart = Get.put(CartController());
-    cart.add(vanillaCone, variant: double_, addons: [sprinkles]); // 25.00
+    cart.add(vanillaCone, variant: double_, options: [sprinkles]); // 25.00
     checkout = Get.put(CheckoutController());
   });
 

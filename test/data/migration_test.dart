@@ -23,16 +23,16 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  for (final from in [1, 2, 3]) {
-    test('v$from to v4 gives exactly the v4 schema', () async {
+  for (final from in [1, 2, 3, 4]) {
+    test('v$from to v5 gives exactly the v5 schema', () async {
       final schema = await verifier.schemaAt(from);
       final db = AppDatabase(schema.newConnection(), false);
-      await verifier.migrateAndValidate(db, 4);
+      await verifier.migrateAndValidate(db, 5);
       await db.close();
     });
   }
 
-  test('v1 to v4 keeps existing sales, the device ID and the shop name', () async {
+  test('v1 to v5 keeps existing sales, the device ID and the shop name', () async {
     final schema = await verifier.schemaAt(1);
     final raw = schema.rawDatabase;
     raw.execute("INSERT INTO meta (key, value) VALUES ('device_id', 'dev-1'), "
@@ -61,7 +61,7 @@ void main() {
     await db.close();
   });
 
-  test('v2 to v4 gives existing owners and cashiers the built-in roles', () async {
+  test('v2 to v5 gives existing owners and cashiers the built-in roles', () async {
     final schema = await verifier.schemaAt(2);
     final raw = schema.rawDatabase;
     raw.execute("INSERT INTO meta (key, value) VALUES ('device_id', 'dev-1'), ('shop_name', 'Scoops Tamale')");
@@ -83,7 +83,7 @@ void main() {
     await db.close();
   });
 
-  test('v3 to v4 keeps staff and leaves their new profile empty', () async {
+  test('v3 to v5 keeps staff and leaves their new profile empty', () async {
     final schema = await verifier.schemaAt(3);
     final raw = schema.rawDatabase;
     raw.execute("INSERT INTO meta (key, value) VALUES ('device_id', 'dev-1')");
@@ -102,6 +102,48 @@ void main() {
     expect(profile!.staff.name, 'Kofi');
     expect(profile.phone, isNull);
     expect(await r.staff.photo('st-1'), isNull);
+    await db.close();
+  });
+
+  test('v4 to v5 gives every product a price, turns add-ons into options, keeps history', () async {
+    final schema = await verifier.schemaAt(4);
+    final raw = schema.rawDatabase;
+    const t = 1761000000;
+    raw.execute("INSERT INTO meta (key, value) VALUES ('device_id', 'dev-1')");
+    raw.execute('INSERT INTO categories (id, created_at, updated_at, device_id, name, tone, sort_order) '
+        "VALUES ('c1', $t, $t, 'dev-1', 'Cones', 'coral', 0)");
+    raw.execute('INSERT INTO products (id, created_at, updated_at, device_id, category_id, name, base_price, active, sort_order) VALUES '
+        "('p-cone', $t, $t, 'dev-1', 'c1', 'Vanilla cone', 1500, 1, 0), "
+        "('p-waffle', $t, $t, 'dev-1', 'c1', 'Waffle', 1200, 1, 1)");
+    raw.execute('INSERT INTO product_variants (id, created_at, updated_at, device_id, product_id, name, price, sort_order) VALUES '
+        "('v-single', $t, $t, 'dev-1', 'p-cone', 'Single scoop', 1500, 0), "
+        "('v-double', $t, $t, 'dev-1', 'p-cone', 'Double scoop', 2200, 1)");
+    raw.execute('INSERT INTO addons (id, created_at, updated_at, device_id, name, price, active, sort_order) VALUES '
+        "('a-sprinkles', $t, $t, 'dev-1', 'Sprinkles', 300, 1, 0)");
+    raw.execute('INSERT INTO product_addons (id, created_at, updated_at, device_id, product_id, addon_id) VALUES '
+        "('pa1', $t, $t, 'dev-1', 'p-waffle', 'a-sprinkles')");
+    raw.execute('INSERT INTO sales (id, created_at, updated_at, device_id, number, status, subtotal, total, cashier_name) '
+        "VALUES ('s1', $t, $t, 'dev-1', 1, 'completed', 1500, 1500, 'Ama')");
+    raw.execute('INSERT INTO stock_movements (id, created_at, updated_at, device_id, product_id, quantity_change, reason, sale_id) '
+        "VALUES ('m1', $t, $t, 'dev-1', 'p-waffle', -1, 'sale', 's1')");
+
+    final db = AppDatabase(schema.newConnection(), false);
+    final r = await Repos.open(db);
+    final menu = await r.catalog.load();
+    final waffle = menu.products.firstWhere((p) => p.name == 'Waffle');
+    expect(waffle.isSimple, isTrue);
+    expect(waffle.variants.single.price, 1200, reason: 'old base price');
+    expect(waffle.groups.single.name, 'Toppings');
+    expect(waffle.groups.single.options.single.id, 'a-sprinkles', reason: 'same ID as the old add-on');
+    final cone = menu.products.firstWhere((p) => p.name == 'Vanilla cone');
+    expect(cone.variants.map((v) => v.name), ['Single scoop', 'Double scoop']);
+    expect(cone.groups, isEmpty);
+
+    final moves = await db.select(db.stockMovements).get();
+    expect(moves.single.productId, 'p-waffle');
+    expect(moves.single.stockItemId, isNull);
+    final sale = await db.select(db.sales).getSingle();
+    expect(sale.taxTotal, 0);
     await db.close();
   });
 }

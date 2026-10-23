@@ -12,6 +12,7 @@ enum ActivityFilter {
   signIns,
   sales,
   staff,
+  catalogue,
   settingsAndData;
 
   Set<AuditAction>? get actions => switch (this) {
@@ -35,6 +36,26 @@ enum ActivityFilter {
             AuditAction.roleCreated,
             AuditAction.roleUpdated,
             AuditAction.roleDeleted,
+          },
+        ActivityFilter.catalogue => {
+            AuditAction.productCreated,
+            AuditAction.productUpdated,
+            AuditAction.productArchived,
+            AuditAction.productRestored,
+            AuditAction.priceChanged,
+            AuditAction.categorySaved,
+            AuditAction.optionGroupSaved,
+            AuditAction.taxRateSaved,
+            AuditAction.stockItemSaved,
+            AuditAction.stockReceived,
+            AuditAction.stockAdjusted,
+            AuditAction.stockWasted,
+            AuditAction.stockCountPosted,
+            AuditAction.supplierSaved,
+            AuditAction.supplierPaid,
+            AuditAction.priceScheduled,
+            AuditAction.pricesBulkChanged,
+            AuditAction.catalogueImported,
           },
         ActivityFilter.settingsAndData => {
             AuditAction.settingChanged,

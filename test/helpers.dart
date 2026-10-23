@@ -1,6 +1,7 @@
 import 'package:aby_pos/app/core/permissions.dart';
 import 'package:aby_pos/app/data/database/app_database.dart';
 import 'package:aby_pos/app/data/repositories/audit_repository.dart';
+import 'package:aby_pos/app/data/repositories/catalog_repository.dart';
 import 'package:aby_pos/app/data/repositories/day_close_repository.dart';
 import 'package:aby_pos/app/data/repositories/sale_repository.dart';
 import 'package:aby_pos/app/data/repositories/staff_repository.dart';
@@ -46,10 +47,11 @@ final cashier = Staff(id: 'st-cashier', name: 'Ama', role: cashierRole);
 /// Every repository wired to one database, as InitialBinding does.
 class Repos {
   Repos._(this.db, this.device) : audit = AuditRepository(db, device) {
-    stock = StockRepository(db, device);
+    stock = StockRepository(db, device, audit);
     closes = DayCloseRepository(db, device, audit);
     sales = SaleRepository(db, stock, closes, audit, device);
     staff = StaffRepository(db, device, audit);
+    catalog = CatalogRepository(db, device, audit);
   }
 
   static Future<Repos> open(AppDatabase db) async =>
@@ -62,11 +64,19 @@ class Repos {
   late final DayCloseRepository closes;
   late final SaleRepository sales;
   late final StaffRepository staff;
+  late final CatalogRepository catalog;
 }
 
 /// Catalogue fixtures, prices in pesewas.
-const sprinkles = Addon(id: 'a-sprinkles', name: 'Sprinkles', price: 300);
-const crunch = Addon(id: 'a-crunch', name: 'Groundnut crunch', price: 500);
+const sprinkles = Option(id: 'o-sprinkles', groupId: 'g-toppings', name: 'Sprinkles', priceDelta: 300);
+const crunch = Option(id: 'o-crunch', groupId: 'g-toppings', name: 'Groundnut crunch', priceDelta: 500);
+const toppings = OptionGroup(
+  id: 'g-toppings',
+  name: 'Toppings',
+  maxSelect: 3,
+  allowRepeat: true,
+  options: [sprinkles, crunch],
+);
 const single = Variant(id: 'v-single', name: 'Single scoop', price: 1500);
 const double_ = Variant(id: 'v-double', name: 'Double scoop', price: 2200);
 
@@ -74,15 +84,14 @@ const vanillaCone = Product(
   id: 'p-vanilla',
   categoryId: 'c-cones',
   name: 'Vanilla cone',
-  basePrice: 1500,
   variants: [single, double_],
-  addons: [sprinkles, crunch],
+  groups: [toppings],
 );
 
 const waffle = Product(
   id: 'p-waffle',
   categoryId: 'c-snacks',
   name: 'Waffle',
-  basePrice: 1200,
-  addons: [sprinkles],
+  variants: [Variant(id: 'v-waffle', price: 1200)],
+  groups: [toppings],
 );

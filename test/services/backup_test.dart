@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:aby_pos/app/core/settings.dart';
 import 'package:aby_pos/app/data/database/app_database.dart';
-import 'package:aby_pos/app/data/repositories/catalog_repository.dart';
 import 'package:aby_pos/app/data/repositories/settings_repository.dart';
 import 'package:aby_pos/app/models/models.dart';
 import 'package:aby_pos/app/services/backup/backup_codec.dart';
@@ -73,7 +72,7 @@ void main() {
         liveDatabaseFile: () async => live,
         iterations: 1000,
       );
-      final waffle = (await CatalogRepository(db).products()).firstWhere((x) => x.name == 'Waffle');
+      final waffle = (await r.catalog.products()).firstWhere((x) => x.name == 'Waffle');
       await r.sales.completeSale(
         lines: [CartLine(product: waffle, quantity: 2)],
         payment: const PaymentInput.cash(tendered: 2400),

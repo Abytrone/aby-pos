@@ -115,7 +115,7 @@ class _Menu extends StatelessWidget {
                   selected: selected == null,
                   onTap: () => controller.selectCategory(null),
                 ),
-                for (final cat in controller.categories)
+                for (final cat in controller.topCategories)
                   _CategoryTab(
                     label: cat.name,
                     tone: cat.tone,
@@ -133,6 +133,7 @@ class _Menu extends StatelessWidget {
             final inCart = {
               for (final p in products) p.id: controller.cart.countFor(p.id),
             };
+            final left = {for (final p in products) p.id: controller.leftOf(p)};
             return GridView.builder(
               padding: const EdgeInsets.fromLTRB(
                   AbySpace.s4, 0, AbySpace.s4, AbySpace.s4),
@@ -150,10 +151,11 @@ class _Menu extends StatelessWidget {
                   product: p,
                   tone: controller.categoryOf(p)?.tone ?? CategoryTone.midnight,
                   inCart: inCart[p.id] ?? 0,
+                  left: left[p.id],
                   onTap: () {
                     if (controller.tapProduct(p)) onPickerOpened();
                   },
-                  onLongPress: p.hasOptions
+                  onLongPress: p.hasChoices
                       ? () {
                           if (controller.longPressProduct(p)) onPickerOpened();
                         }

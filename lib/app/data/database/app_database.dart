@@ -46,10 +46,25 @@ String settingRowId(String key, SettingScope scope, String deviceId) =>
   Categories,
   Products,
   ProductVariants,
-  Addons,
-  ProductAddons,
+  OptionGroups,
+  OptionItems,
+  ProductOptionGroups,
+  StockItems,
+  RecipeItems,
+  TaxRates,
+  ProductTaxes,
+  Barcodes,
+  ProductPhotos,
+  PriceChanges,
+  Suppliers,
+  SupplierLedger,
+  StockReceipts,
+  StockReceiptLines,
+  StockCounts,
+  StockCountLines,
   Sales,
   SaleLines,
+  SaleTaxes,
   Payments,
   StockMovements,
   Roles,
@@ -77,7 +92,7 @@ class AppDatabase extends _$AppDatabase {
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -138,6 +153,116 @@ class AppDatabase extends _$AppDatabase {
               await m.addColumn(staff, column);
             }
             await m.createTable(schema.staffPhotos);
+          },
+          // v5: catalogue and stock (variants for everything, option groups,
+          // stock items and recipes, taxes, suppliers, deliveries, counts).
+          from4To5: (m, schema) async {
+            final deviceId = await _ensureDeviceId();
+            final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+            for (final table in [
+              schema.optionGroups,
+              schema.optionItems,
+              schema.productOptionGroups,
+              schema.stockItems,
+              schema.recipeItems,
+              schema.taxRates,
+              schema.productTaxes,
+              schema.barcodes,
+              schema.productPhotos,
+              schema.priceChanges,
+              schema.suppliers,
+              schema.supplierLedger,
+              schema.stockReceipts,
+              schema.stockReceiptLines,
+              schema.stockCounts,
+              schema.stockCountLines,
+              schema.saleTaxes,
+            ]) {
+              await m.createTable(table);
+            }
+            await m.addColumn(schema.categories, schema.categories.parentId);
+            await m.addColumn(schema.categories, schema.categories.active);
+
+            // Variant names become optional; cost and active are new.
+            await m.alterTable(TableMigration(
+              schema.productVariants,
+              newColumns: [schema.productVariants.manualCost, schema.productVariants.active],
+            ));
+            // Every product needs a variant: simple products get one at their
+            // old base price (read before that column goes).
+            final simple = await customSelect(
+              'SELECT id, base_price FROM products p WHERE NOT EXISTS '
+              '(SELECT 1 FROM product_variants v WHERE v.product_id = p.id)',
+            ).get();
+            for (final row in simple) {
+              await customStatement(
+                'INSERT INTO product_variants (id, created_at, updated_at, device_id, product_id, '
+                'name, price, sort_order, active) VALUES (?, ?, ?, ?, ?, NULL, ?, 0, 1)',
+                [newId(), now, now, deviceId, row.read<String>('id'), row.read<int>('base_price')],
+              );
+            }
+            await m.alterTable(TableMigration(
+              schema.products,
+              newColumns: [schema.products.description, schema.products.archivedAt],
+            ));
+
+            // Add-ons become options in one "Toppings" group. Same IDs, so
+            // the add-ons on old sale lines still match.
+            final addons = await customSelect(
+              'SELECT id, name, price, active, sort_order FROM addons WHERE deleted_at IS NULL',
+            ).get();
+            if (addons.isNotEmpty) {
+              final groupId = newId();
+              await customStatement(
+                'INSERT INTO option_groups (id, created_at, updated_at, device_id, name, '
+                'min_select, max_select, allow_repeat, active, sort_order) '
+                "VALUES (?, ?, ?, ?, 'Toppings', 0, NULL, 0, 1, 0)",
+                [groupId, now, now, deviceId],
+              );
+              for (final a in addons) {
+                await customStatement(
+                  'INSERT INTO option_items (id, created_at, updated_at, device_id, group_id, name, '
+                  'price_delta, is_default, active, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?)',
+                  [
+                    a.read<String>('id'),
+                    now,
+                    now,
+                    deviceId,
+                    groupId,
+                    a.read<String>('name'),
+                    a.read<int>('price'),
+                    a.read<int>('active'),
+                    a.read<int>('sort_order'),
+                  ],
+                );
+              }
+              final linked = await customSelect(
+                'SELECT DISTINCT product_id FROM product_addons WHERE deleted_at IS NULL',
+              ).get();
+              for (final l in linked) {
+                await customStatement(
+                  'INSERT INTO product_option_groups (id, created_at, updated_at, device_id, '
+                  'product_id, group_id, sort_order) VALUES (?, ?, ?, ?, ?, ?, 0)',
+                  [newId(), now, now, deviceId, l.read<String>('product_id'), groupId],
+                );
+              }
+            }
+            await customStatement('DROP TABLE product_addons');
+            await customStatement('DROP TABLE addons');
+
+            await m.addColumn(schema.sales, schema.sales.taxTotal);
+            await m.addColumn(schema.saleLines, schema.saleLines.costTotal);
+            await m.addColumn(schema.saleLines, schema.saleLines.taxTotal);
+
+            // Movements are per stock item from now on; product is optional.
+            final moves = schema.stockMovements;
+            await m.alterTable(TableMigration(moves, newColumns: [
+              moves.stockItemId,
+              moves.subReason,
+              moves.unitCostMilli,
+              moves.refId,
+              moves.byName,
+            ]));
           },
         ),
         beforeOpen: (details) async {
@@ -237,6 +362,27 @@ class AppDatabase extends _$AppDatabase {
   ) async {
     final ok = await update(table).replace(row as Insertable<D>);
     if (!ok) throw StateError('No ${table.actualTableName} row to update');
+    await _recordOutbox(table, row, OutboxOperation.update);
+  }
+
+  /// Sets deletedAt on a syncable row and records the update in the outbox.
+  /// Rows are never removed: sync and history still need them.
+  Future<void> softDeleteTracked<T extends Table, D extends DataClass>(
+    TableInfo<T, D> table,
+    String id,
+  ) async {
+    final now = DateTime.now();
+    await customUpdate(
+      'UPDATE ${table.actualTableName} SET deleted_at = ?, updated_at = ? WHERE id = ?',
+      variables: [Variable.withDateTime(now), Variable.withDateTime(now), Variable.withString(id)],
+      updates: {table},
+      updateKind: UpdateKind.update,
+    );
+    final row = await customSelect(
+      'SELECT * FROM ${table.actualTableName} WHERE id = ?',
+      variables: [Variable.withString(id)],
+      readsFrom: {table},
+    ).asyncMap((r) async => await table.map(r.data)).getSingle();
     await _recordOutbox(table, row, OutboxOperation.update);
   }
 

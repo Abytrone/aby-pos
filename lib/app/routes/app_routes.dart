@@ -10,4 +10,10 @@ abstract final class Routes {
 
   /// Argument: the staff ID.
   static const staffProfile = '/staff-profile';
+
+  /// Argument: the product ID, or null for a new product.
+  static const productEditor = '/product';
+
+  /// Argument: the stock item ID.
+  static const stockItem = '/stock-item';
 }

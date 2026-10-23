@@ -77,7 +77,7 @@ class DayCloseRepository {
     required int countedCash,
     required Staff closedBy,
     String? note,
-  }) {
+  }) async {
     if (openingFloat < 0 || countedCash < 0) {
       throw ArgumentError('Amounts cannot be negative.');
     }

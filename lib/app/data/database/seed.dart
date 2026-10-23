@@ -2,24 +2,132 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 
+import '../../core/units.dart';
 import '../../models/enums.dart';
 import '../../services/ids.dart';
 import '../../services/money.dart';
 import 'app_database.dart';
 
-/// Fills a new database with the first customer's menu: an ice cream shop.
+/// Fills a new database with the first customer's menu: an ice cream shop,
+/// with stock items, recipes and some opening stock so the till shows what
+/// is left from day one.
 ///
 /// Seed rows are not written to the outbox and have no `syncedAt`.
-/// TODO(sync): once back-office product editing exists, the server owns the
-/// catalogue and this becomes a first-sync download instead.
+/// TODO(sync): once the server owns the catalogue, this becomes a
+/// first-sync download instead.
 Future<void> seedScoopsTamale(AppDatabase db, {required String deviceId}) async {
   final now = DateTime.now();
   var order = 0;
 
   await db.transaction(() async {
-    await db.writeSettingRow(
-        'shop.name', SettingScope.shop, jsonEncode('Scoops Tamale'), deviceId);
+    await db.writeSettingRow('shop.name', SettingScope.shop, jsonEncode('Scoops Tamale'), deviceId);
 
+    // ---- Stock items: what the shop buys -----------------------------------
+    Future<String> stock(String name, StockUnit unit, int pesewasPerBulk, int opening) async {
+      final id = newId();
+      final costMilli = costMilliFromPrice(pesewasPerBulk, DisplayUnit.bulk(unit));
+      await db.into(db.stockItems).insert(StockItemsCompanion.insert(
+            id: id,
+            createdAt: now,
+            updatedAt: now,
+            deviceId: deviceId,
+            name: name,
+            unit: unit,
+            costMilli: Value(costMilli),
+            reorderPoint: Value(opening ~/ 4),
+            reorderQty: Value(opening),
+          ));
+      await db.into(db.stockMovements).insert(StockMovementsCompanion.insert(
+            id: newId(),
+            createdAt: now,
+            updatedAt: now,
+            deviceId: deviceId,
+            stockItemId: Value(id),
+            quantityChange: opening,
+            reason: StockReason.adjustment,
+            unitCostMilli: Value(costMilli),
+            note: const Value('Opening stock'),
+          ));
+      return id;
+    }
+
+    final cone = await stock('Wafer cones', StockUnit.piece, 80, 200);
+    final cupS = await stock('Cups, small', StockUnit.piece, 50, 150);
+    final cupM = await stock('Cups, medium', StockUnit.piece, 60, 150);
+    final cupL = await stock('Cups, large', StockUnit.piece, 70, 100);
+    final vanilla = await stock('Vanilla ice cream', StockUnit.ml, cedis(45), 20000);
+    final chocolate = await stock('Chocolate ice cream', StockUnit.ml, cedis(50), 15000);
+    final tubs = await stock('Ice cream tubs, 500 ml', StockUnit.piece, cedis(30), 24);
+    final milk = await stock('Milk', StockUnit.ml, cedis(25), 10000);
+    final waffleMix = await stock('Waffle mix', StockUnit.g, cedis(35), 5000);
+    final sprinkles = await stock('Sprinkles', StockUnit.g, cedis(40), 2000);
+    final crunch = await stock('Groundnut crunch', StockUnit.g, cedis(30), 2000);
+    final sauce = await stock('Chocolate sauce', StockUnit.ml, cedis(60), 3000);
+
+    Future<void> recipe(List<(String, int)> items, {String? variantId, String? optionId}) async {
+      for (final (item, qty) in items) {
+        await db.into(db.recipeItems).insert(RecipeItemsCompanion.insert(
+              id: newId(),
+              createdAt: now,
+              updatedAt: now,
+              deviceId: deviceId,
+              variantId: Value(variantId),
+              optionId: Value(optionId),
+              stockItemId: item,
+              quantity: qty,
+            ));
+      }
+    }
+
+    // ---- Toppings ------------------------------------------------------------
+    final toppings = newId();
+    await db.into(db.optionGroups).insert(OptionGroupsCompanion.insert(
+          id: toppings,
+          createdAt: now,
+          updatedAt: now,
+          deviceId: deviceId,
+          name: 'Toppings',
+          maxSelect: const Value(3),
+          allowRepeat: const Value(true),
+        ));
+    for (final (name, price, item, qty) in [
+      ('Sprinkles', cedis(3), sprinkles, 10),
+      ('Groundnut crunch', cedis(5), crunch, 15),
+      ('Chocolate sauce', cedis(4), sauce, 20),
+    ]) {
+      final id = newId();
+      await db.into(db.optionItems).insert(OptionItemsCompanion.insert(
+            id: id,
+            createdAt: now,
+            updatedAt: now,
+            deviceId: deviceId,
+            groupId: toppings,
+            name: name,
+            priceDelta: Value(price),
+            sortOrder: Value(order++),
+          ));
+      await recipe([(item, qty)], optionId: id);
+    }
+
+    // ---- Taxes (presets; tax is off until the owner turns it on) -----------
+    for (final (name, bp, compound) in [
+      ('NHIL', 250, false),
+      ('GETFund levy', 250, false),
+      ('VAT', 1500, true),
+    ]) {
+      await db.into(db.taxRates).insert(TaxRatesCompanion.insert(
+            id: newId(),
+            createdAt: now,
+            updatedAt: now,
+            deviceId: deviceId,
+            name: name,
+            rateBp: bp,
+            compound: Value(compound),
+            sortOrder: Value(order++),
+          ));
+    }
+
+    // ---- Menu ------------------------------------------------------------------
     Future<String> category(String name, CategoryTone tone) async {
       final id = newId();
       await db.into(db.categories).insert(CategoriesCompanion.insert(
@@ -34,27 +142,12 @@ Future<void> seedScoopsTamale(AppDatabase db, {required String deviceId}) async 
       return id;
     }
 
-    Future<String> addon(String name, int price) async {
-      final id = newId();
-      await db.into(db.addons).insert(AddonsCompanion.insert(
-            id: id,
-            createdAt: now,
-            updatedAt: now,
-            deviceId: deviceId,
-            name: name,
-            price: price,
-            sortOrder: Value(order++),
-          ));
-      return id;
-    }
-
     Future<void> product(
       String categoryId,
       String name, {
-      required int price,
       String? detail,
-      List<(String, int)> variants = const [],
-      List<String> addonIds = const [],
+      required List<(String?, int, List<(String, int)>)> variants,
+      bool withToppings = false,
     }) async {
       final id = newId();
       await db.into(db.products).insert(ProductsCompanion.insert(
@@ -65,56 +158,61 @@ Future<void> seedScoopsTamale(AppDatabase db, {required String deviceId}) async 
             categoryId: categoryId,
             name: name,
             detail: Value(detail),
-            basePrice: price,
             sortOrder: Value(order++),
           ));
-      for (final (variantName, variantPrice) in variants) {
+      for (final (i, (variantName, price, items)) in variants.indexed) {
+        final variantId = newId();
         await db.into(db.productVariants).insert(ProductVariantsCompanion.insert(
-              id: newId(),
+              id: variantId,
               createdAt: now,
               updatedAt: now,
               deviceId: deviceId,
               productId: id,
-              name: variantName,
-              price: variantPrice,
-              sortOrder: Value(order++),
+              name: Value(variantName),
+              price: price,
+              sortOrder: Value(i),
             ));
+        await recipe(items, variantId: variantId);
       }
-      for (final addonId in addonIds) {
-        await db.into(db.productAddons).insert(ProductAddonsCompanion.insert(
+      if (withToppings) {
+        await db.into(db.productOptionGroups).insert(ProductOptionGroupsCompanion.insert(
               id: newId(),
               createdAt: now,
               updatedAt: now,
               deviceId: deviceId,
               productId: id,
-              addonId: addonId,
+              groupId: toppings,
             ));
       }
     }
 
-    final toppings = [
-      await addon('Sprinkles', cedis(3)),
-      await addon('Groundnut crunch', cedis(5)),
-      await addon('Chocolate sauce', cedis(4)),
-    ];
-
     final cones = await category('Cones', CategoryTone.coral);
     final cups = await category('Cups', CategoryTone.blue);
-    final tubs = await category('Tubs', CategoryTone.midnight);
+    final tubsCat = await category('Tubs', CategoryTone.midnight);
     final drinks = await category('Drinks', CategoryTone.lime);
     final snacks = await category('Snacks', CategoryTone.coral);
 
-    final coneSizes = [('Single scoop', cedis(15)), ('Double scoop', cedis(22))];
-    await product(cones, 'Vanilla cone',
-        price: cedis(15), variants: coneSizes, addonIds: toppings);
-    await product(cones, 'Chocolate cone',
-        price: cedis(15), variants: coneSizes, addonIds: toppings);
-    await product(cups, 'Ice cream cup',
-        price: cedis(20),
-        variants: [('Small', cedis(20)), ('Medium', cedis(25)), ('Large', cedis(32))],
-        addonIds: toppings);
-    await product(tubs, 'Ice cream tub', price: cedis(60), detail: '500 ml');
-    await product(drinks, 'Milkshake', price: cedis(20), detail: '350 ml');
-    await product(snacks, 'Waffle', price: cedis(12), addonIds: toppings);
+    await product(cones, 'Vanilla cone', withToppings: true, variants: [
+      ('Single scoop', cedis(15), [(cone, 1), (vanilla, 80)]),
+      ('Double scoop', cedis(22), [(cone, 1), (vanilla, 160)]),
+    ]);
+    await product(cones, 'Chocolate cone', withToppings: true, variants: [
+      ('Single scoop', cedis(15), [(cone, 1), (chocolate, 80)]),
+      ('Double scoop', cedis(22), [(cone, 1), (chocolate, 160)]),
+    ]);
+    await product(cups, 'Ice cream cup', withToppings: true, variants: [
+      ('Small', cedis(20), [(cupS, 1), (vanilla, 120)]),
+      ('Medium', cedis(25), [(cupM, 1), (vanilla, 180)]),
+      ('Large', cedis(32), [(cupL, 1), (vanilla, 250)]),
+    ]);
+    await product(tubsCat, 'Ice cream tub', detail: '500 ml', variants: [
+      (null, cedis(60), [(tubs, 1)]),
+    ]);
+    await product(drinks, 'Milkshake', detail: '350 ml', variants: [
+      (null, cedis(20), [(milk, 200), (vanilla, 100)]),
+    ]);
+    await product(snacks, 'Waffle', withToppings: true, variants: [
+      (null, cedis(12), [(waffleMix, 120)]),
+    ]);
   });
 }

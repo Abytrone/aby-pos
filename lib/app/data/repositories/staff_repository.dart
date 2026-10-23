@@ -70,7 +70,7 @@ class StaffRepository {
     required String roleId,
     required String pin,
     Staff? by,
-  }) {
+  }) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty) throw const StaffException('Enter a name.');
     _checkPin(pin);

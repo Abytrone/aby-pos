@@ -788,6 +788,558 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileRecentActivity => 'Recent activity';
 
   @override
+  String get navProducts => 'Products';
+
+  @override
+  String get navStock => 'Stock';
+
+  @override
+  String get activityFilterCatalogue => 'Products and stock';
+
+  @override
+  String get auditProductCreated => 'Product added';
+
+  @override
+  String get auditProductUpdated => 'Product changed';
+
+  @override
+  String get auditProductArchived => 'Product archived';
+
+  @override
+  String get auditProductRestored => 'Product restored';
+
+  @override
+  String get auditPriceChanged => 'Price changed';
+
+  @override
+  String get auditCategorySaved => 'Category changed';
+
+  @override
+  String get auditOptionGroupSaved => 'Options changed';
+
+  @override
+  String get auditTaxRateSaved => 'Tax changed';
+
+  @override
+  String get auditStockItemSaved => 'Stock item changed';
+
+  @override
+  String get auditStockReceived => 'Delivery received';
+
+  @override
+  String get auditStockAdjusted => 'Stock corrected';
+
+  @override
+  String get auditStockWasted => 'Waste logged';
+
+  @override
+  String get auditStockCountPosted => 'Stock count posted';
+
+  @override
+  String get auditSupplierSaved => 'Supplier changed';
+
+  @override
+  String get auditSupplierPaid => 'Supplier paid';
+
+  @override
+  String get auditPriceScheduled => 'Price scheduled';
+
+  @override
+  String get auditPricesBulkChanged => 'Prices changed in bulk';
+
+  @override
+  String get auditCatalogueImported => 'Products imported';
+
+  @override
+  String get cartTax => 'Tax';
+
+  @override
+  String get cartTaxIncluded => 'Includes tax';
+
+  @override
+  String get cartTotal => 'Total';
+
+  @override
+  String get tileOut => 'None left';
+
+  @override
+  String get pickerSize => 'Size';
+
+  @override
+  String get pickerRemoveOne => 'One less';
+
+  @override
+  String get groupOptional => 'Optional';
+
+  @override
+  String get productsTab => 'Products';
+
+  @override
+  String get categoriesTab => 'Categories';
+
+  @override
+  String get optionsTab => 'Options';
+
+  @override
+  String get taxTab => 'Tax';
+
+  @override
+  String get productsNew => 'New product';
+
+  @override
+  String get productsSearch => 'Search name or barcode';
+
+  @override
+  String get productsAllCategories => 'All categories';
+
+  @override
+  String get productsFilterAll => 'All';
+
+  @override
+  String get productsFilterOnTill => 'On the till';
+
+  @override
+  String get productsFilterOffTill => 'Off the till';
+
+  @override
+  String get productsFilterLowMargin => 'Low margin';
+
+  @override
+  String get productsFilterArchived => 'Archived';
+
+  @override
+  String get productsNone => 'No products here.';
+
+  @override
+  String get productsNoCost => 'No cost set';
+
+  @override
+  String get productsDuplicate => 'Duplicate';
+
+  @override
+  String get productsArchive => 'Archive';
+
+  @override
+  String get productsRestore => 'Restore';
+
+  @override
+  String get productsArchiveBody =>
+      'It comes off the till and the lists. Past sales keep it, and you can restore it later.';
+
+  @override
+  String get productsEditReason => 'Change products.';
+
+  @override
+  String get productsArchiveReason => 'Archive a product.';
+
+  @override
+  String get productsDuplicateReason => 'Copy a product.';
+
+  @override
+  String get categoriesNew => 'New category';
+
+  @override
+  String get categoriesEdit => 'Change category';
+
+  @override
+  String get categoriesName => 'Category name';
+
+  @override
+  String get categoriesColour => 'Colour';
+
+  @override
+  String get categoriesInside => 'Put it inside';
+
+  @override
+  String get categoriesTopLevel => 'Nothing (top level)';
+
+  @override
+  String get categoriesHidden => 'Hidden';
+
+  @override
+  String get categoriesNone => 'No categories yet.';
+
+  @override
+  String get optionsNew => 'New options';
+
+  @override
+  String get optionsEdit => 'Change options';
+
+  @override
+  String get optionsName => 'Name';
+
+  @override
+  String get optionsNameHelp => 'For example Toppings, Sugar level or Sauce.';
+
+  @override
+  String get optionsMin => 'Must pick at least';
+
+  @override
+  String get optionsMinHelp => '0 makes it optional.';
+
+  @override
+  String get optionsMax => 'Can pick up to';
+
+  @override
+  String get optionsMaxHelp => 'Empty: no limit.';
+
+  @override
+  String get optionsRepeat => 'The same option can be picked twice';
+
+  @override
+  String get optionsRepeatHelp => 'For example double sprinkles.';
+
+  @override
+  String get optionsOptionName => 'Option';
+
+  @override
+  String get optionsExtra => 'Extra';
+
+  @override
+  String get optionsRemove => 'Remove option';
+
+  @override
+  String get optionsDefault => 'Ticked when the picker opens';
+
+  @override
+  String get optionsAdd => 'Add option';
+
+  @override
+  String get optionsNone => 'No options yet.';
+
+  @override
+  String get optionsUnused => 'Not on any product yet.';
+
+  @override
+  String get taxModeTitle => 'How tax works here';
+
+  @override
+  String get taxModeOff => 'No tax';
+
+  @override
+  String get taxModeInclusive => 'Prices include tax';
+
+  @override
+  String get taxModeExclusive => 'Add tax at the till';
+
+  @override
+  String get taxModeHelp =>
+      'Most shops in Ghana show prices with tax included. Only turn tax on if the shop is registered.';
+
+  @override
+  String get taxRates => 'Tax rates';
+
+  @override
+  String get taxNone => 'No tax rates.';
+
+  @override
+  String get taxNew => 'New tax rate';
+
+  @override
+  String get taxEdit => 'Change tax rate';
+
+  @override
+  String get taxName => 'Name';
+
+  @override
+  String get taxNameHelp => 'As it should appear on receipts.';
+
+  @override
+  String get taxRate => 'Rate';
+
+  @override
+  String get taxRateInvalid => 'Enter a rate like 15 or 2.5.';
+
+  @override
+  String get taxCompound => 'Charged on top of the other taxes';
+
+  @override
+  String get taxCompoundHelp =>
+      'VAT in Ghana is charged on the price plus NHIL and GETFund.';
+
+  @override
+  String get taxApprovalReason => 'Change tax settings.';
+
+  @override
+  String get taxAccountant =>
+      'Check the rates and which products they apply to with your accountant. Aby does not decide tax for you.';
+
+  @override
+  String get editorTitle => 'Change product';
+
+  @override
+  String get editorSaved => 'Product saved.';
+
+  @override
+  String get editorName => 'Product name';
+
+  @override
+  String get editorCategory => 'Category';
+
+  @override
+  String get editorTileLine => 'Size line on the tile';
+
+  @override
+  String get editorTileLineHelp => 'Optional, for example \"500 ml\".';
+
+  @override
+  String get editorDescription => 'Description';
+
+  @override
+  String get editorOnTill => 'On the till';
+
+  @override
+  String get editorOnTillHelp => 'Off: kept, but cashiers cannot sell it.';
+
+  @override
+  String get editorPrices => 'Prices';
+
+  @override
+  String get editorPricesHelp =>
+      'One price, or several sizes or kinds, each with its own price and recipe.';
+
+  @override
+  String get editorAddSizes => 'Add sizes or kinds';
+
+  @override
+  String get editorAddVariant => 'Add another';
+
+  @override
+  String get editorVariantName => 'Size or kind';
+
+  @override
+  String get editorVariantNameHelp =>
+      'For example Small, Double scoop, 500 ml.';
+
+  @override
+  String get editorPrice => 'Price';
+
+  @override
+  String get editorCost => 'Cost';
+
+  @override
+  String get editorCostFromRecipe => 'From the recipe';
+
+  @override
+  String get editorCostHelp => 'Optional';
+
+  @override
+  String get editorMoveUp => 'Move up';
+
+  @override
+  String get editorMoveDown => 'Move down';
+
+  @override
+  String get editorRemoveVariant => 'Remove';
+
+  @override
+  String get editorBarcodes => 'Barcodes';
+
+  @override
+  String get editorAddBarcode => 'Add barcode';
+
+  @override
+  String get editorBarcode => 'Barcode';
+
+  @override
+  String get editorBarcodeHelp => 'Type it, or scan it with a barcode scanner.';
+
+  @override
+  String get editorOptions => 'Options';
+
+  @override
+  String get editorNoOptions =>
+      'No option groups yet. Add them on the Options tab.';
+
+  @override
+  String get editorTaxes => 'Taxes';
+
+  @override
+  String get editorNoTaxes => 'No tax rates. Set them up on the Tax tab.';
+
+  @override
+  String get editorTaxesHelp => 'Only used when tax is on (Products, Tax).';
+
+  @override
+  String get editorPriceMissing => 'Enter a price for each size or kind.';
+
+  @override
+  String get editorCostInvalid => 'Check the cost.';
+
+  @override
+  String get editorRecipeInvalid => 'Check the recipe amounts.';
+
+  @override
+  String get editorCategoryMissing => 'Pick a category.';
+
+  @override
+  String get editorPriceReason => 'Change prices.';
+
+  @override
+  String get recipeUses => 'What it uses';
+
+  @override
+  String get recipeHelp =>
+      'Each sale takes these from stock and works out the cost.';
+
+  @override
+  String get recipeItem => 'Stock item';
+
+  @override
+  String get recipeAmount => 'Amount';
+
+  @override
+  String get recipeRemove => 'Remove';
+
+  @override
+  String get recipeAdd => 'Add stock item';
+
+  @override
+  String get recipeNoStockItems => 'Add stock items first (Stock)';
+
+  @override
+  String get stockNew => 'New stock item';
+
+  @override
+  String get stockEdit => 'Change stock item';
+
+  @override
+  String get stockSearch => 'Search stock';
+
+  @override
+  String get stockFilterAll => 'All';
+
+  @override
+  String get stockFilterRetired => 'Retired';
+
+  @override
+  String get stockNone => 'No stock items here.';
+
+  @override
+  String get stockLow => 'Low';
+
+  @override
+  String get stockName => 'Name';
+
+  @override
+  String get stockNameHelp =>
+      'What you buy, for example Wafer cones or Vanilla ice cream.';
+
+  @override
+  String get stockUnit => 'Counted in';
+
+  @override
+  String get unitPieces => 'Pieces';
+
+  @override
+  String get unitWeight => 'Weight (g, kg)';
+
+  @override
+  String get unitVolume => 'Volume (ml, L)';
+
+  @override
+  String get stockCostHelp => 'Deliveries update this to the average cost.';
+
+  @override
+  String get stockReorderAt => 'Low below';
+
+  @override
+  String get stockReorderQty => 'Usually order';
+
+  @override
+  String get stockReorderHelp => 'Both optional.';
+
+  @override
+  String get stockCostInvalid => 'Check the cost.';
+
+  @override
+  String get stockQuantityInvalid => 'Check the amount.';
+
+  @override
+  String get stockEditReason => 'Change stock items.';
+
+  @override
+  String get stockOnHand => 'On hand';
+
+  @override
+  String get stockHistory => 'History';
+
+  @override
+  String get stockNoMovements => 'Nothing yet.';
+
+  @override
+  String get stockLogWaste => 'Log waste';
+
+  @override
+  String get stockAdjust => 'Correct stock';
+
+  @override
+  String get stockRetire => 'Retire';
+
+  @override
+  String get stockRestore => 'Restore';
+
+  @override
+  String get stockUsedBy => 'Used by';
+
+  @override
+  String get stockUsedByNone => 'No product uses it yet.';
+
+  @override
+  String get stockLess => 'There is less';
+
+  @override
+  String get stockMore => 'There is more';
+
+  @override
+  String get stockHowMuch => 'How much';
+
+  @override
+  String get stockNoteOptional => 'Note (optional)';
+
+  @override
+  String get stockWhy => 'Why';
+
+  @override
+  String get stockAdjusted => 'Stock corrected.';
+
+  @override
+  String get stockWasted => 'Waste logged.';
+
+  @override
+  String get moveSale => 'Sold';
+
+  @override
+  String get moveReceived => 'Delivery';
+
+  @override
+  String get moveAdjustment => 'Correction';
+
+  @override
+  String get moveCount => 'Stock count';
+
+  @override
+  String get wasteMelted => 'Melted';
+
+  @override
+  String get wastePowerCut => 'Power cut';
+
+  @override
+  String get wasteExpired => 'Expired';
+
+  @override
+  String get wasteDamaged => 'Dropped or damaged';
+
+  @override
+  String get wasteStaffMeal => 'Staff';
+
+  @override
+  String get wasteSample => 'Free sample';
+
+  @override
+  String get wasteOther => 'Other';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }
@@ -1065,5 +1617,145 @@ class AppLocalizationsEn extends AppLocalizations {
       zero: 'Less than a month',
     );
     return '$_temp0';
+  }
+
+  @override
+  String tileFrom(String price) {
+    return 'from $price';
+  }
+
+  @override
+  String tileLeft(int count) {
+    return '$count left';
+  }
+
+  @override
+  String pickerAdd(String price) {
+    return 'Add $price';
+  }
+
+  @override
+  String groupUpTo(int max) {
+    return 'Up to $max';
+  }
+
+  @override
+  String groupPickExactly(int count) {
+    return 'Pick $count';
+  }
+
+  @override
+  String groupPickAtLeast(int count) {
+    return 'Pick at least $count';
+  }
+
+  @override
+  String groupPickBetween(int min, int max) {
+    return 'Pick $min to $max';
+  }
+
+  @override
+  String productsVariantCount(int count) {
+    return '$count prices';
+  }
+
+  @override
+  String productsMargin(int percent) {
+    return '$percent% margin';
+  }
+
+  @override
+  String productsArchiveTitle(String name) {
+    return 'Archive $name?';
+  }
+
+  @override
+  String productsArchived(String name) {
+    return '$name archived.';
+  }
+
+  @override
+  String productsRestored(String name) {
+    return '$name restored.';
+  }
+
+  @override
+  String productsDuplicated(String name) {
+    return 'Copy of $name added, off the till until you check it.';
+  }
+
+  @override
+  String optionsUsedBy(String names) {
+    return 'On: $names';
+  }
+
+  @override
+  String optionsPriceInvalid(String name) {
+    return 'Check the extra price for \"$name\".';
+  }
+
+  @override
+  String taxExample(String base, String tax, String total) {
+    return 'Example: a GH₵ 100.00 sale is $base plus $tax tax, $total in all.';
+  }
+
+  @override
+  String editorMarginLine(int percent, String profit) {
+    return '$percent% margin, $profit each';
+  }
+
+  @override
+  String stockFilterLow(int count) {
+    return 'Low ($count)';
+  }
+
+  @override
+  String stockTotalValue(String value) {
+    return 'Worth $value at cost';
+  }
+
+  @override
+  String stockCostEach(String price, String unit) {
+    return '$price per $unit';
+  }
+
+  @override
+  String stockCostPer(String unit) {
+    return 'Cost per $unit';
+  }
+
+  @override
+  String stockWorth(String value, String price, String unit) {
+    return 'Worth $value ($price per $unit)';
+  }
+
+  @override
+  String stockReorderLine(String amount) {
+    return 'Low below $amount';
+  }
+
+  @override
+  String stockLogWasteOf(String name) {
+    return 'Waste: $name';
+  }
+
+  @override
+  String stockAdjustOf(String name) {
+    return 'Correct: $name';
+  }
+
+  @override
+  String stockAdjustReason(String name) {
+    return 'Correct stock of $name.';
+  }
+
+  @override
+  String stockWasteReason(String name) {
+    return 'Log waste of $name.';
+  }
+
+  @override
+  String moveWaste(String reason) {
+    return 'Waste: $reason';
   }
 }

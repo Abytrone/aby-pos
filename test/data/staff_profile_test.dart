@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:aby_pos/app/core/permissions.dart';
 import 'package:aby_pos/app/core/validators.dart';
 import 'package:aby_pos/app/data/database/app_database.dart';
-import 'package:aby_pos/app/data/repositories/catalog_repository.dart';
 import 'package:aby_pos/app/data/repositories/staff_repository.dart';
 import 'package:aby_pos/app/data/repositories/staff_stats_repository.dart';
 import 'package:aby_pos/app/models/models.dart';
@@ -117,7 +116,7 @@ void main() {
     });
 
     test('stats count their sales, voids, closes and sign-ins', () async {
-      final waffle = (await CatalogRepository(db).products()).firstWhere((x) => x.name == 'Waffle');
+      final waffle = (await r.catalog.products()).firstWhere((x) => x.name == 'Waffle');
       Future<CompletedSale> sell(Staff who, int qty) => r.sales.completeSale(
             lines: [CartLine(product: waffle, quantity: qty)],
             payment: PaymentInput.cash(tendered: 1200 * qty),

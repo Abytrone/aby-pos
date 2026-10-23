@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/tax.dart';
 import '../../../models/cart_line.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/l10n.dart';
 import '../controllers/cart_controller.dart';
 
 /// The current sale: lines with steppers, the subtotal and the Pay button.
@@ -65,9 +67,21 @@ class CartPanel extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (cart.taxTotal > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AbySpace.s1),
+                    child: Row(children: [
+                      Text(
+                        cart.taxMode == TaxMode.inclusive ? context.l10n.cartTaxIncluded : context.l10n.cartTax,
+                        style: AbyText.caption.copyWith(color: c.inkMuted),
+                      ),
+                      const Spacer(),
+                      Text(formatMoney(cart.taxTotal), style: AbyText.caption.copyWith(color: c.inkMuted)),
+                    ]),
+                  ),
                 Row(
                   children: [
-                    Text('Subtotal', style: AbyText.body.copyWith(color: c.inkMuted)),
+                    Text(context.l10n.cartTotal, style: AbyText.body.copyWith(color: c.inkMuted)),
                     const Spacer(),
                     Text(
                       formatMoney(cart.total),
@@ -121,9 +135,9 @@ class _CartLineRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(line.title, style: AbyText.tile.copyWith(color: c.ink)),
-                    if (line.addons.isNotEmpty)
+                    if (line.options.isNotEmpty)
                       Text(
-                        '+ ${line.addonsLine}',
+                        '+ ${line.optionsLine}',
                         style: AbyText.caption.copyWith(color: c.inkMuted),
                       ),
                     Text(

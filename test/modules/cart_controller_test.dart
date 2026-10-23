@@ -26,7 +26,7 @@ void main() {
   });
 
   test('uses the variant price and adds add-ons per unit', () {
-    cart.add(vanillaCone, variant: double_, addons: [sprinkles, crunch]);
+    cart.add(vanillaCone, variant: double_, options: [sprinkles, crunch]);
     // 22.00 + 3.00 + 5.00
     expect(cart.lines.single.unitPrice, 3000);
     cart.increment(cart.lines.single.key);
@@ -35,8 +35,8 @@ void main() {
   });
 
   test('identical picks share a line, whatever the add-on order', () {
-    cart.add(vanillaCone, variant: single, addons: [sprinkles, crunch]);
-    cart.add(vanillaCone, variant: single, addons: [crunch, sprinkles]);
+    cart.add(vanillaCone, variant: single, options: [sprinkles, crunch]);
+    cart.add(vanillaCone, variant: single, options: [crunch, sprinkles]);
     expect(cart.lines, hasLength(1));
     expect(cart.lines.single.quantity, 2);
   });
@@ -44,7 +44,7 @@ void main() {
   test('different sizes or toppings get their own lines', () {
     cart.add(vanillaCone, variant: single);
     cart.add(vanillaCone, variant: double_);
-    cart.add(vanillaCone, variant: single, addons: [sprinkles]);
+    cart.add(vanillaCone, variant: single, options: [sprinkles]);
     expect(cart.lines, hasLength(3));
     expect(cart.countFor(vanillaCone.id), 3);
     // 15 + 22 + 18
@@ -65,7 +65,7 @@ void main() {
   });
 
   test('change due', () {
-    cart.add(vanillaCone, variant: double_, addons: [sprinkles]); // 25.00
+    cart.add(vanillaCone, variant: double_, options: [sprinkles]); // 25.00
     cart.add(waffle); // 12.00
     expect(cart.total, 3700);
     expect(cart.changeDue(5000), 1300);

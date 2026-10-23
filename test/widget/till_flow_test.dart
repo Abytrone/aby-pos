@@ -215,6 +215,87 @@ void main() {
     await _dispose(tester);
   });
 
+  testWidgets('tablet: owner adds a product with a recipe, sells it, logs waste', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await _settle(tester);
+    await tester.tap(find.text('Kofi'));
+    await _settle(tester);
+    await _typePin(tester, '1234');
+
+    // Products: the list, then a new product.
+    await tester.tap(find.text('Products'));
+    await _settle(tester);
+    expect(find.text('Vanilla cone'), findsOneWidget);
+    await tester.tap(find.text('New product'));
+    await _settle(tester);
+    final fields = find.byType(TextField);
+    await tester.enterText(fields.at(0), 'Kids cone');
+    await tester.enterText(find.widgetWithText(TextField, 'Price'), '8');
+    await tester.tap(find.text('Add stock item'));
+    await _settle(tester);
+    await tester.tap(find.widgetWithText(DropdownButtonFormField<String>, 'Stock item'));
+    await _settle(tester);
+    await tester.tap(find.text('Wafer cones').last);
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Amount'), '1');
+    await _settle(tester);
+    expect(find.textContaining('90% margin'), findsOneWidget, reason: 'GH₵ 0.80 cone on a GH₵ 8.00 price');
+    await tester.tap(find.text('Save'));
+    await _settle(tester);
+    expect(find.text('Kids cone'), findsOneWidget);
+
+    // The other tabs open cleanly.
+    await tester.tap(find.text('Options'));
+    await _settle(tester);
+    expect(find.textContaining('Toppings'), findsWidgets);
+    await tester.tap(find.text('Tax'));
+    await _settle(tester);
+    expect(find.text('Prices include tax'), findsOneWidget);
+    await tester.tap(find.text('Products').first);
+    await _settle(tester);
+
+    // It is on the till straight away, with how many cones are left.
+    await tester.tap(find.text('Sell'));
+    await _settle(tester);
+    expect(find.text('Kids cone'), findsOneWidget);
+    expect(find.text('200 left'), findsOneWidget);
+    await tester.tap(find.text('Kids cone'));
+    await _settle(tester);
+    await tester.tap(find.text('Pay GH₵ 8.00'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Cash given'), '10');
+    await _settle(tester);
+    await tester.tap(find.text('Complete sale'));
+    await _settle(tester);
+    await tester.tap(find.text('New sale'));
+    await _settle(tester);
+    expect(find.text('199 left'), findsOneWidget);
+
+    // Stock: the cones item, then waste.
+    await tester.tap(find.text('Stock'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Search stock'), 'wafer');
+    await _settle(tester);
+    await tester.tap(find.text('Wafer cones'));
+    await _settle(tester);
+    expect(find.text('199 pcs'), findsWidgets);
+    await tester.tap(find.text('Log waste'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'How much'), '4');
+    await tester.tap(find.text('Dropped or damaged'));
+    await tester.tap(find.text('Save'));
+    await _settle(tester);
+    expect(find.text('195 pcs'), findsWidgets);
+    expect(find.text('Waste: Dropped or damaged'), findsOneWidget);
+
+    await _dispose(tester);
+  });
+
   testWidgets('phone portrait, first run: name the shop, create the owner, start selling', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
@@ -246,6 +327,9 @@ void main() {
     expect(find.text('Cart (1)'), findsOneWidget);
     expect(find.text('Pay GH₵ 12.00'), findsOneWidget);
 
+    // Owners have more places than a phone bar fits: the rest are under More.
+    await tester.tap(find.text('More'));
+    await _settle(tester);
     await tester.tap(find.text('Settings'));
     await _settle(tester);
     expect(find.text('Scoops Lamashegu'), findsOneWidget);

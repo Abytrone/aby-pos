@@ -254,6 +254,187 @@
   "profileLastSignIn": "Last signed in",
   "profileWrongPins": "Wrong PINs",
   "profileRecentActivity": "Recent activity",
+  "navProducts": "Products",
+  "navStock": "Stock",
+  "activityFilterCatalogue": "Products and stock",
+  "auditProductCreated": "Product added",
+  "auditProductUpdated": "Product changed",
+  "auditProductArchived": "Product archived",
+  "auditProductRestored": "Product restored",
+  "auditPriceChanged": "Price changed",
+  "auditCategorySaved": "Category changed",
+  "auditOptionGroupSaved": "Options changed",
+  "auditTaxRateSaved": "Tax changed",
+  "auditStockItemSaved": "Stock item changed",
+  "auditStockReceived": "Delivery received",
+  "auditStockAdjusted": "Stock corrected",
+  "auditStockWasted": "Waste logged",
+  "auditStockCountPosted": "Stock count posted",
+  "auditSupplierSaved": "Supplier changed",
+  "auditSupplierPaid": "Supplier paid",
+  "auditPriceScheduled": "Price scheduled",
+  "auditPricesBulkChanged": "Prices changed in bulk",
+  "auditCatalogueImported": "Products imported",
+  "cartTax": "Tax",
+  "cartTaxIncluded": "Includes tax",
+  "cartTotal": "Total",
+  "tileOut": "None left",
+  "pickerSize": "Size",
+  "pickerRemoveOne": "One less",
+  "groupOptional": "Optional",
+  "productsTab": "Products",
+  "categoriesTab": "Categories",
+  "optionsTab": "Options",
+  "taxTab": "Tax",
+  "productsNew": "New product",
+  "productsSearch": "Search name or barcode",
+  "productsAllCategories": "All categories",
+  "productsFilterAll": "All",
+  "productsFilterOnTill": "On the till",
+  "productsFilterOffTill": "Off the till",
+  "productsFilterLowMargin": "Low margin",
+  "productsFilterArchived": "Archived",
+  "productsNone": "No products here.",
+  "productsNoCost": "No cost set",
+  "productsDuplicate": "Duplicate",
+  "productsArchive": "Archive",
+  "productsRestore": "Restore",
+  "productsArchiveBody": "It comes off the till and the lists. Past sales keep it, and you can restore it later.",
+  "productsEditReason": "Change products.",
+  "productsArchiveReason": "Archive a product.",
+  "productsDuplicateReason": "Copy a product.",
+  "categoriesNew": "New category",
+  "categoriesEdit": "Change category",
+  "categoriesName": "Category name",
+  "categoriesColour": "Colour",
+  "categoriesInside": "Put it inside",
+  "categoriesTopLevel": "Nothing (top level)",
+  "categoriesHidden": "Hidden",
+  "categoriesNone": "No categories yet.",
+  "optionsNew": "New options",
+  "optionsEdit": "Change options",
+  "optionsName": "Name",
+  "optionsNameHelp": "For example Toppings, Sugar level or Sauce.",
+  "optionsMin": "Must pick at least",
+  "optionsMinHelp": "0 makes it optional.",
+  "optionsMax": "Can pick up to",
+  "optionsMaxHelp": "Empty: no limit.",
+  "optionsRepeat": "The same option can be picked twice",
+  "optionsRepeatHelp": "For example double sprinkles.",
+  "optionsOptionName": "Option",
+  "optionsExtra": "Extra",
+  "optionsRemove": "Remove option",
+  "optionsDefault": "Ticked when the picker opens",
+  "optionsAdd": "Add option",
+  "optionsNone": "No options yet.",
+  "optionsUnused": "Not on any product yet.",
+  "taxModeTitle": "How tax works here",
+  "taxModeOff": "No tax",
+  "taxModeInclusive": "Prices include tax",
+  "taxModeExclusive": "Add tax at the till",
+  "taxModeHelp": "Most shops in Ghana show prices with tax included. Only turn tax on if the shop is registered.",
+  "taxRates": "Tax rates",
+  "taxNone": "No tax rates.",
+  "taxNew": "New tax rate",
+  "taxEdit": "Change tax rate",
+  "taxName": "Name",
+  "taxNameHelp": "As it should appear on receipts.",
+  "taxRate": "Rate",
+  "taxRateInvalid": "Enter a rate like 15 or 2.5.",
+  "taxCompound": "Charged on top of the other taxes",
+  "taxCompoundHelp": "VAT in Ghana is charged on the price plus NHIL and GETFund.",
+  "taxApprovalReason": "Change tax settings.",
+  "taxAccountant": "Check the rates and which products they apply to with your accountant. Aby does not decide tax for you.",
+  "editorTitle": "Change product",
+  "editorSaved": "Product saved.",
+  "editorName": "Product name",
+  "editorCategory": "Category",
+  "editorTileLine": "Size line on the tile",
+  "editorTileLineHelp": "Optional, for example \"500 ml\".",
+  "editorDescription": "Description",
+  "editorOnTill": "On the till",
+  "editorOnTillHelp": "Off: kept, but cashiers cannot sell it.",
+  "editorPrices": "Prices",
+  "editorPricesHelp": "One price, or several sizes or kinds, each with its own price and recipe.",
+  "editorAddSizes": "Add sizes or kinds",
+  "editorAddVariant": "Add another",
+  "editorVariantName": "Size or kind",
+  "editorVariantNameHelp": "For example Small, Double scoop, 500 ml.",
+  "editorPrice": "Price",
+  "editorCost": "Cost",
+  "editorCostFromRecipe": "From the recipe",
+  "editorCostHelp": "Optional",
+  "editorMoveUp": "Move up",
+  "editorMoveDown": "Move down",
+  "editorRemoveVariant": "Remove",
+  "editorBarcodes": "Barcodes",
+  "editorAddBarcode": "Add barcode",
+  "editorBarcode": "Barcode",
+  "editorBarcodeHelp": "Type it, or scan it with a barcode scanner.",
+  "editorOptions": "Options",
+  "editorNoOptions": "No option groups yet. Add them on the Options tab.",
+  "editorTaxes": "Taxes",
+  "editorNoTaxes": "No tax rates. Set them up on the Tax tab.",
+  "editorTaxesHelp": "Only used when tax is on (Products, Tax).",
+  "editorPriceMissing": "Enter a price for each size or kind.",
+  "editorCostInvalid": "Check the cost.",
+  "editorRecipeInvalid": "Check the recipe amounts.",
+  "editorCategoryMissing": "Pick a category.",
+  "editorPriceReason": "Change prices.",
+  "recipeUses": "What it uses",
+  "recipeHelp": "Each sale takes these from stock and works out the cost.",
+  "recipeItem": "Stock item",
+  "recipeAmount": "Amount",
+  "recipeRemove": "Remove",
+  "recipeAdd": "Add stock item",
+  "recipeNoStockItems": "Add stock items first (Stock)",
+  "stockNew": "New stock item",
+  "stockEdit": "Change stock item",
+  "stockSearch": "Search stock",
+  "stockFilterAll": "All",
+  "stockFilterRetired": "Retired",
+  "stockNone": "No stock items here.",
+  "stockLow": "Low",
+  "stockName": "Name",
+  "stockNameHelp": "What you buy, for example Wafer cones or Vanilla ice cream.",
+  "stockUnit": "Counted in",
+  "unitPieces": "Pieces",
+  "unitWeight": "Weight (g, kg)",
+  "unitVolume": "Volume (ml, L)",
+  "stockCostHelp": "Deliveries update this to the average cost.",
+  "stockReorderAt": "Low below",
+  "stockReorderQty": "Usually order",
+  "stockReorderHelp": "Both optional.",
+  "stockCostInvalid": "Check the cost.",
+  "stockQuantityInvalid": "Check the amount.",
+  "stockEditReason": "Change stock items.",
+  "stockOnHand": "On hand",
+  "stockHistory": "History",
+  "stockNoMovements": "Nothing yet.",
+  "stockLogWaste": "Log waste",
+  "stockAdjust": "Correct stock",
+  "stockRetire": "Retire",
+  "stockRestore": "Restore",
+  "stockUsedBy": "Used by",
+  "stockUsedByNone": "No product uses it yet.",
+  "stockLess": "There is less",
+  "stockMore": "There is more",
+  "stockHowMuch": "How much",
+  "stockNoteOptional": "Note (optional)",
+  "stockWhy": "Why",
+  "stockAdjusted": "Stock corrected.",
+  "stockWasted": "Waste logged.",
+  "moveSale": "Sold",
+  "moveReceived": "Delivery",
+  "moveAdjustment": "Correction",
+  "moveCount": "Stock count",
+  "wasteMelted": "Melted",
+  "wastePowerCut": "Power cut",
+  "wasteExpired": "Expired",
+  "wasteDamaged": "Dropped or damaged",
+  "wasteStaffMeal": "Staff",
+  "wasteSample": "Free sample",
+  "wasteOther": "Other",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -593,6 +774,251 @@
     "placeholders": {
       "months": {
         "type": "int"
+      }
+    }
+  },
+  "tileFrom": "from {price}",
+  "@tileFrom": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "tileLeft": "{count} left",
+  "@tileLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pickerAdd": "Add {price}",
+  "@pickerAdd": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "groupUpTo": "Up to {max}",
+  "@groupUpTo": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "groupPickExactly": "Pick {count}",
+  "@groupPickExactly": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupPickAtLeast": "Pick at least {count}",
+  "@groupPickAtLeast": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupPickBetween": "Pick {min} to {max}",
+  "@groupPickBetween": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "productsVariantCount": "{count} prices",
+  "@productsVariantCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productsMargin": "{percent}% margin",
+  "@productsMargin": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "productsArchiveTitle": "Archive {name}?",
+  "@productsArchiveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productsArchived": "{name} archived.",
+  "@productsArchived": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productsRestored": "{name} restored.",
+  "@productsRestored": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productsDuplicated": "Copy of {name} added, off the till until you check it.",
+  "@productsDuplicated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "optionsUsedBy": "On: {names}",
+  "@optionsUsedBy": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "optionsPriceInvalid": "Check the extra price for \"{name}\".",
+  "@optionsPriceInvalid": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "taxExample": "Example: a GH₵ 100.00 sale is {base} plus {tax} tax, {total} in all.",
+  "@taxExample": {
+    "placeholders": {
+      "base": {
+        "type": "String"
+      },
+      "tax": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "editorMarginLine": "{percent}% margin, {profit} each",
+  "@editorMarginLine": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "profit": {
+        "type": "String"
+      }
+    }
+  },
+  "stockFilterLow": "Low ({count})",
+  "@stockFilterLow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stockTotalValue": "Worth {value} at cost",
+  "@stockTotalValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "stockCostEach": "{price} per {unit}",
+  "@stockCostEach": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "stockCostPer": "Cost per {unit}",
+  "@stockCostPer": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "stockWorth": "Worth {value} ({price} per {unit})",
+  "@stockWorth": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "stockReorderLine": "Low below {amount}",
+  "@stockReorderLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "stockLogWasteOf": "Waste: {name}",
+  "@stockLogWasteOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stockAdjustOf": "Correct: {name}",
+  "@stockAdjustOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stockAdjustReason": "Correct stock of {name}.",
+  "@stockAdjustReason": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stockWasteReason": "Log waste of {name}.",
+  "@stockWasteReason": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "moveWaste": "Waste: {reason}",
+  "@moveWaste": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
       }
     }
   }

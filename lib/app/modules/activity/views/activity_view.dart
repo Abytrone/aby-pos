@@ -64,6 +64,7 @@ class _Filters extends GetView<ActivityController> {
           ActivityFilter.signIns => l.activityFilterSignIns,
           ActivityFilter.sales => l.activityFilterSales,
           ActivityFilter.staff => l.activityFilterStaff,
+          ActivityFilter.catalogue => l.activityFilterCatalogue,
           ActivityFilter.settingsAndData => l.activityFilterSettings,
         };
     String rangeLabel(ActivityRange r) => switch (r) {

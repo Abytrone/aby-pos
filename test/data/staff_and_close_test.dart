@@ -1,6 +1,5 @@
 import 'package:aby_pos/app/core/permissions.dart';
 import 'package:aby_pos/app/data/database/app_database.dart';
-import 'package:aby_pos/app/data/repositories/catalog_repository.dart';
 import 'package:aby_pos/app/data/repositories/role_repository.dart';
 import 'package:aby_pos/app/data/repositories/sale_repository.dart';
 import 'package:aby_pos/app/data/repositories/staff_repository.dart';
@@ -31,7 +30,7 @@ void main() {
     db = memoryDb();
     r = await Repos.open(db);
     roles = RoleRepository(db, r.device, r.audit);
-    waffle = (await CatalogRepository(db).products()).firstWhere((p) => p.name == 'Waffle');
+    waffle = (await r.catalog.products()).firstWhere((p) => p.name == 'Waffle');
   });
 
   tearDown(() => db.close());

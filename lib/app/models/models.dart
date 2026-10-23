@@ -2,6 +2,8 @@ export 'audit.dart';
 export 'cart_line.dart';
 export 'catalog.dart';
 export 'day_close.dart';
+export 'drafts.dart';
 export 'enums.dart';
 export 'sale.dart';
 export 'staff.dart';
+export 'stock.dart';
