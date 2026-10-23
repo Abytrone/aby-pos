@@ -2,6 +2,7 @@ export 'audit.dart';
 export 'cart_line.dart';
 export 'catalog.dart';
 export 'day_close.dart';
+export 'discount.dart';
 export 'drafts.dart';
 export 'enums.dart';
 export 'purchasing.dart';

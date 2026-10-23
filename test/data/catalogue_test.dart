@@ -205,7 +205,7 @@ void main() {
       final line = CartLine(product: waffle, options: [sprinkles, sprinkles, crunch]);
       expect(line.unitPrice, 1200 + 300 + 300 + 500);
       expect(line.optionsLine, 'Groundnut crunch, Sprinkles ×2');
-      expect(CartLine(product: waffle, options: [crunch, sprinkles, sprinkles]).key, line.key);
+      expect(CartLine(product: waffle, options: [crunch, sprinkles, sprinkles]).pickKey, line.pickKey);
     });
   });
 }

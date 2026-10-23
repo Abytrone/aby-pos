@@ -46,6 +46,18 @@ class Products extends Table with SyncColumns {
   /// Archived products are kept for history but hidden everywhere else.
   DateTimeColumn get archivedAt => dateTime().nullable()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+
+  /// Counted, or weighed / measured (price per kg or litre). v6.
+  TextColumn get sellBy => textEnum<SellBy>().withDefault(const Constant('each'))();
+
+  /// The price is typed at the till ("Miscellaneous"), between the
+  /// optional limits (pesewas). The variant's price is the suggestion. v6.
+  BoolColumn get openPrice => boolean().withDefault(const Constant(false))();
+  IntColumn get minPrice => integer().nullable()();
+  IntColumn get maxPrice => integer().nullable()();
+
+  /// Position on the till's Quick tab; null when not on it. v6.
+  IntColumn get quickOrder => integer().nullable()();
 }
 
 /// What is actually sold and priced. Every product has at least one; a
@@ -294,6 +306,15 @@ class Sales extends Table with SyncColumns {
   /// Pesewas of tax in the total. v5.
   IntColumn get taxTotal => integer().withDefault(const Constant(0))();
 
+  /// Pesewas taken off: line discounts plus the order discount. [subtotal]
+  /// is before discounts. v6.
+  IntColumn get discountTotal => integer().withDefault(const Constant(0))();
+
+  /// The whole-order discount as given (JSON: kind, value, reason, name). v6.
+  TextColumn get orderDiscount => text().nullable()();
+  TextColumn get note => text().nullable()();
+  TextColumn get orderType => textEnum<OrderType>().nullable()();
+
   @override
   List<Set<Column<Object>>> get uniqueKeys => [
         {deviceId, number},
@@ -325,6 +346,25 @@ class SaleLines extends Table with SyncColumns {
 
   /// Pesewas of tax in (or on top of) the line. v5.
   IntColumn get taxTotal => integer().withDefault(const Constant(0))();
+
+  /// Counted, or weighed (then [quantity] is grams or ml and [unitPrice] is
+  /// per kg or litre). v6.
+  TextColumn get sellBy => textEnum<SellBy>().withDefault(const Constant('each'))();
+
+  /// The menu price for one, when the price was overridden or typed in. v6.
+  IntColumn get listPrice => integer().nullable()();
+
+  /// Who overrode the price (the person whose permission was used). v6.
+  TextColumn get priceOverriddenBy => text().nullable()();
+
+  /// Pesewas off this line, and its share of the order discount. [lineTotal]
+  /// is before both. v6.
+  IntColumn get discount => integer().withDefault(const Constant(0))();
+  IntColumn get orderDiscountShare => integer().withDefault(const Constant(0))();
+
+  /// The line discount as given (JSON: kind, value, reason, name). v6.
+  TextColumn get discountDetail => text().nullable()();
+  TextColumn get note => text().nullable()();
 }
 
 /// Tax on a sale, per rate, for the tax report.
@@ -354,6 +394,45 @@ class Payments extends Table with SyncColumns {
 
   /// Credit only: customer name or phone.
   TextColumn get customer => text().nullable()();
+}
+
+/// Discounts the owner saves for reuse: "Student 10%", "Staff meal GH₵ 5 off".
+@DataClassName('DiscountRow')
+class Discounts extends Table with SyncColumns {
+  TextColumn get name => text()();
+  TextColumn get kind => textEnum<DiscountKind>()();
+
+  /// Whole percent, or pesewas.
+  IntColumn get value => integer()();
+  TextColumn get scope => textEnum<DiscountScope>()();
+  BoolColumn get active => boolean().withDefault(const Constant(true))();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+}
+
+/// Reasons picked from a list: why a discount, a void, a refund, a no-sale.
+/// Built-in rows have IDs derived from kind and name.
+@DataClassName('ReasonRow')
+class Reasons extends Table with SyncColumns {
+  TextColumn get kind => textEnum<ReasonKind>()();
+  TextColumn get name => text()();
+  BoolColumn get active => boolean().withDefault(const Constant(true))();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+}
+
+/// Carts put aside ("Blue shirt", "Table 4") to finish later. The cart is
+/// JSON (see CartSnapshot), resolved against the menu when resumed.
+@DataClassName('ParkedOrderRow')
+class ParkedOrders extends Table with SyncColumns {
+  TextColumn get name => text()();
+  TextColumn get status => textEnum<ParkedOrderStatus>()();
+  TextColumn get cart => text()();
+
+  /// Pesewas and item count when parked, for the tabs.
+  IntColumn get total => integer()();
+  IntColumn get itemCount => integer()();
+  TextColumn get parkedById => text()();
+  TextColumn get parkedByName => text()();
+  DateTimeColumn get closedAt => dateTime().nullable()();
 }
 
 /// Append-only stock ledger. Stock on hand is the sum of [quantityChange]

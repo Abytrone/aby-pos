@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 
 import '../../core/business_day.dart';
 import '../../core/tax.dart';
 import '../../core/units.dart';
+import '../../domain/pricing.dart';
 import '../../models/audit.dart';
 import '../../models/cart_line.dart';
+import '../../models/discount.dart';
 import '../../models/enums.dart';
 import '../../models/sale.dart';
 import '../../models/staff.dart';
@@ -34,26 +38,29 @@ class SaleRepository {
   final AuditRepository _audit;
   final DeviceInfo _device;
 
-  /// Saves a sale with its lines, taxes, payment, stock movements (from
-  /// recipes) and outbox rows in one transaction: all of it is written, or
-  /// none of it.
+  /// Saves a sale with its lines, discounts, taxes, payment, stock
+  /// movements (from recipes) and outbox rows in one transaction: all of it
+  /// is written, or none of it. Discounts and price overrides are audited.
   Future<CompletedSale> completeSale({
     required List<CartLine> lines,
     required PaymentInput payment,
     required Staff cashier,
     TaxMode taxMode = TaxMode.off,
+    Discount? orderDiscount,
+    String? note,
+    OrderType? orderType,
   }) async {
     if (lines.isEmpty) throw const SaleException('The cart is empty.');
     if (lines.any((l) => l.quantity < 1)) {
       throw const SaleException('Every line needs a quantity of at least 1.');
     }
-    final taxes = [
-      for (final l in lines) computeTax(l.lineTotal, [for (final t in l.product.taxes) t.spec], taxMode),
-    ];
-    final subtotal = lines.fold(0, (sum, l) => sum + l.lineTotal);
-    final taxTotal = taxes.fold(0, (sum, t) => sum + t.taxTotal);
-    final total = taxMode == TaxMode.exclusive ? subtotal + taxTotal : subtotal;
+    if (lines.any((l) => l.unitPrice < 0)) throw const SaleException('A price cannot be negative.');
+    final pricing = CartPricing.of(lines, orderDiscount: orderDiscount, taxMode: taxMode);
+    final subtotal = pricing.subtotal;
+    final taxTotal = pricing.taxTotal;
+    final total = pricing.total;
     final change = _validatePayment(payment, total);
+    final cleanNote = note?.trim().isEmpty ?? true ? null : note!.trim();
 
     return _db.transaction(() async {
       final now = DateTime.now();
@@ -74,25 +81,34 @@ class SaleRepository {
           taxTotal: Value(taxTotal),
           cashierId: Value(cashier.id),
           cashierName: cashier.name,
+          discountTotal: Value(pricing.discountTotal),
+          orderDiscount: Value(
+            orderDiscount == null || pricing.orderDiscountAmount == 0 ? null : jsonEncode(orderDiscount.toJson()),
+          ),
+          note: Value(cleanNote),
+          orderType: Value(orderType),
         ),
       );
 
       // Stock used, summed per stock item across the sale.
       final used = <String, int>{};
       final costs = <String, int>{};
-      for (final (i, line) in lines.indexed) {
+      for (final priced in pricing.lines) {
+        final line = priced.line;
         var lineCost = 0;
-        Future<void> consume(List<(String, int, int)> recipe, int times) async {
+        // Recipes are per one sold, or per kg / litre for weighed lines.
+        Future<void> consume(List<(String, int, int)> recipe) async {
           for (final (item, qty, costMilli) in recipe) {
-            used[item] = (used[item] ?? 0) + qty * times;
+            final take = line.weighed ? (qty * line.quantity + 500) ~/ 1000 : qty * line.quantity;
+            used[item] = (used[item] ?? 0) + take;
             costs[item] = costMilli;
-            lineCost += costOf(qty * times, costMilli);
+            lineCost += costOf(take, costMilli);
           }
         }
 
-        await consume(await _recipe(variantId: line.variant.id), line.quantity);
+        await consume(await _recipe(variantId: line.variant.id));
         for (final option in line.options) {
-          await consume(await _recipe(optionId: option.id), line.quantity);
+          await consume(await _recipe(optionId: option.id));
         }
 
         await _db.insertTracked(
@@ -114,7 +130,14 @@ class SaleRepository {
               for (final o in line.options) SoldAddon(id: o.id, name: o.name, price: o.priceDelta),
             ]),
             costTotal: Value(lineCost),
-            taxTotal: Value(taxes[i].taxTotal),
+            taxTotal: Value(priced.tax.taxTotal),
+            sellBy: Value(line.product.sellBy),
+            listPrice: Value(line.customPrice == null ? null : line.listPrice),
+            priceOverriddenBy: Value(line.priceOverriddenBy),
+            discount: Value(line.discountAmount),
+            orderDiscountShare: Value(priced.orderShare),
+            discountDetail: Value(line.discount == null ? null : jsonEncode(line.discount!.toJson())),
+            note: Value(line.note?.trim().isEmpty ?? true ? null : line.note!.trim()),
           ),
         );
       }
@@ -133,7 +156,7 @@ class SaleRepository {
 
       // Tax per rate, for the tax report.
       final byRate = <String, (TaxRateSpec, int)>{};
-      for (final t in taxes.expand((t) => t.taxes)) {
+      for (final t in pricing.lines.expand((l) => l.tax.taxes)) {
         final prev = byRate[t.rate.id];
         byRate[t.rate.id] = (t.rate, (prev?.$2 ?? 0) + t.amount);
       }
@@ -172,6 +195,8 @@ class SaleRepository {
         ),
       );
 
+      await _auditAdjustments(pricing, orderDiscount, saleId: saleId, number: number, cashier: cashier);
+
       // TODO(print): hand the saved sale to the receipt printer here.
       return CompletedSale(
         saleId: saleId,
@@ -181,6 +206,68 @@ class SaleRepository {
         changeDue: change,
       );
     });
+  }
+
+  /// One entry for the discounts on a sale and one for price overrides, so
+  /// the owner can see who gave what away.
+  Future<void> _auditAdjustments(
+    CartPricing pricing,
+    Discount? orderDiscount, {
+    required String saleId,
+    required int number,
+    required Staff cashier,
+  }) async {
+    final saleNo = formatSaleNumber(number);
+    if (pricing.discountTotal > 0) {
+      final parts = [
+        for (final l in pricing.lines.where((l) => l.line.discountAmount > 0))
+          '${l.line.title} ${formatMoney(l.line.discountAmount)} (${_discountText(l.line.discount!)})',
+        if (pricing.orderDiscountAmount > 0)
+          'order ${formatMoney(pricing.orderDiscountAmount)} (${_discountText(orderDiscount!)})',
+      ];
+      await _audit.record(
+        action: AuditAction.discountsGiven,
+        actor: cashier,
+        entity: 'sales',
+        entityId: saleId,
+        summary: '$saleNo: ${formatMoney(pricing.discountTotal)} off. ${parts.join('; ')}',
+        details: {'discountTotal': pricing.discountTotal, 'subtotal': pricing.subtotal},
+      );
+    }
+    final overridden = pricing.lines.where((l) => l.line.priceOverridden).toList();
+    if (overridden.isNotEmpty) {
+      final parts = [
+        for (final l in overridden)
+          '${l.line.title} ${formatMoney(l.line.listPrice)} to ${formatMoney(l.line.unitPrice)} '
+              '(allowed by ${l.line.priceOverriddenBy})',
+      ];
+      await _audit.record(
+        action: AuditAction.priceOverridden,
+        actor: cashier,
+        entity: 'sales',
+        entityId: saleId,
+        summary: '$saleNo: ${parts.join('; ')}',
+      );
+    }
+  }
+
+  static String _discountText(Discount d) => [
+        d.name ?? d.label,
+        d.reason,
+        if (d.approvedBy != null) 'approved by ${d.approvedBy}',
+      ].join(', ');
+
+  /// The products sold most recently on this till, newest first.
+  Future<List<String>> recentProductIds({int limit = 8}) async {
+    final rows = await _db.customSelect(
+      'SELECT l.product_id AS id, MAX(s.number) AS last FROM sale_lines l '
+      'JOIN sales s ON s.id = l.sale_id '
+      'WHERE s.device_id = ? AND s.deleted_at IS NULL AND l.deleted_at IS NULL '
+      'GROUP BY l.product_id ORDER BY last DESC LIMIT ?',
+      variables: [Variable.withString(_device.deviceId), Variable.withInt(limit)],
+      readsFrom: {_db.sales, _db.saleLines},
+    ).get();
+    return [for (final r in rows) r.read<String>('id')];
   }
 
   /// (stock item, quantity, cost per base unit now) for a variant or option.

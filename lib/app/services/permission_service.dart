@@ -6,7 +6,7 @@ import 'auth_service.dart';
 
 /// Shows the "someone allowed must enter their PIN" prompt. Registered by
 /// the UI shell; returns the approver, or null if cancelled.
-typedef ApprovalPrompter = Future<Staff?> Function(Permission permission, String reason);
+typedef ApprovalPrompter = Future<Staff?> Function(ApprovalNeed need, String reason);
 
 /// Checks permissions for the signed-in person and runs the approval flow
 /// ("manager override") when they lack one.
@@ -27,7 +27,20 @@ class PermissionService extends GetxService {
     final user = _auth.currentUser.value;
     if (user == null) return null;
     if (user.can(permission)) return Authorization(actor: user);
-    final approver = await prompter?.call(permission, reason);
+    return _approve(user, ApprovalNeed(permission), reason);
+  }
+
+  /// A manual discount of [percent]: within the signed-in person's limit, or
+  /// approved by someone whose limit covers it.
+  Future<Authorization?> authorizeDiscount(int percent, {required String reason}) async {
+    final user = _auth.currentUser.value;
+    if (user == null) return null;
+    if (user.canDiscount(percent)) return Authorization(actor: user);
+    return _approve(user, ApprovalNeed(Permission.sell, discountPercent: percent), reason);
+  }
+
+  Future<Authorization?> _approve(Staff user, ApprovalNeed need, String reason) async {
+    final approver = await prompter?.call(need, reason);
     return approver == null ? null : Authorization(actor: user, approver: approver);
   }
 }

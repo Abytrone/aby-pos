@@ -43,6 +43,11 @@ class ProductDraft {
     required this.variants,
     this.groupIds = const [],
     this.taxIds = const [],
+    this.sellBy = SellBy.each,
+    this.openPrice = false,
+    this.minPrice,
+    this.maxPrice,
+    this.onQuickTab = false,
   });
 
   final String? id;
@@ -54,6 +59,30 @@ class ProductDraft {
   final List<VariantDraft> variants;
   final List<String> groupIds;
   final List<String> taxIds;
+  final SellBy sellBy;
+  final bool openPrice;
+
+  /// Pesewas; optional limits for an open price.
+  final int? minPrice;
+  final int? maxPrice;
+  final bool onQuickTab;
+
+  ProductDraft copyWith({String? categoryId}) => ProductDraft(
+        id: id,
+        categoryId: categoryId ?? this.categoryId,
+        name: name,
+        detail: detail,
+        description: description,
+        active: active,
+        variants: variants,
+        groupIds: groupIds,
+        taxIds: taxIds,
+        sellBy: sellBy,
+        openPrice: openPrice,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        onQuickTab: onQuickTab,
+      );
 }
 
 class OptionDraft {

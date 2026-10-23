@@ -169,6 +169,11 @@ class Product {
     this.taxes = const [],
     this.active = true,
     this.archived = false,
+    this.sellBy = SellBy.each,
+    this.openPrice = false,
+    this.minPrice,
+    this.maxPrice,
+    this.quickOrder,
   });
 
   final String id;
@@ -185,6 +190,30 @@ class Product {
   final List<TaxRate> taxes;
   final bool active;
   final bool archived;
+
+  /// Counted, or weighed / measured with the price per kg or litre.
+  final SellBy sellBy;
+
+  /// The price is typed at the till, between [minPrice] and [maxPrice]
+  /// (pesewas, either optional). The variant price is the suggestion.
+  final bool openPrice;
+  final int? minPrice;
+  final int? maxPrice;
+
+  /// Position on the till's Quick tab; null when not on it.
+  final int? quickOrder;
+
+  bool get weighed => sellBy != SellBy.each;
+
+  /// Needs something typed (a price or a weight) before it goes in the cart.
+  bool get needsEntry => weighed || openPrice;
+
+  /// "kg", "L", or null when counted.
+  String? get perUnit => switch (sellBy) {
+        SellBy.each => null,
+        SellBy.kg => 'kg',
+        SellBy.litre => 'L',
+      };
 
   bool get isSimple => variants.length == 1 && variants.single.name == null;
 

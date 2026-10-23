@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../models/enums.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
@@ -215,6 +216,52 @@ class _OptionsAndTax extends StatelessWidget {
     final groups = ctl.catalogue!.groups.where((g) => g.active).toList();
     final taxes = ctl.catalogue!.taxRates.where((t) => t.active).toList();
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      GroupCard(title: l.editorSelling, children: [
+        SwitchListTile(
+          title: Text(l.editorQuickTab),
+          subtitle: Text(l.editorQuickTabHelp),
+          value: ctl.onQuickTab,
+          onChanged: ctl.setQuickTab,
+        ),
+        ListTile(
+          title: Text(l.editorSellBy),
+          subtitle: Text(ctl.sellBy == SellBy.each ? l.editorSellByEachHelp : l.editorSellByWeightHelp),
+          trailing: DropdownButton<SellBy>(
+            value: ctl.sellBy,
+            items: [
+              for (final s in SellBy.values) DropdownMenuItem(value: s, child: Text(sellByLabel(l, s))),
+            ],
+            onChanged: (v) => v == null ? null : ctl.setSellBy(v),
+          ),
+        ),
+        SwitchListTile(
+          title: Text(l.editorOpenPrice),
+          subtitle: Text(l.editorOpenPriceHelp),
+          value: ctl.openPrice,
+          onChanged: ctl.setOpenPrice,
+        ),
+        if (ctl.openPrice)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(AbySpace.s4, 0, AbySpace.s4, AbySpace.s3),
+            child: Row(children: [
+              Expanded(
+                child: TextField(
+                  controller: ctl.minPrice,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(labelText: l.editorMinPrice, prefixText: 'GH₵ '),
+                ),
+              ),
+              const SizedBox(width: AbySpace.s3),
+              Expanded(
+                child: TextField(
+                  controller: ctl.maxPrice,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(labelText: l.editorMaxPrice, prefixText: 'GH₵ '),
+                ),
+              ),
+            ]),
+          ),
+      ]),
       GroupCard(
         title: l.editorOptions,
         footer: groups.isEmpty ? l.editorNoOptions : null,
@@ -243,3 +290,9 @@ class _OptionsAndTax extends StatelessWidget {
     ]);
   }
 }
+
+String sellByLabel(AppLocalizations l, SellBy s) => switch (s) {
+      SellBy.each => l.sellByEach,
+      SellBy.kg => l.sellByKg,
+      SellBy.litre => l.sellByLitre,
+    };

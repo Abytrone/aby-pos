@@ -86,4 +86,12 @@ String auditActionLabel(AppLocalizations l, AuditAction a) => switch (a) {
       AuditAction.priceScheduled => l.auditPriceScheduled,
       AuditAction.pricesBulkChanged => l.auditPricesBulkChanged,
       AuditAction.catalogueImported => l.auditCatalogueImported,
+      AuditAction.cartLinesRemoved => l.auditCartLinesRemoved,
+      AuditAction.cartCleared => l.auditCartCleared,
+      AuditAction.priceOverridden => l.auditPriceOverridden,
+      AuditAction.discountsGiven => l.auditDiscountsGiven,
+      AuditAction.orderParked => l.auditOrderParked,
+      AuditAction.parkedOrderDiscarded => l.auditParkedOrderDiscarded,
+      AuditAction.discountSaved => l.auditDiscountSaved,
+      AuditAction.reasonSaved => l.auditReasonSaved,
     };

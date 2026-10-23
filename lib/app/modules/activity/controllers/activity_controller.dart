@@ -25,7 +25,16 @@ enum ActivityFilter {
             AuditAction.locked,
             AuditAction.approvalRefused,
           },
-        ActivityFilter.sales => {AuditAction.saleVoided, AuditAction.dayClosed},
+        ActivityFilter.sales => {
+            AuditAction.saleVoided,
+            AuditAction.dayClosed,
+            AuditAction.cartLinesRemoved,
+            AuditAction.cartCleared,
+            AuditAction.priceOverridden,
+            AuditAction.discountsGiven,
+            AuditAction.orderParked,
+            AuditAction.parkedOrderDiscarded,
+          },
         ActivityFilter.staff => {
             AuditAction.staffAdded,
             AuditAction.staffPinChanged,
@@ -59,6 +68,8 @@ enum ActivityFilter {
           },
         ActivityFilter.settingsAndData => {
             AuditAction.settingChanged,
+            AuditAction.discountSaved,
+            AuditAction.reasonSaved,
             AuditAction.backupCreated,
             AuditAction.backupExported,
             AuditAction.backupRestored,

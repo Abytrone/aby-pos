@@ -1133,7 +1133,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editorRemoveVariant => 'Remove';
 
   @override
-  String get editorBarcodes => 'Barcodes';
+  String get editorBarcodes => 'Barcodes and codes';
 
   @override
   String get editorAddBarcode => 'Add barcode';
@@ -1142,7 +1142,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editorBarcode => 'Barcode';
 
   @override
-  String get editorBarcodeHelp => 'Type it, or scan it with a barcode scanner.';
+  String get editorBarcodeHelp =>
+      'Scan it, or type a short code (like 12) that rings this up when typed at the till.';
 
   @override
   String get editorOptions => 'Options';
@@ -1572,6 +1573,399 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editorScheduleWhen => 'From which day?';
+
+  @override
+  String get auditCartCleared => 'Cart cleared';
+
+  @override
+  String get auditCartLinesRemoved => 'Taken off a cart';
+
+  @override
+  String get auditDiscountSaved => 'Saved discount changed';
+
+  @override
+  String get auditDiscountsGiven => 'Discounts given';
+
+  @override
+  String get auditOrderParked => 'Order parked';
+
+  @override
+  String get auditParkedOrderDiscarded => 'Parked order discarded';
+
+  @override
+  String get auditPriceOverridden => 'Price overridden';
+
+  @override
+  String get auditReasonSaved => 'Reasons list changed';
+
+  @override
+  String get cartTitle => 'Current sale';
+
+  @override
+  String get cartEmpty => 'Tap a product, scan a barcode, or type to search.';
+
+  @override
+  String get cartClear => 'Clear the cart';
+
+  @override
+  String get cartClearTitle => 'Clear the cart?';
+
+  @override
+  String get cartSubtotal => 'Before discounts';
+
+  @override
+  String get cartDiscount => 'Discounts';
+
+  @override
+  String get cartOneLess => 'One less';
+
+  @override
+  String get cartOneMore => 'One more';
+
+  @override
+  String get cartOrderDiscount => 'Discount on the whole sale';
+
+  @override
+  String get cartWholeOrder => 'the whole sale';
+
+  @override
+  String get cartAddNote => 'Add a note';
+
+  @override
+  String get cartEditNote => 'Change the note';
+
+  @override
+  String get cartNoteTitle => 'Note for this sale';
+
+  @override
+  String get cartNote => 'Note';
+
+  @override
+  String get cartNoteHelp =>
+      'Printed on the order ticket, e.g. \"Collect at 3 pm\".';
+
+  @override
+  String get orderTakeaway => 'Takeaway';
+
+  @override
+  String get orderEatIn => 'Eat in';
+
+  @override
+  String get orderDelivery => 'Delivery';
+
+  @override
+  String get parkButton => 'Park';
+
+  @override
+  String get parkTitle => 'Park this sale';
+
+  @override
+  String get parkName => 'Name or table';
+
+  @override
+  String get parkNameHelp =>
+      'So you can find it again: \"Blue shirt\", \"Table 4\".';
+
+  @override
+  String get parkGone => 'Another till already opened that order.';
+
+  @override
+  String get parkRename => 'Rename';
+
+  @override
+  String get parkMerge => 'Add to this sale';
+
+  @override
+  String get parkDiscard => 'Throw away';
+
+  @override
+  String get parkDiscardBody =>
+      'The order is removed without a sale. This is recorded in Activity.';
+
+  @override
+  String get discountSaved => 'Saved discounts';
+
+  @override
+  String get discountPercent => 'Percent off';
+
+  @override
+  String get discountAmount => 'Amount off';
+
+  @override
+  String get discountReason => 'Reason';
+
+  @override
+  String get discountOff => 'Comes off';
+
+  @override
+  String get discountRemove => 'Remove discount';
+
+  @override
+  String get discountApply => 'Apply';
+
+  @override
+  String get discountPickReason => 'Pick a reason.';
+
+  @override
+  String get discountPercentInvalid => 'Enter a percentage from 1 to 100.';
+
+  @override
+  String get discountAmountInvalid => 'Enter the amount off.';
+
+  @override
+  String get discountNew => 'New discount';
+
+  @override
+  String get discountEdit => 'Change discount';
+
+  @override
+  String get discountName => 'Name';
+
+  @override
+  String get discountNameHelp => 'As the cashier will see it: \"Student 10%\".';
+
+  @override
+  String get discountScope => 'Use it on';
+
+  @override
+  String get discountScopeLine => 'Items';
+
+  @override
+  String get discountScopeOrder => 'Whole sale';
+
+  @override
+  String get discountScopeAny => 'Both';
+
+  @override
+  String get discountsNone => 'No saved discounts yet.';
+
+  @override
+  String get editorSelling => 'Selling';
+
+  @override
+  String get editorQuickTab => 'On the Quick tab';
+
+  @override
+  String get editorQuickTabHelp =>
+      'The first tab on the till, for the things you sell most.';
+
+  @override
+  String get editorSellBy => 'Sold by';
+
+  @override
+  String get editorSellByEachHelp => 'Counted: 1, 2, 3...';
+
+  @override
+  String get editorSellByWeightHelp =>
+      'The price is per kg or litre and the till asks how much. Recipes are per kg or litre too.';
+
+  @override
+  String get editorOpenPrice => 'Price typed at the till';
+
+  @override
+  String get editorOpenPriceHelp =>
+      'For \"Miscellaneous\", repairs and the like. The price above is the suggestion.';
+
+  @override
+  String get editorMinPrice => 'Lowest price (optional)';
+
+  @override
+  String get editorMaxPrice => 'Highest price (optional)';
+
+  @override
+  String get editorLimitsInvalid => 'Check the lowest and highest prices.';
+
+  @override
+  String get sellByEach => 'Each';
+
+  @override
+  String get sellByKg => 'Weight (kg)';
+
+  @override
+  String get sellByLitre => 'Volume (litre)';
+
+  @override
+  String get entryAdd => 'Add';
+
+  @override
+  String get entryPrice => 'Price';
+
+  @override
+  String get entryWeight => 'Weight';
+
+  @override
+  String get entryVolume => 'How much';
+
+  @override
+  String get lineQuantity => 'Quantity';
+
+  @override
+  String get lineQuantityInvalid => 'Enter a quantity of at least 1.';
+
+  @override
+  String get linePrice => 'Price for one';
+
+  @override
+  String get linePriceHelp =>
+      'Changing it needs permission to override prices.';
+
+  @override
+  String get lineNote => 'Note';
+
+  @override
+  String get lineNoteHelp =>
+      'For the kitchen or the order ticket, e.g. \"no nuts\".';
+
+  @override
+  String get lineAddDiscount => 'Add a discount';
+
+  @override
+  String get lineDiscount => 'Discount';
+
+  @override
+  String get lineChangePick => 'Change size or options';
+
+  @override
+  String get lineRemove => 'Remove';
+
+  @override
+  String get overrideRefused => 'The price was not changed.';
+
+  @override
+  String get quickArrange => 'Arrange the Quick tab';
+
+  @override
+  String get quickArrangeHelp =>
+      'Drag to reorder. Add products from the list below.';
+
+  @override
+  String get quickRemove => 'Take off the Quick tab';
+
+  @override
+  String get quickAddHint => 'Find a product to add';
+
+  @override
+  String get quickArrangeReason => 'Change the Quick tab.';
+
+  @override
+  String get reasonsDiscount => 'Discount reasons';
+
+  @override
+  String get reasonsVoid => 'Void reasons';
+
+  @override
+  String get reasonsRefund => 'Refund reasons';
+
+  @override
+  String get reasonsNoSale => 'No-sale reasons';
+
+  @override
+  String get reasonNew => 'New reason';
+
+  @override
+  String get reasonEdit => 'Change reason';
+
+  @override
+  String get reasonName => 'Reason';
+
+  @override
+  String get settingsGroupSelling => 'Selling';
+
+  @override
+  String get settingsOff => 'Off';
+
+  @override
+  String get settingsOrderTypes => 'Takeaway, eat in or delivery';
+
+  @override
+  String get settingsOrderTypesHelp =>
+      'Ask on each sale; shown on the order ticket.';
+
+  @override
+  String get settingsNegativeStock => 'Sell when out of stock';
+
+  @override
+  String get settingsNegativeStockHelp =>
+      'The till warns but still sells. Off: it refuses.';
+
+  @override
+  String get settingsDiscounts => 'Saved discounts';
+
+  @override
+  String get settingsDiscountsHelp =>
+      'Named discounts cashiers can pick: \"Student 10%\", \"Staff meal GH₵ 5 off\".';
+
+  @override
+  String get settingsScalePrefix => 'Scale barcodes';
+
+  @override
+  String get settingsScalePrefixHelp =>
+      'The first digits your scale prints (often 2 or 21). Leave empty if you have no scale.';
+
+  @override
+  String get settingsScaleValue => 'The scale barcode holds';
+
+  @override
+  String get settingsScaleWeight => 'The weight';
+
+  @override
+  String get settingsScalePrice => 'The price';
+
+  @override
+  String get settingsParkedWarn => 'Warn about parked orders after';
+
+  @override
+  String get settingsParkedWarnHelp =>
+      'Close day shows parked orders older than this.';
+
+  @override
+  String get settingsTiles => 'Till tile size';
+
+  @override
+  String get settingsTilesSmall => 'Small';
+
+  @override
+  String get settingsTilesMedium => 'Medium';
+
+  @override
+  String get settingsTilesLarge => 'Large';
+
+  @override
+  String get tileOpenPrice => 'Any price';
+
+  @override
+  String get tillQuick => 'Quick';
+
+  @override
+  String get tillAll => 'All';
+
+  @override
+  String get tillRecent => 'Recent';
+
+  @override
+  String get tillSearchHint => 'Search, scan, or type a code';
+
+  @override
+  String get tillNoMatch =>
+      'Nothing matches. Press Enter to look it up as a code.';
+
+  @override
+  String get tillNothingHere => 'Nothing here yet.';
+
+  @override
+  String get tillQuickEmpty => 'Nothing on the Quick tab yet.';
+
+  @override
+  String get tillCodeUnknownBody => 'Add a new product with this barcode?';
+
+  @override
+  String get tillCodeCreate => 'New product';
+
+  @override
+  String get tillPriceInvalid => 'Enter the price.';
+
+  @override
+  String get tillWeightInvalid => 'Enter how much.';
 
   @override
   String pinMustBeDigits(int count) {
@@ -2190,5 +2584,184 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String editorScheduled(String price, String date) {
     return '$price from $date';
+  }
+
+  @override
+  String approvalNeedsDiscount(int percent) {
+    return 'Needs someone allowed to give $percent% off';
+  }
+
+  @override
+  String cartButton(int count) {
+    return 'Cart ($count)';
+  }
+
+  @override
+  String cartButtonParked(int count, int parked) {
+    return 'Cart ($count) · $parked parked';
+  }
+
+  @override
+  String cartClearBody(int count) {
+    return '$count items come off. This is recorded in Activity.';
+  }
+
+  @override
+  String cartDiscountWith(String name) {
+    return 'Discounts (incl. $name)';
+  }
+
+  @override
+  String cartDropped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items are no longer on the menu and were left out.',
+      one: '1 item is no longer on the menu and was left out.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cartEach(String price) {
+    return '$price each';
+  }
+
+  @override
+  String cartPer(String price, String unit) {
+    return '$price per $unit';
+  }
+
+  @override
+  String cartWas(String price) {
+    return 'menu price $price';
+  }
+
+  @override
+  String cartLineDiscount(String name, String amount) {
+    return '$name: −$amount';
+  }
+
+  @override
+  String parkDefaultName(int number) {
+    return 'Order $number';
+  }
+
+  @override
+  String parkDone(String name) {
+    return 'Parked \"$name\".';
+  }
+
+  @override
+  String parkDiscardTitle(String name) {
+    return 'Throw away \"$name\"?';
+  }
+
+  @override
+  String parkDiscardReason(String name) {
+    return 'Throw away the parked order \"$name\".';
+  }
+
+  @override
+  String closeParkedWarning(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count parked orders have been waiting a long time. Were they paid?',
+      one: '1 parked order has been waiting a long time. Was it paid?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String discountApprovalReason(String discount, String what) {
+    return 'Give $discount off $what.';
+  }
+
+  @override
+  String entryPricePer(String price, String unit) {
+    return '$price per $unit';
+  }
+
+  @override
+  String entryPricePerLabel(String unit) {
+    return 'Price per $unit';
+  }
+
+  @override
+  String entryMin(String price) {
+    return 'From $price';
+  }
+
+  @override
+  String entryMax(String price) {
+    return 'up to $price';
+  }
+
+  @override
+  String lineMenuPrice(String price) {
+    return 'Menu price $price';
+  }
+
+  @override
+  String lineDiscountTitle(String item) {
+    return 'Discount on $item';
+  }
+
+  @override
+  String pickerUpdate(String price) {
+    return 'Update · $price';
+  }
+
+  @override
+  String overrideReason(String item, String price) {
+    return 'Change the price of $item to $price.';
+  }
+
+  @override
+  String settingsHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hours',
+      one: '1 hour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tillQuantityHint(int count) {
+    return 'Tap a product to add $count, or press Enter for code $count';
+  }
+
+  @override
+  String tillCodeNotFound(String code) {
+    return 'No product has the code $code.';
+  }
+
+  @override
+  String tillCodeUnknownTitle(String code) {
+    return 'No product has $code';
+  }
+
+  @override
+  String tillOutBlocked(String name) {
+    return '$name is out of stock.';
+  }
+
+  @override
+  String tillOutWarning(String name) {
+    return 'The till thinks $name has run out. Check the shelf.';
+  }
+
+  @override
+  String tillPriceLow(String price) {
+    return 'The price must be at least $price.';
+  }
+
+  @override
+  String tillPriceHigh(String price) {
+    return 'The price can be at most $price.';
   }
 }

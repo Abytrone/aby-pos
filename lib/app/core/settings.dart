@@ -31,6 +31,17 @@ abstract final class AppSettings {
   /// Sell even when the till thinks an item has run out.
   static const allowNegativeStock = Setting<bool>('stock.allowNegative', SettingScope.shop, true);
 
+  /// Ask takeaway, eat-in or delivery on each sale.
+  static const orderTypes = Setting<bool>('selling.orderTypes', SettingScope.shop, false);
+
+  /// Scale barcodes: the prefix the scale prints (empty = off), and whether
+  /// the five value digits are a weight in grams or a price in pesewas.
+  static const scalePrefix = Setting<String>('selling.scalePrefix', SettingScope.shop, '');
+  static const scaleValue = Setting<String>('selling.scaleValue', SettingScope.shop, 'weight');
+
+  /// Close day warns about parked orders older than this.
+  static const parkedWarnHours = Setting<int>('selling.parkedWarnHours', SettingScope.shop, 12);
+
   /// Products below this gross margin are flagged.
   static const targetMarginPercent = Setting<int>('pricing.targetMargin', SettingScope.shop, 50);
 
@@ -53,6 +64,9 @@ abstract final class AppSettings {
   /// system | light | dark
   static const themeMode = Setting<String>('device.theme', SettingScope.device, 'system');
   static const largeText = Setting<bool>('device.largeText', SettingScope.device, false);
+
+  /// small | medium | large tiles on the till.
+  static const tileSize = Setting<String>('device.tileSize', SettingScope.device, 'medium');
   static const language = Setting<String>('device.language', SettingScope.device, 'en');
 
   static const List<Setting<Object>> all = [
@@ -63,6 +77,10 @@ abstract final class AppSettings {
     taxMode,
     allowNegativeStock,
     targetMarginPercent,
+    orderTypes,
+    scalePrefix,
+    scaleValue,
+    parkedWarnHours,
     autoLockMinutes,
     autoBackupDaily,
     backupsToKeep,
@@ -70,6 +88,7 @@ abstract final class AppSettings {
     deviceName,
     themeMode,
     largeText,
+    tileSize,
     language,
   ];
 

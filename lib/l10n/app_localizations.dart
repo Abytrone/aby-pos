@@ -2299,7 +2299,7 @@ abstract class AppLocalizations {
   /// No description provided for @editorBarcodes.
   ///
   /// In en, this message translates to:
-  /// **'Barcodes'**
+  /// **'Barcodes and codes'**
   String get editorBarcodes;
 
   /// No description provided for @editorAddBarcode.
@@ -2317,7 +2317,7 @@ abstract class AppLocalizations {
   /// No description provided for @editorBarcodeHelp.
   ///
   /// In en, this message translates to:
-  /// **'Type it, or scan it with a barcode scanner.'**
+  /// **'Scan it, or type a short code (like 12) that rings this up when typed at the till.'**
   String get editorBarcodeHelp;
 
   /// No description provided for @editorOptions.
@@ -3166,6 +3166,762 @@ abstract class AppLocalizations {
   /// **'From which day?'**
   String get editorScheduleWhen;
 
+  /// No description provided for @auditCartCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Cart cleared'**
+  String get auditCartCleared;
+
+  /// No description provided for @auditCartLinesRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken off a cart'**
+  String get auditCartLinesRemoved;
+
+  /// No description provided for @auditDiscountSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved discount changed'**
+  String get auditDiscountSaved;
+
+  /// No description provided for @auditDiscountsGiven.
+  ///
+  /// In en, this message translates to:
+  /// **'Discounts given'**
+  String get auditDiscountsGiven;
+
+  /// No description provided for @auditOrderParked.
+  ///
+  /// In en, this message translates to:
+  /// **'Order parked'**
+  String get auditOrderParked;
+
+  /// No description provided for @auditParkedOrderDiscarded.
+  ///
+  /// In en, this message translates to:
+  /// **'Parked order discarded'**
+  String get auditParkedOrderDiscarded;
+
+  /// No description provided for @auditPriceOverridden.
+  ///
+  /// In en, this message translates to:
+  /// **'Price overridden'**
+  String get auditPriceOverridden;
+
+  /// No description provided for @auditReasonSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reasons list changed'**
+  String get auditReasonSaved;
+
+  /// No description provided for @cartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Current sale'**
+  String get cartTitle;
+
+  /// No description provided for @cartEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a product, scan a barcode, or type to search.'**
+  String get cartEmpty;
+
+  /// No description provided for @cartClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear the cart'**
+  String get cartClear;
+
+  /// No description provided for @cartClearTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear the cart?'**
+  String get cartClearTitle;
+
+  /// No description provided for @cartSubtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Before discounts'**
+  String get cartSubtotal;
+
+  /// No description provided for @cartDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discounts'**
+  String get cartDiscount;
+
+  /// No description provided for @cartOneLess.
+  ///
+  /// In en, this message translates to:
+  /// **'One less'**
+  String get cartOneLess;
+
+  /// No description provided for @cartOneMore.
+  ///
+  /// In en, this message translates to:
+  /// **'One more'**
+  String get cartOneMore;
+
+  /// No description provided for @cartOrderDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount on the whole sale'**
+  String get cartOrderDiscount;
+
+  /// No description provided for @cartWholeOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'the whole sale'**
+  String get cartWholeOrder;
+
+  /// No description provided for @cartAddNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note'**
+  String get cartAddNote;
+
+  /// No description provided for @cartEditNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the note'**
+  String get cartEditNote;
+
+  /// No description provided for @cartNoteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Note for this sale'**
+  String get cartNoteTitle;
+
+  /// No description provided for @cartNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get cartNote;
+
+  /// No description provided for @cartNoteHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Printed on the order ticket, e.g. \"Collect at 3 pm\".'**
+  String get cartNoteHelp;
+
+  /// No description provided for @orderTakeaway.
+  ///
+  /// In en, this message translates to:
+  /// **'Takeaway'**
+  String get orderTakeaway;
+
+  /// No description provided for @orderEatIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Eat in'**
+  String get orderEatIn;
+
+  /// No description provided for @orderDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get orderDelivery;
+
+  /// No description provided for @parkButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Park'**
+  String get parkButton;
+
+  /// No description provided for @parkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Park this sale'**
+  String get parkTitle;
+
+  /// No description provided for @parkName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name or table'**
+  String get parkName;
+
+  /// No description provided for @parkNameHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'So you can find it again: \"Blue shirt\", \"Table 4\".'**
+  String get parkNameHelp;
+
+  /// No description provided for @parkGone.
+  ///
+  /// In en, this message translates to:
+  /// **'Another till already opened that order.'**
+  String get parkGone;
+
+  /// No description provided for @parkRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get parkRename;
+
+  /// No description provided for @parkMerge.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to this sale'**
+  String get parkMerge;
+
+  /// No description provided for @parkDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Throw away'**
+  String get parkDiscard;
+
+  /// No description provided for @parkDiscardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The order is removed without a sale. This is recorded in Activity.'**
+  String get parkDiscardBody;
+
+  /// No description provided for @discountSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved discounts'**
+  String get discountSaved;
+
+  /// No description provided for @discountPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent off'**
+  String get discountPercent;
+
+  /// No description provided for @discountAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount off'**
+  String get discountAmount;
+
+  /// No description provided for @discountReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get discountReason;
+
+  /// No description provided for @discountOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Comes off'**
+  String get discountOff;
+
+  /// No description provided for @discountRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove discount'**
+  String get discountRemove;
+
+  /// No description provided for @discountApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get discountApply;
+
+  /// No description provided for @discountPickReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a reason.'**
+  String get discountPickReason;
+
+  /// No description provided for @discountPercentInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a percentage from 1 to 100.'**
+  String get discountPercentInvalid;
+
+  /// No description provided for @discountAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the amount off.'**
+  String get discountAmountInvalid;
+
+  /// No description provided for @discountNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New discount'**
+  String get discountNew;
+
+  /// No description provided for @discountEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change discount'**
+  String get discountEdit;
+
+  /// No description provided for @discountName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get discountName;
+
+  /// No description provided for @discountNameHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'As the cashier will see it: \"Student 10%\".'**
+  String get discountNameHelp;
+
+  /// No description provided for @discountScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Use it on'**
+  String get discountScope;
+
+  /// No description provided for @discountScopeLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get discountScopeLine;
+
+  /// No description provided for @discountScopeOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole sale'**
+  String get discountScopeOrder;
+
+  /// No description provided for @discountScopeAny.
+  ///
+  /// In en, this message translates to:
+  /// **'Both'**
+  String get discountScopeAny;
+
+  /// No description provided for @discountsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved discounts yet.'**
+  String get discountsNone;
+
+  /// No description provided for @editorSelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Selling'**
+  String get editorSelling;
+
+  /// No description provided for @editorQuickTab.
+  ///
+  /// In en, this message translates to:
+  /// **'On the Quick tab'**
+  String get editorQuickTab;
+
+  /// No description provided for @editorQuickTabHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The first tab on the till, for the things you sell most.'**
+  String get editorQuickTabHelp;
+
+  /// No description provided for @editorSellBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold by'**
+  String get editorSellBy;
+
+  /// No description provided for @editorSellByEachHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Counted: 1, 2, 3...'**
+  String get editorSellByEachHelp;
+
+  /// No description provided for @editorSellByWeightHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The price is per kg or litre and the till asks how much. Recipes are per kg or litre too.'**
+  String get editorSellByWeightHelp;
+
+  /// No description provided for @editorOpenPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price typed at the till'**
+  String get editorOpenPrice;
+
+  /// No description provided for @editorOpenPriceHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'For \"Miscellaneous\", repairs and the like. The price above is the suggestion.'**
+  String get editorOpenPriceHelp;
+
+  /// No description provided for @editorMinPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest price (optional)'**
+  String get editorMinPrice;
+
+  /// No description provided for @editorMaxPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest price (optional)'**
+  String get editorMaxPrice;
+
+  /// No description provided for @editorLimitsInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the lowest and highest prices.'**
+  String get editorLimitsInvalid;
+
+  /// No description provided for @sellByEach.
+  ///
+  /// In en, this message translates to:
+  /// **'Each'**
+  String get sellByEach;
+
+  /// No description provided for @sellByKg.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight (kg)'**
+  String get sellByKg;
+
+  /// No description provided for @sellByLitre.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume (litre)'**
+  String get sellByLitre;
+
+  /// No description provided for @entryAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get entryAdd;
+
+  /// No description provided for @entryPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get entryPrice;
+
+  /// No description provided for @entryWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get entryWeight;
+
+  /// No description provided for @entryVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'How much'**
+  String get entryVolume;
+
+  /// No description provided for @lineQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get lineQuantity;
+
+  /// No description provided for @lineQuantityInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a quantity of at least 1.'**
+  String get lineQuantityInvalid;
+
+  /// No description provided for @linePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price for one'**
+  String get linePrice;
+
+  /// No description provided for @linePriceHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Changing it needs permission to override prices.'**
+  String get linePriceHelp;
+
+  /// No description provided for @lineNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get lineNote;
+
+  /// No description provided for @lineNoteHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'For the kitchen or the order ticket, e.g. \"no nuts\".'**
+  String get lineNoteHelp;
+
+  /// No description provided for @lineAddDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a discount'**
+  String get lineAddDiscount;
+
+  /// No description provided for @lineDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get lineDiscount;
+
+  /// No description provided for @lineChangePick.
+  ///
+  /// In en, this message translates to:
+  /// **'Change size or options'**
+  String get lineChangePick;
+
+  /// No description provided for @lineRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get lineRemove;
+
+  /// No description provided for @overrideRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'The price was not changed.'**
+  String get overrideRefused;
+
+  /// No description provided for @quickArrange.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrange the Quick tab'**
+  String get quickArrange;
+
+  /// No description provided for @quickArrangeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder. Add products from the list below.'**
+  String get quickArrangeHelp;
+
+  /// No description provided for @quickRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Take off the Quick tab'**
+  String get quickRemove;
+
+  /// No description provided for @quickAddHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a product to add'**
+  String get quickAddHint;
+
+  /// No description provided for @quickArrangeReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the Quick tab.'**
+  String get quickArrangeReason;
+
+  /// No description provided for @reasonsDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount reasons'**
+  String get reasonsDiscount;
+
+  /// No description provided for @reasonsVoid.
+  ///
+  /// In en, this message translates to:
+  /// **'Void reasons'**
+  String get reasonsVoid;
+
+  /// No description provided for @reasonsRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund reasons'**
+  String get reasonsRefund;
+
+  /// No description provided for @reasonsNoSale.
+  ///
+  /// In en, this message translates to:
+  /// **'No-sale reasons'**
+  String get reasonsNoSale;
+
+  /// No description provided for @reasonNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New reason'**
+  String get reasonNew;
+
+  /// No description provided for @reasonEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change reason'**
+  String get reasonEdit;
+
+  /// No description provided for @reasonName.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get reasonName;
+
+  /// No description provided for @settingsGroupSelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Selling'**
+  String get settingsGroupSelling;
+
+  /// No description provided for @settingsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get settingsOff;
+
+  /// No description provided for @settingsOrderTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Takeaway, eat in or delivery'**
+  String get settingsOrderTypes;
+
+  /// No description provided for @settingsOrderTypesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask on each sale; shown on the order ticket.'**
+  String get settingsOrderTypesHelp;
+
+  /// No description provided for @settingsNegativeStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell when out of stock'**
+  String get settingsNegativeStock;
+
+  /// No description provided for @settingsNegativeStockHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The till warns but still sells. Off: it refuses.'**
+  String get settingsNegativeStockHelp;
+
+  /// No description provided for @settingsDiscounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved discounts'**
+  String get settingsDiscounts;
+
+  /// No description provided for @settingsDiscountsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Named discounts cashiers can pick: \"Student 10%\", \"Staff meal GH₵ 5 off\".'**
+  String get settingsDiscountsHelp;
+
+  /// No description provided for @settingsScalePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Scale barcodes'**
+  String get settingsScalePrefix;
+
+  /// No description provided for @settingsScalePrefixHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The first digits your scale prints (often 2 or 21). Leave empty if you have no scale.'**
+  String get settingsScalePrefixHelp;
+
+  /// No description provided for @settingsScaleValue.
+  ///
+  /// In en, this message translates to:
+  /// **'The scale barcode holds'**
+  String get settingsScaleValue;
+
+  /// No description provided for @settingsScaleWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'The weight'**
+  String get settingsScaleWeight;
+
+  /// No description provided for @settingsScalePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'The price'**
+  String get settingsScalePrice;
+
+  /// No description provided for @settingsParkedWarn.
+  ///
+  /// In en, this message translates to:
+  /// **'Warn about parked orders after'**
+  String get settingsParkedWarn;
+
+  /// No description provided for @settingsParkedWarnHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Close day shows parked orders older than this.'**
+  String get settingsParkedWarnHelp;
+
+  /// No description provided for @settingsTiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Till tile size'**
+  String get settingsTiles;
+
+  /// No description provided for @settingsTilesSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Small'**
+  String get settingsTilesSmall;
+
+  /// No description provided for @settingsTilesMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get settingsTilesMedium;
+
+  /// No description provided for @settingsTilesLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Large'**
+  String get settingsTilesLarge;
+
+  /// No description provided for @tileOpenPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Any price'**
+  String get tileOpenPrice;
+
+  /// No description provided for @tillQuick.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick'**
+  String get tillQuick;
+
+  /// No description provided for @tillAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get tillAll;
+
+  /// No description provided for @tillRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get tillRecent;
+
+  /// No description provided for @tillSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search, scan, or type a code'**
+  String get tillSearchHint;
+
+  /// No description provided for @tillNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches. Press Enter to look it up as a code.'**
+  String get tillNoMatch;
+
+  /// No description provided for @tillNothingHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet.'**
+  String get tillNothingHere;
+
+  /// No description provided for @tillQuickEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on the Quick tab yet.'**
+  String get tillQuickEmpty;
+
+  /// No description provided for @tillCodeUnknownBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a new product with this barcode?'**
+  String get tillCodeUnknownBody;
+
+  /// No description provided for @tillCodeCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'New product'**
+  String get tillCodeCreate;
+
+  /// No description provided for @tillPriceInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the price.'**
+  String get tillPriceInvalid;
+
+  /// No description provided for @tillWeightInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter how much.'**
+  String get tillWeightInvalid;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -3795,6 +4551,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{price} from {date}'**
   String editorScheduled(String price, String date);
+
+  /// No description provided for @approvalNeedsDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs someone allowed to give {percent}% off'**
+  String approvalNeedsDiscount(int percent);
+
+  /// No description provided for @cartButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cart ({count})'**
+  String cartButton(int count);
+
+  /// No description provided for @cartButtonParked.
+  ///
+  /// In en, this message translates to:
+  /// **'Cart ({count}) · {parked} parked'**
+  String cartButtonParked(int count, int parked);
+
+  /// No description provided for @cartClearBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} items come off. This is recorded in Activity.'**
+  String cartClearBody(int count);
+
+  /// No description provided for @cartDiscountWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Discounts (incl. {name})'**
+  String cartDiscountWith(String name);
+
+  /// No description provided for @cartDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item is no longer on the menu and was left out.} other{{count} items are no longer on the menu and were left out.}}'**
+  String cartDropped(int count);
+
+  /// No description provided for @cartEach.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} each'**
+  String cartEach(String price);
+
+  /// No description provided for @cartPer.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} per {unit}'**
+  String cartPer(String price, String unit);
+
+  /// No description provided for @cartWas.
+  ///
+  /// In en, this message translates to:
+  /// **'menu price {price}'**
+  String cartWas(String price);
+
+  /// No description provided for @cartLineDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: −{amount}'**
+  String cartLineDiscount(String name, String amount);
+
+  /// No description provided for @parkDefaultName.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {number}'**
+  String parkDefaultName(int number);
+
+  /// No description provided for @parkDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Parked \"{name}\".'**
+  String parkDone(String name);
+
+  /// No description provided for @parkDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Throw away \"{name}\"?'**
+  String parkDiscardTitle(String name);
+
+  /// No description provided for @parkDiscardReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Throw away the parked order \"{name}\".'**
+  String parkDiscardReason(String name);
+
+  /// No description provided for @closeParkedWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 parked order has been waiting a long time. Was it paid?} other{{count} parked orders have been waiting a long time. Were they paid?}}'**
+  String closeParkedWarning(int count);
+
+  /// No description provided for @discountApprovalReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Give {discount} off {what}.'**
+  String discountApprovalReason(String discount, String what);
+
+  /// No description provided for @entryPricePer.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} per {unit}'**
+  String entryPricePer(String price, String unit);
+
+  /// No description provided for @entryPricePerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price per {unit}'**
+  String entryPricePerLabel(String unit);
+
+  /// No description provided for @entryMin.
+  ///
+  /// In en, this message translates to:
+  /// **'From {price}'**
+  String entryMin(String price);
+
+  /// No description provided for @entryMax.
+  ///
+  /// In en, this message translates to:
+  /// **'up to {price}'**
+  String entryMax(String price);
+
+  /// No description provided for @lineMenuPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu price {price}'**
+  String lineMenuPrice(String price);
+
+  /// No description provided for @lineDiscountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount on {item}'**
+  String lineDiscountTitle(String item);
+
+  /// No description provided for @pickerUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update · {price}'**
+  String pickerUpdate(String price);
+
+  /// No description provided for @overrideReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the price of {item} to {price}.'**
+  String overrideReason(String item, String price);
+
+  /// No description provided for @settingsHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hour} other{{count} hours}}'**
+  String settingsHours(int count);
+
+  /// No description provided for @tillQuantityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a product to add {count}, or press Enter for code {count}'**
+  String tillQuantityHint(int count);
+
+  /// No description provided for @tillCodeNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No product has the code {code}.'**
+  String tillCodeNotFound(String code);
+
+  /// No description provided for @tillCodeUnknownTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No product has {code}'**
+  String tillCodeUnknownTitle(String code);
+
+  /// No description provided for @tillOutBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is out of stock.'**
+  String tillOutBlocked(String name);
+
+  /// No description provided for @tillOutWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'The till thinks {name} has run out. Check the shelf.'**
+  String tillOutWarning(String name);
+
+  /// No description provided for @tillPriceLow.
+  ///
+  /// In en, this message translates to:
+  /// **'The price must be at least {price}.'**
+  String tillPriceLow(String price);
+
+  /// No description provided for @tillPriceHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'The price can be at most {price}.'**
+  String tillPriceHigh(String price);
 }
 
 class _AppLocalizationsDelegate

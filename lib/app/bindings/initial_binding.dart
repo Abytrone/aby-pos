@@ -4,7 +4,9 @@ import '../data/database/app_database.dart';
 import '../data/repositories/audit_repository.dart';
 import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/day_close_repository.dart';
+import '../data/repositories/discount_repository.dart';
 import '../data/repositories/outbox_repository.dart';
+import '../data/repositories/parked_order_repository.dart';
 import '../data/repositories/role_repository.dart';
 import '../data/repositories/sale_repository.dart';
 import '../data/repositories/settings_repository.dart';
@@ -52,6 +54,9 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => CatalogueIo(Get.find(), Get.find(), audit), fenix: true);
     Get.lazyPut(() => DayCloseRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => SaleRepository(db, Get.find(), Get.find(), audit, device), fenix: true);
+    Get.lazyPut(() => DiscountRepository(db, device, audit), fenix: true);
+    // The cart saves itself through this, so it is ready before the cart.
+    Get.put(ParkedOrderRepository(db, device, audit), permanent: true);
     Get.lazyPut(() => RoleRepository(db, device, audit), fenix: true);
     final staff = Get.put(StaffRepository(db, device, audit), permanent: true);
     Get.lazyPut(() => StaffStatsRepository(db), fenix: true);

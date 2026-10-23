@@ -367,10 +367,10 @@
   "editorMoveUp": "Move up",
   "editorMoveDown": "Move down",
   "editorRemoveVariant": "Remove",
-  "editorBarcodes": "Barcodes",
+  "editorBarcodes": "Barcodes and codes",
   "editorAddBarcode": "Add barcode",
   "editorBarcode": "Barcode",
-  "editorBarcodeHelp": "Type it, or scan it with a barcode scanner.",
+  "editorBarcodeHelp": "Scan it, or type a short code (like 12) that rings this up when typed at the till.",
   "editorOptions": "Options",
   "editorNoOptions": "No option groups yet. Add them on the Options tab.",
   "editorTaxes": "Taxes",
@@ -512,6 +512,132 @@
   "importApply": "Import",
   "editorSchedule": "Schedule a new price",
   "editorScheduleWhen": "From which day?",
+  "auditCartCleared": "Cart cleared",
+  "auditCartLinesRemoved": "Taken off a cart",
+  "auditDiscountSaved": "Saved discount changed",
+  "auditDiscountsGiven": "Discounts given",
+  "auditOrderParked": "Order parked",
+  "auditParkedOrderDiscarded": "Parked order discarded",
+  "auditPriceOverridden": "Price overridden",
+  "auditReasonSaved": "Reasons list changed",
+  "cartTitle": "Current sale",
+  "cartEmpty": "Tap a product, scan a barcode, or type to search.",
+  "cartClear": "Clear the cart",
+  "cartClearTitle": "Clear the cart?",
+  "cartSubtotal": "Before discounts",
+  "cartDiscount": "Discounts",
+  "cartOneLess": "One less",
+  "cartOneMore": "One more",
+  "cartOrderDiscount": "Discount on the whole sale",
+  "cartWholeOrder": "the whole sale",
+  "cartAddNote": "Add a note",
+  "cartEditNote": "Change the note",
+  "cartNoteTitle": "Note for this sale",
+  "cartNote": "Note",
+  "cartNoteHelp": "Printed on the order ticket, e.g. \"Collect at 3 pm\".",
+  "orderTakeaway": "Takeaway",
+  "orderEatIn": "Eat in",
+  "orderDelivery": "Delivery",
+  "parkButton": "Park",
+  "parkTitle": "Park this sale",
+  "parkName": "Name or table",
+  "parkNameHelp": "So you can find it again: \"Blue shirt\", \"Table 4\".",
+  "parkGone": "Another till already opened that order.",
+  "parkRename": "Rename",
+  "parkMerge": "Add to this sale",
+  "parkDiscard": "Throw away",
+  "parkDiscardBody": "The order is removed without a sale. This is recorded in Activity.",
+  "discountSaved": "Saved discounts",
+  "discountPercent": "Percent off",
+  "discountAmount": "Amount off",
+  "discountReason": "Reason",
+  "discountOff": "Comes off",
+  "discountRemove": "Remove discount",
+  "discountApply": "Apply",
+  "discountPickReason": "Pick a reason.",
+  "discountPercentInvalid": "Enter a percentage from 1 to 100.",
+  "discountAmountInvalid": "Enter the amount off.",
+  "discountNew": "New discount",
+  "discountEdit": "Change discount",
+  "discountName": "Name",
+  "discountNameHelp": "As the cashier will see it: \"Student 10%\".",
+  "discountScope": "Use it on",
+  "discountScopeLine": "Items",
+  "discountScopeOrder": "Whole sale",
+  "discountScopeAny": "Both",
+  "discountsNone": "No saved discounts yet.",
+  "editorSelling": "Selling",
+  "editorQuickTab": "On the Quick tab",
+  "editorQuickTabHelp": "The first tab on the till, for the things you sell most.",
+  "editorSellBy": "Sold by",
+  "editorSellByEachHelp": "Counted: 1, 2, 3...",
+  "editorSellByWeightHelp": "The price is per kg or litre and the till asks how much. Recipes are per kg or litre too.",
+  "editorOpenPrice": "Price typed at the till",
+  "editorOpenPriceHelp": "For \"Miscellaneous\", repairs and the like. The price above is the suggestion.",
+  "editorMinPrice": "Lowest price (optional)",
+  "editorMaxPrice": "Highest price (optional)",
+  "editorLimitsInvalid": "Check the lowest and highest prices.",
+  "sellByEach": "Each",
+  "sellByKg": "Weight (kg)",
+  "sellByLitre": "Volume (litre)",
+  "entryAdd": "Add",
+  "entryPrice": "Price",
+  "entryWeight": "Weight",
+  "entryVolume": "How much",
+  "lineQuantity": "Quantity",
+  "lineQuantityInvalid": "Enter a quantity of at least 1.",
+  "linePrice": "Price for one",
+  "linePriceHelp": "Changing it needs permission to override prices.",
+  "lineNote": "Note",
+  "lineNoteHelp": "For the kitchen or the order ticket, e.g. \"no nuts\".",
+  "lineAddDiscount": "Add a discount",
+  "lineDiscount": "Discount",
+  "lineChangePick": "Change size or options",
+  "lineRemove": "Remove",
+  "overrideRefused": "The price was not changed.",
+  "quickArrange": "Arrange the Quick tab",
+  "quickArrangeHelp": "Drag to reorder. Add products from the list below.",
+  "quickRemove": "Take off the Quick tab",
+  "quickAddHint": "Find a product to add",
+  "quickArrangeReason": "Change the Quick tab.",
+  "reasonsDiscount": "Discount reasons",
+  "reasonsVoid": "Void reasons",
+  "reasonsRefund": "Refund reasons",
+  "reasonsNoSale": "No-sale reasons",
+  "reasonNew": "New reason",
+  "reasonEdit": "Change reason",
+  "reasonName": "Reason",
+  "settingsGroupSelling": "Selling",
+  "settingsOff": "Off",
+  "settingsOrderTypes": "Takeaway, eat in or delivery",
+  "settingsOrderTypesHelp": "Ask on each sale; shown on the order ticket.",
+  "settingsNegativeStock": "Sell when out of stock",
+  "settingsNegativeStockHelp": "The till warns but still sells. Off: it refuses.",
+  "settingsDiscounts": "Saved discounts",
+  "settingsDiscountsHelp": "Named discounts cashiers can pick: \"Student 10%\", \"Staff meal GH₵ 5 off\".",
+  "settingsScalePrefix": "Scale barcodes",
+  "settingsScalePrefixHelp": "The first digits your scale prints (often 2 or 21). Leave empty if you have no scale.",
+  "settingsScaleValue": "The scale barcode holds",
+  "settingsScaleWeight": "The weight",
+  "settingsScalePrice": "The price",
+  "settingsParkedWarn": "Warn about parked orders after",
+  "settingsParkedWarnHelp": "Close day shows parked orders older than this.",
+  "settingsTiles": "Till tile size",
+  "settingsTilesSmall": "Small",
+  "settingsTilesMedium": "Medium",
+  "settingsTilesLarge": "Large",
+  "tileOpenPrice": "Any price",
+  "tillQuick": "Quick",
+  "tillAll": "All",
+  "tillRecent": "Recent",
+  "tillSearchHint": "Search, scan, or type a code",
+  "tillNoMatch": "Nothing matches. Press Enter to look it up as a code.",
+  "tillNothingHere": "Nothing here yet.",
+  "tillQuickEmpty": "Nothing on the Quick tab yet.",
+  "tillCodeUnknownBody": "Add a new product with this barcode?",
+  "tillCodeCreate": "New product",
+  "tillPriceInvalid": "Enter the price.",
+  "tillWeightInvalid": "Enter how much.",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -1393,6 +1519,280 @@
         "type": "String"
       },
       "date": {
+        "type": "String"
+      }
+    }
+  },
+  "approvalNeedsDiscount": "Needs someone allowed to give {percent}% off",
+  "@approvalNeedsDiscount": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "cartButton": "Cart ({count})",
+  "@cartButton": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartButtonParked": "Cart ({count}) · {parked} parked",
+  "@cartButtonParked": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "parked": {
+        "type": "int"
+      }
+    }
+  },
+  "cartClearBody": "{count} items come off. This is recorded in Activity.",
+  "@cartClearBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartDiscountWith": "Discounts (incl. {name})",
+  "@cartDiscountWith": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cartDropped": "{count, plural, =1{1 item is no longer on the menu and was left out.} other{{count} items are no longer on the menu and were left out.}}",
+  "@cartDropped": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartEach": "{price} each",
+  "@cartEach": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cartPer": "{price} per {unit}",
+  "@cartPer": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "cartWas": "menu price {price}",
+  "@cartWas": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cartLineDiscount": "{name}: −{amount}",
+  "@cartLineDiscount": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "parkDefaultName": "Order {number}",
+  "@parkDefaultName": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "parkDone": "Parked \"{name}\".",
+  "@parkDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "parkDiscardTitle": "Throw away \"{name}\"?",
+  "@parkDiscardTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "parkDiscardReason": "Throw away the parked order \"{name}\".",
+  "@parkDiscardReason": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closeParkedWarning": "{count, plural, =1{1 parked order has been waiting a long time. Was it paid?} other{{count} parked orders have been waiting a long time. Were they paid?}}",
+  "@closeParkedWarning": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "discountApprovalReason": "Give {discount} off {what}.",
+  "@discountApprovalReason": {
+    "placeholders": {
+      "discount": {
+        "type": "String"
+      },
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "entryPricePer": "{price} per {unit}",
+  "@entryPricePer": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "entryPricePerLabel": "Price per {unit}",
+  "@entryPricePerLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "entryMin": "From {price}",
+  "@entryMin": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "entryMax": "up to {price}",
+  "@entryMax": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "lineMenuPrice": "Menu price {price}",
+  "@lineMenuPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "lineDiscountTitle": "Discount on {item}",
+  "@lineDiscountTitle": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "pickerUpdate": "Update · {price}",
+  "@pickerUpdate": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "overrideReason": "Change the price of {item} to {price}.",
+  "@overrideReason": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsHours": "{count, plural, =1{1 hour} other{{count} hours}}",
+  "@settingsHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tillQuantityHint": "Tap a product to add {count}, or press Enter for code {count}",
+  "@tillQuantityHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tillCodeNotFound": "No product has the code {code}.",
+  "@tillCodeNotFound": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "tillCodeUnknownTitle": "No product has {code}",
+  "@tillCodeUnknownTitle": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "tillOutBlocked": "{name} is out of stock.",
+  "@tillOutBlocked": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tillOutWarning": "The till thinks {name} has run out. Check the shelf.",
+  "@tillOutWarning": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tillPriceLow": "The price must be at least {price}.",
+  "@tillPriceLow": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "tillPriceHigh": "The price can be at most {price}.",
+  "@tillPriceHigh": {
+    "placeholders": {
+      "price": {
         "type": "String"
       }
     }

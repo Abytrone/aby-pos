@@ -16,6 +16,8 @@ class ProductTile extends StatelessWidget {
     required this.tone,
     required this.inCart,
     this.left,
+    this.photo,
+    this.large = false,
     required this.onTap,
     this.onLongPress,
   });
@@ -26,6 +28,13 @@ class ProductTile extends StatelessWidget {
 
   /// How many can still be made, when the till can tell.
   final int? left;
+
+  /// The product photo; without one the tile shows initials on the
+  /// category colour.
+  final ImageProvider? photo;
+
+  /// Large tiles show a bigger picture.
+  final bool large;
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
 
@@ -61,8 +70,9 @@ class ProductTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CategoryDot(tone: tone),
+                      _Picture(name: product.name, tone: tone, photo: photo, size: large ? 56 : 36),
                       const Spacer(),
                       if (inCart > 0) _CountBadge(count: inCart),
                     ],
@@ -88,7 +98,12 @@ class ProductTile extends StatelessWidget {
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          pricesDiffer ? l.tileFrom(formatMoney(product.fromPrice)) : formatMoney(product.fromPrice),
+                          product.openPrice
+                              ? l.tileOpenPrice
+                              : [
+                                  pricesDiffer ? l.tileFrom(formatMoney(product.fromPrice)) : formatMoney(product.fromPrice),
+                                  if (product.perUnit != null) '/${product.perUnit}',
+                                ].join(),
                           style: AbyText.price.copyWith(color: out ? c.inkMuted : c.ink),
                           maxLines: 1,
                         ),
@@ -108,6 +123,39 @@ class ProductTile extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _Picture extends StatelessWidget {
+  const _Picture({required this.name, required this.tone, required this.photo, required this.size});
+
+  final String name;
+  final CategoryTone tone;
+  final ImageProvider? photo;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).extension<AbyColors>()!;
+    final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+    final initials = words.take(2).map((w) => w.characters.first.toUpperCase()).join();
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AbyRadius.sm),
+      child: SizedBox.square(
+        dimension: size,
+        child: photo != null
+            ? Image(image: photo!, fit: BoxFit.cover, gaplessPlayback: true)
+            : ColoredBox(
+                color: toneColor(tone, c),
+                child: Center(
+                  child: Text(
+                    initials,
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: size * 0.4),
+                  ),
+                ),
+              ),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:aby_pos/app/app.dart';
 import 'package:aby_pos/app/core/permissions.dart';
 import 'package:aby_pos/app/data/database/app_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 
@@ -73,7 +74,7 @@ void main() {
     expect(find.text('Sell'), findsOneWidget);
     expect(find.text('Staff'), findsNothing);
     expect(find.text('Activity'), findsNothing);
-    expect(find.text('Tap a product to add it.'), findsOneWidget);
+    expect(find.text('Tap a product, scan a barcode, or type to search.'), findsOneWidget);
 
     // Ring up a double cone with sprinkles and a waffle.
     await tester.tap(find.text('Vanilla cone'));
@@ -88,7 +89,7 @@ void main() {
 
     await tester.tap(find.text('Pay GH₵ 37.00'));
     await _settle(tester);
-    await tester.enterText(find.byType(TextField), '50');
+    await tester.enterText(find.widgetWithText(TextField, 'Cash given'), '50');
     await _settle(tester);
     expect(find.text('GH₵ 13.00'), findsOneWidget);
     await tester.tap(find.text('Complete sale'));
@@ -152,6 +153,8 @@ void main() {
 
     // Settings: the owner changes the auto-lock time.
     await tester.tap(find.text('Settings'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Search settings'), 'lock');
     await _settle(tester);
     await tester.tap(find.text('Lock the till after'));
     await _settle(tester);
@@ -387,6 +390,77 @@ void main() {
     await tester.enterText(find.widgetWithText(TextField, 'Search stock'), 'wafer');
     await _settle(tester);
     expect(find.text('290 pcs'), findsWidgets);
+
+    await _dispose(tester);
+  });
+
+  testWidgets('tablet: typed quantity, a line discount, park and resume, search and Enter', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await _settle(tester);
+    await tester.tap(find.text('Ama'));
+    await _settle(tester);
+    await _typePin(tester, '5678');
+
+    // "3" then a tap adds three.
+    final search = find.widgetWithText(TextField, 'Search, scan, or type a code');
+    await tester.enterText(search, '3');
+    await _settle(tester);
+    expect(find.text('Tap a product to add 3, or press Enter for code 3'), findsOneWidget);
+    await tester.tap(find.text('Waffle'));
+    await _settle(tester);
+    expect(find.text('Pay GH₵ 36.00'), findsOneWidget);
+
+    // 10% off the line is within a cashier's limit: no PIN needed.
+    await tester.tap(find.text('GH₵ 12.00 each'));
+    await _settle(tester);
+    await tester.tap(find.text('Add a discount'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Percent off'), '10');
+    await tester.tap(find.text('Regular customer'));
+    await _settle(tester);
+    expect(find.text('−GH₵ 3.60'), findsOneWidget);
+    await tester.tap(find.text('Apply'));
+    await _settle(tester);
+    await tester.tap(find.text('Done'));
+    await _settle(tester);
+    expect(find.text('Pay GH₵ 32.40'), findsOneWidget);
+    expect(find.text('10%: −GH₵ 3.60'), findsOneWidget);
+
+    // Park it as Table 4; the cart empties and a tab appears.
+    await tester.tap(find.text('Park'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Name or table'), 'Table 4');
+    await tester.tap(find.widgetWithText(FilledButton, 'Park'));
+    await _settle(tester);
+    expect(find.text('Table 4  ·  GH₵ 32.40'), findsOneWidget);
+    expect(find.text('Pay GH₵ 0.00'), findsOneWidget);
+
+    // Typing on a keyboard goes into the search box (even when nothing has
+    // focus); Enter adds the only match.
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyM);
+    await _settle(tester);
+    expect(find.widgetWithText(TextField, 'm'), findsOneWidget);
+    // From here the box has focus and the platform types into it.
+    await tester.enterText(search, 'milk');
+    await _settle(tester);
+    expect(find.text('Waffle'), findsNothing);
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await _settle(tester);
+    expect(find.text('Pay GH₵ 20.00'), findsOneWidget);
+
+    // Back to Table 4: the milkshake is parked in its place.
+    await tester.tap(find.text('Table 4  ·  GH₵ 32.40'));
+    await _settle(tester);
+    expect(find.text('Pay GH₵ 32.40'), findsOneWidget);
+    expect(find.text('Table 4'), findsOneWidget, reason: 'the cart is titled with its name');
+    expect(find.textContaining('GH₵ 20.00'), findsWidgets);
 
     await _dispose(tester);
   });

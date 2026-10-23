@@ -49,8 +49,21 @@ class CatalogueRules {
         }
       }
     }
+    if (d.openPrice) {
+      final min = d.minPrice;
+      final max = d.maxPrice;
+      if ((min ?? 0) < 0 || (max ?? 0) < 0 || (max ?? 0) > maxPrice) {
+        throw const CatalogueException('Enter limits from GH₵ 0.00.');
+      }
+      if (min != null && max != null && min > max) {
+        throw const CatalogueException('The lowest price is above the highest.');
+      }
+    }
     return _catalog.saveProduct(d, by: by);
   }
+
+  /// Arranges the till's Quick tab; products left out come off it.
+  Future<void> setQuickTab(List<String> productIds) => _catalog.setQuickTab(productIds);
 
   Future<String> saveOptionGroup(OptionGroupDraft d, {required Staff by}) async {
     if (d.name.trim().isEmpty) throw const CatalogueException('Enter a name for the options.');

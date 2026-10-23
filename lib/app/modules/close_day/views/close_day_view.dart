@@ -7,6 +7,7 @@ import '../../../models/enums.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/l10n.dart';
 import '../controllers/close_day_controller.dart';
 import '../widgets/difference_box.dart';
 
@@ -89,6 +90,23 @@ class _CountForm extends GetView<CloseDayController> {
       children: [
         Text('Since ${_when(period.from)}', style: AbyText.body.copyWith(color: c.inkMuted)),
         const SizedBox(height: AbySpace.s3),
+        Obx(() => controller.oldParked.value == 0
+            ? const SizedBox.shrink()
+            : Container(
+                margin: const EdgeInsets.only(bottom: AbySpace.s3),
+                padding: const EdgeInsets.all(AbySpace.s3),
+                decoration: BoxDecoration(color: c.warningSoft, borderRadius: BorderRadius.circular(AbyRadius.sm)),
+                child: Row(children: [
+                  Icon(Icons.pause_circle_outline, color: c.warning),
+                  const SizedBox(width: AbySpace.s2),
+                  Expanded(
+                    child: Text(
+                      context.l10n.closeParkedWarning(controller.oldParked.value),
+                      style: AbyText.body.copyWith(color: c.ink),
+                    ),
+                  ),
+                ]),
+              )),
         Card(
           margin: EdgeInsets.zero,
           child: Padding(

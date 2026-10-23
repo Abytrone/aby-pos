@@ -228,6 +228,11 @@ class CatalogueIo {
         variants: variants,
         groupIds: [for (final g in existing?.groups ?? const <OptionGroup>[]) g.id],
         taxIds: [for (final t in existing?.taxes ?? const <TaxRate>[]) t.id],
+        sellBy: existing?.sellBy ?? SellBy.each,
+        openPrice: existing?.openPrice ?? false,
+        minPrice: existing?.minPrice,
+        maxPrice: existing?.maxPrice,
+        onQuickTab: existing?.quickOrder != null,
       );
       if (existing != null && (draft.active != existing.active || draft.detail != existing.detail)) changed = true;
       if (!changed) {
@@ -257,20 +262,7 @@ class CatalogueIo {
       }
       for (final d in preview.drafts) {
         final categoryId = d.categoryId.startsWith('new:') ? created[d.categoryId.substring(4)]! : d.categoryId;
-        await _rules.saveProduct(
-          ProductDraft(
-            id: d.id,
-            categoryId: categoryId,
-            name: d.name,
-            detail: d.detail,
-            description: d.description,
-            active: d.active,
-            variants: d.variants,
-            groupIds: d.groupIds,
-            taxIds: d.taxIds,
-          ),
-          by: by,
-        );
+        await _rules.saveProduct(d.copyWith(categoryId: categoryId), by: by);
       }
       await _audit.record(
         action: AuditAction.catalogueImported,

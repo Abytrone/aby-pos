@@ -77,8 +77,8 @@ void main() {
     test('without it, the prompt brings an approver', () async {
       auth.signInAsNew(ama);
       Permission? asked;
-      permissions.prompter = (p, _) async {
-        asked = p;
+      permissions.prompter = (need, _) async {
+        asked = need.permission;
         return kofi;
       };
       final result = await permissions.authorize(Permission.voidSale, reason: 'Void #00001');

@@ -39,6 +39,12 @@ App icons: `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml`.
   safety copy of the current data first, then restarts the app.
 - **Status centre:** the dot in the header. Green when backups are recent and the activity log is
   intact; amber or red with a fix button when not.
+- **Selling:** the till has a Quick tab, All, categories and Recent. The box at the top searches,
+  takes scans (and hardware keyboards) and short codes; type a number then tap a product to add
+  that many. Weighed products and open prices ask for the amount. Tap a cart line to change it,
+  give a discount (with a reason; above the role's limit someone approves with their PIN) or add
+  a note. *Park* puts a sale aside under a name; parked sales show as tabs above the cart. The
+  cart survives a crash or power cut.
 - **Products:** prices per size (variants), option groups such as Toppings (with min, max and
   repeats), recipes that use stock, taxes (off, inclusive or exclusive), barcodes and a photo.
   *Tools* has bulk price changes, CSV export and CSV import (preview first; nothing is removed).

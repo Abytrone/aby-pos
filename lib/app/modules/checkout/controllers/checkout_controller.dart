@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
@@ -7,6 +9,7 @@ import '../../../models/sale.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/money.dart';
 import '../../till/controllers/cart_controller.dart';
+import '../../till/controllers/till_controller.dart';
 
 /// Takes payment for the cart and saves the sale. Amounts are pesewas.
 class CheckoutController extends GetxController {
@@ -98,8 +101,12 @@ class CheckoutController extends GetxController {
         payment: payment,
         cashier: _auth.user,
         taxMode: cart.taxMode,
+        orderDiscount: cart.orderDiscount.value,
+        note: cart.note.value,
+        orderType: cart.orderType.value,
       );
-      cart.clear();
+      cart.reset();
+      if (Get.isRegistered<TillController>()) unawaited(Get.find<TillController>().refreshRecent());
     } on SaleException catch (e) {
       error.value = e.message;
     } catch (_) {

@@ -21,6 +21,9 @@ class FakeSaleRepository implements SaleRepository {
     required PaymentInput payment,
     required Staff cashier,
     TaxMode taxMode = TaxMode.off,
+    Discount? orderDiscount,
+    String? note,
+    OrderType? orderType,
   }) async {
     if (failWith != null) throw failWith!;
     calls.add((lines, payment, cashier));

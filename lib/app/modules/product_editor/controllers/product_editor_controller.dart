@@ -11,6 +11,7 @@ import '../../../data/repositories/stock_repository.dart';
 import '../../../domain/catalogue_rules.dart';
 import '../../../models/catalog.dart';
 import '../../../models/drafts.dart';
+import '../../../models/enums.dart';
 import '../../../models/stock.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/money.dart';
@@ -62,7 +63,10 @@ class ProductEditorController extends GetxController {
   final AuthService _auth = Get.find();
   final PermissionService _permissions = Get.find();
 
-  final String? productId = Get.arguments as String?;
+  /// A product ID to change it; nothing, or {'barcode': code} from the till's
+  /// "new product with this barcode", for a new one.
+  final String? productId = Get.arguments is String ? Get.arguments as String : null;
+  final String? newBarcode = Get.arguments is Map ? (Get.arguments as Map)['barcode'] as String? : null;
 
   bool loading = true;
   bool saving = false;
@@ -79,6 +83,11 @@ class ProductEditorController extends GetxController {
   final description = TextEditingController();
   String? categoryId;
   bool active = true;
+  SellBy sellBy = SellBy.each;
+  bool openPrice = false;
+  final minPrice = TextEditingController();
+  final maxPrice = TextEditingController();
+  bool onQuickTab = false;
   final variants = <VariantForm>[];
   final groupIds = <String>[];
   final taxIds = <String>{};
@@ -104,6 +113,8 @@ class ProductEditorController extends GetxController {
     name.dispose();
     detail.dispose();
     description.dispose();
+    minPrice.dispose();
+    maxPrice.dispose();
     for (final v in variants) {
       v.dispose();
     }
@@ -121,6 +132,11 @@ class ProductEditorController extends GetxController {
       description.text = p.description ?? '';
       categoryId = p.categoryId;
       active = p.active;
+      sellBy = p.sellBy;
+      openPrice = p.openPrice;
+      minPrice.text = p.minPrice == null ? '' : _plain(p.minPrice!);
+      maxPrice.text = p.maxPrice == null ? '' : _plain(p.maxPrice!);
+      onQuickTab = p.quickOrder != null;
       for (final v in p.variants) {
         variants.add(VariantForm(
           id: v.id,
@@ -138,7 +154,7 @@ class ProductEditorController extends GetxController {
       scheduled = await _catalog.scheduledPrices(productId: p.id);
     } else {
       categoryId = catalogue!.categories.where((c) => c.active).firstOrNull?.id;
-      variants.add(VariantForm());
+      variants.add(VariantForm(barcodes: [?newBarcode]));
     }
     loading = false;
     update();
@@ -200,6 +216,21 @@ class ProductEditorController extends GetxController {
 
   void setActive(bool v) {
     active = v;
+    update();
+  }
+
+  void setSellBy(SellBy v) {
+    sellBy = v;
+    update();
+  }
+
+  void setOpenPrice(bool v) {
+    openPrice = v;
+    update();
+  }
+
+  void setQuickTab(bool v) {
+    onQuickTab = v;
     update();
   }
 
@@ -306,6 +337,14 @@ class ProductEditorController extends GetxController {
       update();
       return false;
     }
+    final min = minPrice.text.trim().isEmpty ? null : parseMoney(minPrice.text);
+    final max = maxPrice.text.trim().isEmpty ? null : parseMoney(maxPrice.text);
+    if (openPrice &&
+        ((minPrice.text.trim().isNotEmpty && min == null) || (maxPrice.text.trim().isNotEmpty && max == null))) {
+      error = l.editorLimitsInvalid;
+      update();
+      return false;
+    }
 
     final auth = await _permissions.authorize(Permission.editProducts, reason: l.productsEditReason);
     if (auth == null) return false;
@@ -331,6 +370,11 @@ class ProductEditorController extends GetxController {
           variants: drafts,
           groupIds: [...groupIds],
           taxIds: [...taxIds],
+          sellBy: sellBy,
+          openPrice: openPrice,
+          minPrice: min,
+          maxPrice: max,
+          onQuickTab: onQuickTab,
         ),
         by: by,
       );

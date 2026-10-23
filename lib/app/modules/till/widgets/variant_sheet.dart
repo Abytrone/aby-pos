@@ -100,7 +100,9 @@ class VariantSheet extends GetView<TillController> {
                                 Get.back<void>();
                               }
                             : null,
-                        child: Text(l.pickerAdd(formatMoney(controller.pickerPrice))),
+                        child: Text(controller.pickerLineKey == null
+                            ? l.pickerAdd(formatMoney(controller.pickerPrice))
+                            : l.pickerUpdate(formatMoney(controller.pickerPrice))),
                       ),
                     ),
                   ],

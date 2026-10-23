@@ -48,6 +48,9 @@ class Staff {
 
   bool can(Permission permission) => active && role.allows(permission);
 
+  /// A manual discount of [percent] is within this person's limit.
+  bool canDiscount(int percent) => can(Permission.sell) && (isOwner || role.maxDiscountPercent >= percent);
+
   @override
   bool operator ==(Object other) => other is Staff && other.id == id;
 
@@ -155,4 +158,15 @@ class StaffStats {
   final DateTime? lastSignIn;
 
   int get averageSale30Days => sales30Days == 0 ? 0 : takings30Days ~/ sales30Days;
+}
+
+/// What an approver must be allowed to do: a permission and, for a
+/// discount, a high enough limit.
+class ApprovalNeed {
+  const ApprovalNeed(this.permission, {this.discountPercent});
+
+  final Permission permission;
+  final int? discountPercent;
+
+  bool allows(Staff s) => s.can(permission) && (discountPercent == null || s.canDiscount(discountPercent!));
 }

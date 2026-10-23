@@ -1,11 +1,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
+import '../../../core/settings.dart';
 import '../../../data/repositories/day_close_repository.dart';
+import '../../../data/repositories/parked_order_repository.dart';
 import '../../../models/day_close.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
+import '../../../services/settings_service.dart';
 
 /// Cash-up: compare the counted drawer with what the till expects, then
 /// close the period so its sales are locked.
@@ -21,6 +24,9 @@ class CloseDayController extends GetxController {
   final saving = false.obs;
   final error = RxnString();
   final closed = Rxn<DayClose>();
+
+  /// Parked orders older than the warning time (they may be unpaid sales).
+  final oldParked = 0.obs;
 
   final floatField = TextEditingController();
   final countedField = TextEditingController();
@@ -49,6 +55,8 @@ class CloseDayController extends GetxController {
     final open = await _closes.openPeriod();
     period.value = open;
     history.assignAll(await _closes.history());
+    final hours = Get.find<SettingsService>().get(AppSettings.parkedWarnHours);
+    oldParked.value = await Get.find<ParkedOrderRepository>().olderThan(Duration(hours: hours));
     if (floatField.text.isEmpty && open.suggestedFloat > 0) {
       floatField.text = _plain(open.suggestedFloat);
     }

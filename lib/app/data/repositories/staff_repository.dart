@@ -111,9 +111,12 @@ class StaffRepository {
 
   /// The active person with this PIN who is allowed [permission], for
   /// approving something the signed-in person cannot do.
-  Future<Staff?> approverWithPin(String pin, Permission permission) async {
+  /// The active person with this PIN who may do [permission] (and give a
+  /// discount of [discountPercent], when asked).
+  Future<Staff?> approverWithPin(String pin, Permission permission, {int? discountPercent}) async {
+    final need = ApprovalNeed(permission, discountPercent: discountPercent);
     for (final s in await list()) {
-      if (!s.can(permission)) continue;
+      if (!need.allows(s)) continue;
       final row = await _row(s.id);
       if (row != null && PinHasher.verify(pin, row.pinHash)) return s;
     }

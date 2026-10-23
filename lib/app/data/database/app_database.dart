@@ -42,6 +42,18 @@ String settingRowId(String key, SettingScope scope, String deviceId) =>
       scope == SettingScope.shop ? 'aby:setting:shop:$key' : 'aby:setting:$deviceId:$key',
     );
 
+/// Stable row ID for a built-in reason, so every device creates the same row.
+String reasonRowId(ReasonKind kind, String name) =>
+    const Uuid().v5(Namespace.url.value, 'aby:reason:${kind.name}:$name');
+
+/// Reasons every shop starts with; the owner can add, rename or retire them.
+const defaultReasons = {
+  ReasonKind.discount: ['Regular customer', 'Staff', 'Damaged item', 'Late or wrong order', 'Other'],
+  ReasonKind.voidSale: ['Customer changed their mind', 'Wrong item rung up', 'Payment did not go through', 'Training', 'Other'],
+  ReasonKind.refund: ['Customer not happy', 'Wrong item', 'Damaged or melted', 'Other'],
+  ReasonKind.noSale: ['Give change', 'Check the float', 'Other'],
+};
+
 @DriftDatabase(tables: [
   Categories,
   Products,
@@ -66,6 +78,9 @@ String settingRowId(String key, SettingScope scope, String deviceId) =>
   SaleLines,
   SaleTaxes,
   Payments,
+  Discounts,
+  Reasons,
+  ParkedOrders,
   StockMovements,
   Roles,
   StaffMembers,
@@ -92,7 +107,7 @@ class AppDatabase extends _$AppDatabase {
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -264,12 +279,42 @@ class AppDatabase extends _$AppDatabase {
               moves.byName,
             ]));
           },
+          // v6: selling (open price and weighed products, the Quick tab,
+          // discounts and reasons, notes, parked orders).
+          from5To6: (m, schema) async {
+            final deviceId = await _ensureDeviceId();
+            for (final table in [schema.discounts, schema.reasons, schema.parkedOrders]) {
+              await m.createTable(table);
+            }
+            await _insertDefaultReasons(deviceId);
+            final products = schema.products;
+            for (final column in [products.sellBy, products.openPrice, products.minPrice, products.maxPrice, products.quickOrder]) {
+              await m.addColumn(products, column);
+            }
+            final sales = schema.sales;
+            for (final column in [sales.discountTotal, sales.orderDiscount, sales.note, sales.orderType]) {
+              await m.addColumn(sales, column);
+            }
+            final lines = schema.saleLines;
+            for (final column in [
+              lines.sellBy,
+              lines.listPrice,
+              lines.priceOverriddenBy,
+              lines.discount,
+              lines.orderDiscountShare,
+              lines.discountDetail,
+              lines.note,
+            ]) {
+              await m.addColumn(lines, column);
+            }
+          },
         ),
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
           final deviceId = await _ensureDeviceId();
           if (details.wasCreated) {
             await _insertBuiltInRoles(deviceId);
+            await _insertDefaultReasons(deviceId);
             if (seedDemoShop) await seedScoopsTamale(this, deviceId: deviceId);
           }
         },
@@ -311,6 +356,20 @@ class AppDatabase extends _$AppDatabase {
           role.index,
         ],
       );
+    }
+  }
+
+  /// Raw SQL, like the built-in roles. Not written to the outbox.
+  Future<void> _insertDefaultReasons(String deviceId) async {
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    for (final MapEntry(key: kind, value: names) in defaultReasons.entries) {
+      for (final (i, name) in names.indexed) {
+        await customStatement(
+          'INSERT OR IGNORE INTO reasons (id, created_at, updated_at, device_id, kind, name, active, sort_order) '
+          'VALUES (?, ?, ?, ?, ?, ?, 1, ?)',
+          [reasonRowId(kind, name), now, now, deviceId, kind.name, name, i],
+        );
+      }
     }
   }
 

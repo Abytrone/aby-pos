@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../../core/settings.dart';
+import '../../../models/enums.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/format.dart';
@@ -11,6 +12,7 @@ import '../../../ui/section_page.dart';
 import '../controllers/backup_controller.dart';
 import '../controllers/settings_controller.dart';
 import '../widgets/local_backups_dialog.dart';
+import '../widgets/selling_lists.dart';
 
 /// One searchable row. [keywords] widen what search finds.
 class _Entry {
@@ -33,6 +35,7 @@ class SettingsView extends GetView<SettingsController> {
   static const lockMinutes = [0, 1, 2, 3, 5, 10, 15];
   static const keepCounts = [7, 14, 30];
   static const reminderDays = [3, 7, 14];
+  static const parkedHours = [4, 8, 12, 24, 48];
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +85,12 @@ class SettingsView extends GetView<SettingsController> {
           'dark' => l.settingsThemeDark,
           _ => l.settingsThemeSystem,
         };
+    String tileLabel(String t) => switch (t) {
+          'small' => l.settingsTilesSmall,
+          'large' => l.settingsTilesLarge,
+          _ => l.settingsTilesMedium,
+        };
+    String scaleValueLabel(String v) => v == 'price' ? l.settingsScalePrice : l.settingsScaleWeight;
 
     Future<void> editText(Setting<String> s, String title, {TextInputType? type}) async {
       final v = await textInputDialog(title: title, label: title, initial: c.value(s), keyboardType: type);
@@ -90,6 +99,7 @@ class SettingsView extends GetView<SettingsController> {
 
     final shop = l.settingsGroupShop;
     final day = l.settingsGroupDay;
+    final selling = l.settingsGroupSelling;
     final security = l.settingsGroupSecurity;
     final device = l.settingsGroupDevice;
     final data = l.settingsGroupData;
@@ -127,6 +137,65 @@ class SettingsView extends GetView<SettingsController> {
           if (v != null) await c.save(AppSettings.businessDayStart, v);
         },
       ), keywords: ['midnight', 'business day', 'today']),
+      _Entry(selling, InfoTile(
+        title: l.settingsOrderTypes,
+        subtitle: l.settingsOrderTypesHelp,
+        trailing: Switch(value: c.value(AppSettings.orderTypes), onChanged: (v) => c.save(AppSettings.orderTypes, v)),
+      ), keywords: ['takeaway', 'eat in', 'delivery', 'restaurant']),
+      _Entry(selling, InfoTile(
+        title: l.settingsNegativeStock,
+        subtitle: l.settingsNegativeStockHelp,
+        trailing: Switch(
+          value: c.value(AppSettings.allowNegativeStock),
+          onChanged: (v) => c.save(AppSettings.allowNegativeStock, v),
+        ),
+      ), keywords: ['out of stock', 'sold out']),
+      _Entry(selling, InfoTile(
+        title: l.settingsDiscounts,
+        subtitle: l.settingsDiscountsHelp,
+        leading: const Icon(Icons.local_offer_outlined),
+        onTap: showSavedDiscounts,
+      ), keywords: ['discount', 'student', 'staff']),
+      for (final kind in ReasonKind.values)
+        _Entry(selling, InfoTile(
+          title: reasonKindLabel(l, kind),
+          leading: const Icon(Icons.list_alt),
+          onTap: () => showReasons(kind),
+        ), keywords: ['reasons', 'void', 'refund', 'no sale']),
+      _Entry(selling, InfoTile(
+        title: l.settingsScalePrefix,
+        subtitle: l.settingsScalePrefixHelp,
+        value: c.value(AppSettings.scalePrefix).isEmpty ? l.settingsOff : c.value(AppSettings.scalePrefix),
+        onTap: () => editText(AppSettings.scalePrefix, l.settingsScalePrefix, type: TextInputType.number),
+      ), keywords: ['scale', 'barcode', 'weight', 'ean']),
+      if (c.value(AppSettings.scalePrefix).isNotEmpty)
+        _Entry(selling, InfoTile(
+          title: l.settingsScaleValue,
+          value: scaleValueLabel(c.value(AppSettings.scaleValue)),
+          onTap: () async {
+            final v = await choiceDialog<String>(
+              title: l.settingsScaleValue,
+              options: const ['weight', 'price'],
+              label: scaleValueLabel,
+              selected: c.value(AppSettings.scaleValue),
+            );
+            if (v != null) await c.save(AppSettings.scaleValue, v);
+          },
+        ), keywords: ['scale', 'barcode']),
+      _Entry(selling, InfoTile(
+        title: l.settingsParkedWarn,
+        subtitle: l.settingsParkedWarnHelp,
+        value: l.settingsHours(c.value(AppSettings.parkedWarnHours)),
+        onTap: () async {
+          final v = await choiceDialog<int>(
+            title: l.settingsParkedWarn,
+            options: parkedHours,
+            label: l.settingsHours,
+            selected: c.value(AppSettings.parkedWarnHours),
+          );
+          if (v != null) await c.save(AppSettings.parkedWarnHours, v);
+        },
+      ), keywords: ['park', 'hold', 'open orders']),
       _Entry(security, InfoTile(
         title: l.settingsAutoLock,
         subtitle: l.settingsAutoLockHelp,
@@ -159,6 +228,19 @@ class SettingsView extends GetView<SettingsController> {
           if (v != null) await c.save(AppSettings.themeMode, v);
         },
       ), keywords: ['dark', 'light', 'colour']),
+      _Entry(device, InfoTile(
+        title: l.settingsTiles,
+        value: tileLabel(c.value(AppSettings.tileSize)),
+        onTap: () async {
+          final v = await choiceDialog<String>(
+            title: l.settingsTiles,
+            options: const ['small', 'medium', 'large'],
+            label: tileLabel,
+            selected: c.value(AppSettings.tileSize),
+          );
+          if (v != null) await c.save(AppSettings.tileSize, v);
+        },
+      ), keywords: ['till', 'tiles', 'size', 'grid']),
       _Entry(device, InfoTile(
         title: l.settingsLargeText,
         trailing: Switch(

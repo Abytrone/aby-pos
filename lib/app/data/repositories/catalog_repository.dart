@@ -187,6 +187,11 @@ class CatalogRepository {
           description: p.description,
           active: p.active,
           archived: p.archivedAt != null,
+          sellBy: p.sellBy,
+          openPrice: p.openPrice,
+          minPrice: p.minPrice,
+          maxPrice: p.maxPrice,
+          quickOrder: p.quickOrder,
           variants: variants,
           groups: [
             for (final l in linkRows.where((l) => l.productId == p.id))
@@ -268,6 +273,14 @@ class CatalogRepository {
       String? clean(String? v) => v == null || v.trim().isEmpty ? null : v.trim();
       final changes = <String>[];
 
+      Future<int?> quickOrder(int? current) async {
+        if (!d.onQuickTab) return null;
+        if (current != null) return current;
+        final max = _db.products.quickOrder.max();
+        final q = _db.selectOnly(_db.products)..addColumns([max]);
+        return ((await q.map((r) => r.read(max)).getSingle()) ?? -1) + 1;
+      }
+
       if (isNew) {
         await _db.insertTracked(
           _db.products,
@@ -282,6 +295,11 @@ class CatalogRepository {
             description: Value(clean(d.description)),
             active: Value(d.active),
             sortOrder: const Value(1000),
+            sellBy: Value(d.sellBy),
+            openPrice: Value(d.openPrice),
+            minPrice: Value(d.openPrice ? d.minPrice : null),
+            maxPrice: Value(d.openPrice ? d.maxPrice : null),
+            quickOrder: Value(await quickOrder(null)),
           ),
         );
       } else {
@@ -292,8 +310,22 @@ class CatalogRepository {
           detail: Value(clean(d.detail)),
           description: Value(clean(d.description)),
           active: d.active,
+          sellBy: d.sellBy,
+          openPrice: d.openPrice,
+          minPrice: Value(d.openPrice ? d.minPrice : null),
+          maxPrice: Value(d.openPrice ? d.maxPrice : null),
+          quickOrder: Value(await quickOrder(row.quickOrder)),
         );
         if (updated != row) {
+          if (row.sellBy != updated.sellBy) changes.add('sold by ${updated.sellBy.name}');
+          if (row.openPrice != updated.openPrice ||
+              row.minPrice != updated.minPrice ||
+              row.maxPrice != updated.maxPrice) {
+            changes.add(updated.openPrice ? 'price typed at the till' : 'fixed price');
+          }
+          if ((row.quickOrder == null) != (updated.quickOrder == null)) {
+            changes.add(updated.quickOrder == null ? 'off the Quick tab' : 'on the Quick tab');
+          }
           if (row.name != updated.name) changes.add('name');
           if (row.categoryId != updated.categoryId) changes.add('category');
           if (row.active != updated.active) changes.add(updated.active ? 'back on the till' : 'off the till');
@@ -810,6 +842,21 @@ class CatalogRepository {
         summary: '${changes.length} prices: $description',
         details: changes,
       );
+    });
+  }
+
+  /// Puts the Quick tab in this order; products left out come off it.
+  Future<void> setQuickTab(List<String> productIds) {
+    return _db.transaction(() async {
+      final now = DateTime.now();
+      final rows = await (_db.select(_db.products)..where((p) => p.quickOrder.isNotNull() | p.id.isIn(productIds))).get();
+      for (final row in rows) {
+        final index = productIds.indexOf(row.id);
+        final order = index == -1 ? null : index;
+        if (order != row.quickOrder) {
+          await _db.updateTracked(_db.products, row.copyWith(quickOrder: Value(order), updatedAt: now));
+        }
+      }
     });
   }
 

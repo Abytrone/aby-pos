@@ -1,7 +1,9 @@
 import 'package:aby_pos/app/core/permissions.dart';
 import 'package:aby_pos/app/core/settings.dart';
 import 'package:aby_pos/app/data/database/app_database.dart';
+import 'package:aby_pos/app/data/repositories/discount_repository.dart';
 import 'package:aby_pos/app/data/repositories/settings_repository.dart';
+import 'package:aby_pos/app/models/enums.dart';
 import 'package:aby_pos/app/services/settings_service.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift_dev/api/migrations_native.dart';
@@ -23,16 +25,16 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  for (final from in [1, 2, 3, 4]) {
-    test('v$from to v5 gives exactly the v5 schema', () async {
+  for (final from in [1, 2, 3, 4, 5]) {
+    test('v$from to v6 gives exactly the v6 schema', () async {
       final schema = await verifier.schemaAt(from);
       final db = AppDatabase(schema.newConnection(), false);
-      await verifier.migrateAndValidate(db, 5);
+      await verifier.migrateAndValidate(db, 6);
       await db.close();
     });
   }
 
-  test('v1 to v5 keeps existing sales, the device ID and the shop name', () async {
+  test('v1 to v6 keeps existing sales, the device ID and the shop name', () async {
     final schema = await verifier.schemaAt(1);
     final raw = schema.rawDatabase;
     raw.execute("INSERT INTO meta (key, value) VALUES ('device_id', 'dev-1'), "
@@ -61,7 +63,7 @@ void main() {
     await db.close();
   });
 
-  test('v2 to v5 gives existing owners and cashiers the built-in roles', () async {
+  test('v2 to v6 gives existing owners and cashiers the built-in roles', () async {
     final schema = await verifier.schemaAt(2);
     final raw = schema.rawDatabase;
     raw.execute("INSERT INTO meta (key, value) VALUES ('device_id', 'dev-1'), ('shop_name', 'Scoops Tamale')");
@@ -83,7 +85,7 @@ void main() {
     await db.close();
   });
 
-  test('v3 to v5 keeps staff and leaves their new profile empty', () async {
+  test('v3 to v6 keeps staff and leaves their new profile empty', () async {
     final schema = await verifier.schemaAt(3);
     final raw = schema.rawDatabase;
     raw.execute("INSERT INTO meta (key, value) VALUES ('device_id', 'dev-1')");
@@ -105,7 +107,7 @@ void main() {
     await db.close();
   });
 
-  test('v4 to v5 gives every product a price, turns add-ons into options, keeps history', () async {
+  test('v4 to v6 gives every product a price, turns add-ons into options, keeps history', () async {
     final schema = await verifier.schemaAt(4);
     final raw = schema.rawDatabase;
     const t = 1761000000;
@@ -144,6 +146,41 @@ void main() {
     expect(moves.single.stockItemId, isNull);
     final sale = await db.select(db.sales).getSingle();
     expect(sale.taxTotal, 0);
+    await db.close();
+  });
+
+  test('v5 to v6 keeps sales and products as they were and adds the reasons lists', () async {
+    final schema = await verifier.schemaAt(5);
+    final raw = schema.rawDatabase;
+    const t = 1761000000;
+    raw.execute("INSERT INTO meta (key, value) VALUES ('device_id', 'dev-1')");
+    raw.execute('INSERT INTO categories (id, created_at, updated_at, device_id, name, tone, sort_order) '
+        "VALUES ('c1', $t, $t, 'dev-1', 'Snacks', 'coral', 0)");
+    raw.execute('INSERT INTO products (id, created_at, updated_at, device_id, category_id, name, active, sort_order) '
+        "VALUES ('p-waffle', $t, $t, 'dev-1', 'c1', 'Waffle', 1, 0)");
+    raw.execute('INSERT INTO product_variants (id, created_at, updated_at, device_id, product_id, price, sort_order) '
+        "VALUES ('v-waffle', $t, $t, 'dev-1', 'p-waffle', 1200, 0)");
+    raw.execute('INSERT INTO sales (id, created_at, updated_at, device_id, number, status, subtotal, total, cashier_name) '
+        "VALUES ('s1', $t, $t, 'dev-1', 1, 'completed', 1200, 1200, 'Ama')");
+    raw.execute('INSERT INTO sale_lines (id, created_at, updated_at, device_id, sale_id, product_id, variant_id, '
+        'product_name, quantity, unit_price, line_total) '
+        "VALUES ('l1', $t, $t, 'dev-1', 's1', 'p-waffle', 'v-waffle', 'Waffle', 1, 1200, 1200)");
+
+    final db = AppDatabase(schema.newConnection(), false);
+    final r = await Repos.open(db);
+    final waffle = (await r.catalog.load()).products.single;
+    expect(waffle.sellBy, SellBy.each);
+    expect(waffle.openPrice, isFalse);
+    expect(waffle.quickOrder, isNull);
+    final sale = await db.select(db.sales).getSingle();
+    expect(sale.discountTotal, 0);
+    expect(sale.orderType, isNull);
+    final line = await db.select(db.saleLines).getSingle();
+    expect(line.discount, 0);
+    expect(line.listPrice, isNull);
+    final discounts = DiscountRepository(db, r.device, r.audit);
+    expect((await discounts.reasons(ReasonKind.voidSale)).map((x) => x.name), contains('Wrong item rung up'));
+    expect(await discounts.discounts(), isEmpty);
     await db.close();
   });
 }

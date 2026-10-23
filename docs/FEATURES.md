@@ -1103,6 +1103,43 @@ What was left for later:
 - `SEL-08` split payments, configurable methods, MoMo reference checks, cash rounding.
 - `SEL-09` refunds and exchanges, `SEL-10` void reasons and no-sale.
 
+**Status (23 October 2026): 3a built** (the cart and the till). Schema version 6. Built:
+
+- `SEL-01`: Quick tab (pinned in the product editor, arranged from the till), Recent tab (last 8
+  products sold on this till), tile sizes (small / medium / large, per device), photos or initials
+  on tiles, search as you type, and out-of-stock warnings (or refusal, by setting).
+- `SEL-03`: one "search, scan, or type a code" box. Keyboard-style scanners and hardware keyboards
+  type into it from anywhere on the till. Short codes (PLU) are just barcodes. Scale barcodes
+  (EAN-13 with the shop's prefix, weight or price). An unknown barcode offers "New product with
+  this barcode" to people who may add products.
+- `SEL-04`: type a quantity then tap; sold by weight or volume (price per kg or litre, recipes per
+  kg or litre too); open-price products with optional limits.
+- `SEL-05`: tap a line to change quantity, price, discount, note, or size and options, or remove
+  it. Order discount, order note, order type (takeaway / eat in / delivery, by setting), clear
+  (asks when more than 3 lines). The cart is saved on the device as it changes.
+- `SEL-06` manual and saved discounts, with a reason from the owner's list. Each role's limit
+  applies; above it someone whose limit covers it enters their PIN. The order discount is shared
+  across lines (exactly, to the pesewa) and tax is worked out on what is left.
+- `SEL-07`: park and resume (tabs above the cart), rename, merge into the current sale, throw away
+  (needs `voidSale`, audited). Close day warns about old parked orders.
+- `SEL-10` (part): taking lines or quantities off the cart, and clearing it, is in Activity.
+- Reasons lists for discounts, voids, refunds and no-sales (Settings → Selling).
+
+Decisions made on the way:
+
+- PLU codes are barcodes: no separate field. Typing "12" and Enter looks it up; typing "3" and
+  tapping a product adds three.
+- Open prices need only `sell`, within the product's limits. Overriding a menu price needs
+  `overridePrice` (or a PIN) and is audited with the sale, with who allowed it.
+- Discounts and overrides are audited when the sale completes, not when typed, so an abandoned
+  cart leaves no false entries. Removals are audited when they happen.
+- Camera scanning moves to phase 5 with the other hardware.
+- For price-printing scales the till works out the weight from the price per kg, so a line can
+  differ from the label by a pesewa.
+
+**3b next:** `SEL-08` split payments and configurable methods, MoMo reference checks, cash
+rounding; `SEL-09` refunds and exchanges; `SEL-10` void reasons in the void flow and no-sale.
+
 ### Phase 4: Customers and money
 
 - `CUS-01` customers, `CUS-02` credit book, `CUS-03` wallet.

@@ -54,43 +54,86 @@ Future<String?> textInputDialog({
   TextInputType? keyboardType,
   String? Function(String value)? validate,
   String? confirmLabel,
-}) {
-  final field = TextEditingController(text: initial);
-  final error = RxnString();
-  return Get.dialog<String>(Builder(builder: (context) {
-    void submit() {
-      final message = validate?.call(field.text);
-      if (message != null) {
-        error.value = message;
-        return;
-      }
-      Get.back(result: field.text);
-    }
+}) =>
+    Get.dialog<String>(_TextInputDialog(
+      title: title,
+      label: label,
+      initial: initial,
+      helper: helper,
+      obscure: obscure,
+      keyboardType: keyboardType,
+      validate: validate,
+      confirmLabel: confirmLabel,
+    ));
 
+/// Owns its text field, so it outlives the closing animation.
+class _TextInputDialog extends StatefulWidget {
+  const _TextInputDialog({
+    required this.title,
+    required this.label,
+    required this.initial,
+    this.helper,
+    this.obscure = false,
+    this.keyboardType,
+    this.validate,
+    this.confirmLabel,
+  });
+
+  final String title;
+  final String label;
+  final String initial;
+  final String? helper;
+  final bool obscure;
+  final TextInputType? keyboardType;
+  final String? Function(String value)? validate;
+  final String? confirmLabel;
+
+  @override
+  State<_TextInputDialog> createState() => _TextInputDialogState();
+}
+
+class _TextInputDialogState extends State<_TextInputDialog> {
+  late final _field = TextEditingController(text: widget.initial);
+  String? _error;
+
+  @override
+  void dispose() {
+    _field.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final message = widget.validate?.call(_field.text);
+    if (message != null) return setState(() => _error = message);
+    Get.back(result: _field.text);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(title),
+      title: Text(widget.title),
       content: SizedBox(
         width: 380,
-        child: Obx(() => TextField(
-              controller: field,
-              autofocus: true,
-              obscureText: obscure,
-              keyboardType: keyboardType,
-              onSubmitted: (_) => submit(),
-              decoration: InputDecoration(
-                labelText: label,
-                helperText: helper,
-                helperMaxLines: 3,
-                errorText: error.value,
-              ),
-            )),
+        child: TextField(
+          controller: _field,
+          autofocus: true,
+          obscureText: widget.obscure,
+          keyboardType: widget.keyboardType,
+          onSubmitted: (_) => _submit(),
+          decoration: InputDecoration(
+            labelText: widget.label,
+            helperText: widget.helper,
+            helperMaxLines: 3,
+            errorText: _error,
+          ),
+        ),
       ),
       actions: [
         OutlinedButton(onPressed: () => Get.back<String>(), child: Text(context.l10n.commonCancel)),
-        FilledButton(onPressed: submit, child: Text(confirmLabel ?? context.l10n.commonSave)),
+        FilledButton(onPressed: _submit, child: Text(widget.confirmLabel ?? context.l10n.commonSave)),
       ],
     );
-  })).whenComplete(field.dispose);
+  }
 }
 
 /// Pick one of [options]. Returns null when cancelled.

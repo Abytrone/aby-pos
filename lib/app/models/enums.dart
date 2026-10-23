@@ -35,3 +35,20 @@ enum OutboxOperation { insert, update, delete }
 
 /// Settings either apply to the whole shop (and sync) or to this device only.
 enum SettingScope { shop, device }
+
+/// How a product is counted at the till. By weight or volume, the line's
+/// quantity is grams or millilitres and the price is per kg or litre.
+enum SellBy { each, kg, litre }
+
+enum DiscountKind { percent, amount }
+
+/// Where a saved discount can be used.
+enum DiscountScope { line, order, any }
+
+/// Lists of reasons the owner manages, one per purpose.
+enum ReasonKind { discount, voidSale, refund, noSale }
+
+/// Takeaway, eat-in or delivery, when the shop switches order types on.
+enum OrderType { takeaway, eatIn, delivery }
+
+enum ParkedOrderStatus { parked, resumed, discarded }

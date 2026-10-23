@@ -78,10 +78,10 @@ class AuthService extends GetxService {
 
   /// The person with this PIN who may do [permission], or null for a wrong
   /// PIN. Throws [LockedOutException] after [maxAttempts] wrong PINs.
-  Future<Staff?> approveWithPin(String pin, Permission permission) async {
+  Future<Staff?> approveWithPin(String pin, Permission permission, {int? discountPercent}) async {
     final wait = lockedFor(_approvalKey);
     if (wait != null) throw LockedOutException(wait);
-    final approver = await _staff.approverWithPin(pin, permission);
+    final approver = await _staff.approverWithPin(pin, permission, discountPercent: discountPercent);
     if (approver != null) {
       _failures.remove(_approvalKey);
       return approver;
