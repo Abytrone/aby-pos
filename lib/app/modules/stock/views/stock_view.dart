@@ -9,12 +9,112 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/section_page.dart';
+import '../controllers/purchasing_controller.dart';
 import '../controllers/stock_controller.dart';
+import '../widgets/purchasing_tabs.dart';
+import '../widgets/supplier_editor.dart';
 import '../widgets/stock_item_editor.dart';
 
-/// Manage → Stock.
+/// Manage → Stock: items, deliveries, counts and suppliers.
 class StockView extends GetView<StockController> {
   const StockView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final purchasing = Get.find<PurchasingController>();
+    return DefaultTabController(
+      length: 4,
+      child: Builder(builder: (context) {
+        final tabs = DefaultTabController.of(context);
+        return AnimatedBuilder(
+          animation: tabs,
+          builder: (context, _) => SectionPage(
+            title: l.navStock,
+            actions: [
+              ...switch (tabs.index) {
+                0 => [
+                    if (controller.canEdit)
+                      FilledButton.icon(
+                        onPressed: () => showStockItemEditor(onSave: controller.saveItem).then((_) => _flush(controller.message)),
+                        icon: const Icon(Icons.add),
+                        label: Text(l.stockNew),
+                      ),
+                    OutlinedButton.icon(
+                      onPressed: controller.exportStock,
+                      icon: const Icon(Icons.download_outlined),
+                      label: Text(l.exportButton),
+                    ),
+                  ],
+                1 => [
+                    if (purchasing.canReceive)
+                      FilledButton.icon(
+                        onPressed: purchasing.receive,
+                        icon: const Icon(Icons.local_shipping_outlined),
+                        label: Text(l.receiveNew),
+                      ),
+                  ],
+                2 => [
+                    if (purchasing.canCount)
+                      Obx(() => FilledButton.icon(
+                            onPressed: () => _startCount(purchasing),
+                            icon: const Icon(Icons.fact_check_outlined),
+                            label: Text(purchasing.openCount.value == null ? l.countStart : l.countContinue),
+                          )),
+                  ],
+                _ => [
+                    if (purchasing.canReceive)
+                      FilledButton.icon(
+                        onPressed: () => showSupplierEditor(onSave: purchasing.saveSupplier).then((_) => _flush(purchasing.message)),
+                        icon: const Icon(Icons.add),
+                        label: Text(l.supplierNew),
+                      ),
+                  ],
+              },
+            ],
+            bottom: TabBar(
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              tabs: [
+                Tab(text: l.stockItemsTab),
+                Tab(text: l.deliveriesTab),
+                Tab(text: l.countsTab),
+                Tab(text: l.suppliersTab),
+              ],
+            ),
+            child: const TabBarView(children: [_Items(), DeliveriesTab(), CountsTab(), SuppliersTab()]),
+          ),
+        );
+      }),
+    );
+  }
+
+  Future<void> _startCount(PurchasingController purchasing) async {
+    if (purchasing.openCount.value != null) {
+      await purchasing.startOrContinueCount(blind: true);
+      return;
+    }
+    final l = appL10n();
+    final blind = await choiceDialog<bool>(
+      title: l.countStart,
+      options: const [true, false],
+      label: (b) => b ? l.countBlind : l.countOpen,
+    );
+    if (blind == null) return;
+    await purchasing.startOrContinueCount(blind: blind);
+    _flush(purchasing.message);
+  }
+}
+
+void _flush(RxnString message) {
+  final text = message.value;
+  if (text == null) return;
+  message.value = null;
+  showMessage(text);
+}
+
+class _Items extends GetView<StockController> {
+  const _Items();
 
   @override
   Widget build(BuildContext context) {
@@ -25,18 +125,9 @@ class StockView extends GetView<StockController> {
           StockFilter.low => l.stockFilterLow(controller.lowCount),
           StockFilter.retired => l.stockFilterRetired,
         };
-    return SectionPage(
-      title: l.navStock,
-      actions: [
-        if (controller.canEdit)
-          FilledButton.icon(
-            onPressed: () => showStockItemEditor(onSave: controller.saveItem).then((_) => _flush()),
-            icon: const Icon(Icons.add),
-            label: Text(l.stockNew),
-          ),
-      ],
-      bottom: Padding(
-        padding: const EdgeInsets.fromLTRB(AbySpace.s4, 0, AbySpace.s4, AbySpace.s2),
+    return Column(children: [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(AbySpace.s4, AbySpace.s3, AbySpace.s4, AbySpace.s2),
         child: Obx(() => Wrap(
               spacing: AbySpace.s2,
               runSpacing: AbySpace.s2,
@@ -65,25 +156,20 @@ class StockView extends GetView<StockController> {
               ],
             )),
       ),
-      child: Obx(() {
-        if (controller.loading.value) return const Center(child: CircularProgressIndicator());
-        final items = controller.visible;
-        if (items.isEmpty) return EmptyState(icon: Icons.inventory_2_outlined, message: l.stockNone);
-        return ListView.separated(
-          padding: const EdgeInsets.fromLTRB(AbySpace.s4, 0, AbySpace.s4, AbySpace.s8),
-          itemCount: items.length,
-          separatorBuilder: (_, _) => const Divider(height: 1),
-          itemBuilder: (_, i) => _Row(item: items[i], showCost: controller.canSeeCost, onTap: () => controller.openItem(items[i])),
-        );
-      }),
-    );
-  }
-
-  void _flush() {
-    final text = controller.message.value;
-    if (text == null) return;
-    controller.message.value = null;
-    showMessage(text);
+      Expanded(
+        child: Obx(() {
+          if (controller.loading.value) return const Center(child: CircularProgressIndicator());
+          final items = controller.visible;
+          if (items.isEmpty) return EmptyState(icon: Icons.inventory_2_outlined, message: l.stockNone);
+          return ListView.separated(
+            padding: const EdgeInsets.fromLTRB(AbySpace.s4, 0, AbySpace.s4, AbySpace.s8),
+            itemCount: items.length,
+            separatorBuilder: (_, _) => const Divider(height: 1),
+            itemBuilder: (_, i) => _Row(item: items[i], showCost: controller.canSeeCost, onTap: () => controller.openItem(items[i])),
+          );
+        }),
+      ),
+    ]);
   }
 }
 

@@ -435,6 +435,83 @@
   "wasteStaffMeal": "Staff",
   "wasteSample": "Free sample",
   "wasteOther": "Other",
+  "stockItemsTab": "Items",
+  "deliveriesTab": "Deliveries",
+  "countsTab": "Counts",
+  "suppliersTab": "Suppliers",
+  "exportButton": "Export",
+  "exportWhere": "Where should the file go?",
+  "importPick": "Pick the CSV file",
+  "productsTools": "Tools",
+  "receiveNew": "Receive delivery",
+  "receiveSave": "Save delivery",
+  "receiveSupplier": "Supplier",
+  "receiveNoSupplier": "No supplier (paid in full)",
+  "receiveInvoice": "Invoice or receipt number",
+  "receiveWhatCame": "What came",
+  "receiveAddLow": "Add everything low",
+  "receiveAddLine": "Add item",
+  "receiveLineCost": "Cost of these",
+  "receiveTotal": "Delivery total",
+  "receivePaidNow": "Paid now",
+  "receivePaidNowHelp": "The rest is added to what you owe this supplier.",
+  "receivePaidNowNoSupplier": "Without a supplier the delivery must be paid in full.",
+  "receivePaidInvalid": "Check the amount paid.",
+  "receiveReason": "Receive a delivery.",
+  "payCash": "Cash",
+  "payMomo": "Mobile money",
+  "payBank": "Bank",
+  "payOther": "Other",
+  "deliveriesNone": "No deliveries yet.",
+  "countStart": "Start a count",
+  "countContinue": "Continue the count",
+  "countBlind": "Blind: counters do not see what the till expects",
+  "countOpen": "Open: show what the till expects",
+  "countStartReason": "Start a stock count.",
+  "countTitle": "Stock count",
+  "countsNone": "No counts yet.",
+  "countOpenStatus": "Open",
+  "countCancelledStatus": "Cancelled",
+  "countBlindShort": "Blind",
+  "countCancel": "Cancel count",
+  "countCancelTitle": "Cancel this count?",
+  "countCancelBody": "What was counted is kept for the record, but stock does not change.",
+  "countPost": "Post count",
+  "countPostTitle": "Post the count?",
+  "countPostReason": "Post a stock count.",
+  "countPostedSame": "Count posted. Everything matched.",
+  "countNoDifference": "No differences so far",
+  "countFound": "Found",
+  "suppliersNone": "No suppliers yet.",
+  "supplierNew": "New supplier",
+  "supplierEdit": "Change supplier",
+  "supplierName": "Supplier name",
+  "supplierTerms": "Days to pay",
+  "supplierTermsHelp": "Leave empty if you pay on delivery.",
+  "supplierDays": "days",
+  "supplierSettled": "Nothing owed",
+  "supplierEditReason": "Change suppliers.",
+  "supplierBalance": "Balance",
+  "supplierPay": "Record a payment",
+  "supplierAmount": "Amount paid",
+  "supplierReference": "Reference (optional)",
+  "supplierLedger": "Account",
+  "supplierEntryPurchase": "Delivery",
+  "stockUsage": "Use",
+  "stockUsePerDay": "Uses about, per day",
+  "stockNotUsed": "Not used in the last 4 weeks",
+  "stockLasts": "Lasts about",
+  "stockSuggestedLow": "Suggested low level",
+  "stockSuggestedHelp": "Three days of use, plus half again.",
+  "stockUseThis": "Use this",
+  "bulkTitle": "Change prices in bulk",
+  "bulkRaise": "Raise",
+  "bulkLower": "Lower",
+  "bulkNoRounding": "No rounding",
+  "importTitle": "Import products",
+  "importApply": "Import",
+  "editorSchedule": "Schedule a new price",
+  "editorScheduleWhen": "From which day?",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -1018,6 +1095,304 @@
   "@moveWaste": {
     "placeholders": {
       "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "receiveDone": "Delivery {number} saved.",
+  "@receiveDone": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "receiveLineInvalid": "Check the amount and cost for {name}.",
+  "@receiveLineInvalid": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deliveriesItems": "{count, plural, =1{1 item} other{{count} items}}",
+  "@deliveriesItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deliveriesOwed": "{amount} owed",
+  "@deliveriesOwed": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "countPostedStatus": "Posted by {name}",
+  "@countPostedStatus": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "countLines": "{count, plural, =1{1 item counted} other{{count} items counted}}",
+  "@countLines": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "countPostBody": "Stock for the {count} items counted will be set to what was found. Items not counted do not change.",
+  "@countPostBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "countPostedFound": "Count posted: {amount} more than expected.",
+  "@countPostedFound": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "countPostedShort": "Count posted: {amount} short.",
+  "@countPostedShort": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "countProgress": "{done} of {total} counted",
+  "@countProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "countFoundValue": "{amount} more than expected",
+  "@countFoundValue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "countShortValue": "{amount} short so far",
+  "@countShortValue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "countCounted": "Counted {amount}",
+  "@countCounted": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "countExpected": "expected {amount}",
+  "@countExpected": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "suppliersOwedTotal": "You owe {amount} in all.",
+  "@suppliersOwedTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierTermsShort": "Pay within {days} days",
+  "@supplierTermsShort": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierOwe": "You owe {amount}",
+  "@supplierOwe": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierCredit": "In credit {amount}",
+  "@supplierCredit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierPayTitle": "Pay {name}",
+  "@supplierPayTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierPayReason": "Pay {name}.",
+  "@supplierPayReason": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierPaid": "{amount} payment recorded.",
+  "@supplierPaid": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierEntryPayment": "Payment {method}",
+  "@supplierEntryPayment": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "bulkScope": "Applies to the {count} products in the list now (use the search and filters to narrow it).",
+  "@bulkScope": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkRoundTo": "Round to {amount}",
+  "@bulkRoundTo": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "bulkPreview": "{count, plural, =1{1 price changes} other{{count} prices change}}",
+  "@bulkPreview": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkApply": "Change {count}",
+  "@bulkApply": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDone": "{count} prices changed.",
+  "@bulkDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importSummary": "{created} new, {updated} changed, {same} unchanged.",
+  "@importSummary": {
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      },
+      "same": {
+        "type": "int"
+      }
+    }
+  },
+  "importNewCategories": "New categories: {names}",
+  "@importNewCategories": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "importProblems": "{count, plural, =1{1 problem} other{{count} problems}}",
+  "@importProblems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importRow": "Row {row}: {message}",
+  "@importRow": {
+    "placeholders": {
+      "row": {
+        "type": "int"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "importHelp": "Columns: {columns}. Import adds products and updates prices, costs and barcodes. It never removes anything.",
+  "@importHelp": {
+    "placeholders": {
+      "columns": {
+        "type": "String"
+      }
+    }
+  },
+  "importDone": "Imported: {created} new, {updated} changed.",
+  "@importDone": {
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      }
+    }
+  },
+  "editorSchedulePrice": "New price from {date}",
+  "@editorSchedulePrice": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "editorScheduled": "{price} from {date}",
+  "@editorScheduled": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "date": {
         "type": "String"
       }
     }

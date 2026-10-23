@@ -157,6 +157,27 @@ class _Summary extends GetView<StockItemController> {
         ),
       ],
       const SizedBox(height: AbySpace.s3),
+      Obx(() {
+        final used = controller.used28.value;
+        final suggestion = controller.suggestedLowLevel;
+        final days = controller.daysLeft;
+        return GroupCard(title: l.stockUsage, children: [
+          InfoTile(
+            title: l.stockUsePerDay,
+            value: used == 0 ? l.stockNotUsed : formatQuantity((used / 28).ceil(), item.unit),
+          ),
+          if (days != null) InfoTile(title: l.stockLasts, value: l.settingsDays(days.floor())),
+          if (suggestion != null)
+            InfoTile(
+              title: l.stockSuggestedLow,
+              subtitle: l.stockSuggestedHelp,
+              value: formatQuantity(suggestion, item.unit),
+              trailing: controller.canEdit && suggestion != item.reorderPoint
+                  ? TextButton(onPressed: controller.useSuggestion, child: Text(l.stockUseThis))
+                  : null,
+            ),
+        ]);
+      }),
       GroupCard(
         title: l.stockUsedBy,
         children: usedBy.isEmpty ? [InfoTile(title: l.stockUsedByNone)] : [for (final n in usedBy) InfoTile(title: n)],

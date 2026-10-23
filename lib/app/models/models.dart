@@ -4,6 +4,7 @@ export 'catalog.dart';
 export 'day_close.dart';
 export 'drafts.dart';
 export 'enums.dart';
+export 'purchasing.dart';
 export 'sale.dart';
 export 'staff.dart';
 export 'stock.dart';

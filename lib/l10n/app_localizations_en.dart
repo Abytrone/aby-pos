@@ -1340,6 +1340,240 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wasteOther => 'Other';
 
   @override
+  String get stockItemsTab => 'Items';
+
+  @override
+  String get deliveriesTab => 'Deliveries';
+
+  @override
+  String get countsTab => 'Counts';
+
+  @override
+  String get suppliersTab => 'Suppliers';
+
+  @override
+  String get exportButton => 'Export';
+
+  @override
+  String get exportWhere => 'Where should the file go?';
+
+  @override
+  String get importPick => 'Pick the CSV file';
+
+  @override
+  String get productsTools => 'Tools';
+
+  @override
+  String get receiveNew => 'Receive delivery';
+
+  @override
+  String get receiveSave => 'Save delivery';
+
+  @override
+  String get receiveSupplier => 'Supplier';
+
+  @override
+  String get receiveNoSupplier => 'No supplier (paid in full)';
+
+  @override
+  String get receiveInvoice => 'Invoice or receipt number';
+
+  @override
+  String get receiveWhatCame => 'What came';
+
+  @override
+  String get receiveAddLow => 'Add everything low';
+
+  @override
+  String get receiveAddLine => 'Add item';
+
+  @override
+  String get receiveLineCost => 'Cost of these';
+
+  @override
+  String get receiveTotal => 'Delivery total';
+
+  @override
+  String get receivePaidNow => 'Paid now';
+
+  @override
+  String get receivePaidNowHelp =>
+      'The rest is added to what you owe this supplier.';
+
+  @override
+  String get receivePaidNowNoSupplier =>
+      'Without a supplier the delivery must be paid in full.';
+
+  @override
+  String get receivePaidInvalid => 'Check the amount paid.';
+
+  @override
+  String get receiveReason => 'Receive a delivery.';
+
+  @override
+  String get payCash => 'Cash';
+
+  @override
+  String get payMomo => 'Mobile money';
+
+  @override
+  String get payBank => 'Bank';
+
+  @override
+  String get payOther => 'Other';
+
+  @override
+  String get deliveriesNone => 'No deliveries yet.';
+
+  @override
+  String get countStart => 'Start a count';
+
+  @override
+  String get countContinue => 'Continue the count';
+
+  @override
+  String get countBlind => 'Blind: counters do not see what the till expects';
+
+  @override
+  String get countOpen => 'Open: show what the till expects';
+
+  @override
+  String get countStartReason => 'Start a stock count.';
+
+  @override
+  String get countTitle => 'Stock count';
+
+  @override
+  String get countsNone => 'No counts yet.';
+
+  @override
+  String get countOpenStatus => 'Open';
+
+  @override
+  String get countCancelledStatus => 'Cancelled';
+
+  @override
+  String get countBlindShort => 'Blind';
+
+  @override
+  String get countCancel => 'Cancel count';
+
+  @override
+  String get countCancelTitle => 'Cancel this count?';
+
+  @override
+  String get countCancelBody =>
+      'What was counted is kept for the record, but stock does not change.';
+
+  @override
+  String get countPost => 'Post count';
+
+  @override
+  String get countPostTitle => 'Post the count?';
+
+  @override
+  String get countPostReason => 'Post a stock count.';
+
+  @override
+  String get countPostedSame => 'Count posted. Everything matched.';
+
+  @override
+  String get countNoDifference => 'No differences so far';
+
+  @override
+  String get countFound => 'Found';
+
+  @override
+  String get suppliersNone => 'No suppliers yet.';
+
+  @override
+  String get supplierNew => 'New supplier';
+
+  @override
+  String get supplierEdit => 'Change supplier';
+
+  @override
+  String get supplierName => 'Supplier name';
+
+  @override
+  String get supplierTerms => 'Days to pay';
+
+  @override
+  String get supplierTermsHelp => 'Leave empty if you pay on delivery.';
+
+  @override
+  String get supplierDays => 'days';
+
+  @override
+  String get supplierSettled => 'Nothing owed';
+
+  @override
+  String get supplierEditReason => 'Change suppliers.';
+
+  @override
+  String get supplierBalance => 'Balance';
+
+  @override
+  String get supplierPay => 'Record a payment';
+
+  @override
+  String get supplierAmount => 'Amount paid';
+
+  @override
+  String get supplierReference => 'Reference (optional)';
+
+  @override
+  String get supplierLedger => 'Account';
+
+  @override
+  String get supplierEntryPurchase => 'Delivery';
+
+  @override
+  String get stockUsage => 'Use';
+
+  @override
+  String get stockUsePerDay => 'Uses about, per day';
+
+  @override
+  String get stockNotUsed => 'Not used in the last 4 weeks';
+
+  @override
+  String get stockLasts => 'Lasts about';
+
+  @override
+  String get stockSuggestedLow => 'Suggested low level';
+
+  @override
+  String get stockSuggestedHelp => 'Three days of use, plus half again.';
+
+  @override
+  String get stockUseThis => 'Use this';
+
+  @override
+  String get bulkTitle => 'Change prices in bulk';
+
+  @override
+  String get bulkRaise => 'Raise';
+
+  @override
+  String get bulkLower => 'Lower';
+
+  @override
+  String get bulkNoRounding => 'No rounding';
+
+  @override
+  String get importTitle => 'Import products';
+
+  @override
+  String get importApply => 'Import';
+
+  @override
+  String get editorSchedule => 'Schedule a new price';
+
+  @override
+  String get editorScheduleWhen => 'From which day?';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }
@@ -1757,5 +1991,204 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String moveWaste(String reason) {
     return 'Waste: $reason';
+  }
+
+  @override
+  String receiveDone(String number) {
+    return 'Delivery $number saved.';
+  }
+
+  @override
+  String receiveLineInvalid(String name) {
+    return 'Check the amount and cost for $name.';
+  }
+
+  @override
+  String deliveriesItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deliveriesOwed(String amount) {
+    return '$amount owed';
+  }
+
+  @override
+  String countPostedStatus(String name) {
+    return 'Posted by $name';
+  }
+
+  @override
+  String countLines(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items counted',
+      one: '1 item counted',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String countPostBody(int count) {
+    return 'Stock for the $count items counted will be set to what was found. Items not counted do not change.';
+  }
+
+  @override
+  String countPostedFound(String amount) {
+    return 'Count posted: $amount more than expected.';
+  }
+
+  @override
+  String countPostedShort(String amount) {
+    return 'Count posted: $amount short.';
+  }
+
+  @override
+  String countProgress(int done, int total) {
+    return '$done of $total counted';
+  }
+
+  @override
+  String countFoundValue(String amount) {
+    return '$amount more than expected';
+  }
+
+  @override
+  String countShortValue(String amount) {
+    return '$amount short so far';
+  }
+
+  @override
+  String countCounted(String amount) {
+    return 'Counted $amount';
+  }
+
+  @override
+  String countExpected(String amount) {
+    return 'expected $amount';
+  }
+
+  @override
+  String suppliersOwedTotal(String amount) {
+    return 'You owe $amount in all.';
+  }
+
+  @override
+  String supplierTermsShort(int days) {
+    return 'Pay within $days days';
+  }
+
+  @override
+  String supplierOwe(String amount) {
+    return 'You owe $amount';
+  }
+
+  @override
+  String supplierCredit(String amount) {
+    return 'In credit $amount';
+  }
+
+  @override
+  String supplierPayTitle(String name) {
+    return 'Pay $name';
+  }
+
+  @override
+  String supplierPayReason(String name) {
+    return 'Pay $name.';
+  }
+
+  @override
+  String supplierPaid(String amount) {
+    return '$amount payment recorded.';
+  }
+
+  @override
+  String supplierEntryPayment(String method) {
+    return 'Payment $method';
+  }
+
+  @override
+  String bulkScope(int count) {
+    return 'Applies to the $count products in the list now (use the search and filters to narrow it).';
+  }
+
+  @override
+  String bulkRoundTo(String amount) {
+    return 'Round to $amount';
+  }
+
+  @override
+  String bulkPreview(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count prices change',
+      one: '1 price changes',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bulkApply(int count) {
+    return 'Change $count';
+  }
+
+  @override
+  String bulkDone(int count) {
+    return '$count prices changed.';
+  }
+
+  @override
+  String importSummary(int created, int updated, int same) {
+    return '$created new, $updated changed, $same unchanged.';
+  }
+
+  @override
+  String importNewCategories(String names) {
+    return 'New categories: $names';
+  }
+
+  @override
+  String importProblems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count problems',
+      one: '1 problem',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importRow(int row, String message) {
+    return 'Row $row: $message';
+  }
+
+  @override
+  String importHelp(String columns) {
+    return 'Columns: $columns. Import adds products and updates prices, costs and barcodes. It never removes anything.';
+  }
+
+  @override
+  String importDone(int created, int updated) {
+    return 'Imported: $created new, $updated changed.';
+  }
+
+  @override
+  String editorSchedulePrice(String date) {
+    return 'New price from $date';
+  }
+
+  @override
+  String editorScheduled(String price, String date) {
+    return '$price from $date';
   }
 }

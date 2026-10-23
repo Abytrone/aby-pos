@@ -16,4 +16,12 @@ abstract final class Routes {
 
   /// Argument: the stock item ID.
   static const stockItem = '/stock-item';
+
+  static const receive = '/receive';
+
+  /// Argument: the stock count ID.
+  static const stockCount = '/stock-count';
+
+  /// Argument: the supplier ID.
+  static const supplier = '/supplier';
 }

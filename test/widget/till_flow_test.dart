@@ -296,6 +296,101 @@ void main() {
     await _dispose(tester);
   });
 
+  testWidgets('tablet: owner adds a supplier, receives a delivery on credit, pays it, counts stock', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await _settle(tester);
+    await tester.tap(find.text('Kofi'));
+    await _settle(tester);
+    await _typePin(tester, '1234');
+    await tester.tap(find.text('Stock'));
+    await _settle(tester);
+
+    // A supplier.
+    await tester.tap(find.text('Suppliers'));
+    await _settle(tester);
+    await tester.tap(find.text('New supplier'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Supplier name'), 'Tamale Wholesale');
+    await tester.enterText(find.widgetWithText(TextField, 'Days to pay'), '14');
+    await tester.tap(find.text('Save').last);
+    await _settle(tester);
+    expect(find.text('Tamale Wholesale'), findsOneWidget);
+    expect(find.text('Nothing owed'), findsOneWidget);
+
+    // A delivery: 100 cones for GH₵ 100, GH₵ 40 paid on the day.
+    await tester.tap(find.text('Deliveries'));
+    await _settle(tester);
+    await tester.tap(find.text('Receive delivery'));
+    await _settle(tester);
+    await tester.tap(find.widgetWithText(DropdownButtonFormField<String?>, 'Supplier'));
+    await _settle(tester);
+    await tester.tap(find.text('Tamale Wholesale').last);
+    await _settle(tester);
+    await tester.tap(find.widgetWithText(DropdownButtonFormField<String>, 'Stock item'));
+    await _settle(tester);
+    await tester.tap(find.text('Wafer cones').last);
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'How much'), '100');
+    await tester.enterText(find.widgetWithText(TextField, 'Cost of these'), '100');
+    await _settle(tester);
+    expect(find.text('GH₵ 100.00'), findsWidgets);
+    await tester.enterText(find.widgetWithText(TextField, 'Paid now'), '40');
+    await _settle(tester);
+    await tester.tap(find.text('Save delivery'));
+    await _settle(tester);
+    expect(find.textContaining('GRN-0001'), findsWidgets);
+    expect(find.text('GH₵ 60.00 owed'), findsOneWidget);
+
+    // Paying it off from the supplier's page.
+    await tester.tap(find.text('Suppliers'));
+    await _settle(tester);
+    expect(find.text('You owe GH₵ 60.00'), findsOneWidget);
+    await tester.tap(find.text('Tamale Wholesale'));
+    await _settle(tester);
+    await tester.tap(find.text('Record a payment'));
+    await _settle(tester);
+    expect(find.widgetWithText(TextField, 'Amount paid'), findsOneWidget);
+    await tester.tap(find.text('Record a payment').last);
+    await _settle(tester);
+    expect(find.text('Nothing owed'), findsOneWidget);
+    await tester.tap(find.byType(BackButton));
+    await _settle(tester);
+
+    // A count: 10 cones short of the 300 the till expects.
+    await tester.tap(find.text('Counts'));
+    await _settle(tester);
+    await tester.tap(find.text('Start a count'));
+    await _settle(tester);
+    await tester.tap(find.text('Open: show what the till expects'));
+    await _settle(tester);
+    expect(find.text('Stock count'), findsOneWidget);
+    await tester.enterText(find.widgetWithText(TextField, 'Search stock').last, 'wafer');
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Found'), '290');
+    await tester.tap(find.byTooltip('Save'));
+    await _settle(tester);
+    expect(find.text('1 of 12 counted'), findsOneWidget);
+    expect(find.textContaining('short so far'), findsOneWidget);
+    await tester.tap(find.text('Post count'));
+    await _settle(tester);
+    await tester.tap(find.text('Post count').last);
+    await _settle(tester);
+    expect(find.text('Posted by Kofi'), findsOneWidget);
+
+    await tester.tap(find.text('Items'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Search stock'), 'wafer');
+    await _settle(tester);
+    expect(find.text('290 pcs'), findsWidgets);
+
+    await _dispose(tester);
+  });
+
   testWidgets('phone portrait, first run: name the shop, create the owner, start selling', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;

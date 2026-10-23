@@ -2704,6 +2704,468 @@ abstract class AppLocalizations {
   /// **'Other'**
   String get wasteOther;
 
+  /// No description provided for @stockItemsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get stockItemsTab;
+
+  /// No description provided for @deliveriesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliveries'**
+  String get deliveriesTab;
+
+  /// No description provided for @countsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Counts'**
+  String get countsTab;
+
+  /// No description provided for @suppliersTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Suppliers'**
+  String get suppliersTab;
+
+  /// No description provided for @exportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get exportButton;
+
+  /// No description provided for @exportWhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Where should the file go?'**
+  String get exportWhere;
+
+  /// No description provided for @importPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the CSV file'**
+  String get importPick;
+
+  /// No description provided for @productsTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools'**
+  String get productsTools;
+
+  /// No description provided for @receiveNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive delivery'**
+  String get receiveNew;
+
+  /// No description provided for @receiveSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save delivery'**
+  String get receiveSave;
+
+  /// No description provided for @receiveSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier'**
+  String get receiveSupplier;
+
+  /// No description provided for @receiveNoSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'No supplier (paid in full)'**
+  String get receiveNoSupplier;
+
+  /// No description provided for @receiveInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice or receipt number'**
+  String get receiveInvoice;
+
+  /// No description provided for @receiveWhatCame.
+  ///
+  /// In en, this message translates to:
+  /// **'What came'**
+  String get receiveWhatCame;
+
+  /// No description provided for @receiveAddLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Add everything low'**
+  String get receiveAddLow;
+
+  /// No description provided for @receiveAddLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Add item'**
+  String get receiveAddLine;
+
+  /// No description provided for @receiveLineCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost of these'**
+  String get receiveLineCost;
+
+  /// No description provided for @receiveTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery total'**
+  String get receiveTotal;
+
+  /// No description provided for @receivePaidNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid now'**
+  String get receivePaidNow;
+
+  /// No description provided for @receivePaidNowHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The rest is added to what you owe this supplier.'**
+  String get receivePaidNowHelp;
+
+  /// No description provided for @receivePaidNowNoSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Without a supplier the delivery must be paid in full.'**
+  String get receivePaidNowNoSupplier;
+
+  /// No description provided for @receivePaidInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the amount paid.'**
+  String get receivePaidInvalid;
+
+  /// No description provided for @receiveReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive a delivery.'**
+  String get receiveReason;
+
+  /// No description provided for @payCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get payCash;
+
+  /// No description provided for @payMomo.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile money'**
+  String get payMomo;
+
+  /// No description provided for @payBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get payBank;
+
+  /// No description provided for @payOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get payOther;
+
+  /// No description provided for @deliveriesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No deliveries yet.'**
+  String get deliveriesNone;
+
+  /// No description provided for @countStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a count'**
+  String get countStart;
+
+  /// No description provided for @countContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue the count'**
+  String get countContinue;
+
+  /// No description provided for @countBlind.
+  ///
+  /// In en, this message translates to:
+  /// **'Blind: counters do not see what the till expects'**
+  String get countBlind;
+
+  /// No description provided for @countOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open: show what the till expects'**
+  String get countOpen;
+
+  /// No description provided for @countStartReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a stock count.'**
+  String get countStartReason;
+
+  /// No description provided for @countTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock count'**
+  String get countTitle;
+
+  /// No description provided for @countsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No counts yet.'**
+  String get countsNone;
+
+  /// No description provided for @countOpenStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get countOpenStatus;
+
+  /// No description provided for @countCancelledStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get countCancelledStatus;
+
+  /// No description provided for @countBlindShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Blind'**
+  String get countBlindShort;
+
+  /// No description provided for @countCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel count'**
+  String get countCancel;
+
+  /// No description provided for @countCancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this count?'**
+  String get countCancelTitle;
+
+  /// No description provided for @countCancelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'What was counted is kept for the record, but stock does not change.'**
+  String get countCancelBody;
+
+  /// No description provided for @countPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Post count'**
+  String get countPost;
+
+  /// No description provided for @countPostTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Post the count?'**
+  String get countPostTitle;
+
+  /// No description provided for @countPostReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Post a stock count.'**
+  String get countPostReason;
+
+  /// No description provided for @countPostedSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Count posted. Everything matched.'**
+  String get countPostedSame;
+
+  /// No description provided for @countNoDifference.
+  ///
+  /// In en, this message translates to:
+  /// **'No differences so far'**
+  String get countNoDifference;
+
+  /// No description provided for @countFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Found'**
+  String get countFound;
+
+  /// No description provided for @suppliersNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No suppliers yet.'**
+  String get suppliersNone;
+
+  /// No description provided for @supplierNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New supplier'**
+  String get supplierNew;
+
+  /// No description provided for @supplierEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change supplier'**
+  String get supplierEdit;
+
+  /// No description provided for @supplierName.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier name'**
+  String get supplierName;
+
+  /// No description provided for @supplierTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Days to pay'**
+  String get supplierTerms;
+
+  /// No description provided for @supplierTermsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty if you pay on delivery.'**
+  String get supplierTermsHelp;
+
+  /// No description provided for @supplierDays.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get supplierDays;
+
+  /// No description provided for @supplierSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing owed'**
+  String get supplierSettled;
+
+  /// No description provided for @supplierEditReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Change suppliers.'**
+  String get supplierEditReason;
+
+  /// No description provided for @supplierBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get supplierBalance;
+
+  /// No description provided for @supplierPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a payment'**
+  String get supplierPay;
+
+  /// No description provided for @supplierAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount paid'**
+  String get supplierAmount;
+
+  /// No description provided for @supplierReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference (optional)'**
+  String get supplierReference;
+
+  /// No description provided for @supplierLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get supplierLedger;
+
+  /// No description provided for @supplierEntryPurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get supplierEntryPurchase;
+
+  /// No description provided for @stockUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'Use'**
+  String get stockUsage;
+
+  /// No description provided for @stockUsePerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses about, per day'**
+  String get stockUsePerDay;
+
+  /// No description provided for @stockNotUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not used in the last 4 weeks'**
+  String get stockNotUsed;
+
+  /// No description provided for @stockLasts.
+  ///
+  /// In en, this message translates to:
+  /// **'Lasts about'**
+  String get stockLasts;
+
+  /// No description provided for @stockSuggestedLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested low level'**
+  String get stockSuggestedLow;
+
+  /// No description provided for @stockSuggestedHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Three days of use, plus half again.'**
+  String get stockSuggestedHelp;
+
+  /// No description provided for @stockUseThis.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this'**
+  String get stockUseThis;
+
+  /// No description provided for @bulkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change prices in bulk'**
+  String get bulkTitle;
+
+  /// No description provided for @bulkRaise.
+  ///
+  /// In en, this message translates to:
+  /// **'Raise'**
+  String get bulkRaise;
+
+  /// No description provided for @bulkLower.
+  ///
+  /// In en, this message translates to:
+  /// **'Lower'**
+  String get bulkLower;
+
+  /// No description provided for @bulkNoRounding.
+  ///
+  /// In en, this message translates to:
+  /// **'No rounding'**
+  String get bulkNoRounding;
+
+  /// No description provided for @importTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import products'**
+  String get importTitle;
+
+  /// No description provided for @importApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get importApply;
+
+  /// No description provided for @editorSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule a new price'**
+  String get editorSchedule;
+
+  /// No description provided for @editorScheduleWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'From which day?'**
+  String get editorScheduleWhen;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -3123,6 +3585,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waste: {reason}'**
   String moveWaste(String reason);
+
+  /// No description provided for @receiveDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery {number} saved.'**
+  String receiveDone(String number);
+
+  /// No description provided for @receiveLineInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the amount and cost for {name}.'**
+  String receiveLineInvalid(String name);
+
+  /// No description provided for @deliveriesItems.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} items}}'**
+  String deliveriesItems(int count);
+
+  /// No description provided for @deliveriesOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} owed'**
+  String deliveriesOwed(String amount);
+
+  /// No description provided for @countPostedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted by {name}'**
+  String countPostedStatus(String name);
+
+  /// No description provided for @countLines.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item counted} other{{count} items counted}}'**
+  String countLines(int count);
+
+  /// No description provided for @countPostBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock for the {count} items counted will be set to what was found. Items not counted do not change.'**
+  String countPostBody(int count);
+
+  /// No description provided for @countPostedFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Count posted: {amount} more than expected.'**
+  String countPostedFound(String amount);
+
+  /// No description provided for @countPostedShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Count posted: {amount} short.'**
+  String countPostedShort(String amount);
+
+  /// No description provided for @countProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} counted'**
+  String countProgress(int done, int total);
+
+  /// No description provided for @countFoundValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} more than expected'**
+  String countFoundValue(String amount);
+
+  /// No description provided for @countShortValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} short so far'**
+  String countShortValue(String amount);
+
+  /// No description provided for @countCounted.
+  ///
+  /// In en, this message translates to:
+  /// **'Counted {amount}'**
+  String countCounted(String amount);
+
+  /// No description provided for @countExpected.
+  ///
+  /// In en, this message translates to:
+  /// **'expected {amount}'**
+  String countExpected(String amount);
+
+  /// No description provided for @suppliersOwedTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe {amount} in all.'**
+  String suppliersOwedTotal(String amount);
+
+  /// No description provided for @supplierTermsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay within {days} days'**
+  String supplierTermsShort(int days);
+
+  /// No description provided for @supplierOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe {amount}'**
+  String supplierOwe(String amount);
+
+  /// No description provided for @supplierCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'In credit {amount}'**
+  String supplierCredit(String amount);
+
+  /// No description provided for @supplierPayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {name}'**
+  String supplierPayTitle(String name);
+
+  /// No description provided for @supplierPayReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {name}.'**
+  String supplierPayReason(String name);
+
+  /// No description provided for @supplierPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} payment recorded.'**
+  String supplierPaid(String amount);
+
+  /// No description provided for @supplierEntryPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment {method}'**
+  String supplierEntryPayment(String method);
+
+  /// No description provided for @bulkScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to the {count} products in the list now (use the search and filters to narrow it).'**
+  String bulkScope(int count);
+
+  /// No description provided for @bulkRoundTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Round to {amount}'**
+  String bulkRoundTo(String amount);
+
+  /// No description provided for @bulkPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 price changes} other{{count} prices change}}'**
+  String bulkPreview(int count);
+
+  /// No description provided for @bulkApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Change {count}'**
+  String bulkApply(int count);
+
+  /// No description provided for @bulkDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} prices changed.'**
+  String bulkDone(int count);
+
+  /// No description provided for @importSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{created} new, {updated} changed, {same} unchanged.'**
+  String importSummary(int created, int updated, int same);
+
+  /// No description provided for @importNewCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'New categories: {names}'**
+  String importNewCategories(String names);
+
+  /// No description provided for @importProblems.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 problem} other{{count} problems}}'**
+  String importProblems(int count);
+
+  /// No description provided for @importRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row}: {message}'**
+  String importRow(int row, String message);
+
+  /// No description provided for @importHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Columns: {columns}. Import adds products and updates prices, costs and barcodes. It never removes anything.'**
+  String importHelp(String columns);
+
+  /// No description provided for @importDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported: {created} new, {updated} changed.'**
+  String importDone(int created, int updated);
+
+  /// No description provided for @editorSchedulePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'New price from {date}'**
+  String editorSchedulePrice(String date);
+
+  /// No description provided for @editorScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} from {date}'**
+  String editorScheduled(String price, String date);
 }
 
 class _AppLocalizationsDelegate

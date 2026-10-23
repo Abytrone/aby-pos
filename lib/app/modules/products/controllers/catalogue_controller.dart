@@ -8,6 +8,7 @@ import '../../../core/settings.dart';
 import '../../../core/tax.dart';
 import '../../../data/repositories/catalog_repository.dart';
 import '../../../data/repositories/stock_repository.dart';
+import '../../../domain/catalogue_io.dart';
 import '../../../domain/catalogue_rules.dart';
 import '../../../models/catalog.dart';
 import '../../../models/drafts.dart';
@@ -19,6 +20,7 @@ import '../../../services/auth_service.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
+import '../../../ui/files.dart';
 import '../../../ui/l10n.dart';
 
 enum ProductFilter { all, onTill, offTill, belowMargin, archived }
@@ -126,6 +128,53 @@ class CatalogueController extends GetxController {
       _run(Permission.editProducts, appL10n().productsArchiveReason, (by) async {
         await _catalog.setArchived(p.id, archived: archived, by: by);
         message.value = archived ? appL10n().productsArchived(p.name) : appL10n().productsRestored(p.name);
+      });
+
+  // ---------------------------------------------------------------------------
+  // Pricing tools
+
+  /// New prices for the products in view: [percent] (e.g. 10 for +10%) or
+  /// [amount] pesewas added (negative lowers), rounded up or down to the
+  /// nearest [step] pesewas (0: no rounding). Variant ID → (label, old, new).
+  List<(String, String, int, int)> bulkPreview({int? percent, int? amount, int step = 0}) {
+    int round(int p) => step <= 0 ? p : ((p + step ~/ 2) ~/ step) * step;
+    return [
+      for (final p in visibleProducts)
+        for (final v in p.variants)
+          () {
+            final raw = percent != null ? v.price + (v.price * percent / 100).round() : v.price + (amount ?? 0);
+            final next = round(raw < 0 ? 0 : raw);
+            return (v.id, v.name == null ? p.name : '${p.name}, ${v.name}', v.price, next);
+          }(),
+    ].where((x) => x.$3 != x.$4).toList();
+  }
+
+  Future<bool> applyBulk(List<(String, String, int, int)> changes, String description) =>
+      _run(Permission.changePrices, appL10n().editorPriceReason, (by) async {
+        await _catalog.bulkSetPrices({for (final c in changes) c.$1: c.$4}, description: description, by: by);
+        message.value = appL10n().bulkDone(changes.length);
+      });
+
+  Future<void> exportProducts() async {
+    final c = catalogue.value;
+    if (c == null) return;
+    await shareOrSaveText(
+      'products-${DateTime.now().toIso8601String().substring(0, 10)}.csv',
+      Get.find<CatalogueIo>().exportProducts(c),
+    );
+  }
+
+  /// Reads a CSV and returns what it would do (nothing saved yet).
+  Future<ImportPreview?> previewImport() async {
+    final text = await pickTextFile();
+    if (text == null) return null;
+    return Get.find<CatalogueIo>().previewProducts(text);
+  }
+
+  Future<bool> applyImport(ImportPreview preview) =>
+      _run(Permission.editProducts, appL10n().productsEditReason, (by) async {
+        await Get.find<CatalogueIo>().applyProducts(preview, by: by);
+        message.value = appL10n().importDone(preview.newProducts, preview.updatedProducts);
       });
 
   // ---------------------------------------------------------------------------

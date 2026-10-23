@@ -6,6 +6,7 @@ import '../../settings/controllers/backup_controller.dart';
 import '../../settings/controllers/settings_controller.dart';
 import '../../staff/controllers/roles_controller.dart';
 import '../../staff/controllers/staff_controller.dart';
+import '../../stock/controllers/purchasing_controller.dart';
 import '../../stock/controllers/stock_controller.dart';
 import '../../till/controllers/till_controller.dart';
 import '../../today/controllers/today_controller.dart';
@@ -21,6 +22,7 @@ class ShellBinding extends Bindings {
     Get.lazyPut(TodayController.new, fenix: true);
     Get.lazyPut(CatalogueController.new, fenix: true);
     Get.lazyPut(StockController.new, fenix: true);
+    Get.lazyPut(PurchasingController.new, fenix: true);
     Get.lazyPut(StaffController.new, fenix: true);
     Get.lazyPut(RolesController.new, fenix: true);
     Get.lazyPut(ActivityController.new, fenix: true);

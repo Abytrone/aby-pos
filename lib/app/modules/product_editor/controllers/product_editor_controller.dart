@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/permissions.dart';
+import '../../../core/settings.dart';
 import '../../../data/repositories/catalog_repository.dart';
 import '../../../data/repositories/stock_repository.dart';
 import '../../../domain/catalogue_rules.dart';
@@ -14,6 +15,7 @@ import '../../../models/stock.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
+import '../../../services/settings_service.dart';
 import '../../../services/staff_photo_service.dart' show shrinkImage;
 import '../../../ui/l10n.dart';
 import '../../products/controllers/catalogue_controller.dart';
@@ -68,6 +70,9 @@ class ProductEditorController extends GetxController {
   Catalogue? catalogue;
   List<StockItem> stockItems = const [];
   Product? original;
+
+  /// Prices waiting for their day.
+  List<ScheduledPrice> scheduled = const [];
 
   final name = TextEditingController();
   final detail = TextEditingController();
@@ -130,6 +135,7 @@ class ProductEditorController extends GetxController {
       taxIds.addAll(p.taxes.map((t) => t.id));
       final bytes = await _catalog.photo(p.id);
       photo = bytes;
+      scheduled = await _catalog.scheduledPrices(productId: p.id);
     } else {
       categoryId = catalogue!.categories.where((c) => c.active).firstOrNull?.id;
       variants.add(VariantForm());
@@ -221,6 +227,39 @@ class ProductEditorController extends GetxController {
   void removePhoto() {
     photo = null;
     photoChanged = true;
+    update();
+  }
+
+  List<ScheduledPrice> scheduledFor(VariantForm v) => scheduled.where((s) => s.variantId == v.id).toList();
+
+  /// A new price from the start of [day]'s business day.
+  Future<void> schedulePrice(VariantForm v, String price, DateTime day) async {
+    final l = appL10n();
+    final pesewas = parseMoney(price);
+    if (v.id == null || pesewas == null) {
+      error = l.editorPriceMissing;
+      update();
+      return;
+    }
+    final auth = await _permissions.authorize(Permission.changePrices, reason: l.editorPriceReason);
+    if (auth == null) return;
+    final start = Get.find<SettingsService>().get(AppSettings.businessDayStart);
+    final effective = DateTime(day.year, day.month, day.day).add(Duration(minutes: start));
+    try {
+      await _catalog.schedulePrice(v.id!, pesewas, effective, by: auth.authority);
+      scheduled = await _catalog.scheduledPrices(productId: productId);
+      error = null;
+    } on CatalogueException catch (e) {
+      error = e.message;
+    }
+    update();
+  }
+
+  Future<void> cancelScheduled(ScheduledPrice s) async {
+    final auth = await _permissions.authorize(Permission.changePrices, reason: appL10n().editorPriceReason);
+    if (auth == null) return;
+    await _catalog.cancelScheduledPrice(s.id, by: auth.authority);
+    scheduled = await _catalog.scheduledPrices(productId: productId);
     update();
   }
 

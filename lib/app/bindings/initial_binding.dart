@@ -10,13 +10,18 @@ import '../data/repositories/sale_repository.dart';
 import '../data/repositories/settings_repository.dart';
 import '../data/repositories/staff_repository.dart';
 import '../data/repositories/staff_stats_repository.dart';
+import '../data/repositories/receiving_repository.dart';
+import '../data/repositories/stock_count_repository.dart';
 import '../data/repositories/stock_repository.dart';
+import '../data/repositories/supplier_repository.dart';
+import '../domain/catalogue_io.dart';
 import '../domain/catalogue_rules.dart';
 import '../modules/till/controllers/cart_controller.dart';
 import '../services/auth_service.dart';
 import '../services/backup/backup_service.dart';
 import '../services/device_service.dart';
 import '../services/permission_service.dart';
+import '../services/price_scheduler.dart';
 import '../services/session_service.dart';
 import '../services/settings_service.dart';
 import '../services/status_service.dart';
@@ -41,6 +46,10 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => CatalogRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => CatalogueRules(Get.find()), fenix: true);
     Get.lazyPut(() => StockRepository(db, device, audit), fenix: true);
+    Get.lazyPut(() => SupplierRepository(db, device, audit), fenix: true);
+    Get.lazyPut(() => ReceivingRepository(db, device, audit, Get.find(), Get.find()), fenix: true);
+    Get.lazyPut(() => StockCountRepository(db, device, audit, Get.find()), fenix: true);
+    Get.lazyPut(() => CatalogueIo(Get.find(), Get.find(), audit), fenix: true);
     Get.lazyPut(() => DayCloseRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => SaleRepository(db, Get.find(), Get.find(), audit, device), fenix: true);
     Get.lazyPut(() => RoleRepository(db, device, audit), fenix: true);
@@ -55,6 +64,7 @@ class InitialBinding extends Bindings {
     Get.put(SessionService(auth, settings), permanent: true);
     final sync = Get.put(SyncService(Get.find()), permanent: true);
     final backups = Get.put(BackupService(db, audit, settings), permanent: true);
+    Get.put(PriceScheduler(Get.find()), permanent: true);
     Get.put(StatusService(backups, audit, settings, sync), permanent: true);
 
     // Shared by the till and checkout.

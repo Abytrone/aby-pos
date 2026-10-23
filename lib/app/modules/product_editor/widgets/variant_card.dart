@@ -4,12 +4,33 @@ import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
+import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../../products/widgets/recipe_lines.dart';
 import '../controllers/product_editor_controller.dart';
 
 /// One price: name (for sizes), price, cost or recipe, margin, barcodes.
 class VariantCard extends StatelessWidget {
+  Future<void> _schedule(BuildContext context) async {
+    final l = context.l10n;
+    final now = DateTime.now();
+    final day = await showDatePicker(
+      context: context,
+      helpText: l.editorScheduleWhen,
+      initialDate: now.add(const Duration(days: 1)),
+      firstDate: now.add(const Duration(days: 1)),
+      lastDate: now.add(const Duration(days: 365)),
+    );
+    if (day == null) return;
+    final price = await textInputDialog(
+      title: l.editorSchedulePrice(formatDate(day)),
+      label: l.editorPrice,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      validate: (v) => parseMoney(v) == null ? l.editorPriceMissing : null,
+    );
+    if (price != null) await ctl.schedulePrice(form, price, day);
+  }
+
   const VariantCard({
     super.key,
     required this.ctl,
@@ -100,6 +121,28 @@ class VariantCard extends StatelessWidget {
                   color: margin < 0 ? c.danger : c.inkMuted,
                   fontWeight: FontWeight.w700,
                 ),
+              ),
+            ),
+          for (final s in ctl.scheduledFor(form))
+            Padding(
+              padding: const EdgeInsets.only(top: AbySpace.s2),
+              child: Row(children: [
+                Icon(Icons.schedule, size: 18, color: c.blue),
+                const SizedBox(width: AbySpace.s2),
+                Expanded(
+                  child: Text(l.editorScheduled(formatMoney(s.newPrice), formatDate(s.effectiveOn)),
+                      style: AbyText.caption.copyWith(color: c.blue, fontWeight: FontWeight.w700)),
+                ),
+                TextButton(onPressed: () => ctl.cancelScheduled(s), child: Text(l.commonCancel)),
+              ]),
+            ),
+          if (form.id != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () => _schedule(context),
+                icon: const Icon(Icons.schedule),
+                label: Text(l.editorSchedule),
               ),
             ),
           const SizedBox(height: AbySpace.s3),

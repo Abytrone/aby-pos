@@ -207,3 +207,30 @@ class Product {
 
   Variant variant(String id) => variants.firstWhere((v) => v.id == id);
 }
+
+/// A price waiting to take effect.
+class ScheduledPrice {
+  const ScheduledPrice({
+    required this.id,
+    required this.variantId,
+    required this.productName,
+    required this.oldPrice,
+    required this.newPrice,
+    required this.effectiveOn,
+    required this.createdByName,
+    this.variantName,
+  });
+
+  final String id;
+  final String variantId;
+  final String productName;
+  final String? variantName;
+
+  /// Pesewas.
+  final int oldPrice;
+  final int newPrice;
+  final DateTime effectiveOn;
+  final String createdByName;
+
+  String get label => variantName == null ? productName : '$productName, $variantName';
+}

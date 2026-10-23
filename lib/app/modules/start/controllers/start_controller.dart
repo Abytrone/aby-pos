@@ -9,6 +9,7 @@ import '../../../data/repositories/staff_repository.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/backup/backup_service.dart';
 import '../../../services/device_service.dart';
+import '../../../services/price_scheduler.dart';
 import '../../../services/settings_service.dart';
 import '../../../services/status_service.dart';
 
@@ -32,6 +33,7 @@ class StartController extends GetxController {
     await _settings.load();
     AppRestarter.applyTheme(_settings.get(AppSettings.themeMode));
     await _backups.finishPendingRestore();
+    await Get.find<PriceScheduler>().run();
     final hasStaff = await _staff.hasStaff();
     if (hasStaff) unawaited(_dailyBackup());
     await _status.refresh();

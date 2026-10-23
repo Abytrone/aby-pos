@@ -1068,6 +1068,32 @@ Restructure the app, keep the data safe, and give the owner control.
   `INV-06` stock counts, `INV-08` waste.
 - `CAT-05` recipes, for the ice cream shop's real costs.
 
+**Status (23 October 2026): built** (2a and 2b). Schema version 5. Decisions made on the way:
+
+- Sizes are variants, not a price-setting modifier group. Every product has at least one variant
+  (a simple product has one unnamed variant); option groups are for add-ons only. The v5
+  migration turned the old toppings into a "Toppings" group with the same IDs.
+- Existing shops get no stock items or recipes from the migration (only new databases are
+  seeded). Until the owner sets them up, sales simply do not use stock.
+- Receiving updates the weighted average cost. If the till thought an item had run out (or gone
+  negative), the delivery's cost replaces the old one.
+- A delivery without a supplier must be paid in full; with one, the unpaid part goes on the
+  supplier's account. Paying a supplier needs `payOut`.
+- Counts can be blind (counters do not see what the till expects). Each counted line keeps what
+  the till expected at that moment, so selling during a count is fine. Posting needs
+  `approveStockCount`; items not counted do not change.
+- Scheduled prices start at the beginning of the chosen business day; the app checks at start and
+  every hour.
+- CSV import only adds products and updates prices, costs, barcodes, tile line and "on till". It
+  never removes variants, recipes, options or taxes, and a file with any problem imports nothing.
+
+What was left for later:
+
+- `INV-03` purchase orders (receiving works without them).
+- Product photos are kept on the device only (not in the outbox): see TODO(sync).
+- `CAT-03`: happy-hour and per-channel prices, which need SEL-06 promotions (phase 3/6).
+- Stock import from CSV (stock export works).
+
 ### Phase 3: Selling power
 
 - `SEL-01` grid extensions, `SEL-03` barcodes, `SEL-04` quantity, weight and open price,

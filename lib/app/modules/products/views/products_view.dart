@@ -15,6 +15,7 @@ import '../../till/widgets/variant_sheet.dart' show groupRule;
 import '../controllers/catalogue_controller.dart';
 import '../widgets/category_editor.dart';
 import '../widgets/option_group_editor.dart';
+import '../widgets/pricing_tools.dart';
 import '../widgets/product_row.dart';
 import '../widgets/tax_editor.dart';
 
@@ -34,6 +35,28 @@ class ProductsView extends GetView<CatalogueController> {
           builder: (context, _) => SectionPage(
             title: l.navProducts,
             actions: [
+              if (tabs.index == 0)
+                PopupMenuButton<int>(
+                  tooltip: l.productsTools,
+                  onSelected: (v) => switch (v) {
+                    0 => showBulkPrices(controller),
+                    1 => runImport(controller),
+                    _ => controller.exportProducts(),
+                  },
+                  itemBuilder: (_) => [
+                    PopupMenuItem(value: 0, child: Text(l.bulkTitle)),
+                    if (controller.canEdit) PopupMenuItem(value: 1, child: Text(l.importTitle)),
+                    PopupMenuItem(value: 2, child: Text(l.exportButton)),
+                  ],
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AbySpace.s3, vertical: AbySpace.s3),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      const Icon(Icons.build_outlined),
+                      const SizedBox(width: AbySpace.s2),
+                      Text(l.productsTools),
+                    ]),
+                  ),
+                ),
               if (controller.canEdit)
                 FilledButton.icon(
                   onPressed: () => switch (tabs.index) {

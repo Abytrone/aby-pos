@@ -48,21 +48,20 @@ class StockRepository {
   }
 
   /// Updates as stock moves (for lists that should stay current).
-  Stream<void> watchChanges() => _db
-      .tableUpdates(TableUpdateQuery.onAllTables([_db.stockItems, _db.stockMovements]))
-      .map((_) {});
+  Stream<void> watchChanges() =>
+      _db.tableUpdates(TableUpdateQuery.onAllTables([_db.stockItems, _db.stockMovements])).map((_) {});
 
   StockItem _toItem(StockItemRow r, int onHand) => StockItem(
-        id: r.id,
-        name: r.name,
-        unit: r.unit,
-        costMilli: r.costMilli,
-        onHand: onHand,
-        reorderPoint: r.reorderPoint,
-        reorderQty: r.reorderQty,
-        supplierId: r.supplierId,
-        active: r.active,
-      );
+    id: r.id,
+    name: r.name,
+    unit: r.unit,
+    costMilli: r.costMilli,
+    onHand: onHand,
+    reorderPoint: r.reorderPoint,
+    reorderQty: r.reorderQty,
+    supplierId: r.supplierId,
+    active: r.active,
+  );
 
   Future<String> saveItem(StockItemDraft d, {required Staff by}) async {
     final name = d.name.trim();
@@ -133,16 +132,18 @@ class StockRepository {
   /// Products whose recipes use the item (names), so the owner knows what a
   /// change affects.
   Future<List<String>> usedBy(String stockItemId) async {
-    final rows = await _db.customSelect(
-      'SELECT DISTINCT COALESCE(p.name, o.name) AS name FROM recipe_items r '
-      'LEFT JOIN product_variants v ON v.id = r.variant_id AND v.active = 1 '
-      'LEFT JOIN products p ON p.id = v.product_id AND p.archived_at IS NULL '
-      'LEFT JOIN option_items o ON o.id = r.option_id AND o.active = 1 '
-      'WHERE r.stock_item_id = ? AND r.deleted_at IS NULL AND (p.id IS NOT NULL OR o.id IS NOT NULL) '
-      'ORDER BY name',
-      variables: [Variable.withString(stockItemId)],
-      readsFrom: {_db.recipeItems, _db.productVariants, _db.products, _db.optionItems},
-    ).get();
+    final rows = await _db
+        .customSelect(
+          'SELECT DISTINCT COALESCE(p.name, o.name) AS name FROM recipe_items r '
+          'LEFT JOIN product_variants v ON v.id = r.variant_id AND v.active = 1 '
+          'LEFT JOIN products p ON p.id = v.product_id AND p.archived_at IS NULL '
+          'LEFT JOIN option_items o ON o.id = r.option_id AND o.active = 1 '
+          'WHERE r.stock_item_id = ? AND r.deleted_at IS NULL AND (p.id IS NOT NULL OR o.id IS NOT NULL) '
+          'ORDER BY name',
+          variables: [Variable.withString(stockItemId)],
+          readsFrom: {_db.recipeItems, _db.productVariants, _db.products, _db.optionItems},
+        )
+        .get();
     return rows.map((r) => r.read<String>('name')).toList();
   }
 
@@ -168,13 +169,32 @@ class StockRepository {
     return {for (final r in await query.get()) r.read(_db.stockMovements.stockItemId)!: r.read(sum) ?? 0};
   }
 
+  /// Base units used by sales and waste since [since], per stock item (for
+  /// reorder suggestions and days of stock left).
+  Future<Map<String, int>> usedSince(DateTime since) async {
+    final rows = await _db
+        .customSelect(
+          'SELECT stock_item_id AS item, -SUM(quantity_change) AS used FROM stock_movements '
+          "WHERE stock_item_id IS NOT NULL AND deleted_at IS NULL AND reason IN ('sale', 'waste') "
+          'AND created_at >= ? GROUP BY stock_item_id',
+          variables: [Variable.withDateTime(since)],
+          readsFrom: {_db.stockMovements},
+        )
+        .get();
+    return {for (final r in rows) r.read<String>('item'): r.read<int>('used')};
+  }
+
   /// Newest first.
   Future<List<StockMovement>> movements(String stockItemId, {int limit = 100}) async {
-    final rows = await (_db.select(_db.stockMovements)
-          ..where((m) => m.stockItemId.equals(stockItemId) & m.deletedAt.isNull())
-          ..orderBy([(m) => OrderingTerm(expression: m.createdAt, mode: OrderingMode.desc)])
-          ..limit(limit))
-        .get();
+    final rows =
+        await (_db.select(_db.stockMovements)
+              ..where((m) => m.stockItemId.equals(stockItemId) & m.deletedAt.isNull())
+              ..orderBy([
+                (m) => OrderingTerm(expression: m.createdAt, mode: OrderingMode.desc),
+                (m) => OrderingTerm(expression: m.id, mode: OrderingMode.desc),
+              ])
+              ..limit(limit))
+            .get();
     return [
       for (final r in rows)
         StockMovement(

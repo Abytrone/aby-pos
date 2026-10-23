@@ -39,6 +39,14 @@ App icons: `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml`.
   safety copy of the current data first, then restarts the app.
 - **Status centre:** the dot in the header. Green when backups are recent and the activity log is
   intact; amber or red with a fix button when not.
+- **Products:** prices per size (variants), option groups such as Toppings (with min, max and
+  repeats), recipes that use stock, taxes (off, inclusive or exclusive), barcodes and a photo.
+  *Tools* has bulk price changes, CSV export and CSV import (preview first; nothing is removed).
+  A price can be scheduled for a later day from the product editor.
+- **Stock:** stock items in pieces, grams or millilitres, with average cost, history, corrections
+  and waste. *Deliveries* receives stock (cost, supplier, paid now or owed), *Counts* is the
+  stocktake (blind or open), and *Suppliers* shows what is owed and records payments. Each item
+  shows daily use, how long it lasts and a suggested low level.
 - **Business day:** starts at 05:00 by default, so late-night sales count on the evening's day.
 - **Close day:** Today → Close day counts the drawer (opening float + cash takings = expected) and
   locks those sales against voids.
@@ -53,18 +61,23 @@ lib/
     app.dart                GetMaterialApp, themes, locale, activity listener, AppRestarter
     bindings/               InitialBinding: the composition root for services and repositories
     routes/                 route names, GetPage list, AuthMiddleware
-    core/                   permissions and built-in roles, typed settings, business day
+    core/                   permissions and built-in roles, typed settings, business day, tax,
+                            units, validators, CSV
+    domain/                 catalogue rules, inventory arithmetic, catalogue import/export
     theme/                  brand kit (copied as-is from brand/flutter/lib/theme)
     ui/                     shared design system: SectionPage, GroupCard, InfoTile, dialogs,
                             PinPad, OptionChip, approval prompt, status dot, labels, formatting
     data/database/          drift tables, AppDatabase, step-by-step migrations, seed
-    data/repositories/      catalog, sale, stock, staff, role, day close, audit, settings, outbox:
+    data/repositories/      catalog, sale, stock, supplier, receiving, stock count, staff, role,
+                            day close, audit, settings, outbox:
                             the only code that touches drift
     services/               auth, permissions, session (auto-lock), settings, status, backup,
-                            device, money, ids, PIN hashing, sync (stub)
+                            device, money, ids, PIN hashing, price scheduler, sync (stub)
     models/                 plain Dart domain classes and enums
     modules/                start, setup, sign_in, shell, till, checkout, today, close_day,
-                            staff, activity, settings (each: controllers, views, widgets, bindings)
+                            products, product_editor, stock, stock_item, receive, stock_count,
+                            supplier, staff, activity, settings
+                            (each: controllers, views, widgets, bindings)
 ```
 
 ## Rules in the code

@@ -12,12 +12,7 @@ import 'audit_repository.dart';
 
 /// Everything on the menu, read in one go.
 class Catalogue {
-  const Catalogue({
-    required this.categories,
-    required this.products,
-    required this.groups,
-    required this.taxRates,
-  });
+  const Catalogue({required this.categories, required this.products, required this.groups, required this.taxRates});
 
   final List<Category> categories;
   final List<Product> products;
@@ -48,19 +43,21 @@ class CatalogRepository {
   /// Fires when anything on the menu (or stock costs) changes, so the till
   /// can reload.
   Stream<void> watchChanges() => _db
-      .tableUpdates(TableUpdateQuery.onAllTables([
-        _db.categories,
-        _db.products,
-        _db.productVariants,
-        _db.optionGroups,
-        _db.optionItems,
-        _db.productOptionGroups,
-        _db.recipeItems,
-        _db.stockItems,
-        _db.taxRates,
-        _db.productTaxes,
-        _db.barcodes,
-      ]))
+      .tableUpdates(
+        TableUpdateQuery.onAllTables([
+          _db.categories,
+          _db.products,
+          _db.productVariants,
+          _db.optionGroups,
+          _db.optionItems,
+          _db.productOptionGroups,
+          _db.recipeItems,
+          _db.stockItems,
+          _db.taxRates,
+          _db.productTaxes,
+          _db.barcodes,
+        ]),
+      )
       .map((_) {});
 
   // ---------------------------------------------------------------------------
@@ -73,14 +70,7 @@ class CatalogRepository {
     if (!includeInactive) query.where((c) => c.active.equals(true));
     return [
       for (final r in await query.get())
-        Category(
-          id: r.id,
-          name: r.name,
-          tone: r.tone,
-          parentId: r.parentId,
-          active: r.active,
-          sortOrder: r.sortOrder,
-        ),
+        Category(id: r.id, name: r.name, tone: r.tone, parentId: r.parentId, active: r.active, sortOrder: r.sortOrder),
     ];
   }
 
@@ -92,16 +82,16 @@ class CatalogRepository {
     };
     final recipeRows = await (_db.select(_db.recipeItems)..where((r) => r.deletedAt.isNull())).get();
     List<RecipeLine> recipe(bool Function(RecipeItemRow) match) => [
-          for (final r in recipeRows.where(match))
-            if (stock[r.stockItemId] case final s?)
-              RecipeLine(
-                stockItemId: s.id,
-                stockItemName: s.name,
-                unit: s.unit,
-                quantity: r.quantity,
-                costMilli: s.costMilli,
-              ),
-        ];
+      for (final r in recipeRows.where(match))
+        if (stock[r.stockItemId] case final s?)
+          RecipeLine(
+            stockItemId: s.id,
+            stockItemName: s.name,
+            unit: s.unit,
+            quantity: r.quantity,
+            costMilli: s.costMilli,
+          ),
+    ];
 
     final barcodeRows = await (_db.select(_db.barcodes)..where((b) => b.deletedAt.isNull())).get();
     final barcodesByVariant = <String, List<String>>{};
@@ -109,14 +99,16 @@ class CatalogRepository {
       barcodesByVariant.putIfAbsent(b.variantId, () => []).add(b.code);
     }
 
-    final optionRows = await (_db.select(_db.optionItems)
-          ..where((o) => o.deletedAt.isNull() & o.active.equals(true))
-          ..orderBy([(o) => OrderingTerm(expression: o.sortOrder)]))
-        .get();
-    final groupRows = await (_db.select(_db.optionGroups)
-          ..where((g) => g.deletedAt.isNull())
-          ..orderBy([(g) => OrderingTerm(expression: g.sortOrder), (g) => OrderingTerm(expression: g.name)]))
-        .get();
+    final optionRows =
+        await (_db.select(_db.optionItems)
+              ..where((o) => o.deletedAt.isNull() & o.active.equals(true))
+              ..orderBy([(o) => OrderingTerm(expression: o.sortOrder)]))
+            .get();
+    final groupRows =
+        await (_db.select(_db.optionGroups)
+              ..where((g) => g.deletedAt.isNull())
+              ..orderBy([(g) => OrderingTerm(expression: g.sortOrder), (g) => OrderingTerm(expression: g.name)]))
+            .get();
     final groups = [
       for (final g in groupRows)
         if (includeInactive || g.active)
@@ -142,10 +134,11 @@ class CatalogRepository {
     ];
     final groupsById = {for (final g in groups) g.id: g};
 
-    final taxRows = await (_db.select(_db.taxRates)
-          ..where((t) => t.deletedAt.isNull())
-          ..orderBy([(t) => OrderingTerm(expression: t.sortOrder)]))
-        .get();
+    final taxRows =
+        await (_db.select(_db.taxRates)
+              ..where((t) => t.deletedAt.isNull())
+              ..orderBy([(t) => OrderingTerm(expression: t.sortOrder)]))
+            .get();
     final taxRates = [
       for (final t in taxRows)
         if (includeInactive || t.active)
@@ -153,14 +146,16 @@ class CatalogRepository {
     ];
     final taxById = {for (final t in taxRates) t.id: t};
 
-    final variantRows = await (_db.select(_db.productVariants)
-          ..where((v) => v.deletedAt.isNull() & v.active.equals(true))
-          ..orderBy([(v) => OrderingTerm(expression: v.sortOrder)]))
-        .get();
-    final linkRows = await (_db.select(_db.productOptionGroups)
-          ..where((l) => l.deletedAt.isNull())
-          ..orderBy([(l) => OrderingTerm(expression: l.sortOrder)]))
-        .get();
+    final variantRows =
+        await (_db.select(_db.productVariants)
+              ..where((v) => v.deletedAt.isNull() & v.active.equals(true))
+              ..orderBy([(v) => OrderingTerm(expression: v.sortOrder)]))
+            .get();
+    final linkRows =
+        await (_db.select(_db.productOptionGroups)
+              ..where((l) => l.deletedAt.isNull())
+              ..orderBy([(l) => OrderingTerm(expression: l.sortOrder)]))
+            .get();
     final productTaxRows = await (_db.select(_db.productTaxes)..where((t) => t.deletedAt.isNull())).get();
 
     final productQuery = _db.select(_db.products)
@@ -183,24 +178,26 @@ class CatalogRepository {
           ),
       ];
       if (variants.isEmpty) continue; // nothing to sell
-      products.add(Product(
-        id: p.id,
-        categoryId: p.categoryId,
-        name: p.name,
-        detail: p.detail,
-        description: p.description,
-        active: p.active,
-        archived: p.archivedAt != null,
-        variants: variants,
-        groups: [
-          for (final l in linkRows.where((l) => l.productId == p.id))
-            if (groupsById[l.groupId] case final g? when g.active || includeInactive) g,
-        ],
-        taxes: [
-          for (final t in productTaxRows.where((t) => t.productId == p.id))
-            if (taxById[t.taxRateId] case final rate? when rate.active) rate,
-        ],
-      ));
+      products.add(
+        Product(
+          id: p.id,
+          categoryId: p.categoryId,
+          name: p.name,
+          detail: p.detail,
+          description: p.description,
+          active: p.active,
+          archived: p.archivedAt != null,
+          variants: variants,
+          groups: [
+            for (final l in linkRows.where((l) => l.productId == p.id))
+              if (groupsById[l.groupId] case final g? when g.active || includeInactive) g,
+          ],
+          taxes: [
+            for (final t in productTaxRows.where((t) => t.productId == p.id))
+              if (taxById[t.taxRateId] case final rate? when rate.active) rate,
+          ],
+        ),
+      );
     }
 
     return Catalogue(
@@ -216,13 +213,15 @@ class CatalogRepository {
 
   /// The variant with this barcode, and its product.
   Future<(String productId, String variantId)?> findBarcode(String code) async {
-    final row = await (_db.select(_db.barcodes).join([
-      innerJoin(_db.productVariants, _db.productVariants.id.equalsExp(_db.barcodes.variantId)),
-    ])
-          ..where(_db.barcodes.code.equals(code.trim()) &
-              _db.barcodes.deletedAt.isNull() &
-              _db.productVariants.active.equals(true)))
-        .getSingleOrNull();
+    final row =
+        await (_db.select(_db.barcodes).join([
+              innerJoin(_db.productVariants, _db.productVariants.id.equalsExp(_db.barcodes.variantId)),
+            ])..where(
+              _db.barcodes.code.equals(code.trim()) &
+                  _db.barcodes.deletedAt.isNull() &
+                  _db.productVariants.active.equals(true),
+            ))
+            .getSingleOrNull();
     if (row == null) return null;
     final v = row.readTable(_db.productVariants);
     return (v.productId, v.id);
@@ -230,15 +229,17 @@ class CatalogRepository {
 
   /// The product name using [code], other than [exceptVariantIds].
   Future<String?> barcodeOwner(String code, {Set<String> exceptVariantIds = const {}}) async {
-    final rows = await (_db.select(_db.barcodes).join([
-      innerJoin(_db.productVariants, _db.productVariants.id.equalsExp(_db.barcodes.variantId)),
-      innerJoin(_db.products, _db.products.id.equalsExp(_db.productVariants.productId)),
-    ])
-          ..where(_db.barcodes.code.equals(code) &
-              _db.barcodes.deletedAt.isNull() &
-              _db.productVariants.active.equals(true) &
-              _db.products.archivedAt.isNull()))
-        .get();
+    final rows =
+        await (_db.select(_db.barcodes).join([
+              innerJoin(_db.productVariants, _db.productVariants.id.equalsExp(_db.barcodes.variantId)),
+              innerJoin(_db.products, _db.products.id.equalsExp(_db.productVariants.productId)),
+            ])..where(
+              _db.barcodes.code.equals(code) &
+                  _db.barcodes.deletedAt.isNull() &
+                  _db.productVariants.active.equals(true) &
+                  _db.products.archivedAt.isNull(),
+            ))
+            .get();
     for (final r in rows) {
       if (!exceptVariantIds.contains(r.readTable(_db.barcodes).variantId)) {
         return r.readTable(_db.products).name;
@@ -248,11 +249,11 @@ class CatalogRepository {
   }
 
   Future<Uint8List?> photo(String productId) async =>
-      (await (_db.select(_db.productPhotos)..where((p) => p.productId.equals(productId))).getSingleOrNull())
-          ?.image;
+      (await (_db.select(_db.productPhotos)..where((p) => p.productId.equals(productId))).getSingleOrNull())?.image;
 
-  Future<Map<String, Uint8List>> allPhotos() async =>
-      {for (final p in await _db.select(_db.productPhotos).get()) p.productId: p.image};
+  Future<Map<String, Uint8List>> allPhotos() async => {
+    for (final p in await _db.select(_db.productPhotos).get()) p.productId: p.image,
+  };
 
   // ---------------------------------------------------------------------------
   // Writes (called by the catalogue use cases, inside their checks)
@@ -302,9 +303,9 @@ class CatalogRepository {
       }
 
       // Variants: update those kept, add new ones, retire the rest.
-      final existing = await (_db.select(_db.productVariants)
-            ..where((v) => v.productId.equals(productId) & v.deletedAt.isNull() & v.active.equals(true)))
-          .get();
+      final existing = await (_db.select(
+        _db.productVariants,
+      )..where((v) => v.productId.equals(productId) & v.deletedAt.isNull() & v.active.equals(true))).get();
       final keptIds = <String>{};
       for (final (index, vd) in d.variants.indexed) {
         final current = vd.id == null ? null : existing.where((e) => e.id == vd.id).firstOrNull;
@@ -342,7 +343,8 @@ class CatalogRepository {
               actor: by,
               entity: 'product_variants',
               entityId: variantId,
-              summary: '${d.name.trim()}${clean(vd.name) == null ? '' : ', ${clean(vd.name)}'}: '
+              summary:
+                  '${d.name.trim()}${clean(vd.name) == null ? '' : ', ${clean(vd.name)}'}: '
                   '${formatMoney(current.price)} to ${formatMoney(vd.price)}',
               details: {'before': current.price, 'after': vd.price},
             );
@@ -384,9 +386,9 @@ class CatalogRepository {
   /// True when the set changed.
   Future<bool> _replaceBarcodes(String variantId, List<String> codes) async {
     final want = codes.map((c) => c.trim()).where((c) => c.isNotEmpty).toSet();
-    final rows = await (_db.select(_db.barcodes)
-          ..where((b) => b.variantId.equals(variantId) & b.deletedAt.isNull()))
-        .get();
+    final rows = await (_db.select(
+      _db.barcodes,
+    )..where((b) => b.variantId.equals(variantId) & b.deletedAt.isNull())).get();
     final have = rows.map((r) => r.code).toSet();
     if (have.length == want.length && have.containsAll(want)) return false;
     for (final r in rows.where((r) => !want.contains(r.code))) {
@@ -411,11 +413,13 @@ class CatalogRepository {
 
   /// Replaces a variant's or an option's recipe. True when it changed.
   Future<bool> _replaceRecipe({String? variantId, String? optionId, required List<RecipeDraftLine> lines}) async {
-    final rows = await (_db.select(_db.recipeItems)
-          ..where((r) =>
-              r.deletedAt.isNull() &
-              (variantId != null ? r.variantId.equals(variantId) : r.optionId.equals(optionId!))))
-        .get();
+    final rows =
+        await (_db.select(_db.recipeItems)..where(
+              (r) =>
+                  r.deletedAt.isNull() &
+                  (variantId != null ? r.variantId.equals(variantId) : r.optionId.equals(optionId!)),
+            ))
+            .get();
     String key(String item, int qty) => '$item:$qty';
     final have = rows.map((r) => key(r.stockItemId, r.quantity)).toList()..sort();
     final want = lines.where((l) => l.quantity > 0).map((l) => key(l.stockItemId, l.quantity)).toList()..sort();
@@ -443,10 +447,11 @@ class CatalogRepository {
   }
 
   Future<bool> _replaceLinks(String productId, List<String> groupIds) async {
-    final rows = await (_db.select(_db.productOptionGroups)
-          ..where((l) => l.productId.equals(productId) & l.deletedAt.isNull())
-          ..orderBy([(l) => OrderingTerm(expression: l.sortOrder)]))
-        .get();
+    final rows =
+        await (_db.select(_db.productOptionGroups)
+              ..where((l) => l.productId.equals(productId) & l.deletedAt.isNull())
+              ..orderBy([(l) => OrderingTerm(expression: l.sortOrder)]))
+            .get();
     if (rows.map((r) => r.groupId).join(',') == groupIds.join(',')) return false;
     for (final r in rows) {
       await _db.softDeleteTracked(_db.productOptionGroups, r.id);
@@ -470,9 +475,9 @@ class CatalogRepository {
   }
 
   Future<bool> _replaceTaxes(String productId, List<String> taxIds) async {
-    final rows = await (_db.select(_db.productTaxes)
-          ..where((t) => t.productId.equals(productId) & t.deletedAt.isNull()))
-        .get();
+    final rows = await (_db.select(
+      _db.productTaxes,
+    )..where((t) => t.productId.equals(productId) & t.deletedAt.isNull())).get();
     final have = rows.map((r) => r.taxRateId).toSet();
     final want = taxIds.toSet();
     if (have.length == want.length && have.containsAll(want)) return false;
@@ -502,10 +507,7 @@ class CatalogRepository {
     return _db.transaction(() async {
       final row = await (_db.select(_db.products)..where((p) => p.id.equals(productId))).getSingle();
       final now = DateTime.now();
-      await _db.updateTracked(
-        _db.products,
-        row.copyWith(archivedAt: Value(archived ? now : null), updatedAt: now),
-      );
+      await _db.updateTracked(_db.products, row.copyWith(archivedAt: Value(archived ? now : null), updatedAt: now));
       await _audit.record(
         action: archived ? AuditAction.productArchived : AuditAction.productRestored,
         actor: by,
@@ -520,7 +522,9 @@ class CatalogRepository {
     if (image == null) {
       await (_db.delete(_db.productPhotos)..where((p) => p.productId.equals(productId))).go();
     } else {
-      await _db.into(_db.productPhotos).insertOnConflictUpdate(
+      await _db
+          .into(_db.productPhotos)
+          .insertOnConflictUpdate(
             ProductPhotosCompanion.insert(productId: productId, image: image, updatedAt: DateTime.now()),
           );
     }
@@ -578,12 +582,14 @@ class CatalogRepository {
 
   /// Products (not archived) in a category or its sub-categories.
   Future<int> productCount(String categoryId) async {
-    final row = await _db.customSelect(
-      'SELECT COUNT(*) AS n FROM products p LEFT JOIN categories c ON c.id = p.category_id '
-      'WHERE p.deleted_at IS NULL AND p.archived_at IS NULL AND (p.category_id = ? OR c.parent_id = ?)',
-      variables: [Variable.withString(categoryId), Variable.withString(categoryId)],
-      readsFrom: {_db.products, _db.categories},
-    ).getSingle();
+    final row = await _db
+        .customSelect(
+          'SELECT COUNT(*) AS n FROM products p LEFT JOIN categories c ON c.id = p.category_id '
+          'WHERE p.deleted_at IS NULL AND p.archived_at IS NULL AND (p.category_id = ? OR c.parent_id = ?)',
+          variables: [Variable.withString(categoryId), Variable.withString(categoryId)],
+          readsFrom: {_db.products, _db.categories},
+        )
+        .getSingle();
     return row.read<int>('n');
   }
 
@@ -618,9 +624,9 @@ class CatalogRepository {
           ),
         );
       }
-      final existing = await (_db.select(_db.optionItems)
-            ..where((o) => o.groupId.equals(groupId) & o.deletedAt.isNull() & o.active.equals(true)))
-          .get();
+      final existing = await (_db.select(
+        _db.optionItems,
+      )..where((o) => o.groupId.equals(groupId) & o.deletedAt.isNull() & o.active.equals(true))).get();
       final kept = <String>{};
       for (final (i, od) in d.options.indexed) {
         final current = od.id == null ? null : existing.where((e) => e.id == od.id).firstOrNull;
@@ -679,6 +685,136 @@ class CatalogRepository {
       );
     });
   }
+
+  // ---------------------------------------------------------------------------
+  // Price changes
+
+  /// A new price from the start of [effectiveOn] (a business-day start).
+  Future<String> schedulePrice(String variantId, int newPrice, DateTime effectiveOn, {required Staff by}) async {
+    if (newPrice < 0) throw const CatalogueException('Enter a price from GH₵ 0.00.');
+    if (!effectiveOn.isAfter(DateTime.now())) {
+      throw const CatalogueException('Pick a day after today. To change it now, edit the price.');
+    }
+    return _db.transaction(() async {
+      final v = await (_db.select(_db.productVariants)..where((x) => x.id.equals(variantId))).getSingle();
+      final p = await (_db.select(_db.products)..where((x) => x.id.equals(v.productId))).getSingle();
+      final now = DateTime.now();
+      final id = newId();
+      await _db.insertTracked(
+        _db.priceChanges,
+        PriceChangesCompanion.insert(
+          id: id,
+          createdAt: now,
+          updatedAt: now,
+          deviceId: _device.deviceId,
+          variantId: variantId,
+          newPrice: newPrice,
+          effectiveOn: effectiveOn,
+          createdByName: by.name,
+        ),
+      );
+      await _audit.record(
+        action: AuditAction.priceScheduled,
+        actor: by,
+        entity: 'product_variants',
+        entityId: variantId,
+        summary:
+            '${p.name}${v.name == null ? '' : ', ${v.name}'}: ${formatMoney(newPrice)} from '
+            '${effectiveOn.toIso8601String().substring(0, 10)}',
+        details: {'before': v.price, 'after': newPrice},
+      );
+      return id;
+    });
+  }
+
+  Future<void> cancelScheduledPrice(String id, {required Staff by}) async {
+    final row = await (_db.select(_db.priceChanges)..where((c) => c.id.equals(id))).getSingle();
+    if (row.appliedAt != null || row.cancelledAt != null) return;
+    await _db.updateTracked(
+      _db.priceChanges,
+      row.copyWith(cancelledAt: Value(DateTime.now()), updatedAt: DateTime.now()),
+    );
+  }
+
+  /// Waiting to apply, soonest first.
+  Future<List<ScheduledPrice>> scheduledPrices({String? productId}) async {
+    final rows =
+        await (_db.select(_db.priceChanges).join([
+                innerJoin(_db.productVariants, _db.productVariants.id.equalsExp(_db.priceChanges.variantId)),
+                innerJoin(_db.products, _db.products.id.equalsExp(_db.productVariants.productId)),
+              ])
+              ..where(
+                _db.priceChanges.appliedAt.isNull() &
+                    _db.priceChanges.cancelledAt.isNull() &
+                    _db.priceChanges.deletedAt.isNull() &
+                    (productId == null ? const Constant(true) : _db.products.id.equals(productId)),
+              )
+              ..orderBy([OrderingTerm(expression: _db.priceChanges.effectiveOn)]))
+            .get();
+    return [
+      for (final r in rows)
+        ScheduledPrice(
+          id: r.readTable(_db.priceChanges).id,
+          variantId: r.readTable(_db.productVariants).id,
+          productName: r.readTable(_db.products).name,
+          variantName: r.readTable(_db.productVariants).name,
+          oldPrice: r.readTable(_db.productVariants).price,
+          newPrice: r.readTable(_db.priceChanges).newPrice,
+          effectiveOn: r.readTable(_db.priceChanges).effectiveOn,
+          createdByName: r.readTable(_db.priceChanges).createdByName,
+        ),
+    ];
+  }
+
+  /// Puts scheduled prices that are due into effect. Returns how many.
+  Future<int> applyDuePrices({DateTime? now}) {
+    return _db.transaction(() async {
+      final at = now ?? DateTime.now();
+      var applied = 0;
+      for (final s in await scheduledPrices()) {
+        if (s.effectiveOn.isAfter(at)) continue;
+        final v = await (_db.select(_db.productVariants)..where((x) => x.id.equals(s.variantId))).getSingle();
+        await _db.updateTracked(_db.productVariants, v.copyWith(price: s.newPrice, updatedAt: at));
+        final c = await (_db.select(_db.priceChanges)..where((x) => x.id.equals(s.id))).getSingle();
+        await _db.updateTracked(_db.priceChanges, c.copyWith(appliedAt: Value(at), updatedAt: at));
+        await _audit.record(
+          action: AuditAction.priceChanged,
+          actorName: s.createdByName,
+          entity: 'product_variants',
+          entityId: s.variantId,
+          summary: '${s.label}: ${formatMoney(s.oldPrice)} to ${formatMoney(s.newPrice)} (scheduled)',
+          details: {'before': s.oldPrice, 'after': s.newPrice},
+        );
+        applied++;
+      }
+      return applied;
+    });
+  }
+
+  /// Many prices at once (one audit entry listing them all).
+  Future<void> bulkSetPrices(Map<String, int> newPrices, {required String description, required Staff by}) {
+    return _db.transaction(() async {
+      final now = DateTime.now();
+      final changes = <String, Object>{};
+      for (final MapEntry(key: variantId, value: price) in newPrices.entries) {
+        final v = await (_db.select(_db.productVariants)..where((x) => x.id.equals(variantId))).getSingle();
+        if (v.price == price) continue;
+        changes[variantId] = {'before': v.price, 'after': price};
+        await _db.updateTracked(_db.productVariants, v.copyWith(price: price, updatedAt: now));
+      }
+      if (changes.isEmpty) return;
+      await _audit.record(
+        action: AuditAction.pricesBulkChanged,
+        actor: by,
+        entity: 'product_variants',
+        summary: '${changes.length} prices: $description',
+        details: changes,
+      );
+    });
+  }
+
+  /// Runs [action] in one transaction (imports).
+  Future<T> transaction<T>(Future<T> Function() action) => _db.transaction(action);
 
   Future<String> saveTaxRate(TaxRateDraft d, {required Staff by}) {
     return _db.transaction(() async {
