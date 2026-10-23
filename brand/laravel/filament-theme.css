@@ -1,0 +1,10 @@
+/* Optional: a custom Filament theme (php artisan make:filament-theme), then add to its theme.css.
+   Gives the admin the Aby chalk/midnight grounds and the lime accent for the one action that moves money. */
+@import './aby-tokens.css'; /* copy aby-brand-kit/tokens/aby-tokens.css next to this file */
+
+.fi-body { background-color: var(--surface); }
+.dark .fi-body { background-color: #0b0d17; }
+
+/* Use class "aby-pay" on a Filament Action (->extraAttributes(['class' => 'aby-pay'])) for the lime Pay button */
+.fi-btn.aby-pay { background-color: var(--lime); color: var(--on-lime); }
+.fi-btn.aby-pay:hover { filter: brightness(0.95); }

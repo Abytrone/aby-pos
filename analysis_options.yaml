@@ -1,0 +1,23 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - windows/**
+    - brand/** # the source brand kit; lib/app/theme/ holds the copy we use
+    - lib/**/*.g.dart
+  errors:
+    # The brand kit's aby_colors.dart (copied as-is) writes extension<AbyColors>
+    # in a doc comment.
+    unintended_html_in_doc_comment: ignore
+  language:
+    strict-casts: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    - prefer_single_quotes
+    - always_declare_return_types
+    - avoid_dynamic_calls
+    - unawaited_futures

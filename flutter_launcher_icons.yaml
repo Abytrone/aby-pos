@@ -1,0 +1,19 @@
+# Put next to pubspec.yaml, copy aby-brand-kit/icons/*.png -> assets/icons/, then run:
+#   dart run flutter_launcher_icons -f flutter_launcher_icons.yaml
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: false # no iOS target in this project yet
+  remove_alpha_ios: true
+  image_path: "assets/icons/app-icon-1024.png"
+  adaptive_icon_background: "#101322"
+  adaptive_icon_foreground: "assets/icons/android-adaptive-foreground-1024.png"
+  min_sdk_android: 21
+  web:
+    generate: false # no web target (drift needs native SQLite here)
+    image_path: "assets/icons/pwa-512.png"
+    background_color: "#101322"
+    theme_color: "#101322"
+  windows:
+    generate: true
+    image_path: "assets/icons/app-icon-1024.png"
+    icon_size: 256
