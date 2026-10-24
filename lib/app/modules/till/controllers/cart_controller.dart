@@ -12,6 +12,7 @@ import '../../../models/cart_line.dart';
 import '../../../models/catalog.dart';
 import '../../../models/discount.dart';
 import '../../../models/enums.dart';
+import '../../../models/refund.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/money.dart';
 import '../../../services/settings_service.dart';
@@ -32,6 +33,10 @@ class CartController extends GetxController {
   /// Set when the cart came back from a parked order, so parking it again
   /// keeps the name.
   final parkedName = RxnString();
+
+  /// Items coming back, when this sale is an exchange. Not saved with the
+  /// cart: if the app stops, the return simply has not happened.
+  final exchange = Rxn<PendingExchange>();
 
   Timer? _saveTimer;
   bool _restored = false;
@@ -163,6 +168,7 @@ class CartController extends GetxController {
     note.value = null;
     orderType.value = null;
     parkedName.value = null;
+    exchange.value = null;
   }
 
   void setLineNote(String key, String? text) =>

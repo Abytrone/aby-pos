@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../models/discount.dart';
 import '../../../models/sale.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
+import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/option_chip.dart';
 import '../../../ui/section_page.dart';
 import '../controllers/today_controller.dart';
 import '../widgets/sale_row.dart';
@@ -22,6 +25,16 @@ class TodayView extends GetView<TodayController> {
     return SectionPage(
       title: l.navToday,
       actions: [
+        OutlinedButton.icon(
+          onPressed: () => _find(context),
+          icon: const Icon(Icons.search),
+          label: Text(l.todayFind),
+        ),
+        PopupMenuButton<String>(
+          tooltip: l.commonMore,
+          onSelected: (_) => controller.openRefund(null),
+          itemBuilder: (_) => [PopupMenuItem(value: 'noReceipt', child: Text(l.todayRefundNoReceipt))],
+        ),
         FilledButton(onPressed: controller.openCloseDay, child: Text(l.closeDayButton)),
       ],
       child: Obx(() {
@@ -29,15 +42,14 @@ class TodayView extends GetView<TodayController> {
           return const Center(child: CircularProgressIndicator());
         }
         final sales = controller.sales.toList();
+        final refunds = controller.refunds.toList();
         // Read eagerly (the list builds lazily) so rows rebuild after a close.
         final locked = {for (final s in sales) s.id: controller.isLocked(s)};
         return CustomScrollView(
           slivers: [
             SliverPadding(
               padding: const EdgeInsets.all(AbySpace.s4),
-              sliver: SliverToBoxAdapter(
-                child: SummaryCards(summary: controller.summary.value),
-              ),
+              sliver: SliverToBoxAdapter(child: SummaryCards(summary: controller.summary.value)),
             ),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(AbySpace.s4, AbySpace.s2, AbySpace.s4, AbySpace.s2),
@@ -56,14 +68,43 @@ class TodayView extends GetView<TodayController> {
               SliverList.separated(
                 itemCount: sales.length,
                 separatorBuilder: (_, _) => const Divider(height: 1),
-                itemBuilder: (context, i) => SaleRow(
-                  sale: sales[i],
-                  locked: locked[sales[i].id]!,
-                  onVoid: !sales[i].isVoided && !locked[sales[i].id]!
-                      ? () => _confirmVoid(context, sales[i])
-                      : null,
+                itemBuilder: (context, i) {
+                  final s = sales[i];
+                  return SaleRow(
+                    sale: s,
+                    locked: locked[s.id]!,
+                    onVoid: !s.isVoided && !locked[s.id]! && !s.hasRefunds ? () => _confirmVoid(context, s) : null,
+                    onRefund: !s.isVoided && !s.fullyRefunded ? () => controller.openRefund(s.id) : null,
+                  );
+                },
+              ),
+            if (refunds.isNotEmpty) ...[
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(AbySpace.s4, AbySpace.s6, AbySpace.s4, AbySpace.s2),
+                sliver: SliverToBoxAdapter(
+                  child: Text(l.todayRefunds.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
                 ),
               ),
+              SliverList.separated(
+                itemCount: refunds.length,
+                separatorBuilder: (_, _) => const Divider(height: 1),
+                itemBuilder: (_, i) {
+                  final r = refunds[i];
+                  return InfoTile(
+                    leading: Icon(Icons.undo, color: c.warning),
+                    title: '${r.displayNumber}  ·  ${r.saleNumber == null ? l.todayNoReceipt : formatSaleNumber(r.saleNumber!)}',
+                    subtitle: [
+                      formatDateTime(r.at),
+                      r.staffName,
+                      if (r.approverName != null) l.todayApprovedBy(r.approverName!),
+                      r.reason,
+                      r.methods.join(', '),
+                    ].join('  ·  '),
+                    value: '−${formatMoney(r.total)}',
+                  );
+                },
+              ),
+            ],
             const SliverToBoxAdapter(child: SizedBox(height: AbySpace.s8)),
           ],
         );
@@ -71,17 +112,73 @@ class TodayView extends GetView<TodayController> {
     );
   }
 
-  Future<void> _confirmVoid(BuildContext context, Sale sale) async {
+  Future<void> _find(BuildContext context) async {
     final l = context.l10n;
-    final confirmed = await confirmDialog(
-      title: l.voidConfirmTitle(sale.displayNumber),
-      message: l.voidConfirmBody(formatMoney(sale.total)),
-      confirmLabel: l.voidConfirm,
-      cancelLabel: l.voidKeep,
-      danger: true,
+    final text = await textInputDialog(
+      title: l.todayFind,
+      label: l.todayFindLabel,
+      helper: l.todayFindHelp,
+      keyboardType: TextInputType.number,
+      confirmLabel: l.todayFindButton,
     );
-    if (!confirmed) return;
-    final message = await controller.voidSale(sale);
+    if (text == null || text.trim().isEmpty) return;
+    final id = await controller.findSale(text);
+    if (id == null) {
+      showMessage(l.todayFindNone(text.trim()));
+      return;
+    }
+    await controller.openRefund(id);
+  }
+
+  Future<void> _confirmVoid(BuildContext context, Sale sale) async {
+    final reason = await Get.dialog<String>(_VoidDialog(sale: sale, reasons: controller.voidReasons.toList()));
+    if (reason == null) return;
+    final message = await controller.voidSale(sale, reason: reason);
     if (message != null) showMessage(message);
+  }
+}
+
+/// "Void #00012?" with the reason picked from the shop's list.
+class _VoidDialog extends StatefulWidget {
+  const _VoidDialog({required this.sale, required this.reasons});
+
+  final Sale sale;
+  final List<Reason> reasons;
+
+  @override
+  State<_VoidDialog> createState() => _VoidDialogState();
+}
+
+class _VoidDialogState extends State<_VoidDialog> {
+  String? _reason;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).extension<AbyColors>()!;
+    final l = context.l10n;
+    return AlertDialog(
+      title: Text(l.voidConfirmTitle(widget.sale.displayNumber)),
+      content: SizedBox(
+        width: 420,
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(l.voidConfirmBody(formatMoney(widget.sale.total))),
+          const SizedBox(height: AbySpace.s4),
+          Text(l.voidWhy.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
+          const SizedBox(height: AbySpace.s2),
+          Wrap(spacing: AbySpace.s2, runSpacing: AbySpace.s2, children: [
+            for (final r in widget.reasons)
+              OptionChip(label: r.name, selected: _reason == r.name, onTap: () => setState(() => _reason = r.name)),
+          ]),
+        ]),
+      ),
+      actions: [
+        OutlinedButton(onPressed: () => Get.back<String>(), child: Text(l.voidKeep)),
+        FilledButton(
+          style: FilledButton.styleFrom(backgroundColor: c.danger),
+          onPressed: _reason == null ? null : () => Get.back(result: _reason),
+          child: Text(l.voidConfirm),
+        ),
+      ],
+    );
   }
 }

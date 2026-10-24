@@ -1968,6 +1968,295 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tillWeightInvalid => 'Enter how much.';
 
   @override
+  String get commonEdit => 'Change';
+
+  @override
+  String get auditNoSale => 'Drawer opened (no sale)';
+
+  @override
+  String get auditPayMethodSaved => 'Payment method changed';
+
+  @override
+  String get auditRefundGiven => 'Refund given';
+
+  @override
+  String get moveReturned => 'Returned (refund)';
+
+  @override
+  String get cartExchangeCancel => 'Cancel the exchange';
+
+  @override
+  String get checkoutTitle => 'Payment';
+
+  @override
+  String get checkoutBack => 'Back to the till';
+
+  @override
+  String get checkoutComplete => 'Complete sale';
+
+  @override
+  String get checkoutReturned => 'Returned items';
+
+  @override
+  String get checkoutLeftToPay => 'Left to pay';
+
+  @override
+  String get checkoutRemovePayment => 'Remove this payment';
+
+  @override
+  String get checkoutAmount => 'Amount';
+
+  @override
+  String get checkoutAmountHelp => 'Leave as it is to pay the rest this way.';
+
+  @override
+  String get checkoutReferenceHelp =>
+      'Required, from the payment message. Each one can only be used once.';
+
+  @override
+  String get checkoutReferenceShort =>
+      'The last 4 characters are enough. Each one can only be used once.';
+
+  @override
+  String get checkoutCustomer => 'Customer name or phone';
+
+  @override
+  String get checkoutCustomerHelp =>
+      'Written in the credit book for this sale.';
+
+  @override
+  String get checkoutCashGiven => 'Cash given';
+
+  @override
+  String get checkoutExact => 'Exact';
+
+  @override
+  String get checkoutStillToPay => 'Still to pay';
+
+  @override
+  String get checkoutChange => 'Change due';
+
+  @override
+  String get checkoutDone => 'Sale complete';
+
+  @override
+  String get checkoutNewSale => 'New sale';
+
+  @override
+  String get checkoutSavedHere =>
+      'Saved on this device. Will sync when you\'re online.';
+
+  @override
+  String get checkoutGiveBackNow => 'Give back';
+
+  @override
+  String get checkoutSaveFailed => 'Could not save the sale. Try again.';
+
+  @override
+  String get exchangeAlready =>
+      'An exchange is already waiting on the till. Finish or cancel it first.';
+
+  @override
+  String get noSaleButton => 'Open the drawer (no sale)';
+
+  @override
+  String get noSaleTitle => 'Why open the drawer?';
+
+  @override
+  String get noSaleApprovalReason => 'Open the drawer without a sale.';
+
+  @override
+  String get noSaleDone => 'Drawer opened. This is recorded.';
+
+  @override
+  String get payKindCash => 'Cash';
+
+  @override
+  String get payKindMomo => 'Mobile money';
+
+  @override
+  String get payKindCredit => 'Credit (book)';
+
+  @override
+  String get payKindCard => 'Card';
+
+  @override
+  String get payKindBank => 'Bank transfer';
+
+  @override
+  String get payKindCheque => 'Cheque';
+
+  @override
+  String get payKindExchange => 'Exchange';
+
+  @override
+  String get payKindOther => 'Other';
+
+  @override
+  String get payMethodNew => 'New payment method';
+
+  @override
+  String get payMethodEdit => 'Change payment method';
+
+  @override
+  String get payMethodName => 'Name';
+
+  @override
+  String get payMethodKind => 'Kind of payment';
+
+  @override
+  String get payMerchantNumber => 'Your number or merchant ID (optional)';
+
+  @override
+  String get payMerchantNumberHelp =>
+      'Shown large, with a QR code, for the customer to pay to.';
+
+  @override
+  String get payNeedsReference => 'Needs a transaction ID';
+
+  @override
+  String get payNeedsReferenceHelp =>
+      'The cashier types it from the payment message; it cannot be used twice.';
+
+  @override
+  String get payShortReference => 'The last 4 characters are enough';
+
+  @override
+  String get payShortReferenceHelp =>
+      'Faster, but only checked for reuse over two days.';
+
+  @override
+  String get refundNoReceiptTitle => 'Refund without a receipt';
+
+  @override
+  String get refundVoided =>
+      'This sale was voided: there is nothing to refund.';
+
+  @override
+  String get refundNothingLeft => 'Everything on this sale has been refunded.';
+
+  @override
+  String get refundWhatComesBack => 'What comes back';
+
+  @override
+  String get refundEverything => 'Everything';
+
+  @override
+  String get refundRestock => 'Back into stock';
+
+  @override
+  String get refundRestockHelp => 'It can be sold again.';
+
+  @override
+  String get refundDamagedHelp => 'Damaged: it does not go back into stock.';
+
+  @override
+  String get refundReason => 'Reason';
+
+  @override
+  String get refundHow => 'Give the money back by';
+
+  @override
+  String get refundReference => 'Transaction ID (optional)';
+
+  @override
+  String get refundReferenceHelp => 'Of the money sent back, for the record.';
+
+  @override
+  String get refundTotal => 'Refund';
+
+  @override
+  String get refundExchange => 'Exchange instead';
+
+  @override
+  String get refundExchangeHelp =>
+      'The returned items pay for new ones on the till; only the difference is paid or given back.';
+
+  @override
+  String get refundPickReason => 'Pick a reason.';
+
+  @override
+  String get refundNoReceiptHelp =>
+      'Without a receipt: a manager approves with their PIN, and it is marked in reports.';
+
+  @override
+  String get refundAmount => 'Give back';
+
+  @override
+  String get refundAddItem => 'Find what is coming back';
+
+  @override
+  String get refundGiveBack => 'Give back';
+
+  @override
+  String get settingsGroupPayments => 'Payments';
+
+  @override
+  String get settingsPayMethods => 'Payment methods';
+
+  @override
+  String get settingsPayMethodsHelp =>
+      'MTN MoMo, Telecel Cash, card, bank... Switch on what you take and add your merchant number.';
+
+  @override
+  String get settingsRounding => 'Round cash totals';
+
+  @override
+  String get settingsRoundingHelp =>
+      'When there are no small coins. The rounding is recorded on each sale.';
+
+  @override
+  String get settingsRound10 => 'To the nearest 10 pesewas';
+
+  @override
+  String get settingsRound50 => 'To the nearest 50 pesewas';
+
+  @override
+  String get todayClosed => 'Closed';
+
+  @override
+  String get todayFind => 'Find a sale';
+
+  @override
+  String get todayFindLabel => 'Sale number';
+
+  @override
+  String get todayFindHelp => 'From the receipt, e.g. 142 for #00142.';
+
+  @override
+  String get todayFindButton => 'Find';
+
+  @override
+  String get todayNoReceipt => 'no receipt';
+
+  @override
+  String get todayRefund => 'Refund';
+
+  @override
+  String get todayRefundNoReceipt => 'Refund without a receipt';
+
+  @override
+  String get todayRefundedAll => 'Refunded';
+
+  @override
+  String get todayRefunds => 'Refunds';
+
+  @override
+  String get todaySalesCount => 'Number of sales';
+
+  @override
+  String get todayTotalSales => 'Total sales';
+
+  @override
+  String get todayVoid => 'Void';
+
+  @override
+  String get todayVoided => 'Voided';
+
+  @override
+  String get voidWhy => 'Why?';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }
@@ -2763,5 +3052,145 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String tillPriceHigh(String price) {
     return 'The price can be at most $price.';
+  }
+
+  @override
+  String cartExchange(String amount) {
+    return 'Exchange: returned items worth $amount pay first.';
+  }
+
+  @override
+  String checkoutGiveBack(String amount) {
+    return 'The returned items are worth $amount more. Give it back by:';
+  }
+
+  @override
+  String checkoutTakePart(String amount) {
+    return 'Take $amount, pay the rest another way';
+  }
+
+  @override
+  String checkoutReference(String method) {
+    return '$method transaction ID';
+  }
+
+  @override
+  String checkoutPayTo(String method) {
+    return 'Pay to $method';
+  }
+
+  @override
+  String checkoutRounded(String amount, String difference) {
+    return 'Cash rounded to $amount ($difference difference).';
+  }
+
+  @override
+  String checkoutRoundingLine(String amount, String sign) {
+    return 'Cash rounding $sign$amount';
+  }
+
+  @override
+  String checkoutExchangeLine(String number, String amount) {
+    return 'Exchange: refund $number, $amount returned';
+  }
+
+  @override
+  String get closeRounding => 'Cash rounding';
+
+  @override
+  String closeRefunds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count refunds',
+      one: '1 refund',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String closeRefundsBy(String method) {
+    return 'Refunded by $method';
+  }
+
+  @override
+  String closeNoSales(String name) {
+    return 'Drawer opened without a sale: $name';
+  }
+
+  @override
+  String closeExpectedHelp(String amount) {
+    return 'Takes off $amount given back in cash for refunds.';
+  }
+
+  @override
+  String exchangeApprovalReason(String amount) {
+    return 'Take back items worth $amount as an exchange.';
+  }
+
+  @override
+  String refundTitle(String number) {
+    return 'Refund $number';
+  }
+
+  @override
+  String refundAlready(String amount) {
+    return '$amount has already been refunded.';
+  }
+
+  @override
+  String refundSold(String quantity, String amount) {
+    return 'Sold $quantity for $amount';
+  }
+
+  @override
+  String refundBackAlready(String quantity) {
+    return '$quantity already back';
+  }
+
+  @override
+  String refundButton(String amount) {
+    return 'Refund $amount';
+  }
+
+  @override
+  String refundApprovalReason(String amount) {
+    return 'Give a refund of $amount.';
+  }
+
+  @override
+  String refundDone(String number) {
+    return 'Refund $number saved';
+  }
+
+  @override
+  String todayApprovedBy(String name) {
+    return 'approved by $name';
+  }
+
+  @override
+  String todayFindNone(String number) {
+    return 'No sale $number on this till.';
+  }
+
+  @override
+  String todayItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String todayRefunded(String amount) {
+    return 'Refunded $amount';
+  }
+
+  @override
+  String todayVoidedBy(String name) {
+    return 'Voided by $name';
   }
 }

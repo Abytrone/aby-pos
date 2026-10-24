@@ -25,11 +25,11 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  for (final from in [1, 2, 3, 4, 5]) {
-    test('v$from to v6 gives exactly the v6 schema', () async {
+  for (final from in [1, 2, 3, 4, 5, 6]) {
+    test('v$from to v7 gives exactly the v7 schema', () async {
       final schema = await verifier.schemaAt(from);
       final db = AppDatabase(schema.newConnection(), false);
-      await verifier.migrateAndValidate(db, 6);
+      await verifier.migrateAndValidate(db, 7);
       await db.close();
     });
   }
@@ -181,6 +181,27 @@ void main() {
     final discounts = DiscountRepository(db, r.device, r.audit);
     expect((await discounts.reasons(ReasonKind.voidSale)).map((x) => x.name), contains('Wrong item rung up'));
     expect(await discounts.discounts(), isEmpty);
+    await db.close();
+  });
+
+  test('v6 to v7 gives old payments their method and adds the payment methods', () async {
+    final schema = await verifier.schemaAt(6);
+    final raw = schema.rawDatabase;
+    const t = 1761000000;
+    raw.execute("INSERT INTO meta (key, value) VALUES ('device_id', 'dev-1')");
+    raw.execute('INSERT INTO sales (id, created_at, updated_at, device_id, number, status, subtotal, total, cashier_name) '
+        "VALUES ('s1', $t, $t, 'dev-1', 1, 'completed', 1200, 1200, 'Ama')");
+    raw.execute('INSERT INTO payments (id, created_at, updated_at, device_id, sale_id, method, amount, momo_reference) '
+        "VALUES ('p1', $t, $t, 'dev-1', 's1', 'momo', 1200, 'TX1')");
+
+    final db = AppDatabase(schema.newConnection(), false);
+    final payment = await db.select(db.payments).getSingle();
+    expect(payment.methodName, 'MTN MoMo');
+    expect(payment.methodId, payMethodRowId('mtn'));
+    expect((await db.select(db.sales).getSingle()).rounding, 0);
+    final r = await Repos.open(db);
+    expect((await r.payMethods.list()).map((m) => m.name), contains('Telecel Cash'));
+    expect((await r.closes.openPeriod()).byMethod[PaymentMethod.momo], 1200);
     await db.close();
   });
 }

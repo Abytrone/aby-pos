@@ -71,21 +71,45 @@ class CartPanel extends StatelessWidget {
                   ),
                 PopupMenuButton<String>(
                   tooltip: l.commonMore,
-                  enabled: lines.isNotEmpty,
                   onSelected: (v) => switch (v) {
                     'discount' => _orderDiscount(till, cart),
                     'note' => _orderNote(cart),
+                    'nosale' => _noSale(till),
                     _ => _clear(cart),
                   },
                   itemBuilder: (_) => [
-                    PopupMenuItem(value: 'discount', child: Text(l.cartOrderDiscount)),
-                    PopupMenuItem(value: 'note', child: Text(cart.note.value == null ? l.cartAddNote : l.cartEditNote)),
-                    PopupMenuItem(value: 'clear', child: Text(l.cartClear)),
+                    if (lines.isNotEmpty) ...[
+                      PopupMenuItem(value: 'discount', child: Text(l.cartOrderDiscount)),
+                      PopupMenuItem(value: 'note', child: Text(cart.note.value == null ? l.cartAddNote : l.cartEditNote)),
+                      PopupMenuItem(value: 'clear', child: Text(l.cartClear)),
+                    ],
+                    PopupMenuItem(value: 'nosale', child: Text(l.noSaleButton)),
                   ],
                 ),
               ],
             ),
           ),
+          if (cart.exchange.value != null)
+            Container(
+              margin: const EdgeInsets.fromLTRB(AbySpace.s4, 0, AbySpace.s4, AbySpace.s2),
+              padding: const EdgeInsets.fromLTRB(AbySpace.s3, AbySpace.s2, AbySpace.s1, AbySpace.s2),
+              decoration: BoxDecoration(color: c.successSoft, borderRadius: BorderRadius.circular(AbyRadius.sm)),
+              child: Row(children: [
+                Icon(Icons.swap_horiz, color: c.success),
+                const SizedBox(width: AbySpace.s2),
+                Expanded(
+                  child: Text(
+                    l.cartExchange(formatMoney(cart.exchange.value!.credit)),
+                    style: AbyText.caption.copyWith(color: c.ink, fontWeight: FontWeight.w700),
+                  ),
+                ),
+                IconButton(
+                  tooltip: l.cartExchangeCancel,
+                  onPressed: () => cart.exchange.value = null,
+                  icon: Icon(Icons.close, size: 18, color: c.inkMuted),
+                ),
+              ]),
+            ),
           if (till.orderTypesOn && lines.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(AbySpace.s4, 0, AbySpace.s4, AbySpace.s2),
@@ -218,6 +242,18 @@ class CartPanel extends StatelessWidget {
       initial: cart.note.value ?? '',
     );
     if (text != null) cart.setOrderNote(text);
+  }
+
+  Future<void> _noSale(TillController till) async {
+    final l = appL10n();
+    final reason = await choiceDialog<String>(
+      title: l.noSaleTitle,
+      options: [for (final r in till.noSaleReasons) r.name],
+      label: (r) => r,
+    );
+    if (reason == null) return;
+    await till.noSale(reason);
+    flushTillMessage(till);
   }
 
   Future<void> _clear(CartController cart) async {

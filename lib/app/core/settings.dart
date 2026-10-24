@@ -39,6 +39,9 @@ abstract final class AppSettings {
   static const scalePrefix = Setting<String>('selling.scalePrefix', SettingScope.shop, '');
   static const scaleValue = Setting<String>('selling.scaleValue', SettingScope.shop, 'weight');
 
+  /// Round cash totals to the nearest this many pesewas (0 = off, 10, 50).
+  static const cashRoundTo = Setting<int>('cash.roundTo', SettingScope.shop, 0);
+
   /// Close day warns about parked orders older than this.
   static const parkedWarnHours = Setting<int>('selling.parkedWarnHours', SettingScope.shop, 12);
 
@@ -81,6 +84,7 @@ abstract final class AppSettings {
     scalePrefix,
     scaleValue,
     parkedWarnHours,
+    cashRoundTo,
     autoLockMinutes,
     autoBackupDaily,
     backupsToKeep,

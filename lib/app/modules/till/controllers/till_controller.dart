@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import '../../../core/permissions.dart';
 import '../../../core/scale_barcode.dart';
 import '../../../core/settings.dart';
+import '../../../data/repositories/cash_event_repository.dart';
 import '../../../data/repositories/catalog_repository.dart';
 import '../../../data/repositories/discount_repository.dart';
 import '../../../data/repositories/parked_order_repository.dart';
@@ -109,6 +110,7 @@ class TillController extends GetxController {
   final parkedOrders = <ParkedOrder>[].obs;
   final savedDiscounts = <SavedDiscount>[].obs;
   final discountReasons = <Reason>[].obs;
+  final noSaleReasons = <Reason>[].obs;
   final photos = <String, ImageProvider>{}.obs;
 
   /// Stock on hand per stock item (base units).
@@ -176,6 +178,7 @@ class TillController extends GetxController {
     recentIds.assignAll(await _sales.recentProductIds());
     savedDiscounts.assignAll(await _discounts.discounts());
     discountReasons.assignAll(await _discounts.reasons(ReasonKind.discount));
+    noSaleReasons.assignAll(await _discounts.reasons(ReasonKind.noSale));
     photos.assignAll({for (final e in (await _catalog.allPhotos()).entries) e.key: MemoryImage(e.value)});
     cart.refreshProducts(catalogue.products);
     final dropped = await cart.restoreSaved(catalogue.products);
@@ -630,6 +633,18 @@ class TillController extends GetxController {
     );
     if (auth == null) return;
     await _parked.discard(order.id, actor: auth.actor, approver: auth.approver);
+  }
+
+  // ---------------------------------------------------------------------------
+  // The drawer
+
+  /// Opening the drawer without a sale needs noSale (or a PIN) and a reason.
+  Future<bool> noSale(String reason) async {
+    final auth = await _permissions.authorize(Permission.noSale, reason: appL10n().noSaleApprovalReason);
+    if (auth == null) return false;
+    await Get.find<CashEventRepository>().noSale(reason: reason, actor: auth.actor, approver: auth.approver);
+    message.value = appL10n().noSaleDone;
+    return true;
   }
 
   // ---------------------------------------------------------------------------

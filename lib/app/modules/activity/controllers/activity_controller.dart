@@ -34,6 +34,8 @@ enum ActivityFilter {
             AuditAction.discountsGiven,
             AuditAction.orderParked,
             AuditAction.parkedOrderDiscarded,
+            AuditAction.refundGiven,
+            AuditAction.noSale,
           },
         ActivityFilter.staff => {
             AuditAction.staffAdded,
@@ -70,6 +72,7 @@ enum ActivityFilter {
             AuditAction.settingChanged,
             AuditAction.discountSaved,
             AuditAction.reasonSaved,
+            AuditAction.payMethodSaved,
             AuditAction.backupCreated,
             AuditAction.backupExported,
             AuditAction.backupRestored,

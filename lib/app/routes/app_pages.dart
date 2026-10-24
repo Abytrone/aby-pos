@@ -22,6 +22,8 @@ import '../modules/stock_count/views/stock_count_view.dart';
 import '../modules/stock_item/bindings/stock_item_binding.dart';
 import '../modules/stock_item/views/stock_item_view.dart';
 import '../modules/start/views/start_view.dart';
+import '../modules/refund/bindings/refund_binding.dart';
+import '../modules/refund/views/refund_view.dart';
 import '../modules/supplier/bindings/supplier_binding.dart';
 import '../modules/supplier/views/supplier_view.dart';
 import 'app_routes.dart';
@@ -105,6 +107,12 @@ abstract final class AppPages {
       name: Routes.supplier,
       page: () => const SupplierView(),
       binding: SupplierBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage<void>(
+      name: Routes.refund,
+      page: () => const RefundView(),
+      binding: RefundBinding(),
       middlewares: [AuthMiddleware()],
     ),
   ];

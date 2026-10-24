@@ -94,4 +94,7 @@ String auditActionLabel(AppLocalizations l, AuditAction a) => switch (a) {
       AuditAction.parkedOrderDiscarded => l.auditParkedOrderDiscarded,
       AuditAction.discountSaved => l.auditDiscountSaved,
       AuditAction.reasonSaved => l.auditReasonSaved,
+      AuditAction.refundGiven => l.auditRefundGiven,
+      AuditAction.noSale => l.auditNoSale,
+      AuditAction.payMethodSaved => l.auditPayMethodSaved,
     };

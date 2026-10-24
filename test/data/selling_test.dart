@@ -168,9 +168,10 @@ void main() {
     });
 
     test('recent products are the latest sold on this till', () async {
+      var n = 0;
       Future<void> sell(String name) => r.sales.completeSale(
             lines: [CartLine(product: named(name))],
-            payment: const PaymentInput.momo(momoReference: 'TX'),
+            payment: PaymentInput.momo(momoReference: 'TX${n++}'),
             cashier: cashier,
           );
       await sell('Waffle');

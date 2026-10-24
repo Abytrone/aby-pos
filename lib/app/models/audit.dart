@@ -45,7 +45,10 @@ enum AuditAction {
   orderParked,
   parkedOrderDiscarded,
   discountSaved,
-  reasonSaved;
+  reasonSaved,
+  refundGiven,
+  noSale,
+  payMethodSaved;
 
   /// Actions an owner should notice first.
   bool get isSensitive => const {
@@ -67,6 +70,8 @@ enum AuditAction {
         AuditAction.cartCleared,
         AuditAction.priceOverridden,
         AuditAction.parkedOrderDiscarded,
+        AuditAction.refundGiven,
+        AuditAction.noSale,
       }.contains(this);
 }
 

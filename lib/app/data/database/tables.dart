@@ -315,6 +315,10 @@ class Sales extends Table with SyncColumns {
   TextColumn get note => text().nullable()();
   TextColumn get orderType => textEnum<OrderType>().nullable()();
 
+  /// Pesewas added (or taken off, when negative) by rounding a cash total.
+  /// The payments add up to [total] plus this. v7.
+  IntColumn get rounding => integer().withDefault(const Constant(0))();
+
   @override
   List<Set<Column<Object>>> get uniqueKeys => [
         {deviceId, number},
@@ -365,6 +369,10 @@ class SaleLines extends Table with SyncColumns {
   /// The line discount as given (JSON: kind, value, reason, name). v6.
   TextColumn get discountDetail => text().nullable()();
   TextColumn get note => text().nullable()();
+
+  /// Stock this line used, {stockItemId: base units} (JSON), so a refund
+  /// puts back exactly that. Null before v7.
+  TextColumn get stockUsed => text().nullable()();
 }
 
 /// Tax on a sale, per rate, for the tax report.
@@ -390,10 +398,111 @@ class Payments extends Table with SyncColumns {
   /// Cash only: pesewas handed over and change given back.
   IntColumn get tendered => integer().nullable()();
   IntColumn get changeGiven => integer().nullable()();
+  /// The transaction reference (MoMo, bank, cheque). Named for v1.
   TextColumn get momoReference => text().nullable()();
 
   /// Credit only: customer name or phone.
   TextColumn get customer => text().nullable()();
+
+  /// The shop's payment method and its name as sold ("MTN MoMo"). Null
+  /// before v7: [method] says what it was. v7.
+  TextColumn get methodId => text().nullable()();
+  TextColumn get methodName => text().nullable()();
+}
+
+/// The ways a shop takes payment, which the owner can rename and switch on
+/// or off. Built-in rows have IDs derived from [builtIn].
+@DataClassName('PayMethodRow')
+class PayMethods extends Table with SyncColumns {
+  TextColumn get name => text()();
+  TextColumn get kind => textEnum<PaymentMethod>()();
+
+  /// Key of a built-in method ("cash", "mtn"...), null for the owner's own.
+  TextColumn get builtIn => text().nullable()();
+  BoolColumn get active => boolean().withDefault(const Constant(true))();
+
+  /// A transaction reference must be entered (and may not be reused).
+  BoolColumn get needsReference => boolean().withDefault(const Constant(false))();
+
+  /// The last 4 characters of the reference are enough.
+  BoolColumn get shortReference => boolean().withDefault(const Constant(false))();
+
+  /// The shop's number or merchant ID, shown large to the customer.
+  TextColumn get merchantNumber => text().nullable()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+}
+
+/// Money and items given back. A refund is its own record, linked to the
+/// sale (unless there was no receipt); the sale is never changed.
+@DataClassName('RefundRow')
+class Refunds extends Table with SyncColumns {
+  /// Per-device sequence, shown as "R-0001". Unique with [deviceId].
+  IntColumn get number => integer()();
+  TextColumn get saleId => text().nullable().references(Sales, #id)();
+  IntColumn get saleNumber => integer().nullable()();
+
+  /// Pesewas.
+  IntColumn get total => integer()();
+  TextColumn get reason => text()();
+  TextColumn get note => text().nullable()();
+  BoolColumn get withoutReceipt => boolean().withDefault(const Constant(false))();
+
+  /// Part of an exchange: the value went towards [exchangeSaleId].
+  TextColumn get exchangeSaleId => text().nullable()();
+  TextColumn get staffId => text()();
+  TextColumn get staffName => text()();
+  TextColumn get approverName => text().nullable()();
+
+  @override
+  List<Set<Column<Object>>> get uniqueKeys => [
+        {deviceId, number},
+      ];
+}
+
+@DataClassName('RefundLineRow')
+class RefundLines extends Table with SyncColumns {
+  TextColumn get refundId => text().references(Refunds, #id)();
+  TextColumn get saleLineId => text().nullable()();
+  TextColumn get productId => text().nullable()();
+  TextColumn get variantId => text().nullable()();
+  TextColumn get productName => text()();
+  TextColumn get variantName => text().nullable()();
+
+  /// How many (grams or ml when weighed).
+  IntColumn get quantity => integer()();
+  TextColumn get sellBy => textEnum<SellBy>().withDefault(const Constant('each'))();
+
+  /// Pesewas given back for this line.
+  IntColumn get amount => integer()();
+
+  /// Put back into stock; false for damaged items.
+  BoolColumn get restocked => boolean()();
+}
+
+/// How a refund was paid out (or, for an exchange, put towards the new sale).
+@DataClassName('RefundPaymentRow')
+class RefundPayments extends Table with SyncColumns {
+  TextColumn get refundId => text().references(Refunds, #id)();
+  TextColumn get method => textEnum<PaymentMethod>()();
+  TextColumn get methodId => text().nullable()();
+  TextColumn get methodName => text()();
+
+  /// Pesewas.
+  IntColumn get amount => integer()();
+  TextColumn get reference => text().nullable()();
+}
+
+/// The drawer opened without a sale, and why.
+@DataClassName('CashEventRow')
+class CashEvents extends Table with SyncColumns {
+  TextColumn get kind => textEnum<CashEventKind>()();
+
+  /// Pesewas in (+) or out (−); 0 for a no-sale.
+  IntColumn get amount => integer().withDefault(const Constant(0))();
+  TextColumn get reason => text()();
+  TextColumn get staffId => text()();
+  TextColumn get staffName => text()();
+  TextColumn get approverName => text().nullable()();
 }
 
 /// Discounts the owner saves for reuse: "Student 10%", "Staff meal GH₵ 5 off".
@@ -540,6 +649,18 @@ class DayCloses extends Table with SyncColumns {
   IntColumn get expectedCash => integer()();
   IntColumn get countedCash => integer()();
   TextColumn get note => text().nullable()();
+
+  /// The highest refund number (this device) the close covers. v7.
+  IntColumn get lastRefundNumber => integer().withDefault(const Constant(0))();
+  IntColumn get refundsTotal => integer().withDefault(const Constant(0))();
+
+  /// Cash paid out for refunds; [expectedCash] takes it off. v7.
+  IntColumn get cashRefunds => integer().withDefault(const Constant(0))();
+
+  /// Takings by card, bank and the other methods. v7.
+  IntColumn get otherTakings => integer().withDefault(const Constant(0))();
+  IntColumn get roundingTotal => integer().withDefault(const Constant(0))();
+  IntColumn get noSaleCount => integer().withDefault(const Constant(0))();
 }
 
 /// Tamper-evident record of sensitive actions. Each row stores the hash of

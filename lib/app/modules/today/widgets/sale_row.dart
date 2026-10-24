@@ -4,12 +4,15 @@ import '../../../models/sale.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/l10n.dart';
+import '../../../ui/layout.dart';
 
 class SaleRow extends StatelessWidget {
   const SaleRow({
     super.key,
     required this.sale,
     required this.onVoid,
+    required this.onRefund,
     this.locked = false,
   });
 
@@ -18,18 +21,31 @@ class SaleRow extends StatelessWidget {
   /// Null when the sale cannot be voided.
   final VoidCallback? onVoid;
 
+  /// Null when nothing on the sale can be refunded.
+  final VoidCallback? onRefund;
+
   /// In a closed day.
   final bool locked;
 
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).extension<AbyColors>()!;
+    final l = context.l10n;
     final local = sale.createdAt.toLocal();
-    final time =
-        '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-    final methods = sale.payments.map((p) => p.method.label).toSet().join(', ');
-    final items = sale.itemCount == 1 ? '1 item' : '${sale.itemCount} items';
+    final time = '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
+    final methods = sale.payments.map((p) => p.label).toSet().join(', ');
     final muted = AbyText.caption.copyWith(color: c.inkMuted);
+    final narrow = context.isNarrow;
+    final actions = [
+      if (onRefund != null)
+        TextButton(onPressed: onRefund, child: Text(l.todayRefund)),
+      if (onVoid != null)
+        TextButton(
+          onPressed: onVoid,
+          style: TextButton.styleFrom(foregroundColor: c.danger),
+          child: Text(l.todayVoid),
+        ),
+    ];
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: AbySize.tapPos + AbySpace.s4),
       child: Padding(
@@ -41,8 +57,7 @@ class SaleRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(sale.displayNumber,
-                      style: AbyText.receiptStrong.copyWith(color: c.ink)),
+                  Text(sale.displayNumber, style: AbyText.receiptStrong.copyWith(color: c.ink)),
                   Text(time, style: muted),
                 ],
               ),
@@ -51,10 +66,11 @@ class SaleRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('$items  ·  $methods', style: AbyText.body.copyWith(color: c.ink)),
+                  Text('${l.todayItems(sale.itemCount)}  ·  $methods', style: AbyText.body.copyWith(color: c.ink)),
                   if (sale.isVoided)
-                    Text('Voided by ${sale.voidedBy ?? 'unknown'}',
-                        style: muted.copyWith(color: c.danger))
+                    Text(l.todayVoidedBy(sale.voidedBy ?? '?'), style: muted.copyWith(color: c.danger))
+                  else if (sale.hasRefunds)
+                    Text(l.todayRefunded(formatMoney(sale.refunded)), style: muted.copyWith(color: c.warning))
                   else
                     Text(sale.cashierName, style: muted),
                 ],
@@ -67,18 +83,27 @@ class SaleRow extends StatelessWidget {
                 decoration: sale.isVoided ? TextDecoration.lineThrough : null,
               ),
             ),
-            const SizedBox(width: AbySpace.s3),
-            SizedBox(
-              width: 96,
-              child: sale.isVoided || locked || onVoid == null
-                  ? Text(sale.isVoided ? 'Voided' : 'Closed',
-                      textAlign: TextAlign.center, style: muted)
-                  : TextButton(
-                      onPressed: onVoid,
-                      style: TextButton.styleFrom(foregroundColor: c.danger),
-                      child: const Text('Void'),
-                    ),
-            ),
+            const SizedBox(width: AbySpace.s2),
+            if (actions.isEmpty)
+              SizedBox(
+                width: 96,
+                child: Text(
+                  sale.isVoided ? l.todayVoided : (locked ? l.todayClosed : l.todayRefundedAll),
+                  textAlign: TextAlign.center,
+                  style: muted,
+                ),
+              )
+            else if (narrow)
+              PopupMenuButton<VoidCallback>(
+                tooltip: l.commonMore,
+                onSelected: (f) => f(),
+                itemBuilder: (_) => [
+                  if (onRefund != null) PopupMenuItem(value: onRefund, child: Text(l.todayRefund)),
+                  if (onVoid != null) PopupMenuItem(value: onVoid, child: Text(l.todayVoid)),
+                ],
+              )
+            else
+              Row(mainAxisSize: MainAxisSize.min, children: actions),
           ],
         ),
       ),

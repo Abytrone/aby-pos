@@ -3922,6 +3922,558 @@ abstract class AppLocalizations {
   /// **'Enter how much.'**
   String get tillWeightInvalid;
 
+  /// No description provided for @commonEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get commonEdit;
+
+  /// No description provided for @auditNoSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawer opened (no sale)'**
+  String get auditNoSale;
+
+  /// No description provided for @auditPayMethodSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment method changed'**
+  String get auditPayMethodSaved;
+
+  /// No description provided for @auditRefundGiven.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund given'**
+  String get auditRefundGiven;
+
+  /// No description provided for @moveReturned.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned (refund)'**
+  String get moveReturned;
+
+  /// No description provided for @cartExchangeCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the exchange'**
+  String get cartExchangeCancel;
+
+  /// No description provided for @checkoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get checkoutTitle;
+
+  /// No description provided for @checkoutBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the till'**
+  String get checkoutBack;
+
+  /// No description provided for @checkoutComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete sale'**
+  String get checkoutComplete;
+
+  /// No description provided for @checkoutReturned.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned items'**
+  String get checkoutReturned;
+
+  /// No description provided for @checkoutLeftToPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Left to pay'**
+  String get checkoutLeftToPay;
+
+  /// No description provided for @checkoutRemovePayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this payment'**
+  String get checkoutRemovePayment;
+
+  /// No description provided for @checkoutAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get checkoutAmount;
+
+  /// No description provided for @checkoutAmountHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave as it is to pay the rest this way.'**
+  String get checkoutAmountHelp;
+
+  /// No description provided for @checkoutReferenceHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Required, from the payment message. Each one can only be used once.'**
+  String get checkoutReferenceHelp;
+
+  /// No description provided for @checkoutReferenceShort.
+  ///
+  /// In en, this message translates to:
+  /// **'The last 4 characters are enough. Each one can only be used once.'**
+  String get checkoutReferenceShort;
+
+  /// No description provided for @checkoutCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer name or phone'**
+  String get checkoutCustomer;
+
+  /// No description provided for @checkoutCustomerHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Written in the credit book for this sale.'**
+  String get checkoutCustomerHelp;
+
+  /// No description provided for @checkoutCashGiven.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash given'**
+  String get checkoutCashGiven;
+
+  /// No description provided for @checkoutExact.
+  ///
+  /// In en, this message translates to:
+  /// **'Exact'**
+  String get checkoutExact;
+
+  /// No description provided for @checkoutStillToPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Still to pay'**
+  String get checkoutStillToPay;
+
+  /// No description provided for @checkoutChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change due'**
+  String get checkoutChange;
+
+  /// No description provided for @checkoutDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale complete'**
+  String get checkoutDone;
+
+  /// No description provided for @checkoutNewSale.
+  ///
+  /// In en, this message translates to:
+  /// **'New sale'**
+  String get checkoutNewSale;
+
+  /// No description provided for @checkoutSavedHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this device. Will sync when you\'re online.'**
+  String get checkoutSavedHere;
+
+  /// No description provided for @checkoutGiveBackNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Give back'**
+  String get checkoutGiveBackNow;
+
+  /// No description provided for @checkoutSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the sale. Try again.'**
+  String get checkoutSaveFailed;
+
+  /// No description provided for @exchangeAlready.
+  ///
+  /// In en, this message translates to:
+  /// **'An exchange is already waiting on the till. Finish or cancel it first.'**
+  String get exchangeAlready;
+
+  /// No description provided for @noSaleButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the drawer (no sale)'**
+  String get noSaleButton;
+
+  /// No description provided for @noSaleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why open the drawer?'**
+  String get noSaleTitle;
+
+  /// No description provided for @noSaleApprovalReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the drawer without a sale.'**
+  String get noSaleApprovalReason;
+
+  /// No description provided for @noSaleDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawer opened. This is recorded.'**
+  String get noSaleDone;
+
+  /// No description provided for @payKindCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get payKindCash;
+
+  /// No description provided for @payKindMomo.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile money'**
+  String get payKindMomo;
+
+  /// No description provided for @payKindCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit (book)'**
+  String get payKindCredit;
+
+  /// No description provided for @payKindCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get payKindCard;
+
+  /// No description provided for @payKindBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank transfer'**
+  String get payKindBank;
+
+  /// No description provided for @payKindCheque.
+  ///
+  /// In en, this message translates to:
+  /// **'Cheque'**
+  String get payKindCheque;
+
+  /// No description provided for @payKindExchange.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange'**
+  String get payKindExchange;
+
+  /// No description provided for @payKindOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get payKindOther;
+
+  /// No description provided for @payMethodNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New payment method'**
+  String get payMethodNew;
+
+  /// No description provided for @payMethodEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change payment method'**
+  String get payMethodEdit;
+
+  /// No description provided for @payMethodName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get payMethodName;
+
+  /// No description provided for @payMethodKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Kind of payment'**
+  String get payMethodKind;
+
+  /// No description provided for @payMerchantNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Your number or merchant ID (optional)'**
+  String get payMerchantNumber;
+
+  /// No description provided for @payMerchantNumberHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown large, with a QR code, for the customer to pay to.'**
+  String get payMerchantNumberHelp;
+
+  /// No description provided for @payNeedsReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs a transaction ID'**
+  String get payNeedsReference;
+
+  /// No description provided for @payNeedsReferenceHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The cashier types it from the payment message; it cannot be used twice.'**
+  String get payNeedsReferenceHelp;
+
+  /// No description provided for @payShortReference.
+  ///
+  /// In en, this message translates to:
+  /// **'The last 4 characters are enough'**
+  String get payShortReference;
+
+  /// No description provided for @payShortReferenceHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Faster, but only checked for reuse over two days.'**
+  String get payShortReferenceHelp;
+
+  /// No description provided for @refundNoReceiptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund without a receipt'**
+  String get refundNoReceiptTitle;
+
+  /// No description provided for @refundVoided.
+  ///
+  /// In en, this message translates to:
+  /// **'This sale was voided: there is nothing to refund.'**
+  String get refundVoided;
+
+  /// No description provided for @refundNothingLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything on this sale has been refunded.'**
+  String get refundNothingLeft;
+
+  /// No description provided for @refundWhatComesBack.
+  ///
+  /// In en, this message translates to:
+  /// **'What comes back'**
+  String get refundWhatComesBack;
+
+  /// No description provided for @refundEverything.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything'**
+  String get refundEverything;
+
+  /// No description provided for @refundRestock.
+  ///
+  /// In en, this message translates to:
+  /// **'Back into stock'**
+  String get refundRestock;
+
+  /// No description provided for @refundRestockHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'It can be sold again.'**
+  String get refundRestockHelp;
+
+  /// No description provided for @refundDamagedHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Damaged: it does not go back into stock.'**
+  String get refundDamagedHelp;
+
+  /// No description provided for @refundReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get refundReason;
+
+  /// No description provided for @refundHow.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the money back by'**
+  String get refundHow;
+
+  /// No description provided for @refundReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction ID (optional)'**
+  String get refundReference;
+
+  /// No description provided for @refundReferenceHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Of the money sent back, for the record.'**
+  String get refundReferenceHelp;
+
+  /// No description provided for @refundTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund'**
+  String get refundTotal;
+
+  /// No description provided for @refundExchange.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange instead'**
+  String get refundExchange;
+
+  /// No description provided for @refundExchangeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The returned items pay for new ones on the till; only the difference is paid or given back.'**
+  String get refundExchangeHelp;
+
+  /// No description provided for @refundPickReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a reason.'**
+  String get refundPickReason;
+
+  /// No description provided for @refundNoReceiptHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Without a receipt: a manager approves with their PIN, and it is marked in reports.'**
+  String get refundNoReceiptHelp;
+
+  /// No description provided for @refundAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Give back'**
+  String get refundAmount;
+
+  /// No description provided for @refundAddItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Find what is coming back'**
+  String get refundAddItem;
+
+  /// No description provided for @refundGiveBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Give back'**
+  String get refundGiveBack;
+
+  /// No description provided for @settingsGroupPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get settingsGroupPayments;
+
+  /// No description provided for @settingsPayMethods.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment methods'**
+  String get settingsPayMethods;
+
+  /// No description provided for @settingsPayMethodsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'MTN MoMo, Telecel Cash, card, bank... Switch on what you take and add your merchant number.'**
+  String get settingsPayMethodsHelp;
+
+  /// No description provided for @settingsRounding.
+  ///
+  /// In en, this message translates to:
+  /// **'Round cash totals'**
+  String get settingsRounding;
+
+  /// No description provided for @settingsRoundingHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'When there are no small coins. The rounding is recorded on each sale.'**
+  String get settingsRoundingHelp;
+
+  /// No description provided for @settingsRound10.
+  ///
+  /// In en, this message translates to:
+  /// **'To the nearest 10 pesewas'**
+  String get settingsRound10;
+
+  /// No description provided for @settingsRound50.
+  ///
+  /// In en, this message translates to:
+  /// **'To the nearest 50 pesewas'**
+  String get settingsRound50;
+
+  /// No description provided for @todayClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get todayClosed;
+
+  /// No description provided for @todayFind.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a sale'**
+  String get todayFind;
+
+  /// No description provided for @todayFindLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale number'**
+  String get todayFindLabel;
+
+  /// No description provided for @todayFindHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'From the receipt, e.g. 142 for #00142.'**
+  String get todayFindHelp;
+
+  /// No description provided for @todayFindButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Find'**
+  String get todayFindButton;
+
+  /// No description provided for @todayNoReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'no receipt'**
+  String get todayNoReceipt;
+
+  /// No description provided for @todayRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund'**
+  String get todayRefund;
+
+  /// No description provided for @todayRefundNoReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund without a receipt'**
+  String get todayRefundNoReceipt;
+
+  /// No description provided for @todayRefundedAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded'**
+  String get todayRefundedAll;
+
+  /// No description provided for @todayRefunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunds'**
+  String get todayRefunds;
+
+  /// No description provided for @todaySalesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of sales'**
+  String get todaySalesCount;
+
+  /// No description provided for @todayTotalSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Total sales'**
+  String get todayTotalSales;
+
+  /// No description provided for @todayVoid.
+  ///
+  /// In en, this message translates to:
+  /// **'Void'**
+  String get todayVoid;
+
+  /// No description provided for @todayVoided.
+  ///
+  /// In en, this message translates to:
+  /// **'Voided'**
+  String get todayVoided;
+
+  /// No description provided for @voidWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Why?'**
+  String get voidWhy;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -4743,6 +5295,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The price can be at most {price}.'**
   String tillPriceHigh(String price);
+
+  /// No description provided for @cartExchange.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange: returned items worth {amount} pay first.'**
+  String cartExchange(String amount);
+
+  /// No description provided for @checkoutGiveBack.
+  ///
+  /// In en, this message translates to:
+  /// **'The returned items are worth {amount} more. Give it back by:'**
+  String checkoutGiveBack(String amount);
+
+  /// No description provided for @checkoutTakePart.
+  ///
+  /// In en, this message translates to:
+  /// **'Take {amount}, pay the rest another way'**
+  String checkoutTakePart(String amount);
+
+  /// No description provided for @checkoutReference.
+  ///
+  /// In en, this message translates to:
+  /// **'{method} transaction ID'**
+  String checkoutReference(String method);
+
+  /// No description provided for @checkoutPayTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay to {method}'**
+  String checkoutPayTo(String method);
+
+  /// No description provided for @checkoutRounded.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash rounded to {amount} ({difference} difference).'**
+  String checkoutRounded(String amount, String difference);
+
+  /// No description provided for @checkoutRoundingLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash rounding {sign}{amount}'**
+  String checkoutRoundingLine(String amount, String sign);
+
+  /// No description provided for @checkoutExchangeLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange: refund {number}, {amount} returned'**
+  String checkoutExchangeLine(String number, String amount);
+
+  /// No description provided for @closeRounding.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash rounding'**
+  String get closeRounding;
+
+  /// No description provided for @closeRefunds.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 refund} other{{count} refunds}}'**
+  String closeRefunds(int count);
+
+  /// No description provided for @closeRefundsBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded by {method}'**
+  String closeRefundsBy(String method);
+
+  /// No description provided for @closeNoSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawer opened without a sale: {name}'**
+  String closeNoSales(String name);
+
+  /// No description provided for @closeExpectedHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Takes off {amount} given back in cash for refunds.'**
+  String closeExpectedHelp(String amount);
+
+  /// No description provided for @exchangeApprovalReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Take back items worth {amount} as an exchange.'**
+  String exchangeApprovalReason(String amount);
+
+  /// No description provided for @refundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund {number}'**
+  String refundTitle(String number);
+
+  /// No description provided for @refundAlready.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} has already been refunded.'**
+  String refundAlready(String amount);
+
+  /// No description provided for @refundSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold {quantity} for {amount}'**
+  String refundSold(String quantity, String amount);
+
+  /// No description provided for @refundBackAlready.
+  ///
+  /// In en, this message translates to:
+  /// **'{quantity} already back'**
+  String refundBackAlready(String quantity);
+
+  /// No description provided for @refundButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund {amount}'**
+  String refundButton(String amount);
+
+  /// No description provided for @refundApprovalReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Give a refund of {amount}.'**
+  String refundApprovalReason(String amount);
+
+  /// No description provided for @refundDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund {number} saved'**
+  String refundDone(String number);
+
+  /// No description provided for @todayApprovedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'approved by {name}'**
+  String todayApprovedBy(String name);
+
+  /// No description provided for @todayFindNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No sale {number} on this till.'**
+  String todayFindNone(String number);
+
+  /// No description provided for @todayItems.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} items}}'**
+  String todayItems(int count);
+
+  /// No description provided for @todayRefunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded {amount}'**
+  String todayRefunded(String amount);
+
+  /// No description provided for @todayVoidedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Voided by {name}'**
+  String todayVoidedBy(String name);
 }
 
 class _AppLocalizationsDelegate

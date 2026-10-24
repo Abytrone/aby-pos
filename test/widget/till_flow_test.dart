@@ -106,6 +106,8 @@ void main() {
     // A cashier cannot void: someone allowed must approve with their PIN.
     await tester.tap(find.text('Void'));
     await _settle(tester);
+    await tester.tap(find.text('Wrong item rung up'));
+    await _settle(tester);
     await tester.tap(find.text('Void sale'));
     await _settle(tester);
     expect(find.text('Approval needed'), findsOneWidget);
@@ -461,6 +463,70 @@ void main() {
     expect(find.text('Pay GH₵ 32.40'), findsOneWidget);
     expect(find.text('Table 4'), findsOneWidget, reason: 'the cart is titled with its name');
     expect(find.textContaining('GH₵ 20.00'), findsWidgets);
+
+    await _dispose(tester);
+  });
+
+  testWidgets('tablet: split payment, then a refund approved by the owner', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await _settle(tester);
+    await tester.tap(find.text('Ama'));
+    await _settle(tester);
+    await _typePin(tester, '5678');
+
+    // Two waffles: GH₵ 10 by MTN MoMo, the rest in cash.
+    final search = find.widgetWithText(TextField, 'Search, scan, or type a code');
+    await tester.enterText(search, '2');
+    await tester.tap(find.text('Waffle'));
+    await _settle(tester);
+    await tester.tap(find.text('Pay GH₵ 24.00'));
+    await _settle(tester);
+    await tester.tap(find.text('MTN MoMo'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Amount'), '10');
+    await tester.enterText(find.widgetWithText(TextField, 'MTN MoMo transaction ID'), 'MP2410.55');
+    await _settle(tester);
+    await tester.tap(find.text('Take GH₵ 10.00, pay the rest another way'));
+    await _settle(tester);
+    expect(find.text('Left to pay'), findsOneWidget);
+    await tester.tap(find.text('Cash'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Cash given'), '20');
+    await _settle(tester);
+    expect(find.text('GH₵ 6.00'), findsOneWidget, reason: 'change from 20 on the 14 left');
+    await tester.tap(find.text('Complete sale'));
+    await _settle(tester);
+    expect(find.text('Sale complete'), findsOneWidget);
+    expect(find.textContaining('MTN MoMo GH₵ 10.00'), findsOneWidget);
+    await tester.tap(find.text('New sale'));
+    await _settle(tester);
+
+    // Refund one waffle from Today: a cashier needs the owner's PIN.
+    await tester.tap(find.text('Today'));
+    await _settle(tester);
+    await tester.tap(find.text('Refund'));
+    await _settle(tester);
+    expect(find.text('Refund #00001'), findsOneWidget);
+    await tester.tap(find.byTooltip('One more'));
+    await tester.tap(find.text('Wrong item'));
+    await _settle(tester);
+    await tester.scrollUntilVisible(find.text('Refund GH₵ 12.00'), 200,
+        scrollable: find.ancestor(of: find.text('WHAT COMES BACK'), matching: find.byType(Scrollable)).first);
+    await tester.tap(find.text('Refund GH₵ 12.00'));
+    await _settle(tester);
+    expect(find.text('Approval needed'), findsOneWidget);
+    await _typePin(tester, '1234');
+    expect(find.text('Refund R-0001 saved'), findsOneWidget);
+    await tester.tap(find.text('Done'));
+    await _settle(tester);
+    expect(find.text('Refunded GH₵ 12.00'), findsOneWidget);
+    expect(find.textContaining('R-0001'), findsOneWidget);
+    expect(find.text('Void'), findsNothing, reason: 'a refunded sale cannot be voided');
 
     await _dispose(tester);
   });

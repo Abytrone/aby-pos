@@ -9,10 +9,13 @@ import '../../services/ids.dart';
 import '../../services/money.dart';
 import '../database/app_database.dart';
 import 'audit_repository.dart';
+import 'cash_event_repository.dart';
 
 /// End-of-day cash-up for this device's drawer.
 class DayCloseRepository {
-  DayCloseRepository(this._db, this._device, this._audit);
+  DayCloseRepository(this._db, this._device, this._audit, [this._cashEvents]);
+
+  final CashEventRepository? _cashEvents;
 
   final AppDatabase _db;
   final DeviceInfo _device;
@@ -59,6 +62,29 @@ class DayCloseRepository {
           row.read<int>('amount');
     }
 
+    // Refunds since the last close (numbered per device, like sales).
+    final afterRefund = last?.lastRefundNumber ?? 0;
+    final refunds = await _db.customSelect(
+      'SELECT COUNT(*) AS n, COALESCE(SUM(total), 0) AS total, COALESCE(MAX(number), 0) AS last_number '
+      'FROM refunds WHERE device_id = ? AND number > ? AND deleted_at IS NULL',
+      variables: [Variable.withString(_device.deviceId), Variable.withInt(afterRefund)],
+      readsFrom: {_db.refunds},
+    ).getSingle();
+    final refundMethods = await _db.customSelect(
+      'SELECT p.method AS method, SUM(p.amount) AS amount FROM refund_payments p '
+      'JOIN refunds r ON r.id = p.refund_id '
+      'WHERE r.device_id = ? AND r.number > ? AND r.deleted_at IS NULL AND p.deleted_at IS NULL '
+      'GROUP BY p.method',
+      variables: [Variable.withString(_device.deviceId), Variable.withInt(afterRefund)],
+      readsFrom: {_db.refunds, _db.refundPayments},
+    ).get();
+    final rounding = await _db.customSelect(
+      "SELECT COALESCE(SUM(rounding), 0) AS r FROM sales WHERE device_id = ? AND number > ? AND status = 'completed' "
+      'AND deleted_at IS NULL',
+      variables: [Variable.withString(_device.deviceId), Variable.withInt(after)],
+      readsFrom: {_db.sales},
+    ).getSingle();
+
     return OpenPeriod(
       from: last?.closedAt,
       salesCount: totals.read<int>('sales_count'),
@@ -67,6 +93,16 @@ class DayCloseRepository {
       byMethod: byMethod,
       suggestedFloat: last?.openingFloat ?? 0,
       lastSaleNumber: totals.read<int>('last_number'),
+      lastRefundNumber: refunds.read<int>('last_number'),
+      refundsCount: refunds.read<int>('n'),
+      refundsTotal: refunds.read<int>('total'),
+      refundsByMethod: {
+        for (final r in refundMethods)
+          if (PaymentMethod.values.byName(r.read<String>('method')) != PaymentMethod.exchange)
+            PaymentMethod.values.byName(r.read<String>('method')): r.read<int>('amount'),
+      },
+      rounding: rounding.read<int>('r'),
+      noSales: await _cashEvents?.noSalesSince(last?.closedAt) ?? const {},
     );
   }
 
@@ -84,6 +120,7 @@ class DayCloseRepository {
     return _db.transaction(() async {
       final period = await openPeriod();
       final last = await closedUpTo();
+      final lastRefund = (await _lastClose())?.lastRefundNumber ?? 0;
       final now = DateTime.now();
       final trimmedNote = note?.trim();
       final row = await _db.insertTracked(
@@ -109,6 +146,14 @@ class DayCloseRepository {
           expectedCash: period.expectedCash(openingFloat),
           countedCash: countedCash,
           note: Value(trimmedNote == null || trimmedNote.isEmpty ? null : trimmedNote),
+          lastRefundNumber: Value(
+            period.lastRefundNumber > lastRefund ? period.lastRefundNumber : lastRefund,
+          ),
+          refundsTotal: Value(period.refundsTotal),
+          cashRefunds: Value(period.cashRefunds),
+          otherTakings: Value(period.otherTakings),
+          roundingTotal: Value(period.rounding),
+          noSaleCount: Value(period.noSaleCount),
         ),
       );
       final close = _toModel(row);
@@ -149,5 +194,9 @@ class DayCloseRepository {
         momoTakings: r.momoTakings,
         creditTakings: r.creditTakings,
         note: r.note,
+        refundsTotal: r.refundsTotal,
+        cashRefunds: r.cashRefunds,
+        otherTakings: r.otherTakings,
+        noSaleCount: r.noSaleCount,
       );
 }

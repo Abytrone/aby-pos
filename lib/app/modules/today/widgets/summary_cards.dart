@@ -5,6 +5,7 @@ import '../../../models/sale.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/l10n.dart';
 
 /// Total, number of sales, and takings per payment method.
 class SummaryCards extends StatelessWidget {
@@ -14,14 +15,20 @@ class SummaryCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return Wrap(
       spacing: AbySpace.s3,
       runSpacing: AbySpace.s3,
       children: [
-        _Card(label: 'TOTAL SALES', value: formatMoney(summary.total), large: true),
-        _Card(label: 'NUMBER OF SALES', value: '${summary.count}', large: true),
+        _Card(label: l.todayTotalSales.toUpperCase(), value: formatMoney(summary.total), large: true),
+        _Card(label: l.todaySalesCount.toUpperCase(), value: '${summary.count}', large: true),
+        if (summary.refunded > 0)
+          _Card(label: l.todayRefunds.toUpperCase(), value: '−${formatMoney(summary.refunded)}'),
+        // Cash, MoMo and credit always; the others when they were used.
         for (final m in PaymentMethod.values)
-          _Card(label: m.label.toUpperCase(), value: formatMoney(summary.byMethod[m] ?? 0)),
+          if (const {PaymentMethod.cash, PaymentMethod.momo, PaymentMethod.credit}.contains(m) ||
+              (summary.byMethod[m] ?? 0) > 0)
+            _Card(label: m.label.toUpperCase(), value: formatMoney(summary.byMethod[m] ?? 0)),
       ],
     );
   }

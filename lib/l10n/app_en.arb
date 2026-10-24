@@ -638,6 +638,98 @@
   "tillCodeCreate": "New product",
   "tillPriceInvalid": "Enter the price.",
   "tillWeightInvalid": "Enter how much.",
+  "commonEdit": "Change",
+  "auditNoSale": "Drawer opened (no sale)",
+  "auditPayMethodSaved": "Payment method changed",
+  "auditRefundGiven": "Refund given",
+  "moveReturned": "Returned (refund)",
+  "cartExchangeCancel": "Cancel the exchange",
+  "checkoutTitle": "Payment",
+  "checkoutBack": "Back to the till",
+  "checkoutComplete": "Complete sale",
+  "checkoutReturned": "Returned items",
+  "checkoutLeftToPay": "Left to pay",
+  "checkoutRemovePayment": "Remove this payment",
+  "checkoutAmount": "Amount",
+  "checkoutAmountHelp": "Leave as it is to pay the rest this way.",
+  "checkoutReferenceHelp": "Required, from the payment message. Each one can only be used once.",
+  "checkoutReferenceShort": "The last 4 characters are enough. Each one can only be used once.",
+  "checkoutCustomer": "Customer name or phone",
+  "checkoutCustomerHelp": "Written in the credit book for this sale.",
+  "checkoutCashGiven": "Cash given",
+  "checkoutExact": "Exact",
+  "checkoutStillToPay": "Still to pay",
+  "checkoutChange": "Change due",
+  "checkoutDone": "Sale complete",
+  "checkoutNewSale": "New sale",
+  "checkoutSavedHere": "Saved on this device. Will sync when you're online.",
+  "checkoutGiveBackNow": "Give back",
+  "checkoutSaveFailed": "Could not save the sale. Try again.",
+  "exchangeAlready": "An exchange is already waiting on the till. Finish or cancel it first.",
+  "noSaleButton": "Open the drawer (no sale)",
+  "noSaleTitle": "Why open the drawer?",
+  "noSaleApprovalReason": "Open the drawer without a sale.",
+  "noSaleDone": "Drawer opened. This is recorded.",
+  "payKindCash": "Cash",
+  "payKindMomo": "Mobile money",
+  "payKindCredit": "Credit (book)",
+  "payKindCard": "Card",
+  "payKindBank": "Bank transfer",
+  "payKindCheque": "Cheque",
+  "payKindExchange": "Exchange",
+  "payKindOther": "Other",
+  "payMethodNew": "New payment method",
+  "payMethodEdit": "Change payment method",
+  "payMethodName": "Name",
+  "payMethodKind": "Kind of payment",
+  "payMerchantNumber": "Your number or merchant ID (optional)",
+  "payMerchantNumberHelp": "Shown large, with a QR code, for the customer to pay to.",
+  "payNeedsReference": "Needs a transaction ID",
+  "payNeedsReferenceHelp": "The cashier types it from the payment message; it cannot be used twice.",
+  "payShortReference": "The last 4 characters are enough",
+  "payShortReferenceHelp": "Faster, but only checked for reuse over two days.",
+  "refundNoReceiptTitle": "Refund without a receipt",
+  "refundVoided": "This sale was voided: there is nothing to refund.",
+  "refundNothingLeft": "Everything on this sale has been refunded.",
+  "refundWhatComesBack": "What comes back",
+  "refundEverything": "Everything",
+  "refundRestock": "Back into stock",
+  "refundRestockHelp": "It can be sold again.",
+  "refundDamagedHelp": "Damaged: it does not go back into stock.",
+  "refundReason": "Reason",
+  "refundHow": "Give the money back by",
+  "refundReference": "Transaction ID (optional)",
+  "refundReferenceHelp": "Of the money sent back, for the record.",
+  "refundTotal": "Refund",
+  "refundExchange": "Exchange instead",
+  "refundExchangeHelp": "The returned items pay for new ones on the till; only the difference is paid or given back.",
+  "refundPickReason": "Pick a reason.",
+  "refundNoReceiptHelp": "Without a receipt: a manager approves with their PIN, and it is marked in reports.",
+  "refundAmount": "Give back",
+  "refundAddItem": "Find what is coming back",
+  "refundGiveBack": "Give back",
+  "settingsGroupPayments": "Payments",
+  "settingsPayMethods": "Payment methods",
+  "settingsPayMethodsHelp": "MTN MoMo, Telecel Cash, card, bank... Switch on what you take and add your merchant number.",
+  "settingsRounding": "Round cash totals",
+  "settingsRoundingHelp": "When there are no small coins. The rounding is recorded on each sale.",
+  "settingsRound10": "To the nearest 10 pesewas",
+  "settingsRound50": "To the nearest 50 pesewas",
+  "todayClosed": "Closed",
+  "todayFind": "Find a sale",
+  "todayFindLabel": "Sale number",
+  "todayFindHelp": "From the receipt, e.g. 142 for #00142.",
+  "todayFindButton": "Find",
+  "todayNoReceipt": "no receipt",
+  "todayRefund": "Refund",
+  "todayRefundNoReceipt": "Refund without a receipt",
+  "todayRefundedAll": "Refunded",
+  "todayRefunds": "Refunds",
+  "todaySalesCount": "Number of sales",
+  "todayTotalSales": "Total sales",
+  "todayVoid": "Void",
+  "todayVoided": "Voided",
+  "voidWhy": "Why?",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -1793,6 +1885,222 @@
   "@tillPriceHigh": {
     "placeholders": {
       "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cartExchange": "Exchange: returned items worth {amount} pay first.",
+  "@cartExchange": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutGiveBack": "The returned items are worth {amount} more. Give it back by:",
+  "@checkoutGiveBack": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutTakePart": "Take {amount}, pay the rest another way",
+  "@checkoutTakePart": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutReference": "{method} transaction ID",
+  "@checkoutReference": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutPayTo": "Pay to {method}",
+  "@checkoutPayTo": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutRounded": "Cash rounded to {amount} ({difference} difference).",
+  "@checkoutRounded": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "difference": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutRoundingLine": "Cash rounding {sign}{amount}",
+  "@checkoutRoundingLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "sign": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutExchangeLine": "Exchange: refund {number}, {amount} returned",
+  "@checkoutExchangeLine": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "closeRounding": "Cash rounding",
+  "@closeRounding": {
+    "placeholders": {}
+  },
+  "closeRefunds": "{count, plural, =1{1 refund} other{{count} refunds}}",
+  "@closeRefunds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "closeRefundsBy": "Refunded by {method}",
+  "@closeRefundsBy": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "closeNoSales": "Drawer opened without a sale: {name}",
+  "@closeNoSales": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closeExpectedHelp": "Takes off {amount} given back in cash for refunds.",
+  "@closeExpectedHelp": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "exchangeApprovalReason": "Take back items worth {amount} as an exchange.",
+  "@exchangeApprovalReason": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "refundTitle": "Refund {number}",
+  "@refundTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "refundAlready": "{amount} has already been refunded.",
+  "@refundAlready": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "refundSold": "Sold {quantity} for {amount}",
+  "@refundSold": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "refundBackAlready": "{quantity} already back",
+  "@refundBackAlready": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "refundButton": "Refund {amount}",
+  "@refundButton": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "refundApprovalReason": "Give a refund of {amount}.",
+  "@refundApprovalReason": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "refundDone": "Refund {number} saved",
+  "@refundDone": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "todayApprovedBy": "approved by {name}",
+  "@todayApprovedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todayFindNone": "No sale {number} on this till.",
+  "@todayFindNone": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "todayItems": "{count, plural, =1{1 item} other{{count} items}}",
+  "@todayItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayRefunded": "Refunded {amount}",
+  "@todayRefunded": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "todayVoidedBy": "Voided by {name}",
+  "@todayVoidedBy": {
+    "placeholders": {
+      "name": {
         "type": "String"
       }
     }

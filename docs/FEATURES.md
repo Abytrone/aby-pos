@@ -1137,8 +1137,37 @@ Decisions made on the way:
 - For price-printing scales the till works out the weight from the price per kg, so a line can
   differ from the label by a pesewa.
 
-**3b next:** `SEL-08` split payments and configurable methods, MoMo reference checks, cash
-rounding; `SEL-09` refunds and exchanges; `SEL-10` void reasons in the void flow and no-sale.
+**Status (24 October 2026): 3b built** (payments, refunds, voids). Schema version 7. Built:
+
+- `SEL-08`: payment methods the owner manages (Settings → Payments): Cash, MTN MoMo, Telecel
+  Cash, AT Money, card, bank transfer, cheque, credit, and the shop's own. Each can be switched
+  on, renamed, need a transaction ID (optionally only the last 4 characters) and show the shop's
+  number with a QR code at checkout. Split payments in any mix; only a final cash payment gives
+  change. A transaction ID is refused if already used on a completed sale. Cash rounding to the
+  nearest 10 or 50 pesewas, recorded on each sale and in close day.
+- `SEL-09`: refunds from Today (find a sale by number, or tap Refund on it): choose lines and
+  quantities, back into stock or not (damaged), a reason, and how the money goes back (the
+  original method by default). Each refund is its own record (R-0001) linked to the sale; the sale
+  is never changed. Refunds without a receipt need `refundWithoutReceipt` and are flagged.
+  Exchanges: the returned items' value pays for new ones on the till, and the refund and the new
+  sale are saved in one transaction; only the difference is paid or given back.
+- `SEL-10`: voids need a reason from the list; a sale with refunds cannot be voided. No-sale
+  (open the drawer without a sale) needs `noSale` and a reason, and close day counts them per
+  person.
+- Close day: cash refunds come off the expected cash; refunds, other takings, rounding and
+  no-sales are shown and kept with the close.
+
+Decisions made on the way:
+
+- Refund amounts follow what the customer paid for the line (after line and order discounts,
+  with tax when it was added on top), in proportion; the last item of a line gets exactly what is
+  left. Weighed lines come back whole.
+- Refunds put back exactly the stock the sale used (recorded per line from v7); older sales and
+  refunds without a receipt use today's recipe.
+- Short (last-4) references are only checked for reuse over 48 hours; full references always.
+- The outgoing reference on a MoMo refund is optional (for the record).
+- Change to the customer's wallet, deposits and store credit wait for customers (phase 4).
+- Cash drawer kick and refund slips wait for printers (phase 5): see TODO(print).
 
 ### Phase 4: Customers and money
 

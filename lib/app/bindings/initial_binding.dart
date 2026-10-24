@@ -2,17 +2,20 @@ import 'package:get/get.dart';
 
 import '../data/database/app_database.dart';
 import '../data/repositories/audit_repository.dart';
+import '../data/repositories/cash_event_repository.dart';
 import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/day_close_repository.dart';
 import '../data/repositories/discount_repository.dart';
 import '../data/repositories/outbox_repository.dart';
 import '../data/repositories/parked_order_repository.dart';
+import '../data/repositories/pay_method_repository.dart';
 import '../data/repositories/role_repository.dart';
 import '../data/repositories/sale_repository.dart';
 import '../data/repositories/settings_repository.dart';
 import '../data/repositories/staff_repository.dart';
 import '../data/repositories/staff_stats_repository.dart';
 import '../data/repositories/receiving_repository.dart';
+import '../data/repositories/refund_repository.dart';
 import '../data/repositories/stock_count_repository.dart';
 import '../data/repositories/stock_repository.dart';
 import '../data/repositories/supplier_repository.dart';
@@ -52,8 +55,11 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => ReceivingRepository(db, device, audit, Get.find(), Get.find()), fenix: true);
     Get.lazyPut(() => StockCountRepository(db, device, audit, Get.find()), fenix: true);
     Get.lazyPut(() => CatalogueIo(Get.find(), Get.find(), audit), fenix: true);
-    Get.lazyPut(() => DayCloseRepository(db, device, audit), fenix: true);
-    Get.lazyPut(() => SaleRepository(db, Get.find(), Get.find(), audit, device), fenix: true);
+    Get.lazyPut(() => CashEventRepository(db, device, audit), fenix: true);
+    Get.lazyPut(() => DayCloseRepository(db, device, audit, Get.find<CashEventRepository>()), fenix: true);
+    Get.lazyPut(() => RefundRepository(db, device, audit, Get.find()), fenix: true);
+    Get.lazyPut(() => PayMethodRepository(db, device, audit), fenix: true);
+    Get.lazyPut(() => SaleRepository(db, Get.find(), Get.find(), audit, device, Get.find<RefundRepository>()), fenix: true);
     Get.lazyPut(() => DiscountRepository(db, device, audit), fenix: true);
     // The cart saves itself through this, so it is ready before the cart.
     Get.put(ParkedOrderRepository(db, device, audit), permanent: true);

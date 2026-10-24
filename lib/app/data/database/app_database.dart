@@ -54,6 +54,22 @@ const defaultReasons = {
   ReasonKind.noSale: ['Give change', 'Check the float', 'Other'],
 };
 
+/// Stable row ID for a built-in payment method.
+String payMethodRowId(String key) => const Uuid().v5(Namespace.url.value, 'aby:paymethod:$key');
+
+/// Payment methods every shop starts with: (key, name, kind, on, needs a
+/// reference). The owner renames them, switches them on and adds their own.
+const builtInPayMethods = [
+  ('cash', 'Cash', PaymentMethod.cash, true, false),
+  ('mtn', 'MTN MoMo', PaymentMethod.momo, true, true),
+  ('telecel', 'Telecel Cash', PaymentMethod.momo, true, true),
+  ('at', 'AT Money', PaymentMethod.momo, false, true),
+  ('card', 'Card (terminal)', PaymentMethod.card, false, false),
+  ('bank', 'Bank transfer', PaymentMethod.bank, false, true),
+  ('cheque', 'Cheque', PaymentMethod.cheque, false, true),
+  ('credit', 'Credit (book)', PaymentMethod.credit, true, false),
+];
+
 @DriftDatabase(tables: [
   Categories,
   Products,
@@ -78,6 +94,11 @@ const defaultReasons = {
   SaleLines,
   SaleTaxes,
   Payments,
+  PayMethods,
+  Refunds,
+  RefundLines,
+  RefundPayments,
+  CashEvents,
   Discounts,
   Reasons,
   ParkedOrders,
@@ -107,7 +128,7 @@ class AppDatabase extends _$AppDatabase {
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -308,6 +329,44 @@ class AppDatabase extends _$AppDatabase {
               await m.addColumn(lines, column);
             }
           },
+          // v7: payment methods, split payments, cash rounding, refunds and
+          // exchanges, no-sales.
+          from6To7: (m, schema) async {
+            final deviceId = await _ensureDeviceId();
+            for (final table in [
+              schema.payMethods,
+              schema.refunds,
+              schema.refundLines,
+              schema.refundPayments,
+              schema.cashEvents,
+            ]) {
+              await m.createTable(table);
+            }
+            await _insertBuiltInPayMethods(deviceId);
+            await m.addColumn(schema.sales, schema.sales.rounding);
+            await m.addColumn(schema.saleLines, schema.saleLines.stockUsed);
+            await m.addColumn(schema.payments, schema.payments.methodId);
+            await m.addColumn(schema.payments, schema.payments.methodName);
+            final closes = schema.dayCloses;
+            for (final column in [
+              closes.lastRefundNumber,
+              closes.refundsTotal,
+              closes.cashRefunds,
+              closes.otherTakings,
+              closes.roundingTotal,
+              closes.noSaleCount,
+            ]) {
+              await m.addColumn(closes, column);
+            }
+            // Old payments point at the built-in method of their kind.
+            for (final (kind, key) in [('cash', 'cash'), ('momo', 'mtn'), ('credit', 'credit')]) {
+              await customStatement(
+                'UPDATE payments SET method_id = ?, method_name = (SELECT name FROM pay_methods WHERE id = ?) '
+                'WHERE method = ? AND method_id IS NULL',
+                [payMethodRowId(key), payMethodRowId(key), kind],
+              );
+            }
+          },
         ),
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
@@ -315,6 +374,7 @@ class AppDatabase extends _$AppDatabase {
           if (details.wasCreated) {
             await _insertBuiltInRoles(deviceId);
             await _insertDefaultReasons(deviceId);
+            await _insertBuiltInPayMethods(deviceId);
             if (seedDemoShop) await seedScoopsTamale(this, deviceId: deviceId);
           }
         },
@@ -355,6 +415,18 @@ class AppDatabase extends _$AppDatabase {
           role.defaultMaxDiscount,
           role.index,
         ],
+      );
+    }
+  }
+
+  /// Raw SQL, like the built-in roles. Not written to the outbox.
+  Future<void> _insertBuiltInPayMethods(String deviceId) async {
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    for (final (i, (key, name, kind, on, reference)) in builtInPayMethods.indexed) {
+      await customStatement(
+        'INSERT OR IGNORE INTO pay_methods (id, created_at, updated_at, device_id, name, kind, built_in, '
+        'active, needs_reference, short_reference, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)',
+        [payMethodRowId(key), now, now, deviceId, name, kind.name, key, on ? 1 : 0, reference ? 1 : 0, i],
       );
     }
   }

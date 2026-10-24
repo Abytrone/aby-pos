@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../../models/enums.dart';
 import '../../../models/sale.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/l10n.dart';
 
 /// Shown once the sale is saved.
 class SaleComplete extends StatelessWidget {
@@ -16,46 +16,56 @@ class SaleComplete extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).extension<AbyColors>()!;
-    final showChange = sale.method == PaymentMethod.cash;
+    final l = context.l10n;
+    final back = sale.exchangeRefund;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Icon(Icons.check_circle, size: 56, color: c.success),
         const SizedBox(height: AbySpace.s3),
-        Text(
-          'Sale complete',
-          textAlign: TextAlign.center,
-          style: AbyText.title.copyWith(color: c.ink),
-        ),
+        Text(l.checkoutDone, textAlign: TextAlign.center, style: AbyText.title.copyWith(color: c.ink)),
         const SizedBox(height: AbySpace.s1),
         Text(
-          '${sale.displayNumber}  ·  ${sale.method.label}  ·  ${formatMoney(sale.total)}',
+          '${sale.displayNumber}  ·  ${formatMoney(sale.total)}',
           textAlign: TextAlign.center,
           style: AbyText.body.copyWith(color: c.inkMuted),
         ),
-        if (showChange) ...[
-          const SizedBox(height: AbySpace.s6),
-          Text('CHANGE DUE', textAlign: TextAlign.center, style: AbyText.label.copyWith(color: c.inkMuted)),
+        Text(
+          sale.paymentLabels.join('  ·  '),
+          textAlign: TextAlign.center,
+          style: AbyText.caption.copyWith(color: c.inkMuted),
+        ),
+        if (sale.rounding != 0)
           Text(
-            formatMoney(sale.changeDue),
+            l.checkoutRoundingLine(formatMoney(sale.rounding.abs()), sale.rounding > 0 ? '+' : '−'),
+            textAlign: TextAlign.center,
+            style: AbyText.caption.copyWith(color: c.inkMuted),
+          ),
+        if (back != null)
+          Text(
+            l.checkoutExchangeLine(back.displayNumber, formatMoney(back.total)),
+            textAlign: TextAlign.center,
+            style: AbyText.caption.copyWith(color: c.inkMuted),
+          ),
+        if (sale.changeDue > 0 || (back?.paidBack ?? 0) > 0) ...[
+          const SizedBox(height: AbySpace.s6),
+          Text(
+            (sale.changeDue > 0 ? l.checkoutChange : l.checkoutGiveBackNow).toUpperCase(),
+            textAlign: TextAlign.center,
+            style: AbyText.label.copyWith(color: c.inkMuted),
+          ),
+          Text(
+            formatMoney(sale.changeDue > 0 ? sale.changeDue : back!.paidBack),
             textAlign: TextAlign.center,
             style: AbyText.total.copyWith(color: c.ink),
           ),
         ],
         const SizedBox(height: AbySpace.s6),
-        Text(
-          "Saved on this device. Will sync when you're online.",
-          textAlign: TextAlign.center,
-          style: AbyText.caption.copyWith(color: c.inkMuted),
-        ),
+        Text(l.checkoutSavedHere, textAlign: TextAlign.center, style: AbyText.caption.copyWith(color: c.inkMuted)),
         const SizedBox(height: AbySpace.s4),
         // TODO(print): add a "Print receipt" button next to this.
-        FilledButton(
-          autofocus: true,
-          onPressed: onNewSale,
-          child: const Text('New sale'),
-        ),
+        FilledButton(autofocus: true, onPressed: onNewSale, child: Text(l.checkoutNewSale)),
       ],
     );
   }

@@ -24,4 +24,7 @@ abstract final class Routes {
 
   /// Argument: the supplier ID.
   static const supplier = '/supplier';
+
+  /// Argument: the sale ID, or nothing for a refund without a receipt.
+  static const refund = '/refund';
 }

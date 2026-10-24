@@ -6,10 +6,12 @@ import '../../core/business_day.dart';
 import '../../core/tax.dart';
 import '../../core/units.dart';
 import '../../domain/pricing.dart';
+import '../../domain/settlement.dart';
 import '../../models/audit.dart';
 import '../../models/cart_line.dart';
 import '../../models/discount.dart';
 import '../../models/enums.dart';
+import '../../models/refund.dart';
 import '../../models/sale.dart';
 import '../../models/staff.dart';
 import '../../services/device_service.dart';
@@ -18,6 +20,7 @@ import '../../services/money.dart';
 import '../database/app_database.dart';
 import 'audit_repository.dart';
 import 'day_close_repository.dart';
+import 'refund_repository.dart';
 import 'stock_repository.dart';
 
 /// Thrown when a sale cannot be saved as asked. Nothing has been written.
@@ -29,26 +32,53 @@ class SaleException implements Exception {
   String toString() => 'SaleException: $message';
 }
 
+/// Items coming back as part of a sale (an exchange). Their value pays for
+/// the new items; anything left over goes back by [payBack].
+class ExchangeInput {
+  const ExchangeInput({required this.returned, this.payBack, this.approver});
+
+  final RefundDraft returned;
+
+  /// How the difference goes back when the returned items are worth more.
+  final PayMethod? payBack;
+
+  /// Who approved the refund, when the cashier could not.
+  final Staff? approver;
+}
+
 class SaleRepository {
-  SaleRepository(this._db, this._stock, this._closes, this._audit, this._device);
+  SaleRepository(this._db, this._stock, this._closes, this._audit, this._device, [this._refunds]);
 
   final AppDatabase _db;
   final StockRepository _stock;
   final DayCloseRepository _closes;
   final AuditRepository _audit;
   final DeviceInfo _device;
+  final RefundRepository? _refunds;
 
-  /// Saves a sale with its lines, discounts, taxes, payment, stock
+  /// Short references (the last 4 of a MoMo ID) repeat over time, so they
+  /// are only checked for reuse over this window.
+  static const shortReferenceWindow = Duration(hours: 48);
+
+  /// Saves a sale with its lines, discounts, taxes, payments, stock
   /// movements (from recipes) and outbox rows in one transaction: all of it
   /// is written, or none of it. Discounts and price overrides are audited.
+  ///
+  /// [payments] are taken in order (a split payment); [payment] is the
+  /// one-payment shorthand. [roundTo] rounds a final cash payment to the
+  /// nearest 10 or 50 pesewas. With [exchange], the returned items are
+  /// refunded in the same transaction and their value pays first.
   Future<CompletedSale> completeSale({
     required List<CartLine> lines,
-    required PaymentInput payment,
+    PaymentInput? payment,
+    List<PaymentInput> payments = const [],
     required Staff cashier,
     TaxMode taxMode = TaxMode.off,
     Discount? orderDiscount,
     String? note,
     OrderType? orderType,
+    int roundTo = 0,
+    ExchangeInput? exchange,
   }) async {
     if (lines.isEmpty) throw const SaleException('The cart is empty.');
     if (lines.any((l) => l.quantity < 1)) {
@@ -59,10 +89,39 @@ class SaleRepository {
     final subtotal = pricing.subtotal;
     final taxTotal = pricing.taxTotal;
     final total = pricing.total;
-    final change = _validatePayment(payment, total);
     final cleanNote = note?.trim().isEmpty ?? true ? null : note!.trim();
 
+    // An exchange: what comes back pays first.
+    var credit = 0;
+    if (exchange != null) {
+      final refunds = _refunds;
+      if (refunds == null) throw StateError('Exchanges need the refund repository.');
+      try {
+        credit = (await refunds.price(exchange.returned)).$2;
+      } on RefundException catch (e) {
+        throw SaleException(e.message);
+      }
+    }
+    final fromExchange = credit < total ? credit : total;
+    final tenders = [
+      if (fromExchange > 0) PaymentInput(method: PaymentMethod.exchange, methodName: 'Exchange', amount: fromExchange),
+      ...payments,
+      ?payment,
+    ];
+    final Settlement settlement;
+    try {
+      settlement = Settlement.of(total, tenders, roundTo: roundTo);
+    } on PaymentException catch (e) {
+      throw SaleException(e.message);
+    }
+    if (credit > total && exchange?.payBack == null) {
+      throw const SaleException('Choose how to give back the difference.');
+    }
+
     return _db.transaction(() async {
+      for (final p in settlement.payments) {
+        await _checkReference(p.input);
+      }
       final now = DateTime.now();
       final saleId = newId();
       final number = await _nextSaleNumber();
@@ -87,6 +146,7 @@ class SaleRepository {
           ),
           note: Value(cleanNote),
           orderType: Value(orderType),
+          rounding: Value(settlement.rounding),
         ),
       );
 
@@ -96,19 +156,21 @@ class SaleRepository {
       for (final priced in pricing.lines) {
         final line = priced.line;
         var lineCost = 0;
+        final lineUsed = <String, int>{};
         // Recipes are per one sold, or per kg / litre for weighed lines.
         Future<void> consume(List<(String, int, int)> recipe) async {
           for (final (item, qty, costMilli) in recipe) {
             final take = line.weighed ? (qty * line.quantity + 500) ~/ 1000 : qty * line.quantity;
             used[item] = (used[item] ?? 0) + take;
+            lineUsed[item] = (lineUsed[item] ?? 0) + take;
             costs[item] = costMilli;
             lineCost += costOf(take, costMilli);
           }
         }
 
-        await consume(await _recipe(variantId: line.variant.id));
+        await consume(await _stock.recipe(variantId: line.variant.id));
         for (final option in line.options) {
-          await consume(await _recipe(optionId: option.id));
+          await consume(await _stock.recipe(optionId: option.id));
         }
 
         await _db.insertTracked(
@@ -138,6 +200,7 @@ class SaleRepository {
             orderDiscountShare: Value(priced.orderShare),
             discountDetail: Value(line.discount == null ? null : jsonEncode(line.discount!.toJson())),
             note: Value(line.note?.trim().isEmpty ?? true ? null : line.note!.trim()),
+            stockUsed: Value(lineUsed.isEmpty ? null : jsonEncode(lineUsed)),
           ),
         );
       }
@@ -177,33 +240,69 @@ class SaleRepository {
         );
       }
 
-      await _db.insertTracked(
-        _db.payments,
-        PaymentsCompanion.insert(
-          id: newId(),
-          createdAt: now,
-          updatedAt: now,
-          deviceId: _device.deviceId,
-          saleId: saleId,
-          method: payment.method,
-          amount: total,
-          tendered: Value(payment.tendered),
-          changeGiven:
-              Value(payment.method == PaymentMethod.cash ? change : null),
-          momoReference: Value(payment.momoReference?.trim()),
-          customer: Value(payment.customer?.trim()),
-        ),
-      );
+      CompletedRefund? returned;
+      if (exchange != null) {
+        returned = await _refunds!.refund(
+          exchange.returned,
+          payments: [
+            if (fromExchange > 0)
+              RefundPaymentInput(
+                method: PaymentMethod.exchange,
+                methodName: 'Exchange',
+                amount: fromExchange,
+                reference: formatSaleNumber(number),
+              ),
+            if (credit > total)
+              RefundPaymentInput(
+                method: exchange.payBack!.kind,
+                methodId: exchange.payBack!.id,
+                methodName: exchange.payBack!.name,
+                amount: credit - total,
+              ),
+          ],
+          actor: cashier,
+          approver: exchange.approver,
+          exchangeSaleId: saleId,
+        );
+      }
+
+      for (final p in settlement.payments) {
+        final input = p.input;
+        final ref = input.reference == null ? null : Settlement.cleanReference(input.reference!);
+        await _db.insertTracked(
+          _db.payments,
+          PaymentsCompanion.insert(
+            id: newId(),
+            createdAt: now,
+            updatedAt: now,
+            deviceId: _device.deviceId,
+            saleId: saleId,
+            method: input.method,
+            amount: p.amount,
+            tendered: Value(input.method == PaymentMethod.cash ? (input.tendered ?? p.amount) : null),
+            changeGiven: Value(input.method == PaymentMethod.cash ? p.change : null),
+            momoReference: Value(input.method == PaymentMethod.exchange ? returned?.displayNumber : (ref?.isEmpty ?? true) ? null : ref),
+            customer: Value(input.customer?.trim()),
+            methodId: Value(input.methodId),
+            methodName: Value(input.methodName ?? input.method.label),
+          ),
+        );
+      }
 
       await _auditAdjustments(pricing, orderDiscount, saleId: saleId, number: number, cashier: cashier);
 
       // TODO(print): hand the saved sale to the receipt printer here.
+      final main = settlement.payments.where((p) => p.input.method != PaymentMethod.exchange).firstOrNull ??
+          settlement.payments.first;
       return CompletedSale(
         saleId: saleId,
         number: number,
         total: total,
-        method: payment.method,
-        changeDue: change,
+        method: main.input.method,
+        changeDue: settlement.change,
+        rounding: settlement.rounding,
+        paymentLabels: [for (final p in settlement.payments) '${p.input.label} ${formatMoney(p.amount)}'],
+        exchangeRefund: returned,
       );
     });
   }
@@ -270,37 +369,25 @@ class SaleRepository {
     return [for (final r in rows) r.read<String>('id')];
   }
 
-  /// (stock item, quantity, cost per base unit now) for a variant or option.
-  Future<List<(String, int, int)>> _recipe({String? variantId, String? optionId}) async {
+  /// A transaction reference may only be used once: the same SMS shown
+  /// twice is a payment taken twice. Short references are checked over
+  /// [shortReferenceWindow] only.
+  Future<void> _checkReference(PaymentInput p) async {
+    if (!p.needsReference || p.reference == null) return;
+    final ref = Settlement.cleanReference(p.reference!);
+    if (ref.isEmpty) return;
     final rows = await _db.customSelect(
-      'SELECT r.stock_item_id AS item, r.quantity AS qty, s.cost_milli AS cost '
-      'FROM recipe_items r JOIN stock_items s ON s.id = r.stock_item_id '
-      'WHERE r.deleted_at IS NULL AND ${variantId != null ? 'r.variant_id' : 'r.option_id'} = ?',
-      variables: [Variable.withString(variantId ?? optionId!)],
-      readsFrom: {_db.recipeItems, _db.stockItems},
+      'SELECT s.number AS number, s.device_id AS device FROM payments p JOIN sales s ON s.id = p.sale_id '
+      "WHERE UPPER(REPLACE(p.momo_reference, ' ', '')) = ? AND s.status = 'completed' "
+      'AND p.deleted_at IS NULL AND s.deleted_at IS NULL AND p.created_at >= ? LIMIT 1',
+      variables: [
+        Variable.withString(ref),
+        Variable.withDateTime(p.shortReference ? DateTime.now().subtract(shortReferenceWindow) : DateTime(2000)),
+      ],
+      readsFrom: {_db.payments, _db.sales},
     ).get();
-    return [for (final r in rows) (r.read<String>('item'), r.read<int>('qty'), r.read<int>('cost'))];
-  }
-
-  /// Returns the change due, or throws if the payment is not acceptable.
-  int _validatePayment(PaymentInput payment, int total) {
-    switch (payment.method) {
-      case PaymentMethod.cash:
-        final tendered = payment.tendered ?? 0;
-        if (tendered < total) {
-          throw const SaleException('Cash given is less than the total.');
-        }
-        return tendered - total;
-      case PaymentMethod.momo:
-        if ((payment.momoReference ?? '').trim().isEmpty) {
-          throw const SaleException('Enter the MoMo transaction reference.');
-        }
-        return 0;
-      case PaymentMethod.credit:
-        if ((payment.customer ?? '').trim().isEmpty) {
-          throw const SaleException('Enter the customer name or phone.');
-        }
-        return 0;
+    if (rows.isNotEmpty) {
+      throw SaleException('This reference was already used on sale ${formatSaleNumber(rows.first.read<int>('number'))}.');
     }
   }
 
@@ -326,6 +413,13 @@ class SaleRepository {
       if (sale == null) throw const SaleException('Sale not found.');
       if (sale.status == SaleStatus.voided) {
         throw const SaleException('This sale is already voided.');
+      }
+      final refunded = await (_db.select(_db.refunds)
+            ..where((r) => r.saleId.equals(saleId) & r.deletedAt.isNull())
+            ..limit(1))
+          .getSingleOrNull();
+      if (refunded != null) {
+        throw const SaleException('Part of this sale was refunded, so it cannot be voided. Refund the rest instead.');
       }
       if (sale.deviceId == _device.deviceId &&
           sale.number <= await _closes.closedUpTo()) {
@@ -377,8 +471,9 @@ class SaleRepository {
   }
 
   /// Sales created from [from] (inclusive) to [to] (exclusive), newest first,
-  /// with payments and item counts. Updates when sales change.
-  Stream<List<Sale>> watchSales({required DateTime from, required DateTime to}) {
+  /// with payments, item counts and refunds. Updates when sales or refunds
+  /// change.
+  Stream<List<Sale>> watchSales({required DateTime from, required DateTime to}) async* {
     final query = _db.select(_db.sales)
       ..where((s) =>
           s.deletedAt.isNull() &
@@ -388,7 +483,10 @@ class SaleRepository {
         (s) => OrderingTerm(expression: s.createdAt, mode: OrderingMode.desc),
         (s) => OrderingTerm(expression: s.number, mode: OrderingMode.desc),
       ]);
-    return query.watch().asyncMap(_withDetails);
+    yield await _withDetails(await query.get());
+    await for (final _ in _db.tableUpdates(TableUpdateQuery.onAllTables([_db.sales, _db.refunds]))) {
+      yield await _withDetails(await query.get());
+    }
   }
 
   /// Sales in the current business day (see BusinessDay).
@@ -409,6 +507,7 @@ class SaleRepository {
       paymentsBySale.putIfAbsent(p.saleId, () => []).add(Payment(
             id: p.id,
             method: p.method,
+            methodName: p.methodName,
             amount: p.amount,
             tendered: p.tendered,
             changeGiven: p.changeGiven,
@@ -427,6 +526,15 @@ class SaleRepository {
         r.read(_db.saleLines.saleId)!: r.read(qty) ?? 0,
     };
 
+    final refundSum = _db.refunds.total.sum();
+    final refundQuery = _db.selectOnly(_db.refunds)
+      ..addColumns([_db.refunds.saleId, refundSum])
+      ..where(_db.refunds.saleId.isIn(ids) & _db.refunds.deletedAt.isNull())
+      ..groupBy([_db.refunds.saleId]);
+    final refunded = {
+      for (final r in await refundQuery.get()) r.read(_db.refunds.saleId)!: r.read(refundSum) ?? 0,
+    };
+
     return [
       for (final r in rows)
         Sale(
@@ -441,6 +549,7 @@ class SaleRepository {
           payments: paymentsBySale[r.id] ?? const [],
           voidedAt: r.voidedAt,
           voidedBy: r.voidedBy,
+          refunded: refunded[r.id] ?? 0,
         ),
     ];
   }

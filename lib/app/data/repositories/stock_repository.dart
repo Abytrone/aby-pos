@@ -159,6 +159,18 @@ class StockRepository {
     return (await query.map((r) => r.read(sum)).getSingle()) ?? 0;
   }
 
+  /// (stock item, quantity, cost per base unit now) for a variant or option.
+  Future<List<(String, int, int)>> recipe({String? variantId, String? optionId}) async {
+    final rows = await _db.customSelect(
+      'SELECT r.stock_item_id AS item, r.quantity AS qty, s.cost_milli AS cost '
+      'FROM recipe_items r JOIN stock_items s ON s.id = r.stock_item_id '
+      'WHERE r.deleted_at IS NULL AND ${variantId != null ? 'r.variant_id' : 'r.option_id'} = ?',
+      variables: [Variable.withString(variantId ?? optionId!)],
+      readsFrom: {_db.recipeItems, _db.stockItems},
+    ).get();
+    return [for (final r in rows) (r.read<String>('item'), r.read<int>('qty'), r.read<int>('cost'))];
+  }
+
   /// On hand for every stock item that has moved.
   Future<Map<String, int>> onHandAll() async {
     final sum = _db.stockMovements.quantityChange.sum();

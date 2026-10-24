@@ -5,10 +5,17 @@ enum CategoryTone { midnight, lime, blue, coral }
 
 enum SaleStatus { completed, voided }
 
+/// What kind of payment a method is (the shop names its own methods, see
+/// PayMethod). `exchange` is the value of items returned in an exchange.
 enum PaymentMethod {
   cash('Cash'),
   momo('Mobile money'),
-  credit('Credit (book)');
+  credit('Credit (book)'),
+  card('Card'),
+  bank('Bank transfer'),
+  cheque('Cheque'),
+  exchange('Exchange'),
+  other('Other');
 
   const PaymentMethod(this.label);
   final String label;
@@ -16,7 +23,7 @@ enum PaymentMethod {
 
 /// Why stock moved. `restock` is a delivery received; `count` is the
 /// correction a stock count posts.
-enum StockReason { sale, restock, waste, adjustment, count }
+enum StockReason { sale, restock, waste, adjustment, count, returned }
 
 /// Base units for stock items. Quantities are whole numbers of these.
 enum StockUnit { piece, g, ml }
@@ -52,3 +59,6 @@ enum ReasonKind { discount, voidSale, refund, noSale }
 enum OrderType { takeaway, eatIn, delivery }
 
 enum ParkedOrderStatus { parked, resumed, discarded }
+
+/// Drawer events that are not sales. Pay in / pay out come with phase 4.
+enum CashEventKind { noSale }

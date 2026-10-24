@@ -12,6 +12,7 @@ import '../../../ui/section_page.dart';
 import '../controllers/backup_controller.dart';
 import '../controllers/settings_controller.dart';
 import '../widgets/local_backups_dialog.dart';
+import '../widgets/pay_methods_dialog.dart';
 import '../widgets/selling_lists.dart';
 
 /// One searchable row. [keywords] widen what search finds.
@@ -100,6 +101,12 @@ class SettingsView extends GetView<SettingsController> {
     final shop = l.settingsGroupShop;
     final day = l.settingsGroupDay;
     final selling = l.settingsGroupSelling;
+    final payments = l.settingsGroupPayments;
+    String roundLabel(int p) => switch (p) {
+          10 => l.settingsRound10,
+          50 => l.settingsRound50,
+          _ => l.settingsOff,
+        };
     final security = l.settingsGroupSecurity;
     final device = l.settingsGroupDevice;
     final data = l.settingsGroupData;
@@ -137,6 +144,26 @@ class SettingsView extends GetView<SettingsController> {
           if (v != null) await c.save(AppSettings.businessDayStart, v);
         },
       ), keywords: ['midnight', 'business day', 'today']),
+      _Entry(payments, InfoTile(
+        title: l.settingsPayMethods,
+        subtitle: l.settingsPayMethodsHelp,
+        leading: const Icon(Icons.payments_outlined),
+        onTap: showPayMethods,
+      ), keywords: ['momo', 'mtn', 'telecel', 'card', 'bank', 'merchant']),
+      _Entry(payments, InfoTile(
+        title: l.settingsRounding,
+        subtitle: l.settingsRoundingHelp,
+        value: roundLabel(c.value(AppSettings.cashRoundTo)),
+        onTap: () async {
+          final v = await choiceDialog<int>(
+            title: l.settingsRounding,
+            options: const [0, 10, 50],
+            label: roundLabel,
+            selected: c.value(AppSettings.cashRoundTo),
+          );
+          if (v != null) await c.save(AppSettings.cashRoundTo, v);
+        },
+      ), keywords: ['coins', 'pesewas', 'round']),
       _Entry(selling, InfoTile(
         title: l.settingsOrderTypes,
         subtitle: l.settingsOrderTypesHelp,

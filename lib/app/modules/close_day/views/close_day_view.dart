@@ -117,7 +117,20 @@ class _CountForm extends GetView<CloseDayController> {
               line('Total sales', formatMoney(period.salesTotal), strong: true),
               const Divider(height: AbySpace.s6),
               for (final m in PaymentMethod.values)
-                line(m.label, formatMoney(period.byMethod[m] ?? 0)),
+                if (const {PaymentMethod.cash, PaymentMethod.momo, PaymentMethod.credit}.contains(m) ||
+                    (period.byMethod[m] ?? 0) > 0)
+                  line(m.label, formatMoney(period.byMethod[m] ?? 0)),
+              if (period.rounding != 0) line(context.l10n.closeRounding, formatMoney(period.rounding)),
+              if (period.refundsCount > 0) ...[
+                const Divider(height: AbySpace.s6),
+                line(context.l10n.closeRefunds(period.refundsCount), '−${formatMoney(period.refundsTotal)}'),
+                for (final e in period.refundsByMethod.entries)
+                  line(context.l10n.closeRefundsBy(e.key.label), '−${formatMoney(e.value)}'),
+              ],
+              if (period.noSaleCount > 0) ...[
+                const Divider(height: AbySpace.s6),
+                for (final e in period.noSales.entries) line(context.l10n.closeNoSales(e.key), '${e.value}'),
+              ],
             ]),
           ),
         ),
@@ -146,6 +159,9 @@ class _CountForm extends GetView<CloseDayController> {
         Obx(() => line('Expected in drawer',
             controller.expected == null ? '-' : formatMoney(controller.expected!),
             strong: true)),
+        if (period.cashRefunds > 0)
+          Text(context.l10n.closeExpectedHelp(formatMoney(period.cashRefunds)),
+              style: AbyText.caption.copyWith(color: c.inkMuted)),
         const SizedBox(height: AbySpace.s3),
         Obx(() => DifferenceBox(difference: controller.difference)),
         const SizedBox(height: AbySpace.s4),

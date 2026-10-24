@@ -10,7 +10,36 @@ class OpenPeriod {
     required this.byMethod,
     required this.suggestedFloat,
     this.lastSaleNumber = 0,
+    this.lastRefundNumber = 0,
+    this.refundsCount = 0,
+    this.refundsTotal = 0,
+    this.refundsByMethod = const {},
+    this.rounding = 0,
+    this.noSales = const {},
   });
+
+  /// Highest refund number in the period.
+  final int lastRefundNumber;
+  final int refundsCount;
+  final int refundsTotal;
+
+  /// Refunds paid out, per kind of payment (exchanges are not money out).
+  final Map<PaymentMethod, int> refundsByMethod;
+
+  /// Pesewas added (or taken off) by cash rounding.
+  final int rounding;
+
+  /// Drawer opened without a sale, per person.
+  final Map<String, int> noSales;
+
+  int get noSaleCount => noSales.values.fold(0, (s, n) => s + n);
+  int get cashRefunds => refundsByMethod[PaymentMethod.cash] ?? 0;
+
+  /// Takings that are neither cash, MoMo nor credit (card, bank, cheque...).
+  int get otherTakings => byMethod.entries
+      .where((e) => !const {PaymentMethod.cash, PaymentMethod.momo, PaymentMethod.credit, PaymentMethod.exchange}
+          .contains(e.key))
+      .fold(0, (s, e) => s + e.value);
 
   /// Highest sale number in the period (0 when there are no sales).
   final int lastSaleNumber;
@@ -29,8 +58,9 @@ class OpenPeriod {
 
   int get cashTakings => byMethod[PaymentMethod.cash] ?? 0;
 
-  /// Cash that should be in the drawer for a given opening float.
-  int expectedCash(int openingFloat) => openingFloat + cashTakings;
+  /// Cash that should be in the drawer for a given opening float: the float,
+  /// plus cash taken, minus cash given back.
+  int expectedCash(int openingFloat) => openingFloat + cashTakings - cashRefunds;
 }
 
 /// A closed day (cash-up). Pesewas.
@@ -48,7 +78,16 @@ class DayClose {
     required this.momoTakings,
     required this.creditTakings,
     this.note,
+    this.refundsTotal = 0,
+    this.cashRefunds = 0,
+    this.otherTakings = 0,
+    this.noSaleCount = 0,
   });
+
+  final int refundsTotal;
+  final int cashRefunds;
+  final int otherTakings;
+  final int noSaleCount;
 
   final String id;
 

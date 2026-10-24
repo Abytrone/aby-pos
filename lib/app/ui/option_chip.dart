@@ -51,12 +51,15 @@ class OptionChip extends StatelessWidget {
                     leading!,
                     const SizedBox(width: AbySpace.s2),
                   ],
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: c.ink,
+                  // Long labels (reasons) wrap rather than overflow.
+                  Flexible(
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: c.ink,
+                      ),
                     ),
                   ),
                   if (trailing != null) ...[

@@ -22,6 +22,7 @@ String reasonLabel(AppLocalizations l, StockMovement m) => switch (m.reason) {
       StockReason.waste => l.moveWaste(wasteLabel(l, WasteReason.values.byName(m.subReason ?? 'other'))),
       StockReason.adjustment => l.moveAdjustment,
       StockReason.count => l.moveCount,
+      StockReason.returned => l.moveReturned,
     };
 
 String wasteLabel(AppLocalizations l, WasteReason r) => switch (r) {
