@@ -1,19 +1,27 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:get/get.dart';
 
 import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
+import '../../../core/denominations.dart';
+import '../../../data/repositories/cash_event_repository.dart';
 import '../../../data/repositories/day_close_repository.dart';
+import '../../../data/repositories/safe_repository.dart';
+import '../../../data/repositories/shift_repository.dart';
 import '../../../data/repositories/discount_repository.dart';
 import '../../../data/repositories/refund_repository.dart';
 import '../../../data/repositories/sale_repository.dart';
 import '../../../models/discount.dart';
 import '../../../models/enums.dart';
 import '../../../models/refund.dart';
+import '../../../models/day_close.dart';
 import '../../../models/sale.dart';
 import '../../../routes/app_routes.dart';
+import '../../../services/auth_service.dart';
 import '../../../services/device_service.dart';
+import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../ui/l10n.dart';
@@ -29,9 +37,21 @@ class TodayController extends GetxController {
   final RefundRepository _refunds = Get.find();
   final DiscountRepository _reasons = Get.find();
 
+  final ShiftRepository _shifts = Get.find();
+  final CashEventRepository _cash = Get.find();
+  final SafeRepository _safe = Get.find();
+  final AuthService _auth = Get.find();
+
   final sales = <Sale>[].obs;
   final refunds = <RefundSummary>[].obs;
   final voidReasons = <Reason>[].obs;
+  final payInReasons = <Reason>[].obs;
+  final payOutReasons = <Reason>[].obs;
+
+  /// The drawer's open shift, if one was opened.
+  final shift = Rxn<Shift>();
+
+  bool get canManageCash => _auth.can(Permission.manageCash);
   final summary = const TodaySummary().obs;
   final loading = true.obs;
 
@@ -53,6 +73,61 @@ class TodayController extends GetxController {
       _loadRefunds();
     });
     _reasons.reasons(ReasonKind.voidSale).then(voidReasons.assignAll);
+    _reasons.reasons(ReasonKind.payIn).then(payInReasons.assignAll);
+    _reasons.reasons(ReasonKind.payOut).then(payOutReasons.assignAll);
+    _loadShift();
+  }
+
+  Future<void> _loadShift() async => shift.value = await _shifts.current();
+
+  /// Opens the drawer's shift with its float. Returns a message to show.
+  Future<String?> openShift(int float, CashCount? count) async {
+    final l = appL10n();
+    final auth = await _permissions.authorize(Permission.closeDay, reason: l.shiftOpenReason);
+    if (auth == null) return null;
+    try {
+      await _shifts.open(float: float, count: count, by: auth.authority);
+    } on StateError {
+      return l.shiftAlreadyOpen;
+    }
+    await _loadShift();
+    return l.shiftOpened(formatMoney(float));
+  }
+
+  /// The X report: the shift so far, without closing it.
+  Future<OpenPeriod> xReport() => _closes.openPeriod();
+
+  /// Cash into or out of the drawer that is not a sale (needs payOut).
+  Future<String?> payInOrOut({required bool payIn, required int amount, required String reason, String? note, Uint8List? photo}) async {
+    final l = appL10n();
+    final auth = await _permissions.authorize(
+      Permission.payOut,
+      reason: payIn ? l.payInReason(formatMoney(amount)) : l.payOutReason(formatMoney(amount)),
+    );
+    if (auth == null) return null;
+    await _cash.payInOrOut(
+      payIn: payIn,
+      amount: amount,
+      reason: reason,
+      note: note,
+      photo: photo,
+      actor: auth.actor,
+      approver: auth.approver,
+    );
+    return payIn ? l.payInDone(formatMoney(amount)) : l.payOutDone(formatMoney(amount));
+  }
+
+  /// Excess cash from the drawer into the safe (needs manageCash).
+  Future<String?> safeDrop(int amount, {String? note}) async {
+    final l = appL10n();
+    final auth = await _permissions.authorize(Permission.manageCash, reason: l.safeDropReason(formatMoney(amount)));
+    if (auth == null) return null;
+    try {
+      await _safe.drop(amount, actor: auth.actor, approver: auth.approver, note: note);
+      return l.safeDropDone(formatMoney(amount));
+    } on SafeException catch (e) {
+      return e.message;
+    }
   }
 
   Future<void> _loadRefunds() async {
@@ -108,5 +183,6 @@ class TodayController extends GetxController {
     if (auth == null) return;
     await Get.toNamed<void>(Routes.closeDay, arguments: auth);
     await _loadLock();
+    await _loadShift();
   }
 }

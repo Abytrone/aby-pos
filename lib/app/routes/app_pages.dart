@@ -22,6 +22,9 @@ import '../modules/stock_count/views/stock_count_view.dart';
 import '../modules/stock_item/bindings/stock_item_binding.dart';
 import '../modules/stock_item/views/stock_item_view.dart';
 import '../modules/start/views/start_view.dart';
+import '../modules/cash/bindings/cash_bindings.dart';
+import '../modules/cash/views/momo_view.dart';
+import '../modules/cash/views/safe_view.dart';
 import '../modules/customer/bindings/customer_binding.dart';
 import '../modules/customer/views/customer_view.dart';
 import '../modules/refund/bindings/refund_binding.dart';
@@ -121,6 +124,18 @@ abstract final class AppPages {
       name: Routes.customer,
       page: () => const CustomerView(),
       binding: CustomerBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage<void>(
+      name: Routes.safe,
+      page: () => const SafeView(),
+      binding: SafeBinding(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage<void>(
+      name: Routes.momo,
+      page: () => const MomoView(),
+      binding: MomoBinding(),
       middlewares: [AuthMiddleware()],
     ),
   ];

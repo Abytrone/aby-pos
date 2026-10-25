@@ -1204,8 +1204,33 @@ Decisions made on the way:
 - Left for later: deposits / layaway with reserved stock (`CUS-03`), loyalty (`CUS-04`) and gift
   vouchers (`CUS-05`) are Beyond items for phase 6.
 
-**4b next:** shifts with X / Z reports, denomination counting, pay in / out, safe drops, MoMo
-reconciliation. **4c:** expenses, profit and loss, drawings.
+**Status (25 October 2026): 4b built** (cash). Schema version 9. Built:
+
+- `CSH-01`: Today → Cash → *Open the shift* with the float (typed or counted). The X report shows
+  the shift so far. Close day is the Z report: sales, voids, discounts, refunds, payments by
+  method, rounding, float, cash from customers, pay-ins, pay-outs, safe drops, expected cash, the
+  difference, and no-sales per person. Blind count (setting): the expected amount shows only
+  after the count, and the count is then fixed. Over or short by more than the shop's limit
+  needs a reason. Owners see over / short per person for the last 30 days.
+- `CSH-02`: count notes and coins (GH₵ 200 to 1p) for the float and the close; the breakdown is
+  kept with the shift and the close.
+- `CSH-03`: put cash in / take cash out with a reason from the owner's list, a note and a receipt
+  photo (needs `payOut`); the expected cash follows.
+- `CSH-04`: move cash to the safe (needs the new `manageCash`), the safe's balance and history,
+  bank deposits with the bank, slip number and slip photo.
+- `CSH-05`: Check MoMo: every MoMo payment of the day (sales and customer repayments) with its
+  reference; tap to tick it off or flag it missing (flagged ones go in Activity); charges and
+  e-levy on their own line, and what should be in the MoMo wallet.
+
+Decisions made on the way:
+
+- One drawer per device, one open shift at a time. Several drawers on one device, and staff
+  joining a shift, wait for multi-device work (phase 7). Close day still works without opening a
+  shift (the float is typed, as before).
+- Receipt and slip photos stay on the device (like staff photos): see TODO(sync).
+- Pay-outs are not yet expenses; 4c links them.
+
+**4c next:** expenses, profit and loss, drawings.
 
 ### Phase 5: Reports, printing and hardware
 

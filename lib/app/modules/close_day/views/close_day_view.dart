@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../../core/denominations.dart';
 import '../../../models/day_close.dart';
-import '../../../models/enums.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/cash_count_dialog.dart';
+import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../controllers/close_day_controller.dart';
 import '../widgets/difference_box.dart';
+import '../widgets/period_summary.dart';
 
 class CloseDayView extends GetView<CloseDayController> {
   const CloseDayView({super.key});
@@ -17,9 +20,10 @@ class CloseDayView extends GetView<CloseDayController> {
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).extension<AbyColors>()!;
+    final l = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Close day'),
+        title: Text(l.closeDayButton),
         backgroundColor: c.surface,
         surfaceTintColor: Colors.transparent,
         toolbarHeight: 64,
@@ -36,15 +40,25 @@ class CloseDayView extends GetView<CloseDayController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (done != null)
-                    _Closed(close: done, onDone: controller.done)
-                  else
-                    _CountForm(period: period),
+                  if (done != null) _Closed(close: done, onDone: controller.done) else _CountForm(period: period),
                   const SizedBox(height: AbySpace.s8),
-                  Text('PAST CLOSES', style: AbyText.label.copyWith(color: c.inkMuted)),
+                  if (controller.variance.isNotEmpty) ...[
+                    Text(l.closeVarianceTitle.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
+                    const SizedBox(height: AbySpace.s2),
+                    for (final e in controller.variance.entries)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AbySpace.s1),
+                        child: Text(
+                          l.closeVarianceLine(e.key, e.value.$1, formatMoney(e.value.$2), e.value.$3),
+                          style: AbyText.body.copyWith(color: e.value.$1 > 0 ? c.danger : c.ink),
+                        ),
+                      ),
+                    const SizedBox(height: AbySpace.s6),
+                  ],
+                  Text(l.closePast.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
                   const SizedBox(height: AbySpace.s2),
                   if (controller.history.isEmpty)
-                    Text('No closes yet.', style: AbyText.body.copyWith(color: c.inkMuted))
+                    Text(l.closeNone, style: AbyText.body.copyWith(color: c.inkMuted))
                   else
                     for (final close in controller.history) _HistoryRow(close: close),
                 ],
@@ -57,13 +71,6 @@ class CloseDayView extends GetView<CloseDayController> {
   }
 }
 
-String _when(DateTime? t) {
-  if (t == null) return 'the first sale';
-  final l = t.toLocal();
-  String two(int n) => n.toString().padLeft(2, '0');
-  return '${two(l.day)}/${two(l.month)}/${l.year} ${two(l.hour)}:${two(l.minute)}';
-}
-
 class _CountForm extends GetView<CloseDayController> {
   const _CountForm({required this.period});
 
@@ -72,125 +79,110 @@ class _CountForm extends GetView<CloseDayController> {
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).extension<AbyColors>()!;
+    final l = context.l10n;
     final moneyFormat = [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))];
-    Widget line(String label, String value, {bool strong = false}) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: AbySpace.s1),
-          child: Row(children: [
-            Expanded(child: Text(label, style: AbyText.body.copyWith(color: strong ? c.ink : c.inkMuted))),
-            Text(value,
-                style: (strong ? AbyText.heading : AbyText.body).copyWith(
-                  color: c.ink,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                )),
+    return Obx(() {
+      final show = controller.showExpected;
+      final fixed = controller.blind && controller.revealed.value;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(period.from == null ? l.closeSinceFirst : l.closeSince(formatDateTime(period.from!)),
+              style: AbyText.body.copyWith(color: c.inkMuted)),
+          if (period.shiftOpenedBy != null)
+            Text(l.closeShiftBy(period.shiftOpenedBy!, formatMoney(period.shiftFloat!)),
+                style: AbyText.body.copyWith(color: c.inkMuted)),
+          const SizedBox(height: AbySpace.s3),
+          if (controller.oldParked.value > 0)
+            Container(
+              margin: const EdgeInsets.only(bottom: AbySpace.s3),
+              padding: const EdgeInsets.all(AbySpace.s3),
+              decoration: BoxDecoration(color: c.warningSoft, borderRadius: BorderRadius.circular(AbyRadius.sm)),
+              child: Row(children: [
+                Icon(Icons.pause_circle_outline, color: c.warning),
+                const SizedBox(width: AbySpace.s2),
+                Expanded(child: Text(l.closeParkedWarning(controller.oldParked.value), style: AbyText.body.copyWith(color: c.ink))),
+              ]),
+            ),
+          PeriodSummary(period: period, openingFloat: show ? controller.openingFloat : null, showCash: show),
+          const SizedBox(height: AbySpace.s6),
+          Text(l.closeCountTitle.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
+          if (controller.blind && !controller.revealed.value)
+            Text(l.closeBlindHelp, style: AbyText.caption.copyWith(color: c.inkMuted)),
+          const SizedBox(height: AbySpace.s3),
+          if (period.shiftFloat == null) ...[
+            TextField(
+              controller: controller.floatField,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: moneyFormat,
+              decoration: InputDecoration(labelText: l.closeFloatLabel, prefixText: 'GH₵ ', helperText: l.closeFloatHelp),
+            ),
+            const SizedBox(height: AbySpace.s4),
+          ],
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(
+              child: TextField(
+                controller: controller.countedField,
+                enabled: !fixed,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: moneyFormat,
+                style: AbyText.heading.copyWith(color: c.ink),
+                decoration: InputDecoration(labelText: l.closeCountedLabel, prefixText: 'GH₵ '),
+              ),
+            ),
+            const SizedBox(width: AbySpace.s2),
+            OutlinedButton.icon(
+              onPressed: fixed
+                  ? null
+                  : () async {
+                      final count = await showCashCount(initial: controller.cashCount.value ?? const CashCount());
+                      if (count != null) controller.useCount(count);
+                    },
+              icon: const Icon(Icons.calculate_outlined),
+              label: Text(l.countCashButton),
+            ),
           ]),
-        );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text('Since ${_when(period.from)}', style: AbyText.body.copyWith(color: c.inkMuted)),
-        const SizedBox(height: AbySpace.s3),
-        Obx(() => controller.oldParked.value == 0
-            ? const SizedBox.shrink()
-            : Container(
-                margin: const EdgeInsets.only(bottom: AbySpace.s3),
-                padding: const EdgeInsets.all(AbySpace.s3),
-                decoration: BoxDecoration(color: c.warningSoft, borderRadius: BorderRadius.circular(AbyRadius.sm)),
-                child: Row(children: [
-                  Icon(Icons.pause_circle_outline, color: c.warning),
-                  const SizedBox(width: AbySpace.s2),
-                  Expanded(
-                    child: Text(
-                      context.l10n.closeParkedWarning(controller.oldParked.value),
-                      style: AbyText.body.copyWith(color: c.ink),
-                    ),
-                  ),
-                ]),
-              )),
-        Card(
-          margin: EdgeInsets.zero,
-          child: Padding(
-            padding: const EdgeInsets.all(AbySpace.s4),
-            child: Column(children: [
-              line('Sales', '${period.salesCount}'
-                  '${period.voidedCount > 0 ? '  (${period.voidedCount} voided)' : ''}'),
-              line('Total sales', formatMoney(period.salesTotal), strong: true),
-              const Divider(height: AbySpace.s6),
-              for (final m in PaymentMethod.values)
-                if (const {PaymentMethod.cash, PaymentMethod.momo, PaymentMethod.credit}.contains(m) ||
-                    (period.byMethod[m] ?? 0) > 0)
-                  line(m.label, formatMoney(period.byMethod[m] ?? 0)),
-              if (period.rounding != 0) line(context.l10n.closeRounding, formatMoney(period.rounding)),
-              if (period.refundsCount > 0) ...[
-                const Divider(height: AbySpace.s6),
-                line(context.l10n.closeRefunds(period.refundsCount), '−${formatMoney(period.refundsTotal)}'),
-                for (final e in period.refundsByMethod.entries)
-                  line(context.l10n.closeRefundsBy(e.key.label), '−${formatMoney(e.value)}'),
-              ],
-              if (period.noSaleCount > 0) ...[
-                const Divider(height: AbySpace.s6),
-                for (final e in period.noSales.entries) line(context.l10n.closeNoSales(e.key), '${e.value}'),
-              ],
-            ]),
+          const SizedBox(height: AbySpace.s4),
+          if (show) ...[
+            DifferenceBox(difference: controller.difference),
+            if (controller.needsReason) ...[
+              const SizedBox(height: AbySpace.s3),
+              TextField(
+                controller: controller.reasonField,
+                decoration: InputDecoration(
+                  labelText: l.closeReason,
+                  helperText: l.closeReasonHelp(formatMoney(controller.varianceLimit)),
+                ),
+              ),
+            ],
+          ] else
+            OutlinedButton(
+              onPressed: controller.counted == null ? null : controller.reveal,
+              child: Text(l.closeCheckCount),
+            ),
+          const SizedBox(height: AbySpace.s4),
+          TextField(controller: controller.noteField, maxLines: 2, decoration: InputDecoration(labelText: l.stockNoteOptional)),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AbySpace.s3),
+            child: Text(controller.error.value ?? '', style: AbyText.body.copyWith(color: c.danger)),
           ),
-        ),
-        const SizedBox(height: AbySpace.s6),
-        Text('COUNT THE DRAWER', style: AbyText.label.copyWith(color: c.inkMuted)),
-        const SizedBox(height: AbySpace.s3),
-        TextField(
-          controller: controller.floatField,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: moneyFormat,
-          decoration: const InputDecoration(
-            labelText: 'Float at the start',
-            prefixText: 'GH₵ ',
-            helperText: 'Cash that was in the drawer before the first sale.',
+          FilledButton(
+            onPressed: controller.canClose ? () => _confirm(context) : null,
+            child: Text(l.closeDayButton),
           ),
-        ),
-        const SizedBox(height: AbySpace.s4),
-        TextField(
-          controller: controller.countedField,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: moneyFormat,
-          style: AbyText.heading.copyWith(color: c.ink),
-          decoration: const InputDecoration(labelText: 'Cash counted now', prefixText: 'GH₵ '),
-        ),
-        const SizedBox(height: AbySpace.s4),
-        Obx(() => line('Expected in drawer',
-            controller.expected == null ? '-' : formatMoney(controller.expected!),
-            strong: true)),
-        if (period.cashRefunds > 0)
-          Text(context.l10n.closeExpectedHelp(formatMoney(period.cashRefunds)),
-              style: AbyText.caption.copyWith(color: c.inkMuted)),
-        const SizedBox(height: AbySpace.s3),
-        Obx(() => DifferenceBox(difference: controller.difference)),
-        const SizedBox(height: AbySpace.s4),
-        TextField(
-          controller: controller.noteField,
-          maxLines: 2,
-          decoration: const InputDecoration(labelText: 'Note (optional)'),
-        ),
-        Obx(() => Padding(
-              padding: const EdgeInsets.symmetric(vertical: AbySpace.s3),
-              child: Text(controller.error.value ?? '',
-                  style: AbyText.body.copyWith(color: c.danger)),
-            )),
-        Obx(() => FilledButton(
-              onPressed: controller.canClose ? () => _confirm(context) : null,
-              child: const Text('Close day'),
-            )),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   Future<void> _confirm(BuildContext context) async {
+    final l = context.l10n;
     final ok = await Get.dialog<bool>(AlertDialog(
-      title: const Text('Close the day?'),
-      content: const Text(
-          "Sales up to now can't be voided after this. New sales start a new day."),
+      title: Text(l.closeConfirmTitle),
+      content: Text(l.closeConfirmBody),
       actions: [
-        OutlinedButton(onPressed: () => Get.back(result: false), child: const Text('Not yet')),
-        FilledButton(onPressed: () => Get.back(result: true), child: const Text('Close day')),
+        OutlinedButton(onPressed: () => Get.back(result: false), child: Text(l.closeNotYet)),
+        FilledButton(onPressed: () => Get.back(result: true), child: Text(l.closeDayButton)),
       ],
     ));
     if (ok == true) await controller.closeDay();
@@ -206,26 +198,31 @@ class _Closed extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).extension<AbyColors>()!;
+    final l = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Icon(Icons.check_circle, size: 56, color: c.success),
         const SizedBox(height: AbySpace.s3),
-        Text('Day closed', textAlign: TextAlign.center, style: AbyText.title.copyWith(color: c.ink)),
+        Text(l.closeDone, textAlign: TextAlign.center, style: AbyText.title.copyWith(color: c.ink)),
         const SizedBox(height: AbySpace.s1),
         Text(
-          '${close.salesCount} sales  ·  ${formatMoney(close.salesTotal)}  ·  by ${close.closedByName}',
+          l.closeDoneLine(close.salesCount, formatMoney(close.salesTotal), close.closedByName),
           textAlign: TextAlign.center,
           style: AbyText.body.copyWith(color: c.inkMuted),
         ),
         const SizedBox(height: AbySpace.s4),
         DifferenceBox(difference: close.difference),
+        if (close.varianceReason != null)
+          Padding(
+            padding: const EdgeInsets.only(top: AbySpace.s2),
+            child: Text('“${close.varianceReason}”', textAlign: TextAlign.center, style: AbyText.body.copyWith(color: c.inkMuted)),
+          ),
         const SizedBox(height: AbySpace.s4),
-        Text("Saved on this device. Will sync when you're online.",
-            textAlign: TextAlign.center, style: AbyText.caption.copyWith(color: c.inkMuted)),
+        Text(l.checkoutSavedHere, textAlign: TextAlign.center, style: AbyText.caption.copyWith(color: c.inkMuted)),
         const SizedBox(height: AbySpace.s4),
-        // TODO(print): print the cash-up slip.
-        FilledButton(onPressed: onDone, child: const Text('Done')),
+        // TODO(print): print the Z report.
+        FilledButton(onPressed: onDone, child: Text(l.commonDone)),
       ],
     );
   }
@@ -239,10 +236,9 @@ class _HistoryRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).extension<AbyColors>()!;
+    final l = context.l10n;
     final d = close.difference;
-    final diffText = d == 0
-        ? 'Balanced'
-        : '${d > 0 ? 'Over' : 'Short'} ${formatMoney(d.abs())}';
+    final diffText = d == 0 ? l.closeBalanced : (d > 0 ? l.closeOver(formatMoney(d)) : l.closeShort(formatMoney(-d)));
     return Container(
       constraints: const BoxConstraints(minHeight: AbySize.tapPos),
       padding: const EdgeInsets.symmetric(vertical: AbySpace.s2),
@@ -250,16 +246,16 @@ class _HistoryRow extends StatelessWidget {
       child: Row(children: [
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(_when(close.closedAt), style: AbyText.body.copyWith(color: c.ink)),
-            Text('${close.salesCount} sales  ·  ${close.closedByName}',
-                style: AbyText.caption.copyWith(color: c.inkMuted)),
+            Text(formatDateTime(close.closedAt), style: AbyText.body.copyWith(color: c.ink)),
+            Text(
+              [l.closeSales(close.salesCount), close.closedByName, ?close.varianceReason].join('  ·  '),
+              style: AbyText.caption.copyWith(color: c.inkMuted),
+            ),
           ]),
         ),
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text(formatMoney(close.salesTotal), style: AbyText.price.copyWith(color: c.ink)),
-          Text(diffText,
-              style: AbyText.caption.copyWith(
-                  color: d == 0 ? c.success : (d > 0 ? c.warning : c.danger))),
+          Text(diffText, style: AbyText.caption.copyWith(color: d == 0 ? c.success : (d > 0 ? c.warning : c.danger))),
         ]),
       ]),
     );

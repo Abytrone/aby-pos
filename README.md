@@ -49,6 +49,10 @@ App icons: `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml`.
   methods, the shop's MoMo number and whether a transaction ID is needed). A transaction ID can
   only be used once. Cash totals can be rounded to 10 or 50 pesewas. *Open the drawer (no sale)*
   is in the cart menu and asks for a reason.
+- **Cash:** Today → the cash button: open the shift with a counted float, the X report, put cash in
+  or take it out (with a reason and a receipt photo), move cash to the safe, the safe and bank
+  deposits, and *Check MoMo* against the statement. Close day (the Z report) can count notes and
+  coins, can be blind, and asks why when the drawer is out by more than the shop allows.
 - **Customers:** Manage → Customers, or *Add a customer* on the cart (search by 4 digits of the
   phone). Credit sales go on their account with an optional limit and days to pay; record
   payments, see what is overdue, write off (owner), share a PDF statement or a WhatsApp
@@ -86,7 +90,7 @@ lib/
     ui/                     shared design system: SectionPage, GroupCard, InfoTile, dialogs,
                             PinPad, OptionChip, approval prompt, status dot, labels, formatting
     data/database/          drift tables, AppDatabase, step-by-step migrations, seed
-    data/repositories/      catalog, sale, refund, customer, payment methods, cash events, discounts,
+    data/repositories/      catalog, sale, refund, customer, shift, safe, MoMo, payment methods, cash events, discounts,
                             parked orders, stock, supplier, receiving, stock count, staff, role,
                             day close, audit, settings, outbox:
                             the only code that touches drift
@@ -94,7 +98,7 @@ lib/
                             device, money, ids, PIN hashing, price scheduler, sync (stub)
     models/                 plain Dart domain classes and enums
     modules/                start, setup, sign_in, shell, till, checkout, today, close_day,
-                            refund, customers, customer, products, product_editor, stock, stock_item, receive,
+                            refund, customers, customer, cash (safe, MoMo check), products, product_editor, stock, stock_item, receive,
                             stock_count, supplier, staff, activity, settings
                             (each: controllers, views, widgets, bindings)
 ```

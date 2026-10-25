@@ -2446,6 +2446,241 @@ class AppLocalizationsEn extends AppLocalizations {
       'The customer\'s name, what they owe and the shop\'s name are filled in.';
 
   @override
+  String get permManageCash => 'Look after the safe and check MoMo';
+
+  @override
+  String get reasonsPayIn => 'Pay-in reasons';
+
+  @override
+  String get reasonsPayOut => 'Pay-out reasons';
+
+  @override
+  String get auditBankDeposit => 'Banked from the safe';
+
+  @override
+  String get auditCashPaidIn => 'Cash put in';
+
+  @override
+  String get auditCashPaidOut => 'Cash taken out';
+
+  @override
+  String get auditMomoChecked => 'MoMo payment missing';
+
+  @override
+  String get auditSafeDrop => 'Cash to the safe';
+
+  @override
+  String get auditShiftOpened => 'Shift opened';
+
+  @override
+  String get todayCash => 'Cash';
+
+  @override
+  String get xReportTitle => 'X report (so far)';
+
+  @override
+  String get shiftOpen => 'Open the shift';
+
+  @override
+  String get shiftOpenHelp =>
+      'Count the float: the cash in the drawer before the first sale.';
+
+  @override
+  String get shiftCountFloat => 'Count the float';
+
+  @override
+  String get shiftOpenReason => 'Open the shift.';
+
+  @override
+  String get shiftAlreadyOpen => 'A shift is already open on this till.';
+
+  @override
+  String get payInTitle => 'Put cash in';
+
+  @override
+  String get payOutTitle => 'Take cash out';
+
+  @override
+  String get cashAddReceipt => 'Photo of the receipt';
+
+  @override
+  String get cashReceiptAdded => 'Photo added';
+
+  @override
+  String get safeTitle => 'Safe';
+
+  @override
+  String get safeBalance => 'In the safe';
+
+  @override
+  String get safeEntries => 'In and out';
+
+  @override
+  String get safeNone => 'Nothing in the safe yet.';
+
+  @override
+  String get safeDropTitle => 'Move cash to the safe';
+
+  @override
+  String get safeDropHelp =>
+      'Keeps the drawer low. It comes off what the drawer should hold.';
+
+  @override
+  String get safeAdjustment => 'Correction';
+
+  @override
+  String get bankDepositTitle => 'Take to the bank';
+
+  @override
+  String get bankName => 'Bank';
+
+  @override
+  String get bankSlip => 'Slip number (optional)';
+
+  @override
+  String get bankSlipPhoto => 'Photo of the slip';
+
+  @override
+  String get momoTitle => 'Check MoMo';
+
+  @override
+  String get momoHelp =>
+      'Tap each payment once it is on your MoMo statement (tap again if it is missing).';
+
+  @override
+  String get momoSummary => 'This day';
+
+  @override
+  String get momoCharges => 'Charges and e-levy';
+
+  @override
+  String get momoChargesHelp => 'Taken off by MoMo. Tap to enter.';
+
+  @override
+  String get momoNet => 'Should be in the MoMo wallet';
+
+  @override
+  String get momoTicked => 'Found on the statement';
+
+  @override
+  String get momoPayments => 'Payments';
+
+  @override
+  String get momoNone => 'No MoMo payments on this day.';
+
+  @override
+  String get momoNoReference => 'No reference';
+
+  @override
+  String get countCashTitle => 'Count the cash';
+
+  @override
+  String get countCashButton => 'Count notes';
+
+  @override
+  String get countCashUse => 'Use this total';
+
+  @override
+  String get closeSinceFirst => 'Since the first sale';
+
+  @override
+  String get closeDiscounts => 'Discounts';
+
+  @override
+  String get closeFloat => 'Float at the start';
+
+  @override
+  String get closeCustomerCash => 'Cash from customers';
+
+  @override
+  String get closePayIns => 'Cash put in';
+
+  @override
+  String get closePayOuts => 'Cash taken out';
+
+  @override
+  String get closeSafeDrops => 'Moved to the safe';
+
+  @override
+  String get closeExpected => 'Expected in the drawer';
+
+  @override
+  String get closeCountTitle => 'Count the drawer';
+
+  @override
+  String get closeBlindHelp => 'Count first: the expected amount shows after.';
+
+  @override
+  String get closeFloatLabel => 'Float at the start';
+
+  @override
+  String get closeFloatHelp =>
+      'Cash that was in the drawer before the first sale.';
+
+  @override
+  String get closeCountedLabel => 'Cash counted now';
+
+  @override
+  String get closeCheckCount => 'Check the count';
+
+  @override
+  String get closeReason => 'Why is it over or short?';
+
+  @override
+  String get closeConfirmTitle => 'Close the day?';
+
+  @override
+  String get closeConfirmBody =>
+      'Sales up to now can\'t be voided after this. New sales start a new day.';
+
+  @override
+  String get closeNotYet => 'Not yet';
+
+  @override
+  String get closeDone => 'Day closed';
+
+  @override
+  String get closeFailed => 'Could not close the day. Try again.';
+
+  @override
+  String get closePast => 'Past closes';
+
+  @override
+  String get closeNone => 'No closes yet.';
+
+  @override
+  String get closeBalanced => 'Balanced';
+
+  @override
+  String get closeEnterCount => 'Enter the cash you counted';
+
+  @override
+  String get closeBalancesBox => 'Drawer balances';
+
+  @override
+  String get closeOverBy => 'Over by';
+
+  @override
+  String get closeShortBy => 'Short by';
+
+  @override
+  String get closeVarianceTitle => 'Over and short, last 30 days';
+
+  @override
+  String get settingsBlindCount => 'Blind count at close day';
+
+  @override
+  String get settingsBlindCountHelp =>
+      'The cashier counts before seeing what the drawer should hold.';
+
+  @override
+  String get settingsVarianceLimit => 'Ask why when out by more than';
+
+  @override
+  String get settingsVarianceLimitHelp =>
+      'Over or short by more than this needs a reason.';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }
@@ -3308,11 +3543,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String closeExpectedHelp(String amount) {
-    return 'Takes off $amount given back in cash for refunds.';
-  }
-
-  @override
   String exchangeApprovalReason(String amount) {
     return 'Take back items worth $amount as an exchange.';
   }
@@ -3492,5 +3722,145 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String customerDue(String date) {
     return 'Due $date';
+  }
+
+  @override
+  String shiftOpened(String amount) {
+    return 'Shift opened with $amount.';
+  }
+
+  @override
+  String shiftLine(String name, String time, String float) {
+    return 'Shift opened by $name at $time with $float.';
+  }
+
+  @override
+  String payInReason(String amount) {
+    return 'Put $amount into the drawer.';
+  }
+
+  @override
+  String payOutReason(String amount) {
+    return 'Take $amount out of the drawer.';
+  }
+
+  @override
+  String payInDone(String amount) {
+    return '$amount put in. This is recorded.';
+  }
+
+  @override
+  String payOutDone(String amount) {
+    return '$amount taken out. This is recorded.';
+  }
+
+  @override
+  String safeDropReason(String amount) {
+    return 'Move $amount to the safe.';
+  }
+
+  @override
+  String safeDropDone(String amount) {
+    return '$amount moved to the safe.';
+  }
+
+  @override
+  String bankDepositAt(String bank) {
+    return 'Banked at $bank';
+  }
+
+  @override
+  String bankDepositReason(String amount) {
+    return 'Bank $amount from the safe.';
+  }
+
+  @override
+  String momoReceived(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count payments',
+      one: '1 payment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String momoUnchecked(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count not checked yet',
+      one: '1 not checked yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String momoMissing(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count missing from the statement',
+      one: '1 missing from the statement',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String closeSince(String time) {
+    return 'Since $time';
+  }
+
+  @override
+  String closeShiftBy(String name, String float) {
+    return 'Shift opened by $name with $float';
+  }
+
+  @override
+  String closeSales(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sales',
+      one: '1 sale',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String closeVoided(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count voided',
+      one: '1 voided',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String closeReasonHelp(String amount) {
+    return 'Needed when the drawer is out by more than $amount.';
+  }
+
+  @override
+  String closeDoneLine(int count, String total, String name) {
+    return '$count sales  ·  $total  ·  by $name';
+  }
+
+  @override
+  String closeOver(String amount) {
+    return 'Over $amount';
+  }
+
+  @override
+  String closeShort(String amount) {
+    return 'Short $amount';
+  }
+
+  @override
+  String closeVarianceLine(String name, int shorts, String amount, int overs) {
+    return '$name: short $shorts times ($amount), over $overs times';
   }
 }

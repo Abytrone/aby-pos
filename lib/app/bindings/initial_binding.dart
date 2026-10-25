@@ -6,6 +6,9 @@ import '../data/repositories/cash_event_repository.dart';
 import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/customer_repository.dart';
 import '../data/repositories/day_close_repository.dart';
+import '../data/repositories/momo_repository.dart';
+import '../data/repositories/safe_repository.dart';
+import '../data/repositories/shift_repository.dart';
 import '../data/repositories/discount_repository.dart';
 import '../data/repositories/outbox_repository.dart';
 import '../data/repositories/parked_order_repository.dart';
@@ -58,7 +61,17 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => CatalogueIo(Get.find(), Get.find(), audit), fenix: true);
     Get.lazyPut(() => CashEventRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => CustomerRepository(db, device, audit), fenix: true);
-    Get.lazyPut(() => DayCloseRepository(db, device, audit, Get.find<CashEventRepository>(), Get.find<CustomerRepository>()), fenix: true);
+    Get.lazyPut(() => ShiftRepository(db, device, audit), fenix: true);
+    Get.lazyPut(() => SafeRepository(db, device, audit, Get.find<CashEventRepository>()), fenix: true);
+    Get.lazyPut(() => MomoRepository(db, device, audit), fenix: true);
+    Get.lazyPut(() => DayCloseRepository(
+          db,
+          device,
+          audit,
+          Get.find<CashEventRepository>(),
+          Get.find<CustomerRepository>(),
+          Get.find<ShiftRepository>(),
+        ), fenix: true);
     Get.lazyPut(() => RefundRepository(db, device, audit, Get.find(), Get.find<CustomerRepository>()), fenix: true);
     Get.lazyPut(() => PayMethodRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => SaleRepository(db, Get.find(), Get.find(), audit, device, Get.find<RefundRepository>(), Get.find<CustomerRepository>()), fenix: true);

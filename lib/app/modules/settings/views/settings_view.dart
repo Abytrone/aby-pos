@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../../core/settings.dart';
 import '../../../models/enums.dart';
+import '../../../services/money.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/format.dart';
@@ -250,6 +251,25 @@ class SettingsView extends GetView<SettingsController> {
           if (v != null) await c.save(AppSettings.parkedWarnHours, v);
         },
       ), keywords: ['park', 'hold', 'open orders']),
+      _Entry(payments, InfoTile(
+        title: l.settingsBlindCount,
+        subtitle: l.settingsBlindCountHelp,
+        trailing: Switch(value: c.value(AppSettings.blindCount), onChanged: (v) => c.save(AppSettings.blindCount, v)),
+      ), keywords: ['close day', 'count', 'drawer', 'shift']),
+      _Entry(payments, InfoTile(
+        title: l.settingsVarianceLimit,
+        subtitle: l.settingsVarianceLimitHelp,
+        value: formatMoney(c.value(AppSettings.varianceLimit)),
+        onTap: () async {
+          final v = await choiceDialog<int>(
+            title: l.settingsVarianceLimit,
+            options: const [0, 100, 200, 500, 1000, 2000],
+            label: formatMoney,
+            selected: c.value(AppSettings.varianceLimit),
+          );
+          if (v != null) await c.save(AppSettings.varianceLimit, v);
+        },
+      ), keywords: ['short', 'over', 'close day', 'drawer']),
       _Entry(security, InfoTile(
         title: l.settingsAutoLock,
         subtitle: l.settingsAutoLockHelp,

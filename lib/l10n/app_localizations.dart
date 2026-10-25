@@ -4840,6 +4840,462 @@ abstract class AppLocalizations {
   /// **'The customer\'s name, what they owe and the shop\'s name are filled in.'**
   String get settingsReminderHelp;
 
+  /// No description provided for @permManageCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Look after the safe and check MoMo'**
+  String get permManageCash;
+
+  /// No description provided for @reasonsPayIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay-in reasons'**
+  String get reasonsPayIn;
+
+  /// No description provided for @reasonsPayOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay-out reasons'**
+  String get reasonsPayOut;
+
+  /// No description provided for @auditBankDeposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Banked from the safe'**
+  String get auditBankDeposit;
+
+  /// No description provided for @auditCashPaidIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash put in'**
+  String get auditCashPaidIn;
+
+  /// No description provided for @auditCashPaidOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash taken out'**
+  String get auditCashPaidOut;
+
+  /// No description provided for @auditMomoChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'MoMo payment missing'**
+  String get auditMomoChecked;
+
+  /// No description provided for @auditSafeDrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash to the safe'**
+  String get auditSafeDrop;
+
+  /// No description provided for @auditShiftOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift opened'**
+  String get auditShiftOpened;
+
+  /// No description provided for @todayCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get todayCash;
+
+  /// No description provided for @xReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'X report (so far)'**
+  String get xReportTitle;
+
+  /// No description provided for @shiftOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the shift'**
+  String get shiftOpen;
+
+  /// No description provided for @shiftOpenHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Count the float: the cash in the drawer before the first sale.'**
+  String get shiftOpenHelp;
+
+  /// No description provided for @shiftCountFloat.
+  ///
+  /// In en, this message translates to:
+  /// **'Count the float'**
+  String get shiftCountFloat;
+
+  /// No description provided for @shiftOpenReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the shift.'**
+  String get shiftOpenReason;
+
+  /// No description provided for @shiftAlreadyOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'A shift is already open on this till.'**
+  String get shiftAlreadyOpen;
+
+  /// No description provided for @payInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Put cash in'**
+  String get payInTitle;
+
+  /// No description provided for @payOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Take cash out'**
+  String get payOutTitle;
+
+  /// No description provided for @cashAddReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo of the receipt'**
+  String get cashAddReceipt;
+
+  /// No description provided for @cashReceiptAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo added'**
+  String get cashReceiptAdded;
+
+  /// No description provided for @safeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe'**
+  String get safeTitle;
+
+  /// No description provided for @safeBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'In the safe'**
+  String get safeBalance;
+
+  /// No description provided for @safeEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'In and out'**
+  String get safeEntries;
+
+  /// No description provided for @safeNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in the safe yet.'**
+  String get safeNone;
+
+  /// No description provided for @safeDropTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move cash to the safe'**
+  String get safeDropTitle;
+
+  /// No description provided for @safeDropHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps the drawer low. It comes off what the drawer should hold.'**
+  String get safeDropHelp;
+
+  /// No description provided for @safeAdjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Correction'**
+  String get safeAdjustment;
+
+  /// No description provided for @bankDepositTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Take to the bank'**
+  String get bankDepositTitle;
+
+  /// No description provided for @bankName.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get bankName;
+
+  /// No description provided for @bankSlip.
+  ///
+  /// In en, this message translates to:
+  /// **'Slip number (optional)'**
+  String get bankSlip;
+
+  /// No description provided for @bankSlipPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo of the slip'**
+  String get bankSlipPhoto;
+
+  /// No description provided for @momoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check MoMo'**
+  String get momoTitle;
+
+  /// No description provided for @momoHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap each payment once it is on your MoMo statement (tap again if it is missing).'**
+  String get momoHelp;
+
+  /// No description provided for @momoSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'This day'**
+  String get momoSummary;
+
+  /// No description provided for @momoCharges.
+  ///
+  /// In en, this message translates to:
+  /// **'Charges and e-levy'**
+  String get momoCharges;
+
+  /// No description provided for @momoChargesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken off by MoMo. Tap to enter.'**
+  String get momoChargesHelp;
+
+  /// No description provided for @momoNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Should be in the MoMo wallet'**
+  String get momoNet;
+
+  /// No description provided for @momoTicked.
+  ///
+  /// In en, this message translates to:
+  /// **'Found on the statement'**
+  String get momoTicked;
+
+  /// No description provided for @momoPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get momoPayments;
+
+  /// No description provided for @momoNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No MoMo payments on this day.'**
+  String get momoNone;
+
+  /// No description provided for @momoNoReference.
+  ///
+  /// In en, this message translates to:
+  /// **'No reference'**
+  String get momoNoReference;
+
+  /// No description provided for @countCashTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Count the cash'**
+  String get countCashTitle;
+
+  /// No description provided for @countCashButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Count notes'**
+  String get countCashButton;
+
+  /// No description provided for @countCashUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this total'**
+  String get countCashUse;
+
+  /// No description provided for @closeSinceFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Since the first sale'**
+  String get closeSinceFirst;
+
+  /// No description provided for @closeDiscounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Discounts'**
+  String get closeDiscounts;
+
+  /// No description provided for @closeFloat.
+  ///
+  /// In en, this message translates to:
+  /// **'Float at the start'**
+  String get closeFloat;
+
+  /// No description provided for @closeCustomerCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash from customers'**
+  String get closeCustomerCash;
+
+  /// No description provided for @closePayIns.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash put in'**
+  String get closePayIns;
+
+  /// No description provided for @closePayOuts.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash taken out'**
+  String get closePayOuts;
+
+  /// No description provided for @closeSafeDrops.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved to the safe'**
+  String get closeSafeDrops;
+
+  /// No description provided for @closeExpected.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected in the drawer'**
+  String get closeExpected;
+
+  /// No description provided for @closeCountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Count the drawer'**
+  String get closeCountTitle;
+
+  /// No description provided for @closeBlindHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Count first: the expected amount shows after.'**
+  String get closeBlindHelp;
+
+  /// No description provided for @closeFloatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Float at the start'**
+  String get closeFloatLabel;
+
+  /// No description provided for @closeFloatHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash that was in the drawer before the first sale.'**
+  String get closeFloatHelp;
+
+  /// No description provided for @closeCountedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash counted now'**
+  String get closeCountedLabel;
+
+  /// No description provided for @closeCheckCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the count'**
+  String get closeCheckCount;
+
+  /// No description provided for @closeReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why is it over or short?'**
+  String get closeReason;
+
+  /// No description provided for @closeConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Close the day?'**
+  String get closeConfirmTitle;
+
+  /// No description provided for @closeConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales up to now can\'t be voided after this. New sales start a new day.'**
+  String get closeConfirmBody;
+
+  /// No description provided for @closeNotYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet'**
+  String get closeNotYet;
+
+  /// No description provided for @closeDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Day closed'**
+  String get closeDone;
+
+  /// No description provided for @closeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not close the day. Try again.'**
+  String get closeFailed;
+
+  /// No description provided for @closePast.
+  ///
+  /// In en, this message translates to:
+  /// **'Past closes'**
+  String get closePast;
+
+  /// No description provided for @closeNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No closes yet.'**
+  String get closeNone;
+
+  /// No description provided for @closeBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get closeBalanced;
+
+  /// No description provided for @closeEnterCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the cash you counted'**
+  String get closeEnterCount;
+
+  /// No description provided for @closeBalancesBox.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawer balances'**
+  String get closeBalancesBox;
+
+  /// No description provided for @closeOverBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Over by'**
+  String get closeOverBy;
+
+  /// No description provided for @closeShortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Short by'**
+  String get closeShortBy;
+
+  /// No description provided for @closeVarianceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Over and short, last 30 days'**
+  String get closeVarianceTitle;
+
+  /// No description provided for @settingsBlindCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Blind count at close day'**
+  String get settingsBlindCount;
+
+  /// No description provided for @settingsBlindCountHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The cashier counts before seeing what the drawer should hold.'**
+  String get settingsBlindCountHelp;
+
+  /// No description provided for @settingsVarianceLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask why when out by more than'**
+  String get settingsVarianceLimit;
+
+  /// No description provided for @settingsVarianceLimitHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Over or short by more than this needs a reason.'**
+  String get settingsVarianceLimitHelp;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -5734,12 +6190,6 @@ abstract class AppLocalizations {
   /// **'Drawer opened without a sale: {name}'**
   String closeNoSales(String name);
 
-  /// No description provided for @closeExpectedHelp.
-  ///
-  /// In en, this message translates to:
-  /// **'Takes off {amount} given back in cash for refunds.'**
-  String closeExpectedHelp(String amount);
-
   /// No description provided for @exchangeApprovalReason.
   ///
   /// In en, this message translates to:
@@ -5943,6 +6393,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Due {date}'**
   String customerDue(String date);
+
+  /// No description provided for @shiftOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift opened with {amount}.'**
+  String shiftOpened(String amount);
+
+  /// No description provided for @shiftLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift opened by {name} at {time} with {float}.'**
+  String shiftLine(String name, String time, String float);
+
+  /// No description provided for @payInReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Put {amount} into the drawer.'**
+  String payInReason(String amount);
+
+  /// No description provided for @payOutReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Take {amount} out of the drawer.'**
+  String payOutReason(String amount);
+
+  /// No description provided for @payInDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} put in. This is recorded.'**
+  String payInDone(String amount);
+
+  /// No description provided for @payOutDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} taken out. This is recorded.'**
+  String payOutDone(String amount);
+
+  /// No description provided for @safeDropReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Move {amount} to the safe.'**
+  String safeDropReason(String amount);
+
+  /// No description provided for @safeDropDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} moved to the safe.'**
+  String safeDropDone(String amount);
+
+  /// No description provided for @bankDepositAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Banked at {bank}'**
+  String bankDepositAt(String bank);
+
+  /// No description provided for @bankDepositReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank {amount} from the safe.'**
+  String bankDepositReason(String amount);
+
+  /// No description provided for @momoReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 payment} other{{count} payments}}'**
+  String momoReceived(int count);
+
+  /// No description provided for @momoUnchecked.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 not checked yet} other{{count} not checked yet}}'**
+  String momoUnchecked(int count);
+
+  /// No description provided for @momoMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 missing from the statement} other{{count} missing from the statement}}'**
+  String momoMissing(int count);
+
+  /// No description provided for @closeSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Since {time}'**
+  String closeSince(String time);
+
+  /// No description provided for @closeShiftBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift opened by {name} with {float}'**
+  String closeShiftBy(String name, String float);
+
+  /// No description provided for @closeSales.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 sale} other{{count} sales}}'**
+  String closeSales(int count);
+
+  /// No description provided for @closeVoided.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 voided} other{{count} voided}}'**
+  String closeVoided(int count);
+
+  /// No description provided for @closeReasonHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed when the drawer is out by more than {amount}.'**
+  String closeReasonHelp(String amount);
+
+  /// No description provided for @closeDoneLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sales  ·  {total}  ·  by {name}'**
+  String closeDoneLine(int count, String total, String name);
+
+  /// No description provided for @closeOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Over {amount}'**
+  String closeOver(String amount);
+
+  /// No description provided for @closeShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short {amount}'**
+  String closeShort(String amount);
+
+  /// No description provided for @closeVarianceLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: short {shorts} times ({amount}), over {overs} times'**
+  String closeVarianceLine(String name, int shorts, String amount, int overs);
 }
 
 class _AppLocalizationsDelegate

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/l10n.dart';
 
 /// "Drawer balances", "Over by" or "Short by". Pesewas.
 class DifferenceBox extends StatelessWidget {
@@ -15,11 +16,12 @@ class DifferenceBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = Theme.of(context).extension<AbyColors>()!;
     final d = difference;
+    final l = context.l10n;
     final (label, fg, bg) = switch (d) {
-      null => ('Enter the cash you counted', c.inkMuted, c.surfaceSunken),
-      0 => ('Drawer balances', c.success, c.successSoft),
-      > 0 => ('Over by', c.warning, c.warningSoft),
-      _ => ('Short by', c.danger, c.dangerSoft),
+      null => (l.closeEnterCount, c.inkMuted, c.surfaceSunken),
+      0 => (l.closeBalancesBox, c.success, c.successSoft),
+      > 0 => (l.closeOverBy, c.warning, c.warningSoft),
+      _ => (l.closeShortBy, c.danger, c.dangerSoft),
     };
     return Container(
       padding: const EdgeInsets.all(AbySpace.s4),

@@ -560,6 +560,73 @@ class CashEvents extends Table with SyncColumns {
   TextColumn get staffId => text()();
   TextColumn get staffName => text()();
   TextColumn get approverName => text().nullable()();
+
+  /// More detail ("Bought ice from Mr Issah"). v9.
+  TextColumn get note => text().nullable()();
+}
+
+/// Photos of receipts and bank slips (pay-outs, deposits). Kept apart so
+/// they stay out of sync payloads, like staff photos.
+// TODO(sync): upload receipt photos as files.
+@DataClassName('ReceiptPhotoRow')
+class ReceiptPhotos extends Table {
+  /// The cash event or safe entry the photo belongs to.
+  TextColumn get ownerId => text()();
+  BlobColumn get image => blob()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {ownerId};
+}
+
+/// A drawer's shift: who opened it with what float. The close (Z report)
+/// is a DayCloses row that points back here.
+@DataClassName('ShiftRow')
+class Shifts extends Table with SyncColumns {
+  TextColumn get status => textEnum<ShiftStatus>()();
+  TextColumn get openedById => text()();
+  TextColumn get openedByName => text()();
+
+  /// Pesewas, and the notes and coins counted (JSON {"20000": 2, ...}).
+  IntColumn get openingFloat => integer()();
+  TextColumn get floatCount => text().nullable()();
+  TextColumn get closeId => text().nullable()();
+}
+
+/// The safe: one ledger for the shop. Drops are + (in from a drawer),
+/// deposits are − (to the bank). The balance is the sum.
+@DataClassName('SafeEntryRow')
+class SafeEntries extends Table with SyncColumns {
+  TextColumn get kind => textEnum<SafeEntryKind>()();
+  IntColumn get amount => integer()();
+  TextColumn get bank => text().nullable()();
+  TextColumn get reference => text().nullable()();
+  TextColumn get note => text().nullable()();
+  TextColumn get byName => text()();
+}
+
+/// The owner ticking MoMo payments off against their MoMo statement.
+@DataClassName('MomoCheckRow')
+class MomoChecks extends Table with SyncColumns {
+  /// 'sale' (a payments row) or 'customer' (a customer_ledger row).
+  TextColumn get source => text()();
+  TextColumn get itemId => text()();
+  BoolColumn get matched => boolean()();
+  TextColumn get byName => text()();
+
+  @override
+  List<Set<Column<Object>>> get uniqueKeys => [
+        {source, itemId},
+      ];
+}
+
+/// MoMo charges and e-levy taken off on a day, shown on their own line.
+@DataClassName('MomoChargeRow')
+class MomoCharges extends Table with SyncColumns {
+  DateTimeColumn get day => dateTime()();
+  IntColumn get amount => integer()();
+  TextColumn get note => text().nullable()();
+  TextColumn get byName => text()();
 }
 
 /// Discounts the owner saves for reuse: "Student 10%", "Staff meal GH₵ 5 off".
@@ -722,6 +789,21 @@ class DayCloses extends Table with SyncColumns {
   /// Cash from customers that was not a sale: repayments, wallet top-ups,
   /// change kept. [expectedCash] includes it. v8.
   IntColumn get customerCash => integer().withDefault(const Constant(0))();
+
+  /// The shift this close ends, and the notes and coins counted at open and
+  /// close (JSON {"20000": 2, ...}). v9.
+  TextColumn get shiftId => text().nullable()();
+  TextColumn get floatCount => text().nullable()();
+  TextColumn get cashCount => text().nullable()();
+
+  /// Why the drawer was over or short, when more than the shop allows. v9.
+  TextColumn get varianceReason => text().nullable()();
+
+  /// Pesewas put in, taken out and dropped to the safe; and discounts. v9.
+  IntColumn get payIns => integer().withDefault(const Constant(0))();
+  IntColumn get payOuts => integer().withDefault(const Constant(0))();
+  IntColumn get safeDrops => integer().withDefault(const Constant(0))();
+  IntColumn get discountTotal => integer().withDefault(const Constant(0))();
 }
 
 /// Tamper-evident record of sensitive actions. Each row stores the hash of

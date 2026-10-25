@@ -52,6 +52,8 @@ const defaultReasons = {
   ReasonKind.voidSale: ['Customer changed their mind', 'Wrong item rung up', 'Payment did not go through', 'Training', 'Other'],
   ReasonKind.refund: ['Customer not happy', 'Wrong item', 'Damaged or melted', 'Other'],
   ReasonKind.noSale: ['Give change', 'Check the float', 'Other'],
+  ReasonKind.payIn: ['Change from the bank', 'Owner put money in', 'Other'],
+  ReasonKind.payOut: ['Ice', 'Transport', 'Supplies', 'Owner took money', 'Other'],
 };
 
 /// Stable row ID for a built-in payment method.
@@ -102,6 +104,11 @@ const builtInPayMethods = [
   RefundLines,
   RefundPayments,
   CashEvents,
+  ReceiptPhotos,
+  Shifts,
+  SafeEntries,
+  MomoChecks,
+  MomoCharges,
   Discounts,
   Reasons,
   ParkedOrders,
@@ -131,7 +138,7 @@ class AppDatabase extends _$AppDatabase {
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -379,20 +386,38 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(schema.dayCloses, schema.dayCloses.customerCash);
             await _insertBuiltInPayMethods(deviceId);
             // Managers look after customers too.
-            final manager = await customSelect(
-              'SELECT permissions FROM roles WHERE id = ?',
-              variables: [Variable.withString(BuiltInRole.manager.id)],
-            ).getSingleOrNull();
-            if (manager != null) {
-              final perms = (jsonDecode(manager.read<String>('permissions')) as List).cast<String>();
-              if (!perms.contains(Permission.manageCustomers.name)) {
-                await customStatement('UPDATE roles SET permissions = ? WHERE id = ?', [
-                  jsonEncode([...perms, Permission.manageCustomers.name]),
-                  BuiltInRole.manager.id,
-                ]);
-              }
-            }
+            await _grantToManager(Permission.manageCustomers);
             await _customersFromCreditBook(deviceId);
+          },
+          // v9: shifts, notes and coins counts, pay in / out, the safe, MoMo
+          // reconciliation.
+          from8To9: (m, schema) async {
+            final deviceId = await _ensureDeviceId();
+            for (final table in [
+              schema.receiptPhotos,
+              schema.shifts,
+              schema.safeEntries,
+              schema.momoChecks,
+              schema.momoCharges,
+            ]) {
+              await m.createTable(table);
+            }
+            await m.addColumn(schema.cashEvents, schema.cashEvents.note);
+            final closes = schema.dayCloses;
+            for (final column in [
+              closes.shiftId,
+              closes.floatCount,
+              closes.cashCount,
+              closes.varianceReason,
+              closes.payIns,
+              closes.payOuts,
+              closes.safeDrops,
+              closes.discountTotal,
+            ]) {
+              await m.addColumn(closes, column);
+            }
+            await _insertDefaultReasons(deviceId);
+            await _grantToManager(Permission.manageCash);
           },
         ),
         beforeOpen: (details) async {
@@ -406,6 +431,22 @@ class AppDatabase extends _$AppDatabase {
           }
         },
       );
+
+  /// Adds a new permission to the built-in Manager role (raw SQL, so it
+  /// works in any migration step).
+  Future<void> _grantToManager(Permission permission) async {
+    final manager = await customSelect(
+      'SELECT permissions FROM roles WHERE id = ?',
+      variables: [Variable.withString(BuiltInRole.manager.id)],
+    ).getSingleOrNull();
+    if (manager == null) return;
+    final perms = (jsonDecode(manager.read<String>('permissions')) as List).cast<String>();
+    if (perms.contains(permission.name)) return;
+    await customStatement('UPDATE roles SET permissions = ? WHERE id = ?', [
+      jsonEncode([...perms, permission.name]),
+      BuiltInRole.manager.id,
+    ]);
+  }
 
   /// Before v8 a credit sale only had the customer's name or phone as
   /// text. Each distinct one becomes a customer, with their credit sales

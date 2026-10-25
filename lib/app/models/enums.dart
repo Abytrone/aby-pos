@@ -54,15 +54,22 @@ enum DiscountKind { percent, amount }
 enum DiscountScope { line, order, any }
 
 /// Lists of reasons the owner manages, one per purpose.
-enum ReasonKind { discount, voidSale, refund, noSale }
+enum ReasonKind { discount, voidSale, refund, noSale, payIn, payOut }
 
 /// Takeaway, eat-in or delivery, when the shop switches order types on.
 enum OrderType { takeaway, eatIn, delivery }
 
 enum ParkedOrderStatus { parked, resumed, discarded }
 
-/// Drawer events that are not sales. Pay in / pay out come with phase 4.
-enum CashEventKind { noSale }
+/// Drawer events that are not sales: opening it without one, cash put in
+/// (change from the bank) or taken out (paying for ice), and cash moved to
+/// the safe.
+enum CashEventKind { noSale, payIn, payOut, safeDrop }
+
+/// The safe: cash dropped in from drawers, taken to the bank, or corrected.
+enum SafeEntryKind { drop, deposit, adjustment }
+
+enum ShiftStatus { open, closed }
 
 /// A customer's two accounts: what they owe (credit book) and what the shop
 /// holds for them (wallet / store credit).

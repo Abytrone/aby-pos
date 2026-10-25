@@ -12,6 +12,8 @@ import '../../../ui/l10n.dart';
 import '../../../ui/option_chip.dart';
 import '../../../ui/section_page.dart';
 import '../controllers/today_controller.dart';
+import '../../../routes/app_routes.dart';
+import '../widgets/cash_dialogs.dart';
 import '../widgets/sale_row.dart';
 import '../widgets/summary_cards.dart';
 
@@ -25,16 +27,28 @@ class TodayView extends GetView<TodayController> {
     return SectionPage(
       title: l.navToday,
       actions: [
-        OutlinedButton.icon(
-          onPressed: () => _find(context),
-          icon: const Icon(Icons.search),
-          label: Text(l.todayFind),
-        ),
-        PopupMenuButton<String>(
-          tooltip: l.commonMore,
-          onSelected: (_) => controller.openRefund(null),
-          itemBuilder: (_) => [PopupMenuItem(value: 'noReceipt', child: Text(l.todayRefundNoReceipt))],
-        ),
+        OutlinedButton.icon(onPressed: () => _find(context), icon: const Icon(Icons.search), label: Text(l.todayFind)),
+        Obx(() {
+          // Read here: the menu items are built later, outside this Obx.
+          final noShift = controller.shift.value == null;
+          return PopupMenuButton<String>(
+            tooltip: l.todayCash,
+            icon: const Icon(Icons.payments_outlined),
+            onSelected: (v) => _cash(context, v),
+            itemBuilder: (_) => [
+              if (noShift) PopupMenuItem(value: 'open', child: Text(l.shiftOpen)),
+              PopupMenuItem(value: 'x', child: Text(l.xReportTitle)),
+              PopupMenuItem(value: 'in', child: Text(l.payInTitle)),
+              PopupMenuItem(value: 'out', child: Text(l.payOutTitle)),
+              PopupMenuItem(value: 'drop', child: Text(l.safeDropTitle)),
+              if (controller.canManageCash) ...[
+                PopupMenuItem(value: 'safe', child: Text(l.safeTitle)),
+                PopupMenuItem(value: 'momo', child: Text(l.momoTitle)),
+              ],
+              PopupMenuItem(value: 'noReceipt', child: Text(l.todayRefundNoReceipt)),
+            ],
+          );
+        }),
         FilledButton(onPressed: controller.openCloseDay, child: Text(l.closeDayButton)),
       ],
       child: Obx(() {
@@ -49,7 +63,26 @@ class TodayView extends GetView<TodayController> {
           slivers: [
             SliverPadding(
               padding: const EdgeInsets.all(AbySpace.s4),
-              sliver: SliverToBoxAdapter(child: SummaryCards(summary: controller.summary.value)),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (controller.shift.value != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AbySpace.s3),
+                        child: Text(
+                          l.shiftLine(
+                            controller.shift.value!.openedByName,
+                            formatDateTime(controller.shift.value!.openedAt),
+                            formatMoney(controller.shift.value!.openingFloat),
+                          ),
+                          style: AbyText.body.copyWith(color: c.inkMuted),
+                        ),
+                      ),
+                    SummaryCards(summary: controller.summary.value),
+                  ],
+                ),
+              ),
             ),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(AbySpace.s4, AbySpace.s2, AbySpace.s4, AbySpace.s2),
@@ -92,7 +125,8 @@ class TodayView extends GetView<TodayController> {
                   final r = refunds[i];
                   return InfoTile(
                     leading: Icon(Icons.undo, color: c.warning),
-                    title: '${r.displayNumber}  ·  ${r.saleNumber == null ? l.todayNoReceipt : formatSaleNumber(r.saleNumber!)}',
+                    title:
+                        '${r.displayNumber}  ·  ${r.saleNumber == null ? l.todayNoReceipt : formatSaleNumber(r.saleNumber!)}',
                     subtitle: [
                       formatDateTime(r.at),
                       r.staffName,
@@ -110,6 +144,49 @@ class TodayView extends GetView<TodayController> {
         );
       }),
     );
+  }
+
+  Future<void> _cash(BuildContext context, String action) async {
+    String? message;
+    switch (action) {
+      case 'open':
+        final opened = await showOpenShift();
+        if (opened != null) message = await controller.openShift(opened.$1, opened.$2);
+      case 'x':
+        await showXReport(await controller.xReport());
+      case 'in' || 'out':
+        final payIn = action == 'in';
+        final move = await showPayInOut(
+          payIn: payIn,
+          reasons: payIn ? controller.payInReasons.toList() : controller.payOutReasons.toList(),
+        );
+        if (move != null) {
+          message = await controller.payInOrOut(
+            payIn: payIn,
+            amount: move.amount,
+            reason: move.reason,
+            note: move.note,
+            photo: move.photo,
+          );
+        }
+      case 'drop':
+        final l = context.l10n;
+        final text = await textInputDialog(
+          title: l.safeDropTitle,
+          label: l.checkoutAmount,
+          helper: l.safeDropHelp,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        );
+        final amount = text == null ? null : parseMoney(text);
+        if (amount != null && amount > 0) message = await controller.safeDrop(amount);
+      case 'safe':
+        await Get.toNamed<void>(Routes.safe);
+      case 'momo':
+        await Get.toNamed<void>(Routes.momo);
+      case 'noReceipt':
+        await controller.openRefund(null);
+    }
+    if (message != null) showMessage(message);
   }
 
   Future<void> _find(BuildContext context) async {
@@ -160,16 +237,24 @@ class _VoidDialogState extends State<_VoidDialog> {
       title: Text(l.voidConfirmTitle(widget.sale.displayNumber)),
       content: SizedBox(
         width: 420,
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(l.voidConfirmBody(formatMoney(widget.sale.total))),
-          const SizedBox(height: AbySpace.s4),
-          Text(l.voidWhy.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
-          const SizedBox(height: AbySpace.s2),
-          Wrap(spacing: AbySpace.s2, runSpacing: AbySpace.s2, children: [
-            for (final r in widget.reasons)
-              OptionChip(label: r.name, selected: _reason == r.name, onTap: () => setState(() => _reason = r.name)),
-          ]),
-        ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l.voidConfirmBody(formatMoney(widget.sale.total))),
+            const SizedBox(height: AbySpace.s4),
+            Text(l.voidWhy.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
+            const SizedBox(height: AbySpace.s2),
+            Wrap(
+              spacing: AbySpace.s2,
+              runSpacing: AbySpace.s2,
+              children: [
+                for (final r in widget.reasons)
+                  OptionChip(label: r.name, selected: _reason == r.name, onTap: () => setState(() => _reason = r.name)),
+              ],
+            ),
+          ],
+        ),
       ),
       actions: [
         OutlinedButton(onPressed: () => Get.back<String>(), child: Text(l.voidKeep)),

@@ -41,6 +41,12 @@ enum ActivityFilter {
             AuditAction.customerRepaid,
             AuditAction.walletTopUp,
             AuditAction.creditWrittenOff,
+            AuditAction.cashPaidIn,
+            AuditAction.cashPaidOut,
+            AuditAction.safeDrop,
+            AuditAction.bankDeposit,
+            AuditAction.shiftOpened,
+            AuditAction.momoChecked,
           },
         ActivityFilter.staff => {
             AuditAction.staffAdded,

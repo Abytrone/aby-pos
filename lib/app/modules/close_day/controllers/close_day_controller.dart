@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
+import '../../../core/denominations.dart';
+import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
 import '../../../data/repositories/day_close_repository.dart';
 import '../../../data/repositories/parked_order_repository.dart';
@@ -9,45 +11,62 @@ import '../../../services/auth_service.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
+import '../../../ui/l10n.dart';
 
-/// Cash-up: compare the counted drawer with what the till expects, then
-/// close the period so its sales are locked.
+/// Cash-up (the Z report): compare the counted drawer with what the till
+/// expects, then close the shift so its sales are locked. With a blind
+/// count the expected amount shows only after the count is in.
 class CloseDayController extends GetxController {
   final DayCloseRepository _closes = Get.find();
   final AuthService _auth = Get.find();
+  final SettingsService _settings = Get.find();
 
   /// Who opened this screen (and who approved it), from TodayController.
   final Authorization? _authorization = Get.arguments as Authorization?;
 
   final period = Rxn<OpenPeriod>();
   final history = <DayClose>[].obs;
+  final variance = <String, (int, int, int)>{}.obs;
   final saving = false.obs;
   final error = RxnString();
   final closed = Rxn<DayClose>();
 
-  /// Parked orders older than the warning time (they may be unpaid sales).
-  final oldParked = 0.obs;
-
   final floatField = TextEditingController();
   final countedField = TextEditingController();
   final noteField = TextEditingController();
+  final reasonField = TextEditingController();
+
+  /// The notes and coins, when counted that way.
+  final cashCount = Rxn<CashCount>();
+
+  /// Blind count: the expected amount is shown once the count is checked.
+  final revealed = false.obs;
 
   final _floatText = ''.obs;
   final _countedText = ''.obs;
+  final _reasonText = ''.obs;
+
+  /// Parked orders older than the warning time (they may be unpaid sales).
+  final oldParked = 0.obs;
+
+  bool get blind => _settings.get(AppSettings.blindCount);
+  int get varianceLimit => _settings.get(AppSettings.varianceLimit);
+  bool get canSeeVariance => _auth.can(Permission.viewReports);
 
   @override
   void onInit() {
     super.onInit();
     floatField.addListener(() => _floatText.value = floatField.text);
     countedField.addListener(() => _countedText.value = countedField.text);
+    reasonField.addListener(() => _reasonText.value = reasonField.text);
     load();
   }
 
   @override
   void onClose() {
-    floatField.dispose();
-    countedField.dispose();
-    noteField.dispose();
+    for (final f in [floatField, countedField, noteField, reasonField]) {
+      f.dispose();
+    }
     super.onClose();
   }
 
@@ -55,18 +74,29 @@ class CloseDayController extends GetxController {
     final open = await _closes.openPeriod();
     period.value = open;
     history.assignAll(await _closes.history());
-    final hours = Get.find<SettingsService>().get(AppSettings.parkedWarnHours);
-    oldParked.value = await Get.find<ParkedOrderRepository>().olderThan(Duration(hours: hours));
-    if (floatField.text.isEmpty && open.suggestedFloat > 0) {
+    if (canSeeVariance) variance.assignAll(await _closes.varianceByPerson());
+    if (open.shiftFloat == null && floatField.text.isEmpty && open.suggestedFloat > 0) {
       floatField.text = _plain(open.suggestedFloat);
     }
+    final hours = _settings.get(AppSettings.parkedWarnHours);
+    oldParked.value = await Get.find<ParkedOrderRepository>().olderThan(Duration(hours: hours));
   }
 
-  /// Blank float counts as zero.
-  int? get openingFloat =>
-      _floatText.value.trim().isEmpty ? 0 : parseMoney(_floatText.value);
+  /// From the open shift; otherwise typed (blank counts as zero).
+  int? get openingFloat {
+    final shift = period.value?.shiftFloat;
+    if (shift != null) return shift;
+    return _floatText.value.trim().isEmpty ? 0 : parseMoney(_floatText.value);
+  }
 
   int? get counted => parseMoney(_countedText.value);
+
+  void useCount(CashCount count) {
+    cashCount.value = count;
+    countedField.text = _plain(count.total);
+  }
+
+  bool get showExpected => !blind || revealed.value;
 
   int? get expected {
     final p = period.value;
@@ -81,8 +111,21 @@ class CloseDayController extends GetxController {
     return e == null || c == null ? null : c - e;
   }
 
+  /// Over or short by more than the shop allows: a reason is needed.
+  bool get needsReason => (difference?.abs() ?? 0) > varianceLimit;
+
+  /// Blind count: shows the expected amount; the count is then fixed.
+  void reveal() {
+    if (counted != null) revealed.value = true;
+  }
+
   bool get canClose =>
-      !saving.value && period.value != null && openingFloat != null && counted != null;
+      !saving.value &&
+      period.value != null &&
+      openingFloat != null &&
+      counted != null &&
+      showExpected &&
+      (!needsReason || _reasonText.value.trim().isNotEmpty);
 
   Future<void> closeDay() async {
     if (!canClose) return;
@@ -94,10 +137,12 @@ class CloseDayController extends GetxController {
         countedCash: counted!,
         closedBy: _authorization?.authority ?? _auth.user,
         note: noteField.text,
+        cashCount: cashCount.value,
+        varianceReason: needsReason ? reasonField.text : null,
       );
       history.assignAll(await _closes.history());
     } catch (_) {
-      error.value = 'Could not close the day. Try again.';
+      error.value = appL10n().closeFailed;
     } finally {
       saving.value = false;
     }
@@ -105,6 +150,5 @@ class CloseDayController extends GetxController {
 
   void done() => Get.back<void>();
 
-  static String _plain(int pesewas) =>
-      '${pesewas ~/ 100}.${(pesewas % 100).toString().padLeft(2, '0')}';
+  static String _plain(int pesewas) => '${pesewas ~/ 100}.${(pesewas % 100).toString().padLeft(2, '0')}';
 }

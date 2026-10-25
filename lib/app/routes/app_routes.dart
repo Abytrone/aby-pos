@@ -30,4 +30,6 @@ abstract final class Routes {
 
   /// Argument: the customer ID.
   static const customer = '/customer';
+  static const safe = '/safe';
+  static const momo = '/momo';
 }

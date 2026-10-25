@@ -791,6 +791,82 @@
   "settingsOverLimitBlock": "Not allowed",
   "settingsReminder": "Credit reminder message",
   "settingsReminderHelp": "The customer's name, what they owe and the shop's name are filled in.",
+  "permManageCash": "Look after the safe and check MoMo",
+  "reasonsPayIn": "Pay-in reasons",
+  "reasonsPayOut": "Pay-out reasons",
+  "auditBankDeposit": "Banked from the safe",
+  "auditCashPaidIn": "Cash put in",
+  "auditCashPaidOut": "Cash taken out",
+  "auditMomoChecked": "MoMo payment missing",
+  "auditSafeDrop": "Cash to the safe",
+  "auditShiftOpened": "Shift opened",
+  "todayCash": "Cash",
+  "xReportTitle": "X report (so far)",
+  "shiftOpen": "Open the shift",
+  "shiftOpenHelp": "Count the float: the cash in the drawer before the first sale.",
+  "shiftCountFloat": "Count the float",
+  "shiftOpenReason": "Open the shift.",
+  "shiftAlreadyOpen": "A shift is already open on this till.",
+  "payInTitle": "Put cash in",
+  "payOutTitle": "Take cash out",
+  "cashAddReceipt": "Photo of the receipt",
+  "cashReceiptAdded": "Photo added",
+  "safeTitle": "Safe",
+  "safeBalance": "In the safe",
+  "safeEntries": "In and out",
+  "safeNone": "Nothing in the safe yet.",
+  "safeDropTitle": "Move cash to the safe",
+  "safeDropHelp": "Keeps the drawer low. It comes off what the drawer should hold.",
+  "safeAdjustment": "Correction",
+  "bankDepositTitle": "Take to the bank",
+  "bankName": "Bank",
+  "bankSlip": "Slip number (optional)",
+  "bankSlipPhoto": "Photo of the slip",
+  "momoTitle": "Check MoMo",
+  "momoHelp": "Tap each payment once it is on your MoMo statement (tap again if it is missing).",
+  "momoSummary": "This day",
+  "momoCharges": "Charges and e-levy",
+  "momoChargesHelp": "Taken off by MoMo. Tap to enter.",
+  "momoNet": "Should be in the MoMo wallet",
+  "momoTicked": "Found on the statement",
+  "momoPayments": "Payments",
+  "momoNone": "No MoMo payments on this day.",
+  "momoNoReference": "No reference",
+  "countCashTitle": "Count the cash",
+  "countCashButton": "Count notes",
+  "countCashUse": "Use this total",
+  "closeSinceFirst": "Since the first sale",
+  "closeDiscounts": "Discounts",
+  "closeFloat": "Float at the start",
+  "closeCustomerCash": "Cash from customers",
+  "closePayIns": "Cash put in",
+  "closePayOuts": "Cash taken out",
+  "closeSafeDrops": "Moved to the safe",
+  "closeExpected": "Expected in the drawer",
+  "closeCountTitle": "Count the drawer",
+  "closeBlindHelp": "Count first: the expected amount shows after.",
+  "closeFloatLabel": "Float at the start",
+  "closeFloatHelp": "Cash that was in the drawer before the first sale.",
+  "closeCountedLabel": "Cash counted now",
+  "closeCheckCount": "Check the count",
+  "closeReason": "Why is it over or short?",
+  "closeConfirmTitle": "Close the day?",
+  "closeConfirmBody": "Sales up to now can't be voided after this. New sales start a new day.",
+  "closeNotYet": "Not yet",
+  "closeDone": "Day closed",
+  "closeFailed": "Could not close the day. Try again.",
+  "closePast": "Past closes",
+  "closeNone": "No closes yet.",
+  "closeBalanced": "Balanced",
+  "closeEnterCount": "Enter the cash you counted",
+  "closeBalancesBox": "Drawer balances",
+  "closeOverBy": "Over by",
+  "closeShortBy": "Short by",
+  "closeVarianceTitle": "Over and short, last 30 days",
+  "settingsBlindCount": "Blind count at close day",
+  "settingsBlindCountHelp": "The cashier counts before seeing what the drawer should hold.",
+  "settingsVarianceLimit": "Ask why when out by more than",
+  "settingsVarianceLimitHelp": "Over or short by more than this needs a reason.",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -2051,14 +2127,6 @@
       }
     }
   },
-  "closeExpectedHelp": "Takes off {amount} given back in cash for refunds.",
-  "@closeExpectedHelp": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
   "exchangeApprovalReason": "Take back items worth {amount} as an exchange.",
   "@exchangeApprovalReason": {
     "placeholders": {
@@ -2355,6 +2423,206 @@
     "placeholders": {
       "date": {
         "type": "String"
+      }
+    }
+  },
+  "shiftOpened": "Shift opened with {amount}.",
+  "@shiftOpened": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "shiftLine": "Shift opened by {name} at {time} with {float}.",
+  "@shiftLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "float": {
+        "type": "String"
+      }
+    }
+  },
+  "payInReason": "Put {amount} into the drawer.",
+  "@payInReason": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "payOutReason": "Take {amount} out of the drawer.",
+  "@payOutReason": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "payInDone": "{amount} put in. This is recorded.",
+  "@payInDone": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "payOutDone": "{amount} taken out. This is recorded.",
+  "@payOutDone": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "safeDropReason": "Move {amount} to the safe.",
+  "@safeDropReason": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "safeDropDone": "{amount} moved to the safe.",
+  "@safeDropDone": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "bankDepositAt": "Banked at {bank}",
+  "@bankDepositAt": {
+    "placeholders": {
+      "bank": {
+        "type": "String"
+      }
+    }
+  },
+  "bankDepositReason": "Bank {amount} from the safe.",
+  "@bankDepositReason": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "momoReceived": "{count, plural, =1{1 payment} other{{count} payments}}",
+  "@momoReceived": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "momoUnchecked": "{count, plural, =1{1 not checked yet} other{{count} not checked yet}}",
+  "@momoUnchecked": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "momoMissing": "{count, plural, =1{1 missing from the statement} other{{count} missing from the statement}}",
+  "@momoMissing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "closeSince": "Since {time}",
+  "@closeSince": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "closeShiftBy": "Shift opened by {name} with {float}",
+  "@closeShiftBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "float": {
+        "type": "String"
+      }
+    }
+  },
+  "closeSales": "{count, plural, =1{1 sale} other{{count} sales}}",
+  "@closeSales": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "closeVoided": "{count, plural, =1{1 voided} other{{count} voided}}",
+  "@closeVoided": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "closeReasonHelp": "Needed when the drawer is out by more than {amount}.",
+  "@closeReasonHelp": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "closeDoneLine": "{count} sales  ·  {total}  ·  by {name}",
+  "@closeDoneLine": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closeOver": "Over {amount}",
+  "@closeOver": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "closeShort": "Short {amount}",
+  "@closeShort": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "closeVarianceLine": "{name}: short {shorts} times ({amount}), over {overs} times",
+  "@closeVarianceLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "shorts": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "overs": {
+        "type": "int"
       }
     }
   }

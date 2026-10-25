@@ -53,6 +53,12 @@ abstract final class AppSettings {
     'Hello {name}, a friendly reminder from {shop}: your balance is {amount}. Thank you!',
   );
 
+  /// Close day hides what the drawer should hold until the cash is counted.
+  static const blindCount = Setting<bool>('shift.blindCount', SettingScope.shop, false);
+
+  /// Pesewas over or short above which close day asks for a reason.
+  static const varianceLimit = Setting<int>('shift.varianceLimit', SettingScope.shop, 500);
+
   /// Close day warns about parked orders older than this.
   static const parkedWarnHours = Setting<int>('selling.parkedWarnHours', SettingScope.shop, 12);
 
@@ -97,6 +103,8 @@ abstract final class AppSettings {
     parkedWarnHours,
     cashRoundTo,
     creditOverLimit,
+    blindCount,
+    varianceLimit,
     creditReminder,
     autoLockMinutes,
     autoBackupDaily,

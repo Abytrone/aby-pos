@@ -1,3 +1,4 @@
+import '../core/denominations.dart';
 import 'enums.dart';
 
 /// Takings since the last close, before the drawer is counted. Pesewas.
@@ -17,7 +18,29 @@ class OpenPeriod {
     this.rounding = 0,
     this.noSales = const {},
     this.customerMoney = const {},
+    this.payIns = 0,
+    this.payOuts = 0,
+    this.safeDrops = 0,
+    this.discountTotal = 0,
+    this.shiftId,
+    this.shiftFloat,
+    this.shiftFloatCount = const CashCount(),
+    this.shiftOpenedBy,
   });
+
+  /// Pesewas put into, taken out of, and dropped from the drawer.
+  final int payIns;
+  final int payOuts;
+  final int safeDrops;
+
+  /// Pesewas of discounts on the period's sales.
+  final int discountTotal;
+
+  /// The open shift, when one was opened: its float is the opening float.
+  final String? shiftId;
+  final int? shiftFloat;
+  final CashCount shiftFloatCount;
+  final String? shiftOpenedBy;
 
   /// Money from customers that was not a sale (repayments, wallet top-ups,
   /// change kept), per kind of payment.
@@ -66,8 +89,10 @@ class OpenPeriod {
   int get cashTakings => byMethod[PaymentMethod.cash] ?? 0;
 
   /// Cash that should be in the drawer for a given opening float: the float,
-  /// plus cash taken, minus cash given back.
-  int expectedCash(int openingFloat) => openingFloat + cashTakings + customerCash - cashRefunds;
+  /// plus cash taken and put in, minus cash given back, paid out and dropped
+  /// to the safe.
+  int expectedCash(int openingFloat) =>
+      openingFloat + cashTakings + customerCash + payIns - cashRefunds - payOuts - safeDrops;
 }
 
 /// A closed day (cash-up). Pesewas.
@@ -90,9 +115,25 @@ class DayClose {
     this.otherTakings = 0,
     this.noSaleCount = 0,
     this.customerCash = 0,
+    this.payIns = 0,
+    this.payOuts = 0,
+    this.safeDrops = 0,
+    this.discountTotal = 0,
+    this.voidedCount = 0,
+    this.varianceReason,
+    this.floatCount = const CashCount(),
+    this.cashCount = const CashCount(),
   });
 
   final int customerCash;
+  final int payIns;
+  final int payOuts;
+  final int safeDrops;
+  final int discountTotal;
+  final int voidedCount;
+  final String? varianceReason;
+  final CashCount floatCount;
+  final CashCount cashCount;
   final int refundsTotal;
   final int cashRefunds;
   final int otherTakings;

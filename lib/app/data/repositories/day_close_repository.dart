@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../core/denominations.dart';
 import '../../models/audit.dart';
 import '../../models/day_close.dart';
 import '../../models/enums.dart';
@@ -11,12 +12,14 @@ import '../database/app_database.dart';
 import 'audit_repository.dart';
 import 'cash_event_repository.dart';
 import 'customer_repository.dart';
+import 'shift_repository.dart';
 
 /// End-of-day cash-up for this device's drawer.
 class DayCloseRepository {
-  DayCloseRepository(this._db, this._device, this._audit, [this._cashEvents, this._customers]);
+  DayCloseRepository(this._db, this._device, this._audit, [this._cashEvents, this._customers, this._shifts]);
 
   final CustomerRepository? _customers;
+  final ShiftRepository? _shifts;
 
   final CashEventRepository? _cashEvents;
 
@@ -43,6 +46,7 @@ class DayCloseRepository {
       "COALESCE(SUM(CASE WHEN status = 'completed' THEN 1 END), 0) AS sales_count, "
       "COALESCE(SUM(CASE WHEN status = 'voided' THEN 1 END), 0) AS voided_count, "
       "COALESCE(SUM(CASE WHEN status = 'completed' THEN total END), 0) AS sales_total, "
+      "COALESCE(SUM(CASE WHEN status = 'completed' THEN discount_total END), 0) AS discounts, "
       'COALESCE(MAX(number), 0) AS last_number '
       'FROM sales WHERE device_id = ? AND number > ? AND deleted_at IS NULL',
       variables: [Variable.withString(_device.deviceId), Variable.withInt(after)],
@@ -64,6 +68,9 @@ class DayCloseRepository {
       byMethod[PaymentMethod.values.byName(row.read<String>('method'))] =
           row.read<int>('amount');
     }
+
+    final events = await _cashEvents?.totalsSince(last?.closedAt);
+    final shift = await _shifts?.current();
 
     // Refunds since the last close (numbered per device, like sales).
     final afterRefund = last?.lastRefundNumber ?? 0;
@@ -107,6 +114,14 @@ class DayCloseRepository {
       rounding: rounding.read<int>('r'),
       noSales: await _cashEvents?.noSalesSince(last?.closedAt) ?? const {},
       customerMoney: await _customers?.moneyInSince(last?.closedAt) ?? const {},
+      payIns: events?.payIns ?? 0,
+      payOuts: events?.payOuts ?? 0,
+      safeDrops: events?.safeDrops ?? 0,
+      discountTotal: totals.read<int>('discounts'),
+      shiftId: shift?.id,
+      shiftFloat: shift?.openingFloat,
+      shiftFloatCount: shift?.floatCount ?? const CashCount(),
+      shiftOpenedBy: shift?.openedByName,
     );
   }
 
@@ -117,6 +132,8 @@ class DayCloseRepository {
     required int countedCash,
     required Staff closedBy,
     String? note,
+    CashCount? cashCount,
+    String? varianceReason,
   }) async {
     if (openingFloat < 0 || countedCash < 0) {
       throw ArgumentError('Amounts cannot be negative.');
@@ -159,8 +176,17 @@ class DayCloseRepository {
           roundingTotal: Value(period.rounding),
           noSaleCount: Value(period.noSaleCount),
           customerCash: Value(period.customerCash),
+          shiftId: Value(period.shiftId),
+          floatCount: Value(period.shiftFloatCount.isEmpty ? null : period.shiftFloatCount.toJson()),
+          cashCount: Value(cashCount == null || cashCount.isEmpty ? null : cashCount.toJson()),
+          varianceReason: Value(varianceReason?.trim().isEmpty ?? true ? null : varianceReason!.trim()),
+          payIns: Value(period.payIns),
+          payOuts: Value(period.payOuts),
+          safeDrops: Value(period.safeDrops),
+          discountTotal: Value(period.discountTotal),
         ),
       );
+      if (period.shiftId != null) await _shifts!.close(period.shiftId!, row.id);
       final close = _toModel(row);
       final diff = close.difference;
       await _audit.record(
@@ -204,5 +230,30 @@ class DayCloseRepository {
         otherTakings: r.otherTakings,
         noSaleCount: r.noSaleCount,
         customerCash: r.customerCash,
+        payIns: r.payIns,
+        payOuts: r.payOuts,
+        safeDrops: r.safeDrops,
+        discountTotal: r.discountTotal,
+        voidedCount: r.voidedCount,
+        varianceReason: r.varianceReason,
+        floatCount: CashCount.fromJson(r.floatCount),
+        cashCount: CashCount.fromJson(r.cashCount),
       );
+
+  /// Over and short closes per person over the last [days] (owners only see
+  /// this): (number short, pesewas short, number over).
+  Future<Map<String, (int, int, int)>> varianceByPerson({int days = 30}) async {
+    final since = DateTime.now().subtract(Duration(days: days));
+    final rows = await (_db.select(_db.dayCloses)
+          ..where((d) => d.deletedAt.isNull() & d.closedAt.isBiggerOrEqualValue(since)))
+        .get();
+    final out = <String, (int, int, int)>{};
+    for (final r in rows) {
+      final diff = r.countedCash - r.expectedCash;
+      if (diff == 0) continue;
+      final (shorts, short, overs) = out[r.closedByName] ?? (0, 0, 0);
+      out[r.closedByName] = diff < 0 ? (shorts + 1, short - diff, overs) : (shorts, short, overs + 1);
+    }
+    return out;
+  }
 }

@@ -586,6 +586,55 @@ void main() {
     await _dispose(tester);
   });
 
+  testWidgets('tablet: open the shift, take cash out, close and balance', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await _settle(tester);
+    await tester.tap(find.text('Kofi'));
+    await _settle(tester);
+    await _typePin(tester, '1234');
+
+    await tester.tap(find.text('Today'));
+    await _settle(tester);
+    await tester.tap(find.byTooltip('Cash'));
+    await _settle(tester);
+    await tester.tap(find.text('Open the shift').last);
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Float at the start'), '50');
+    await tester.tap(find.widgetWithText(FilledButton, 'Open the shift'));
+    await _settle(tester);
+    expect(find.textContaining('Shift opened by Kofi'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Cash'));
+    await _settle(tester);
+    await tester.tap(find.text('Take cash out'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Amount'), '10');
+    await tester.tap(find.text('Ice'));
+    await tester.tap(find.text('Save'));
+    await _settle(tester);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Close day'));
+    await _settle(tester);
+    expect(find.textContaining('Shift opened by Kofi with GH₵ 50.00'), findsOneWidget);
+    expect(find.text('Cash taken out'), findsOneWidget);
+    await tester.enterText(find.widgetWithText(TextField, 'Cash counted now'), '40');
+    await _settle(tester);
+    expect(find.text('Drawer balances'), findsOneWidget);
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Close day'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Close day'));
+    await _settle(tester);
+    await tester.tap(find.widgetWithText(FilledButton, 'Close day').last);
+    await _settle(tester);
+    expect(find.text('Day closed'), findsOneWidget);
+
+    await _dispose(tester);
+  });
+
   testWidgets('phone portrait, first run: name the shop, create the owner, start selling', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;

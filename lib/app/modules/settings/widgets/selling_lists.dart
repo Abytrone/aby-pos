@@ -18,6 +18,8 @@ String reasonKindLabel(AppLocalizations l, ReasonKind k) => switch (k) {
       ReasonKind.voidSale => l.reasonsVoid,
       ReasonKind.refund => l.reasonsRefund,
       ReasonKind.noSale => l.reasonsNoSale,
+      ReasonKind.payIn => l.reasonsPayIn,
+      ReasonKind.payOut => l.reasonsPayOut,
     };
 
 String discountScopeLabel(AppLocalizations l, DiscountScope s) => switch (s) {
