@@ -1260,6 +1260,36 @@ Decisions made on the way:
 - `HW-01` to `HW-05` hardware.
 - `NTF-01` notifications.
 
+**Status (25 October 2026): 5a built** (dashboard, reports, alerts). Schema unchanged (10). Built:
+
+- `APP-02`: Manage → Dashboard: today against the same day last week, sales count and average,
+  takings by method, the hour-by-hour strip, top 5 products, the drawer (who opened the shift,
+  cash expected) and alerts. Cards can be reordered or hidden, per person. It refreshes as sales
+  happen.
+- `REP-01` to `REP-07`: Manage → Reports for today, this week, this month, last month or any
+  dates, beside the period before: sales (with the breakdown and a day-by-day chart), times (by
+  hour and a day × hour heatmap), products (with A/B/C grades, categories, options and products
+  not selling), payments by method and rounding, staff (sales, discounts, voids, refunds,
+  no-sales, shorts), customers (new and returning, top customers, owed, late, wallets), stock
+  and tax (stock value, movements at cost, waste, count differences, tax per rate). Cost and
+  profit figures only for `viewCostAndProfit`. CSV export for sales, products and staff.
+- `REP-09`: "For the accountant": one zip with CSVs of sales, payments, refunds, expenses,
+  purchases, tax and the stock valuation, and a PDF summary (needs `exportData`).
+- `NTF-01` (in the app): alerts for low stock, late credit, backups, a day left open, old parked
+  orders and expenses due, on the dashboard.
+
+Decisions made on the way:
+
+- Reports read this device's database; other tills join with the hub (phase 7).
+- Phone / Windows notifications (outside the app) wait for 5b with the other device features:
+  see TODO(notify).
+- Excel export is CSV (Excel opens it); charts are drawn by Aby, without a chart package.
+- The side rail is a little shorter per item so an owner's eleven places fit an 800-pixel
+  tablet.
+
+**5b next:** printers and receipts (`PRN-01` to `PRN-05`), the cash drawer, camera scanning,
+scales and per-device hardware (`HW-01` to `HW-05`), and notifications outside the app.
+
 ### Phase 6: Beyond standard
 
 - `APP-03` command bar, `APP-04` business templates, `APP-05` training mode.

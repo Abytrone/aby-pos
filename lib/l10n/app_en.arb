@@ -933,6 +933,61 @@
   "ownerHelp": "Keep the owner's own money apart from the shop's: drawings and money put in.",
   "ownerEntries": "History",
   "ownerNone": "Nothing in this period.",
+  "navDashboard": "Dashboard",
+  "navReports": "Reports",
+  "dashSales": "Today",
+  "dashTop": "Top products today",
+  "dashDrawer": "The drawer",
+  "dashAlerts": "Needs attention",
+  "dashAllGood": "Nothing needs attention.",
+  "dashArrange": "Arrange the dashboard",
+  "dashRefresh": "Refresh",
+  "dashNoShift": "No shift opened",
+  "alertBackup": "The backup is not up to date. See the status dot.",
+  "reportSales": "Sales",
+  "reportTimes": "Times",
+  "reportProducts": "Products",
+  "reportPayments": "Payments",
+  "reportStaff": "Staff",
+  "reportCustomers": "Customers",
+  "reportStockTax": "Stock and tax",
+  "reportAccountant": "For the accountant",
+  "reportNetSales": "Net sales",
+  "reportSalesCount": "Sales",
+  "reportAverageSale": "Average sale",
+  "reportItemsPerSale": "Items per sale",
+  "reportBreakdown": "How it adds up",
+  "reportTax": "Tax",
+  "reportByDay": "Day by day",
+  "reportTimesHelp": "When the shop is busy, to plan staff and prep.",
+  "reportByHour": "By hour",
+  "reportHeatmap": "Day and hour",
+  "dayMon": "Mon",
+  "dayTue": "Tue",
+  "dayWed": "Wed",
+  "dayThu": "Thu",
+  "dayFri": "Fri",
+  "daySat": "Sat",
+  "daySun": "Sun",
+  "reportAbcHelp": "A: the products bringing in the first 80% of sales; B: the next 15%; C: the rest.",
+  "reportByCategory": "By category",
+  "reportOptions": "Options picked",
+  "reportSlow": "Not selling",
+  "reportSlowHelp": "On the till but not sold in the last 14 days.",
+  "reportSlowNone": "Everything sold in the last 14 days.",
+  "reportNeverSold": "Never sold",
+  "reportVoids": "Voids",
+  "reportRefundsGiven": "Refunds given",
+  "reportNoSales": "Drawer opened without a sale",
+  "reportNewCustomers": "New customers",
+  "reportReturning": "Came back",
+  "reportOwed": "Owed now",
+  "reportOverdue": "Late now",
+  "reportWallets": "In wallets",
+  "reportTopCustomers": "Top customers",
+  "reportStockValue": "Stock value at cost",
+  "reportMovements": "Stock in and out, at cost",
+  "reportNoTax": "No tax charged.",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -2765,6 +2820,98 @@
     "placeholders": {
       "amount": {
         "type": "String"
+      }
+    }
+  },
+  "dashLastWeek": "same day last week {amount}",
+  "@dashLastWeek": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dashLastWeekCount": "same day last week {count}",
+  "@dashLastWeekCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashShiftBy": "Shift opened by {name}",
+  "@dashShiftBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "alertLowStock": "{count, plural, =1{1 stock item is low: {names}} other{{count} stock items are low: {names}}}",
+  "@alertLowStock": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "alertCredit": "{count, plural, =1{1 customer is late paying: {amount}} other{{count} customers are late paying: {amount}}}",
+  "@alertCredit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "alertDayOpen": "{count, plural, =1{A day was not closed: 1 sale from before today} other{A day was not closed: {count} sales from before today}}",
+  "@alertDayOpen": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "alertExpenses": "Due: {names} ({amount}). See Money.",
+  "@alertExpenses": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportSold": "{count} sold",
+  "@reportSold": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportProfitLine": "profit {amount} ({percent}%)",
+  "@reportProfitLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "reportShorts": "{count, plural, =1{Short once} other{Short {count} times}}",
+  "@reportShorts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
       }
     }
   }

@@ -653,6 +653,48 @@ void main() {
     await _dispose(tester);
   });
 
+  testWidgets('tablet: the dashboard and every report open after a sale', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await _settle(tester);
+    await tester.tap(find.text('Kofi'));
+    await _settle(tester);
+    await _typePin(tester, '1234');
+
+    await tester.tap(find.text('Waffle'));
+    await _settle(tester);
+    await tester.tap(find.text('Pay GH₵ 12.00'));
+    await _settle(tester);
+    await tester.tap(find.text('Exact'));
+    await _settle(tester);
+    await tester.tap(find.text('Complete sale'));
+    await _settle(tester);
+    await tester.tap(find.text('New sale'));
+    await _settle(tester);
+
+    await tester.tap(find.text('Dashboard'));
+    await _settle(tester);
+    expect(find.text('TOP PRODUCTS TODAY'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('NEEDS ATTENTION'), 200,
+        scrollable: find.ancestor(of: find.text('TOP PRODUCTS TODAY'), matching: find.byType(Scrollable)).first);
+    expect(find.text('NEEDS ATTENTION'), findsOneWidget);
+
+    await tester.tap(find.text('Reports'));
+    await _settle(tester);
+    expect(find.text('GH₵ 12.00'), findsWidgets);
+    for (final tab in ['Times', 'Products', 'Payments', 'Staff', 'Customers', 'Stock and tax']) {
+      await tester.tap(find.widgetWithText(Tab, tab));
+      await _settle(tester);
+    }
+    expect(find.text('Stock value at cost'.toUpperCase()), findsOneWidget);
+
+    await _dispose(tester);
+  });
+
   testWidgets('phone portrait, first run: name the shop, create the owner, start selling', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;

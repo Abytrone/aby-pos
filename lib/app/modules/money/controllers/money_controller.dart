@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:get/get.dart';
 
+import '../../../core/period.dart';
 import '../../../core/permissions.dart';
 import '../../../data/repositories/expense_repository.dart';
 import '../../../data/repositories/profit_repository.dart';
@@ -14,8 +15,6 @@ import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
 import '../../../ui/l10n.dart';
 
-enum MoneyPeriod { today, thisWeek, thisMonth, lastMonth, custom }
-
 /// Manage → Money: expenses, the profit and loss, and the owner's money,
 /// for a chosen period.
 class MoneyController extends GetxController {
@@ -25,7 +24,7 @@ class MoneyController extends GetxController {
   final PermissionService _permissions = Get.find();
   final AuthService _auth = Get.find();
 
-  final period = MoneyPeriod.thisMonth.obs;
+  final period = ReportPeriod.thisMonth.obs;
   final from = DateTime.now().obs;
   final to = DateTime.now().obs;
 
@@ -45,24 +44,18 @@ class MoneyController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    setPeriod(MoneyPeriod.thisMonth);
+    setPeriod(ReportPeriod.thisMonth);
   }
 
-  Future<void> setPeriod(MoneyPeriod p, {DateTime? start, DateTime? end}) async {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final (a, b) = switch (p) {
-      MoneyPeriod.today => (today, today.add(const Duration(days: 1))),
-      MoneyPeriod.thisWeek => (today.subtract(Duration(days: today.weekday - 1)), today.add(const Duration(days: 1))),
-      MoneyPeriod.thisMonth => (DateTime(now.year, now.month), DateTime(now.year, now.month + 1)),
-      MoneyPeriod.lastMonth => (DateTime(now.year, now.month - 1), DateTime(now.year, now.month)),
-      MoneyPeriod.custom => (start ?? today, (end ?? today).add(const Duration(days: 1))),
-    };
+  Future<void> setPeriod(ReportPeriod p, {DateTime? start, DateTime? end}) async {
+    final r = DateRange.of(p, DateTime.now(), start: start, end: end);
     period.value = p;
-    from.value = a;
-    to.value = b;
+    from.value = r.from;
+    to.value = r.to;
     await load();
   }
+
+  DateRange get range => DateRange(from.value, to.value);
 
   Future<void> load() async {
     expenses.assignAll(await _expenses.list(from.value, to.value));

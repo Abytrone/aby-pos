@@ -49,6 +49,10 @@ App icons: `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml`.
   methods, the shop's MoMo number and whether a transaction ID is needed). A transaction ID can
   only be used once. Cash totals can be rounded to 10 or 50 pesewas. *Open the drawer (no sale)*
   is in the cart menu and asks for a reason.
+- **Dashboard and reports:** Manage → Dashboard shows today live (against last week), the drawer
+  and what needs attention. Manage → Reports covers sales, times, products, payments, staff,
+  customers, stock and tax for any period, with CSV exports and a month-end zip for the
+  accountant.
 - **Money:** Manage → Money: expenses (with categories, receipts and monthly reminders), a simple
   profit and loss for any period beside the one before, and the owner's drawings and money put
   in. A pay-out on Today can be marked as an expense.
@@ -101,7 +105,8 @@ lib/
                             device, money, ids, PIN hashing, price scheduler, sync (stub)
     models/                 plain Dart domain classes and enums
     modules/                start, setup, sign_in, shell, till, checkout, today, close_day,
-                            refund, customers, customer, cash (safe, MoMo check), money, products, product_editor, stock, stock_item, receive,
+                            refund, customers, customer, cash (safe, MoMo check), money,
+                            dashboard, reports, products, product_editor, stock, stock_item, receive,
                             stock_count, supplier, staff, activity, settings
                             (each: controllers, views, widgets, bindings)
 ```

@@ -9,6 +9,7 @@ export 'enums.dart';
 export 'expense.dart';
 export 'purchasing.dart';
 export 'refund.dart';
+export 'report.dart';
 export 'sale.dart';
 export 'staff.dart';
 export 'stock.dart';

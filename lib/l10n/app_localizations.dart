@@ -5692,6 +5692,336 @@ abstract class AppLocalizations {
   /// **'Nothing in this period.'**
   String get ownerNone;
 
+  /// No description provided for @navDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get navDashboard;
+
+  /// No description provided for @navReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get navReports;
+
+  /// No description provided for @dashSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get dashSales;
+
+  /// No description provided for @dashTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Top products today'**
+  String get dashTop;
+
+  /// No description provided for @dashDrawer.
+  ///
+  /// In en, this message translates to:
+  /// **'The drawer'**
+  String get dashDrawer;
+
+  /// No description provided for @dashAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention'**
+  String get dashAlerts;
+
+  /// No description provided for @dashAllGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing needs attention.'**
+  String get dashAllGood;
+
+  /// No description provided for @dashArrange.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrange the dashboard'**
+  String get dashArrange;
+
+  /// No description provided for @dashRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get dashRefresh;
+
+  /// No description provided for @dashNoShift.
+  ///
+  /// In en, this message translates to:
+  /// **'No shift opened'**
+  String get dashNoShift;
+
+  /// No description provided for @alertBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup is not up to date. See the status dot.'**
+  String get alertBackup;
+
+  /// No description provided for @reportSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get reportSales;
+
+  /// No description provided for @reportTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Times'**
+  String get reportTimes;
+
+  /// No description provided for @reportProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Products'**
+  String get reportProducts;
+
+  /// No description provided for @reportPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get reportPayments;
+
+  /// No description provided for @reportStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get reportStaff;
+
+  /// No description provided for @reportCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get reportCustomers;
+
+  /// No description provided for @reportStockTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock and tax'**
+  String get reportStockTax;
+
+  /// No description provided for @reportAccountant.
+  ///
+  /// In en, this message translates to:
+  /// **'For the accountant'**
+  String get reportAccountant;
+
+  /// No description provided for @reportNetSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Net sales'**
+  String get reportNetSales;
+
+  /// No description provided for @reportSalesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get reportSalesCount;
+
+  /// No description provided for @reportAverageSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Average sale'**
+  String get reportAverageSale;
+
+  /// No description provided for @reportItemsPerSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Items per sale'**
+  String get reportItemsPerSale;
+
+  /// No description provided for @reportBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'How it adds up'**
+  String get reportBreakdown;
+
+  /// No description provided for @reportTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax'**
+  String get reportTax;
+
+  /// No description provided for @reportByDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day by day'**
+  String get reportByDay;
+
+  /// No description provided for @reportTimesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'When the shop is busy, to plan staff and prep.'**
+  String get reportTimesHelp;
+
+  /// No description provided for @reportByHour.
+  ///
+  /// In en, this message translates to:
+  /// **'By hour'**
+  String get reportByHour;
+
+  /// No description provided for @reportHeatmap.
+  ///
+  /// In en, this message translates to:
+  /// **'Day and hour'**
+  String get reportHeatmap;
+
+  /// No description provided for @dayMon.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get dayMon;
+
+  /// No description provided for @dayTue.
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get dayTue;
+
+  /// No description provided for @dayWed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get dayWed;
+
+  /// No description provided for @dayThu.
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get dayThu;
+
+  /// No description provided for @dayFri.
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get dayFri;
+
+  /// No description provided for @daySat.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get daySat;
+
+  /// No description provided for @daySun.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get daySun;
+
+  /// No description provided for @reportAbcHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A: the products bringing in the first 80% of sales; B: the next 15%; C: the rest.'**
+  String get reportAbcHelp;
+
+  /// No description provided for @reportByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'By category'**
+  String get reportByCategory;
+
+  /// No description provided for @reportOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Options picked'**
+  String get reportOptions;
+
+  /// No description provided for @reportSlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not selling'**
+  String get reportSlow;
+
+  /// No description provided for @reportSlowHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'On the till but not sold in the last 14 days.'**
+  String get reportSlowHelp;
+
+  /// No description provided for @reportSlowNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything sold in the last 14 days.'**
+  String get reportSlowNone;
+
+  /// No description provided for @reportNeverSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Never sold'**
+  String get reportNeverSold;
+
+  /// No description provided for @reportVoids.
+  ///
+  /// In en, this message translates to:
+  /// **'Voids'**
+  String get reportVoids;
+
+  /// No description provided for @reportRefundsGiven.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunds given'**
+  String get reportRefundsGiven;
+
+  /// No description provided for @reportNoSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawer opened without a sale'**
+  String get reportNoSales;
+
+  /// No description provided for @reportNewCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'New customers'**
+  String get reportNewCustomers;
+
+  /// No description provided for @reportReturning.
+  ///
+  /// In en, this message translates to:
+  /// **'Came back'**
+  String get reportReturning;
+
+  /// No description provided for @reportOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed now'**
+  String get reportOwed;
+
+  /// No description provided for @reportOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Late now'**
+  String get reportOverdue;
+
+  /// No description provided for @reportWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'In wallets'**
+  String get reportWallets;
+
+  /// No description provided for @reportTopCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Top customers'**
+  String get reportTopCustomers;
+
+  /// No description provided for @reportStockValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock value at cost'**
+  String get reportStockValue;
+
+  /// No description provided for @reportMovements.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock in and out, at cost'**
+  String get reportMovements;
+
+  /// No description provided for @reportNoTax.
+  ///
+  /// In en, this message translates to:
+  /// **'No tax charged.'**
+  String get reportNoTax;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -6969,6 +7299,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Record the owner putting in {amount}.'**
   String ownerPutReason(String amount);
+
+  /// No description provided for @dashLastWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'same day last week {amount}'**
+  String dashLastWeek(String amount);
+
+  /// No description provided for @dashLastWeekCount.
+  ///
+  /// In en, this message translates to:
+  /// **'same day last week {count}'**
+  String dashLastWeekCount(int count);
+
+  /// No description provided for @dashShiftBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift opened by {name}'**
+  String dashShiftBy(String name);
+
+  /// No description provided for @alertLowStock.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 stock item is low: {names}} other{{count} stock items are low: {names}}}'**
+  String alertLowStock(int count, String names);
+
+  /// No description provided for @alertCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 customer is late paying: {amount}} other{{count} customers are late paying: {amount}}}'**
+  String alertCredit(int count, String amount);
+
+  /// No description provided for @alertDayOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{A day was not closed: 1 sale from before today} other{A day was not closed: {count} sales from before today}}'**
+  String alertDayOpen(int count);
+
+  /// No description provided for @alertExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Due: {names} ({amount}). See Money.'**
+  String alertExpenses(String names, String amount);
+
+  /// No description provided for @reportSold.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sold'**
+  String reportSold(int count);
+
+  /// No description provided for @reportProfitLine.
+  ///
+  /// In en, this message translates to:
+  /// **'profit {amount} ({percent}%)'**
+  String reportProfitLine(String amount, String percent);
+
+  /// No description provided for @reportShorts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Short once} other{Short {count} times}}'**
+  String reportShorts(int count);
 }
 
 class _AppLocalizationsDelegate

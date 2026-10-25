@@ -2884,6 +2884,173 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ownerNone => 'Nothing in this period.';
 
   @override
+  String get navDashboard => 'Dashboard';
+
+  @override
+  String get navReports => 'Reports';
+
+  @override
+  String get dashSales => 'Today';
+
+  @override
+  String get dashTop => 'Top products today';
+
+  @override
+  String get dashDrawer => 'The drawer';
+
+  @override
+  String get dashAlerts => 'Needs attention';
+
+  @override
+  String get dashAllGood => 'Nothing needs attention.';
+
+  @override
+  String get dashArrange => 'Arrange the dashboard';
+
+  @override
+  String get dashRefresh => 'Refresh';
+
+  @override
+  String get dashNoShift => 'No shift opened';
+
+  @override
+  String get alertBackup => 'The backup is not up to date. See the status dot.';
+
+  @override
+  String get reportSales => 'Sales';
+
+  @override
+  String get reportTimes => 'Times';
+
+  @override
+  String get reportProducts => 'Products';
+
+  @override
+  String get reportPayments => 'Payments';
+
+  @override
+  String get reportStaff => 'Staff';
+
+  @override
+  String get reportCustomers => 'Customers';
+
+  @override
+  String get reportStockTax => 'Stock and tax';
+
+  @override
+  String get reportAccountant => 'For the accountant';
+
+  @override
+  String get reportNetSales => 'Net sales';
+
+  @override
+  String get reportSalesCount => 'Sales';
+
+  @override
+  String get reportAverageSale => 'Average sale';
+
+  @override
+  String get reportItemsPerSale => 'Items per sale';
+
+  @override
+  String get reportBreakdown => 'How it adds up';
+
+  @override
+  String get reportTax => 'Tax';
+
+  @override
+  String get reportByDay => 'Day by day';
+
+  @override
+  String get reportTimesHelp =>
+      'When the shop is busy, to plan staff and prep.';
+
+  @override
+  String get reportByHour => 'By hour';
+
+  @override
+  String get reportHeatmap => 'Day and hour';
+
+  @override
+  String get dayMon => 'Mon';
+
+  @override
+  String get dayTue => 'Tue';
+
+  @override
+  String get dayWed => 'Wed';
+
+  @override
+  String get dayThu => 'Thu';
+
+  @override
+  String get dayFri => 'Fri';
+
+  @override
+  String get daySat => 'Sat';
+
+  @override
+  String get daySun => 'Sun';
+
+  @override
+  String get reportAbcHelp =>
+      'A: the products bringing in the first 80% of sales; B: the next 15%; C: the rest.';
+
+  @override
+  String get reportByCategory => 'By category';
+
+  @override
+  String get reportOptions => 'Options picked';
+
+  @override
+  String get reportSlow => 'Not selling';
+
+  @override
+  String get reportSlowHelp => 'On the till but not sold in the last 14 days.';
+
+  @override
+  String get reportSlowNone => 'Everything sold in the last 14 days.';
+
+  @override
+  String get reportNeverSold => 'Never sold';
+
+  @override
+  String get reportVoids => 'Voids';
+
+  @override
+  String get reportRefundsGiven => 'Refunds given';
+
+  @override
+  String get reportNoSales => 'Drawer opened without a sale';
+
+  @override
+  String get reportNewCustomers => 'New customers';
+
+  @override
+  String get reportReturning => 'Came back';
+
+  @override
+  String get reportOwed => 'Owed now';
+
+  @override
+  String get reportOverdue => 'Late now';
+
+  @override
+  String get reportWallets => 'In wallets';
+
+  @override
+  String get reportTopCustomers => 'Top customers';
+
+  @override
+  String get reportStockValue => 'Stock value at cost';
+
+  @override
+  String get reportMovements => 'Stock in and out, at cost';
+
+  @override
+  String get reportNoTax => 'No tax charged.';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }
@@ -4105,5 +4272,79 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String ownerPutReason(String amount) {
     return 'Record the owner putting in $amount.';
+  }
+
+  @override
+  String dashLastWeek(String amount) {
+    return 'same day last week $amount';
+  }
+
+  @override
+  String dashLastWeekCount(int count) {
+    return 'same day last week $count';
+  }
+
+  @override
+  String dashShiftBy(String name) {
+    return 'Shift opened by $name';
+  }
+
+  @override
+  String alertLowStock(int count, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stock items are low: $names',
+      one: '1 stock item is low: $names',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String alertCredit(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count customers are late paying: $amount',
+      one: '1 customer is late paying: $amount',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String alertDayOpen(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'A day was not closed: $count sales from before today',
+      one: 'A day was not closed: 1 sale from before today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String alertExpenses(String names, String amount) {
+    return 'Due: $names ($amount). See Money.';
+  }
+
+  @override
+  String reportSold(int count) {
+    return '$count sold';
+  }
+
+  @override
+  String reportProfitLine(String amount, String percent) {
+    return 'profit $amount ($percent%)';
+  }
+
+  @override
+  String reportShorts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Short $count times',
+      one: 'Short once',
+    );
+    return '$_temp0';
   }
 }

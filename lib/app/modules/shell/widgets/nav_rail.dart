@@ -37,9 +37,9 @@ class NavRail extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: AbySpace.s4),
-              const AbyMark(size: 36),
-              const SizedBox(height: AbySpace.s4),
+              const SizedBox(height: AbySpace.s3),
+              const AbyMark(size: 32),
+              const SizedBox(height: AbySpace.s2),
               for (final s in sell) _RailItem(section: s, selected: s == selected, onTap: () => onSelect(s)),
               if (manage.isNotEmpty) ...[
                 Padding(
@@ -79,8 +79,9 @@ class _RailItem extends StatelessWidget {
       excludeSemantics: true,
       child: InkWell(
         onTap: onTap,
+        // 60 fits an owner's eleven places on an 800-pixel tablet.
         child: SizedBox(
-          height: 72,
+          height: 60,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

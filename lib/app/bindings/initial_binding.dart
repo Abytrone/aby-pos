@@ -8,6 +8,7 @@ import '../data/repositories/customer_repository.dart';
 import '../data/repositories/day_close_repository.dart';
 import '../data/repositories/expense_repository.dart';
 import '../data/repositories/profit_repository.dart';
+import '../data/repositories/report_repository.dart';
 import '../data/repositories/momo_repository.dart';
 import '../data/repositories/safe_repository.dart';
 import '../data/repositories/shift_repository.dart';
@@ -28,6 +29,7 @@ import '../data/repositories/supplier_repository.dart';
 import '../domain/catalogue_io.dart';
 import '../domain/catalogue_rules.dart';
 import '../modules/till/controllers/cart_controller.dart';
+import '../services/alert_service.dart';
 import '../services/auth_service.dart';
 import '../services/backup/backup_service.dart';
 import '../services/device_service.dart';
@@ -68,6 +70,7 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => MomoRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => ExpenseRepository(db, device, audit, Get.find<CashEventRepository>()), fenix: true);
     Get.lazyPut(() => ProfitRepository(db, Get.find<ExpenseRepository>()), fenix: true);
+    Get.lazyPut(() => ReportRepository(db, Get.find<StockRepository>(), Get.find<CustomerRepository>()), fenix: true);
     Get.lazyPut(() => DayCloseRepository(
           db,
           device,
@@ -96,6 +99,7 @@ class InitialBinding extends Bindings {
     final backups = Get.put(BackupService(db, audit, settings), permanent: true);
     Get.put(PriceScheduler(Get.find()), permanent: true);
     Get.put(StatusService(backups, audit, settings, sync), permanent: true);
+    Get.put(AlertService(db), permanent: true);
 
     // Shared by the till and checkout.
     Get.put(CartController(), permanent: true);

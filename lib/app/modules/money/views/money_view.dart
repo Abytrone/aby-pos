@@ -9,18 +9,10 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
-import '../../../ui/option_chip.dart';
+import '../../../ui/period_bar.dart';
 import '../../../ui/section_page.dart';
 import '../controllers/money_controller.dart';
 import '../widgets/money_dialogs.dart';
-
-String periodLabel(AppLocalizations l, MoneyPeriod p) => switch (p) {
-      MoneyPeriod.today => l.periodToday,
-      MoneyPeriod.thisWeek => l.periodThisWeek,
-      MoneyPeriod.thisMonth => l.periodThisMonth,
-      MoneyPeriod.lastMonth => l.periodLastMonth,
-      MoneyPeriod.custom => l.periodCustom,
-    };
 
 /// Manage → Money: expenses, profit and the owner's money.
 class MoneyView extends GetView<MoneyController> {
@@ -57,34 +49,7 @@ class MoneyView extends GetView<MoneyController> {
           ),
         ],
         bottom: Column(mainAxisSize: MainAxisSize.min, children: [
-          SizedBox(
-            height: 56,
-            child: Obx(() => ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: AbySpace.s4, vertical: AbySpace.s1),
-                  children: [
-                    for (final p in MoneyPeriod.values)
-                      Padding(
-                        padding: const EdgeInsets.only(right: AbySpace.s2),
-                        child: OptionChip(
-                          label: p == MoneyPeriod.custom && controller.period.value == p
-                              ? '${formatDate(controller.from.value)} – ${formatDate(controller.to.value.subtract(const Duration(days: 1)))}'
-                              : periodLabel(l, p),
-                          selected: controller.period.value == p,
-                          onTap: () async {
-                            if (p != MoneyPeriod.custom) return controller.setPeriod(p);
-                            final range = await showDateRangePicker(
-                              context: context,
-                              firstDate: DateTime(2020),
-                              lastDate: DateTime.now(),
-                            );
-                            if (range != null) await controller.setPeriod(p, start: range.start, end: range.end);
-                          },
-                        ),
-                      ),
-                  ],
-                )),
-          ),
+          Obx(() => PeriodBar(period: controller.period.value, range: controller.range, onChanged: controller.setPeriod)),
           TabBar(
             isScrollable: true,
             tabAlignment: TabAlignment.start,
