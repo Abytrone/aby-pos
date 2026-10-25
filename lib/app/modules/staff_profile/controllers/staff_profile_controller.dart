@@ -18,6 +18,7 @@ import '../../../services/pin_hasher.dart';
 import '../../../services/settings_service.dart';
 import '../../../services/staff_photo_service.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/photo_picker.dart';
 import '../../staff/controllers/staff_controller.dart';
 
 /// One person's profile: details, photo, security, figures and recent
@@ -187,9 +188,9 @@ class StaffProfileController extends GetxController {
 
   Future<void> pickPhoto(ImageSource source) async {
     if (!canEditContact) return;
-    final file = await ImagePicker().pickImage(source: source, maxWidth: 1024, imageQuality: 85);
-    if (file == null) return;
-    await _photos.set(staffId, await file.readAsBytes(), by: me);
+    final bytes = await pickPhotoBytes(source);
+    if (bytes == null) return;
+    await _photos.set(staffId, bytes, by: me);
     message.value = appL10n().profilePhotoSaved;
     await _afterChange(reloadPeople: false);
   }

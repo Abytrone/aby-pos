@@ -730,6 +730,7 @@
   "todayVoid": "Void",
   "todayVoided": "Voided",
   "voidWhy": "Why?",
+  "photoPickerUnavailable": "Photos cannot be picked on this device right now. Close Aby fully and open it again.",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {

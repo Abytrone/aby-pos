@@ -2257,6 +2257,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get voidWhy => 'Why?';
 
   @override
+  String get photoPickerUnavailable =>
+      'Photos cannot be picked on this device right now. Close Aby fully and open it again.';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }

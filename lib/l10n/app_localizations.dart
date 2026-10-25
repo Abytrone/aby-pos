@@ -4474,6 +4474,12 @@ abstract class AppLocalizations {
   /// **'Why?'**
   String get voidWhy;
 
+  /// No description provided for @photoPickerUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos cannot be picked on this device right now. Close Aby fully and open it again.'**
+  String get photoPickerUnavailable;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:

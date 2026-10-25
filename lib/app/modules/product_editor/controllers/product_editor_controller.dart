@@ -19,6 +19,7 @@ import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../services/staff_photo_service.dart' show shrinkImage;
 import '../../../ui/l10n.dart';
+import '../../../ui/photo_picker.dart';
 import '../../products/controllers/catalogue_controller.dart';
 import '../../products/widgets/recipe_lines.dart';
 
@@ -248,9 +249,9 @@ class ProductEditorController extends GetxController {
   }
 
   Future<void> pickPhoto(ImageSource source) async {
-    final file = await ImagePicker().pickImage(source: source, maxWidth: 1024, imageQuality: 85);
-    if (file == null) return;
-    photo = await shrinkImage(await file.readAsBytes());
+    final bytes = await pickPhotoBytes(source);
+    if (bytes == null) return;
+    photo = await shrinkImage(bytes);
     photoChanged = true;
     update();
   }
