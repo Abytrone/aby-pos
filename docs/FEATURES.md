@@ -1230,7 +1230,28 @@ Decisions made on the way:
 - Receipt and slip photos stay on the device (like staff photos): see TODO(sync).
 - Pay-outs are not yet expenses; 4c links them.
 
-**4c next:** expenses, profit and loss, drawings.
+**Status (25 October 2026): 4c built** (expenses and simple accounts). Schema version 10.
+Phase 4 is complete. Built:
+
+- `EXP-01`: Manage → Money → Expenses: date, amount, category (editable list starting with rent,
+  ECG, water, generator fuel, transport, ice, wages, repairs, phone credit, packaging), paid from
+  the drawer / MoMo / bank / the owner's pocket, supplier, note and receipt photo. From the drawer
+  it is also a pay-out, so close day follows; a pay-out on Today can be marked as an expense in
+  the same step (counted once). Monthly reminders ("Rent GH₵ 800 on the 1st") to record or skip.
+- `EXP-02`: Money → Profit for today, this week, this month, last month or any dates: sales at
+  menu prices − discounts − refunds − tax = net sales; − what the stock cost (recipes or typed
+  costs, less what came back) = gross profit (with margin); − expenses by category − stock thrown
+  away ± count differences = net profit; side by side with the same length of time before.
+- `EXP-03`: Money → Owner's money: drawings and money put in, apart from expenses, with what the
+  owner took home.
+- Permission `manageExpenses` (managers get it); Profit needs `viewCostAndProfit`.
+
+Decisions made on the way:
+
+- Tax collected is taken off net sales (it is owed to GRA).
+- Products with a typed cost and no recipe now count that cost when sold. Sales made before this
+  change counted 0 for them, so older profit figures are higher than they should be.
+- Supplier deliveries are not expenses (they are stock, counted when sold).
 
 ### Phase 5: Reports, printing and hardware
 

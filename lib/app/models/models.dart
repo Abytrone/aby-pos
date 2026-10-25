@@ -6,6 +6,7 @@ export 'day_close.dart';
 export 'discount.dart';
 export 'drafts.dart';
 export 'enums.dart';
+export 'expense.dart';
 export 'purchasing.dart';
 export 'refund.dart';
 export 'sale.dart';

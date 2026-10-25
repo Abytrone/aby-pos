@@ -5296,6 +5296,402 @@ abstract class AppLocalizations {
   /// **'Over or short by more than this needs a reason.'**
   String get settingsVarianceLimitHelp;
 
+  /// No description provided for @navMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Money'**
+  String get navMoney;
+
+  /// No description provided for @permManageExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Record expenses and the owner\'s money'**
+  String get permManageExpenses;
+
+  /// No description provided for @auditExpenseAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense recorded'**
+  String get auditExpenseAdded;
+
+  /// No description provided for @auditExpenseCategorySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense list changed'**
+  String get auditExpenseCategorySaved;
+
+  /// No description provided for @auditOwnerCapital.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner put money in'**
+  String get auditOwnerCapital;
+
+  /// No description provided for @auditOwnerDrawing.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner took money'**
+  String get auditOwnerDrawing;
+
+  /// No description provided for @moneyExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get moneyExpenses;
+
+  /// No description provided for @moneyProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit'**
+  String get moneyProfit;
+
+  /// No description provided for @moneyOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner\'s money'**
+  String get moneyOwner;
+
+  /// No description provided for @periodToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get periodToday;
+
+  /// No description provided for @periodThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get periodThisWeek;
+
+  /// No description provided for @periodThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get periodThisMonth;
+
+  /// No description provided for @periodLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get periodLastMonth;
+
+  /// No description provided for @periodCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose dates'**
+  String get periodCustom;
+
+  /// No description provided for @expenseNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an expense'**
+  String get expenseNew;
+
+  /// No description provided for @expenseCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get expenseCategory;
+
+  /// No description provided for @expenseCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense categories'**
+  String get expenseCategories;
+
+  /// No description provided for @expenseCategoryNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New category'**
+  String get expenseCategoryNew;
+
+  /// No description provided for @expenseCategoryReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the expense categories.'**
+  String get expenseCategoryReason;
+
+  /// No description provided for @expensePaidFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid from'**
+  String get expensePaidFrom;
+
+  /// No description provided for @expenseDrawerHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'It comes out of the drawer, so close day expects less cash.'**
+  String get expenseDrawerHelp;
+
+  /// No description provided for @expenseDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get expenseDay;
+
+  /// No description provided for @expenseSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier (optional)'**
+  String get expenseSupplier;
+
+  /// No description provided for @expenseNoSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'No supplier'**
+  String get expenseNoSupplier;
+
+  /// No description provided for @expensePickCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a category.'**
+  String get expensePickCategory;
+
+  /// No description provided for @expensesByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'By category'**
+  String get expensesByCategory;
+
+  /// No description provided for @expensesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses in this period.'**
+  String get expensesNone;
+
+  /// No description provided for @sourceDrawer.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawer cash'**
+  String get sourceDrawer;
+
+  /// No description provided for @sourceMomo.
+  ///
+  /// In en, this message translates to:
+  /// **'MoMo'**
+  String get sourceMomo;
+
+  /// No description provided for @sourceBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get sourceBank;
+
+  /// No description provided for @sourceOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner\'s pocket'**
+  String get sourceOwner;
+
+  /// No description provided for @payOutExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Is it an expense? (optional)'**
+  String get payOutExpense;
+
+  /// No description provided for @recurringTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly reminders'**
+  String get recurringTitle;
+
+  /// No description provided for @recurringNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New reminder'**
+  String get recurringNew;
+
+  /// No description provided for @recurringEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change reminder'**
+  String get recurringEdit;
+
+  /// No description provided for @recurringNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminders yet. Add rent, ECG and the like.'**
+  String get recurringNone;
+
+  /// No description provided for @recurringName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get recurringName;
+
+  /// No description provided for @recurringNameHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'For example \"Shop rent\".'**
+  String get recurringNameHelp;
+
+  /// No description provided for @recurringDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day of the month'**
+  String get recurringDay;
+
+  /// No description provided for @recurringReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the monthly reminders.'**
+  String get recurringReason;
+
+  /// No description provided for @recurringConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Record it'**
+  String get recurringConfirm;
+
+  /// No description provided for @recurringSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Not this month'**
+  String get recurringSkip;
+
+  /// No description provided for @profitThisPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'THIS PERIOD'**
+  String get profitThisPeriod;
+
+  /// No description provided for @profitBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'BEFORE'**
+  String get profitBefore;
+
+  /// No description provided for @profitSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales at menu prices'**
+  String get profitSales;
+
+  /// No description provided for @profitDiscounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Discounts'**
+  String get profitDiscounts;
+
+  /// No description provided for @profitRefunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunds'**
+  String get profitRefunds;
+
+  /// No description provided for @profitTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax collected (for GRA)'**
+  String get profitTax;
+
+  /// No description provided for @profitNetSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Net sales'**
+  String get profitNetSales;
+
+  /// No description provided for @profitCost.
+  ///
+  /// In en, this message translates to:
+  /// **'What the stock cost'**
+  String get profitCost;
+
+  /// No description provided for @profitGross.
+  ///
+  /// In en, this message translates to:
+  /// **'Gross profit'**
+  String get profitGross;
+
+  /// No description provided for @profitWaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock thrown away'**
+  String get profitWaste;
+
+  /// No description provided for @profitCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock count differences'**
+  String get profitCounts;
+
+  /// No description provided for @profitNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Net profit'**
+  String get profitNet;
+
+  /// No description provided for @profitHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A simple view, not full accounts. \"Before\" is the same length of time just before. Stock costs come from recipes and deliveries.'**
+  String get profitHelp;
+
+  /// No description provided for @ownerTook.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner took money'**
+  String get ownerTook;
+
+  /// No description provided for @ownerPut.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner put money in'**
+  String get ownerPut;
+
+  /// No description provided for @ownerTookHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Money taken home. It is not an expense, so profit is not understated.'**
+  String get ownerTookHelp;
+
+  /// No description provided for @ownerPutHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The owner\'s own money put into the shop. It is not a sale.'**
+  String get ownerPutHelp;
+
+  /// No description provided for @ownerTookTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken by the owner'**
+  String get ownerTookTotal;
+
+  /// No description provided for @ownerPutTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Put in by the owner'**
+  String get ownerPutTotal;
+
+  /// No description provided for @ownerTakeHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken home, net'**
+  String get ownerTakeHome;
+
+  /// No description provided for @ownerTakeHomeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken out less put in.'**
+  String get ownerTakeHomeHelp;
+
+  /// No description provided for @ownerHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the owner\'s own money apart from the shop\'s: drawings and money put in.'**
+  String get ownerHelp;
+
+  /// No description provided for @ownerEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get ownerEntries;
+
+  /// No description provided for @ownerNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in this period.'**
+  String get ownerNone;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -6525,6 +6921,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name}: short {shorts} times ({amount}), over {overs} times'**
   String closeVarianceLine(String name, int shorts, String amount, int overs);
+
+  /// No description provided for @expenseReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Record an expense of {amount}.'**
+  String expenseReason(String amount);
+
+  /// No description provided for @expenseSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} expense recorded.'**
+  String expenseSaved(String amount);
+
+  /// No description provided for @expensesTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent: {amount}'**
+  String expensesTotal(String amount);
+
+  /// No description provided for @recurringLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} on day {day}  ·  {category}'**
+  String recurringLine(String amount, int day, String category);
+
+  /// No description provided for @recurringDue.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {amount}, due on day {day}'**
+  String recurringDue(String name, String amount, int day);
+
+  /// No description provided for @profitMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of net sales'**
+  String profitMargin(int percent);
+
+  /// No description provided for @ownerTookReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Record the owner taking {amount}.'**
+  String ownerTookReason(String amount);
+
+  /// No description provided for @ownerPutReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Record the owner putting in {amount}.'**
+  String ownerPutReason(String amount);
 }
 
 class _AppLocalizationsDelegate

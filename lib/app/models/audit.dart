@@ -59,7 +59,11 @@ enum AuditAction {
   safeDrop,
   bankDeposit,
   shiftOpened,
-  momoChecked;
+  momoChecked,
+  expenseAdded,
+  expenseCategorySaved,
+  ownerDrawing,
+  ownerCapital;
 
   /// Actions an owner should notice first.
   bool get isSensitive => const {
@@ -87,6 +91,7 @@ enum AuditAction {
         AuditAction.creditWrittenOff,
         AuditAction.cashPaidOut,
         AuditAction.bankDeposit,
+        AuditAction.ownerDrawing,
       }.contains(this);
 }
 

@@ -25,11 +25,11 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  for (final from in [1, 2, 3, 4, 5, 6, 7, 8]) {
-    test('v$from to v9 gives exactly the v9 schema', () async {
+  for (final from in [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
+    test('v$from to v10 gives exactly the v10 schema', () async {
       final schema = await verifier.schemaAt(from);
       final db = AppDatabase(schema.newConnection(), false);
-      await verifier.migrateAndValidate(db, 9);
+      await verifier.migrateAndValidate(db, 10);
       await db.close();
     });
   }
@@ -253,6 +253,22 @@ void main() {
     expect(role.permissions, contains(Permission.manageCash));
     expect((await DiscountRepository(db, r.device, r.audit).reasons(ReasonKind.payOut)).map((x) => x.name), contains('Ice'));
     expect(await r.shifts.current(), isNull);
+    await db.close();
+  });
+
+  test('v9 to v10 adds the expense categories and gives managers expenses', () async {
+    final schema = await verifier.schemaAt(9);
+    final raw = schema.rawDatabase;
+    const t = 1761000000;
+    raw.execute("INSERT INTO meta (key, value) VALUES ('device_id', 'dev-1')");
+    raw.execute('INSERT INTO roles (id, created_at, updated_at, device_id, name, built_in, permissions, max_discount_percent, sort_order) '
+        "VALUES ('${BuiltInRole.manager.id}', $t, $t, 'dev-1', 'Manager', 'manager', '[\"sell\"]', 50, 1)");
+
+    final db = AppDatabase(schema.newConnection(), false);
+    final r = await Repos.open(db);
+    expect((await r.expenses.categories()).map((c) => c.name), contains('Electricity (ECG)'));
+    final role = await (db.select(db.roles)..where((x) => x.id.equals(BuiltInRole.manager.id))).getSingle();
+    expect(role.permissions, contains(Permission.manageExpenses));
     await db.close();
   });
 }

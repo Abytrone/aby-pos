@@ -620,6 +620,60 @@ class MomoChecks extends Table with SyncColumns {
       ];
 }
 
+/// What expenses are for: rent, ECG, fuel... The owner edits the list.
+@DataClassName('ExpenseCategoryRow')
+class ExpenseCategories extends Table with SyncColumns {
+  TextColumn get name => text()();
+  BoolColumn get active => boolean().withDefault(const Constant(true))();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+}
+
+/// Money spent running the shop. Paid from the drawer, it is also a
+/// pay-out ([cashEventId]) so the drawer count follows.
+@DataClassName('ExpenseRow')
+class Expenses extends Table with SyncColumns {
+  /// The day it is for (start of the day).
+  DateTimeColumn get day => dateTime()();
+
+  /// Pesewas.
+  IntColumn get amount => integer()();
+  TextColumn get categoryId => text().references(ExpenseCategories, #id)();
+  TextColumn get paidFrom => textEnum<MoneySource>()();
+  TextColumn get supplierId => text().nullable()();
+  TextColumn get note => text().nullable()();
+  TextColumn get byName => text()();
+  TextColumn get cashEventId => text().nullable()();
+  TextColumn get recurringId => text().nullable()();
+}
+
+/// "Rent GH₵ 800 on the 1st": a reminder each month to confirm it.
+@DataClassName('RecurringExpenseRow')
+class RecurringExpenses extends Table with SyncColumns {
+  TextColumn get name => text()();
+  TextColumn get categoryId => text().references(ExpenseCategories, #id)();
+  IntColumn get amount => integer()();
+
+  /// 1 to 28.
+  IntColumn get dayOfMonth => integer()();
+  TextColumn get paidFrom => textEnum<MoneySource>()();
+  BoolColumn get active => boolean().withDefault(const Constant(true))();
+
+  /// The last month confirmed or skipped, as "2026-10".
+  TextColumn get doneUpTo => text().nullable()();
+}
+
+/// The owner's own money: drawings (taken home) and capital (put in). Kept
+/// apart from expenses so profit is not understated.
+@DataClassName('OwnerMoneyRow')
+class OwnerMoney extends Table with SyncColumns {
+  TextColumn get kind => textEnum<OwnerMoneyKind>()();
+  IntColumn get amount => integer()();
+  TextColumn get source => textEnum<MoneySource>()();
+  TextColumn get note => text().nullable()();
+  TextColumn get byName => text()();
+  TextColumn get cashEventId => text().nullable()();
+}
+
 /// MoMo charges and e-levy taken off on a day, shown on their own line.
 @DataClassName('MomoChargeRow')
 class MomoCharges extends Table with SyncColumns {

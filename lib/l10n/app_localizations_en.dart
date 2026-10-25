@@ -2681,6 +2681,209 @@ class AppLocalizationsEn extends AppLocalizations {
       'Over or short by more than this needs a reason.';
 
   @override
+  String get navMoney => 'Money';
+
+  @override
+  String get permManageExpenses => 'Record expenses and the owner\'s money';
+
+  @override
+  String get auditExpenseAdded => 'Expense recorded';
+
+  @override
+  String get auditExpenseCategorySaved => 'Expense list changed';
+
+  @override
+  String get auditOwnerCapital => 'Owner put money in';
+
+  @override
+  String get auditOwnerDrawing => 'Owner took money';
+
+  @override
+  String get moneyExpenses => 'Expenses';
+
+  @override
+  String get moneyProfit => 'Profit';
+
+  @override
+  String get moneyOwner => 'Owner\'s money';
+
+  @override
+  String get periodToday => 'Today';
+
+  @override
+  String get periodThisWeek => 'This week';
+
+  @override
+  String get periodThisMonth => 'This month';
+
+  @override
+  String get periodLastMonth => 'Last month';
+
+  @override
+  String get periodCustom => 'Choose dates';
+
+  @override
+  String get expenseNew => 'Add an expense';
+
+  @override
+  String get expenseCategory => 'Category';
+
+  @override
+  String get expenseCategories => 'Expense categories';
+
+  @override
+  String get expenseCategoryNew => 'New category';
+
+  @override
+  String get expenseCategoryReason => 'Change the expense categories.';
+
+  @override
+  String get expensePaidFrom => 'Paid from';
+
+  @override
+  String get expenseDrawerHelp =>
+      'It comes out of the drawer, so close day expects less cash.';
+
+  @override
+  String get expenseDay => 'Day';
+
+  @override
+  String get expenseSupplier => 'Supplier (optional)';
+
+  @override
+  String get expenseNoSupplier => 'No supplier';
+
+  @override
+  String get expensePickCategory => 'Pick a category.';
+
+  @override
+  String get expensesByCategory => 'By category';
+
+  @override
+  String get expensesNone => 'No expenses in this period.';
+
+  @override
+  String get sourceDrawer => 'Drawer cash';
+
+  @override
+  String get sourceMomo => 'MoMo';
+
+  @override
+  String get sourceBank => 'Bank';
+
+  @override
+  String get sourceOwner => 'Owner\'s pocket';
+
+  @override
+  String get payOutExpense => 'Is it an expense? (optional)';
+
+  @override
+  String get recurringTitle => 'Monthly reminders';
+
+  @override
+  String get recurringNew => 'New reminder';
+
+  @override
+  String get recurringEdit => 'Change reminder';
+
+  @override
+  String get recurringNone => 'No reminders yet. Add rent, ECG and the like.';
+
+  @override
+  String get recurringName => 'Name';
+
+  @override
+  String get recurringNameHelp => 'For example \"Shop rent\".';
+
+  @override
+  String get recurringDay => 'Day of the month';
+
+  @override
+  String get recurringReason => 'Change the monthly reminders.';
+
+  @override
+  String get recurringConfirm => 'Record it';
+
+  @override
+  String get recurringSkip => 'Not this month';
+
+  @override
+  String get profitThisPeriod => 'THIS PERIOD';
+
+  @override
+  String get profitBefore => 'BEFORE';
+
+  @override
+  String get profitSales => 'Sales at menu prices';
+
+  @override
+  String get profitDiscounts => 'Discounts';
+
+  @override
+  String get profitRefunds => 'Refunds';
+
+  @override
+  String get profitTax => 'Tax collected (for GRA)';
+
+  @override
+  String get profitNetSales => 'Net sales';
+
+  @override
+  String get profitCost => 'What the stock cost';
+
+  @override
+  String get profitGross => 'Gross profit';
+
+  @override
+  String get profitWaste => 'Stock thrown away';
+
+  @override
+  String get profitCounts => 'Stock count differences';
+
+  @override
+  String get profitNet => 'Net profit';
+
+  @override
+  String get profitHelp =>
+      'A simple view, not full accounts. \"Before\" is the same length of time just before. Stock costs come from recipes and deliveries.';
+
+  @override
+  String get ownerTook => 'Owner took money';
+
+  @override
+  String get ownerPut => 'Owner put money in';
+
+  @override
+  String get ownerTookHelp =>
+      'Money taken home. It is not an expense, so profit is not understated.';
+
+  @override
+  String get ownerPutHelp =>
+      'The owner\'s own money put into the shop. It is not a sale.';
+
+  @override
+  String get ownerTookTotal => 'Taken by the owner';
+
+  @override
+  String get ownerPutTotal => 'Put in by the owner';
+
+  @override
+  String get ownerTakeHome => 'Taken home, net';
+
+  @override
+  String get ownerTakeHomeHelp => 'Taken out less put in.';
+
+  @override
+  String get ownerHelp =>
+      'Keep the owner\'s own money apart from the shop\'s: drawings and money put in.';
+
+  @override
+  String get ownerEntries => 'History';
+
+  @override
+  String get ownerNone => 'Nothing in this period.';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }
@@ -3862,5 +4065,45 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String closeVarianceLine(String name, int shorts, String amount, int overs) {
     return '$name: short $shorts times ($amount), over $overs times';
+  }
+
+  @override
+  String expenseReason(String amount) {
+    return 'Record an expense of $amount.';
+  }
+
+  @override
+  String expenseSaved(String amount) {
+    return '$amount expense recorded.';
+  }
+
+  @override
+  String expensesTotal(String amount) {
+    return 'Spent: $amount';
+  }
+
+  @override
+  String recurringLine(String amount, int day, String category) {
+    return '$amount on day $day  ·  $category';
+  }
+
+  @override
+  String recurringDue(String name, String amount, int day) {
+    return '$name: $amount, due on day $day';
+  }
+
+  @override
+  String profitMargin(int percent) {
+    return '$percent% of net sales';
+  }
+
+  @override
+  String ownerTookReason(String amount) {
+    return 'Record the owner taking $amount.';
+  }
+
+  @override
+  String ownerPutReason(String amount) {
+    return 'Record the owner putting in $amount.';
   }
 }

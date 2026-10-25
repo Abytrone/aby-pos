@@ -8,6 +8,7 @@ import '../../../core/settings.dart';
 import '../../../core/denominations.dart';
 import '../../../data/repositories/cash_event_repository.dart';
 import '../../../data/repositories/day_close_repository.dart';
+import '../../../data/repositories/expense_repository.dart';
 import '../../../data/repositories/safe_repository.dart';
 import '../../../data/repositories/shift_repository.dart';
 import '../../../data/repositories/discount_repository.dart';
@@ -15,6 +16,7 @@ import '../../../data/repositories/refund_repository.dart';
 import '../../../data/repositories/sale_repository.dart';
 import '../../../models/discount.dart';
 import '../../../models/enums.dart';
+import '../../../models/expense.dart';
 import '../../../models/refund.dart';
 import '../../../models/day_close.dart';
 import '../../../models/sale.dart';
@@ -47,6 +49,7 @@ class TodayController extends GetxController {
   final voidReasons = <Reason>[].obs;
   final payInReasons = <Reason>[].obs;
   final payOutReasons = <Reason>[].obs;
+  final expenseCategories = <ExpenseCategory>[].obs;
 
   /// The drawer's open shift, if one was opened.
   final shift = Rxn<Shift>();
@@ -75,6 +78,7 @@ class TodayController extends GetxController {
     _reasons.reasons(ReasonKind.voidSale).then(voidReasons.assignAll);
     _reasons.reasons(ReasonKind.payIn).then(payInReasons.assignAll);
     _reasons.reasons(ReasonKind.payOut).then(payOutReasons.assignAll);
+    Get.find<ExpenseRepository>().categories().then(expenseCategories.assignAll);
     _loadShift();
   }
 
@@ -98,13 +102,32 @@ class TodayController extends GetxController {
   Future<OpenPeriod> xReport() => _closes.openPeriod();
 
   /// Cash into or out of the drawer that is not a sale (needs payOut).
-  Future<String?> payInOrOut({required bool payIn, required int amount, required String reason, String? note, Uint8List? photo}) async {
+  /// With [expenseCategoryId] a pay-out is also an expense (the expense
+  /// records the pay-out itself, so it is counted once).
+  Future<String?> payInOrOut({
+    required bool payIn,
+    required int amount,
+    required String reason,
+    String? note,
+    Uint8List? photo,
+    String? expenseCategoryId,
+  }) async {
     final l = appL10n();
     final auth = await _permissions.authorize(
       Permission.payOut,
       reason: payIn ? l.payInReason(formatMoney(amount)) : l.payOutReason(formatMoney(amount)),
     );
     if (auth == null) return null;
+    if (!payIn && expenseCategoryId != null) {
+      final detail = note == null || note.trim().isEmpty ? reason : '$reason: ${note.trim()}';
+      await Get.find<ExpenseRepository>().add(
+        ExpenseDraft(day: DateTime.now(), amount: amount, categoryId: expenseCategoryId, paidFrom: MoneySource.drawer, note: detail),
+        photo: photo,
+        actor: auth.actor,
+        approver: auth.approver,
+      );
+      return l.payOutDone(formatMoney(amount));
+    }
     await _cash.payInOrOut(
       payIn: payIn,
       amount: amount,

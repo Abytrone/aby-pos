@@ -159,6 +159,7 @@ class TodayView extends GetView<TodayController> {
         final move = await showPayInOut(
           payIn: payIn,
           reasons: payIn ? controller.payInReasons.toList() : controller.payOutReasons.toList(),
+          expenseCategories: controller.expenseCategories.toList(),
         );
         if (move != null) {
           message = await controller.payInOrOut(
@@ -167,6 +168,7 @@ class TodayView extends GetView<TodayController> {
             reason: move.reason,
             note: move.note,
             photo: move.photo,
+            expenseCategoryId: move.expenseCategoryId,
           );
         }
       case 'drop':

@@ -211,6 +211,11 @@ class SaleRepository {
         for (final option in line.options) {
           await consume(await _stock.recipe(optionId: option.id));
         }
+        // No recipe: the cost typed on the product (per one, or per kg / litre).
+        final manual = line.variant.manualCost;
+        if (line.variant.recipe.isEmpty && manual != null) {
+          lineCost += line.weighed ? (manual * line.quantity + 500) ~/ 1000 : manual * line.quantity;
+        }
 
         await _db.insertTracked(
           _db.saleLines,

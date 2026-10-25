@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/denominations.dart';
 import '../../../models/day_close.dart';
 import '../../../models/discount.dart';
+import '../../../models/expense.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
@@ -115,22 +116,30 @@ Future<void> showXReport(OpenPeriod period) => Get.dialog<void>(Builder(builder:
 
 /// The result of the pay in / out dialog.
 class CashMove {
-  const CashMove(this.amount, this.reason, this.note, this.photo);
+  const CashMove(this.amount, this.reason, this.note, this.photo, [this.expenseCategoryId]);
   final int amount;
   final String reason;
   final String? note;
   final Uint8List? photo;
+
+  /// Also an expense in this category (pay-outs only).
+  final String? expenseCategoryId;
 }
 
 /// Cash into ([payIn]) or out of the drawer: amount, reason, note, photo.
-Future<CashMove?> showPayInOut({required bool payIn, required List<Reason> reasons}) =>
-    Get.dialog<CashMove>(_PayInOut(payIn: payIn, reasons: reasons));
+Future<CashMove?> showPayInOut({
+  required bool payIn,
+  required List<Reason> reasons,
+  List<ExpenseCategory> expenseCategories = const [],
+}) =>
+    Get.dialog<CashMove>(_PayInOut(payIn: payIn, reasons: reasons, expenseCategories: expenseCategories));
 
 class _PayInOut extends StatefulWidget {
-  const _PayInOut({required this.payIn, required this.reasons});
+  const _PayInOut({required this.payIn, required this.reasons, this.expenseCategories = const []});
 
   final bool payIn;
   final List<Reason> reasons;
+  final List<ExpenseCategory> expenseCategories;
 
   @override
   State<_PayInOut> createState() => _PayInOutState();
@@ -140,6 +149,7 @@ class _PayInOutState extends State<_PayInOut> {
   final _amount = TextEditingController();
   final _note = TextEditingController();
   String? _reason;
+  String? _expense;
   Uint8List? _photo;
   String? _error;
 
@@ -173,6 +183,19 @@ class _PayInOutState extends State<_PayInOut> {
               for (final r in widget.reasons)
                 OptionChip(label: r.name, selected: _reason == r.name, onTap: () => setState(() => _reason = r.name)),
             ]),
+            if (!widget.payIn && widget.expenseCategories.isNotEmpty) ...[
+              const SizedBox(height: AbySpace.s3),
+              Text(l.payOutExpense.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
+              const SizedBox(height: AbySpace.s2),
+              Wrap(spacing: AbySpace.s2, runSpacing: AbySpace.s2, children: [
+                for (final cat in widget.expenseCategories)
+                  OptionChip(
+                    label: cat.name,
+                    selected: _expense == cat.id,
+                    onTap: () => setState(() => _expense = _expense == cat.id ? null : cat.id),
+                  ),
+              ]),
+            ],
             const SizedBox(height: AbySpace.s3),
             TextField(controller: _note, decoration: InputDecoration(labelText: l.stockNoteOptional)),
             const SizedBox(height: AbySpace.s3),
@@ -201,7 +224,7 @@ class _PayInOutState extends State<_PayInOut> {
             final amount = parseMoney(_amount.text);
             if (amount == null || amount <= 0) return setState(() => _error = l.customerAmountInvalid);
             if (_reason == null) return setState(() => _error = l.refundPickReason);
-            Get.back(result: CashMove(amount, _reason!, _note.text, _photo));
+            Get.back(result: CashMove(amount, _reason!, _note.text, _photo, _expense));
           },
           child: Text(l.commonSave),
         ),

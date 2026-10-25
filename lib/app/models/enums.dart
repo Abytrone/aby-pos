@@ -88,3 +88,9 @@ enum CustomerEntryKind {
   walletRefund,
   adjustment,
 }
+
+/// Where the money for an expense or an owner drawing came from.
+enum MoneySource { drawer, momo, bank, ownerPocket }
+
+/// The owner taking money out for themselves, or putting their own in.
+enum OwnerMoneyKind { drawing, capital }

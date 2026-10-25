@@ -624,7 +624,8 @@ void main() {
     await tester.tap(find.text('Take cash out'));
     await _settle(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Amount'), '10');
-    await tester.tap(find.text('Ice'));
+    await tester.tap(find.text('Ice').first); // the reason
+    await tester.tap(find.text('Ice').last); // and it is an expense
     await tester.tap(find.text('Save'));
     await _settle(tester);
 
@@ -641,6 +642,13 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Close day').last);
     await _settle(tester);
     expect(find.text('Day closed'), findsOneWidget);
+    await tester.tap(find.text('Done'));
+    await _settle(tester);
+
+    // The pay-out is on the expenses, once.
+    await tester.tap(find.text('Money'));
+    await _settle(tester);
+    expect(find.text('Spent: GH₵ 10.00'), findsOneWidget);
 
     await _dispose(tester);
   });

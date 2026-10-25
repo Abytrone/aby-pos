@@ -6,6 +6,8 @@ import '../data/repositories/cash_event_repository.dart';
 import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/customer_repository.dart';
 import '../data/repositories/day_close_repository.dart';
+import '../data/repositories/expense_repository.dart';
+import '../data/repositories/profit_repository.dart';
 import '../data/repositories/momo_repository.dart';
 import '../data/repositories/safe_repository.dart';
 import '../data/repositories/shift_repository.dart';
@@ -64,6 +66,8 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => ShiftRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => SafeRepository(db, device, audit, Get.find<CashEventRepository>()), fenix: true);
     Get.lazyPut(() => MomoRepository(db, device, audit), fenix: true);
+    Get.lazyPut(() => ExpenseRepository(db, device, audit, Get.find<CashEventRepository>()), fenix: true);
+    Get.lazyPut(() => ProfitRepository(db, Get.find<ExpenseRepository>()), fenix: true);
     Get.lazyPut(() => DayCloseRepository(
           db,
           device,

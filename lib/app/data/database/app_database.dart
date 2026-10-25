@@ -46,6 +46,24 @@ String settingRowId(String key, SettingScope scope, String deviceId) =>
 String reasonRowId(ReasonKind kind, String name) =>
     const Uuid().v5(Namespace.url.value, 'aby:reason:${kind.name}:$name');
 
+/// Stable row ID for a built-in expense category.
+String expenseCategoryRowId(String name) => const Uuid().v5(Namespace.url.value, 'aby:expense-category:$name');
+
+/// Expense categories every shop starts with.
+const defaultExpenseCategories = [
+  'Rent',
+  'Electricity (ECG)',
+  'Water',
+  'Generator fuel',
+  'Transport',
+  'Ice',
+  'Staff wages',
+  'Repairs',
+  'Phone credit and data',
+  'Packaging',
+  'Other',
+];
+
 /// Reasons every shop starts with; the owner can add, rename or retire them.
 const defaultReasons = {
   ReasonKind.discount: ['Regular customer', 'Staff', 'Damaged item', 'Late or wrong order', 'Other'],
@@ -109,6 +127,10 @@ const builtInPayMethods = [
   SafeEntries,
   MomoChecks,
   MomoCharges,
+  ExpenseCategories,
+  Expenses,
+  RecurringExpenses,
+  OwnerMoney,
   Discounts,
   Reasons,
   ParkedOrders,
@@ -138,7 +160,7 @@ class AppDatabase extends _$AppDatabase {
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -419,6 +441,15 @@ class AppDatabase extends _$AppDatabase {
             await _insertDefaultReasons(deviceId);
             await _grantToManager(Permission.manageCash);
           },
+          // v10: expenses, recurring expenses, owner drawings and capital.
+          from9To10: (m, schema) async {
+            final deviceId = await _ensureDeviceId();
+            for (final table in [schema.expenseCategories, schema.expenses, schema.recurringExpenses, schema.ownerMoney]) {
+              await m.createTable(table);
+            }
+            await _insertExpenseCategories(deviceId);
+            await _grantToManager(Permission.manageExpenses);
+          },
         ),
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
@@ -427,6 +458,7 @@ class AppDatabase extends _$AppDatabase {
             await _insertBuiltInRoles(deviceId);
             await _insertDefaultReasons(deviceId);
             await _insertBuiltInPayMethods(deviceId);
+            await _insertExpenseCategories(deviceId);
             if (seedDemoShop) await seedScoopsTamale(this, deviceId: deviceId);
           }
         },
@@ -532,6 +564,18 @@ class AppDatabase extends _$AppDatabase {
         'INSERT OR IGNORE INTO pay_methods (id, created_at, updated_at, device_id, name, kind, built_in, '
         'active, needs_reference, short_reference, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)',
         [payMethodRowId(key), now, now, deviceId, name, kind.name, key, on ? 1 : 0, reference ? 1 : 0, i],
+      );
+    }
+  }
+
+  /// Raw SQL, like the built-in roles. Not written to the outbox.
+  Future<void> _insertExpenseCategories(String deviceId) async {
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    for (final (i, name) in defaultExpenseCategories.indexed) {
+      await customStatement(
+        'INSERT OR IGNORE INTO expense_categories (id, created_at, updated_at, device_id, name, active, sort_order) '
+        'VALUES (?, ?, ?, ?, ?, 1, ?)',
+        [expenseCategoryRowId(name), now, now, deviceId, name, i],
       );
     }
   }

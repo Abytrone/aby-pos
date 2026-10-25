@@ -5,6 +5,8 @@ import 'package:aby_pos/app/data/repositories/cash_event_repository.dart';
 import 'package:aby_pos/app/data/repositories/catalog_repository.dart';
 import 'package:aby_pos/app/data/repositories/customer_repository.dart';
 import 'package:aby_pos/app/data/repositories/day_close_repository.dart';
+import 'package:aby_pos/app/data/repositories/expense_repository.dart';
+import 'package:aby_pos/app/data/repositories/profit_repository.dart';
 import 'package:aby_pos/app/data/repositories/momo_repository.dart';
 import 'package:aby_pos/app/data/repositories/safe_repository.dart';
 import 'package:aby_pos/app/data/repositories/shift_repository.dart';
@@ -60,6 +62,8 @@ class Repos {
     shifts = ShiftRepository(db, device, audit);
     safe = SafeRepository(db, device, audit, cashEvents);
     momo = MomoRepository(db, device, audit);
+    expenses = ExpenseRepository(db, device, audit, cashEvents);
+    profit = ProfitRepository(db, expenses);
     closes = DayCloseRepository(db, device, audit, cashEvents, customers, shifts);
     refunds = RefundRepository(db, device, audit, stock, customers);
     payMethods = PayMethodRepository(db, device, audit);
@@ -81,6 +85,8 @@ class Repos {
   late final ShiftRepository shifts;
   late final SafeRepository safe;
   late final MomoRepository momo;
+  late final ExpenseRepository expenses;
+  late final ProfitRepository profit;
   late final RefundRepository refunds;
   late final PayMethodRepository payMethods;
   late final SaleRepository sales;

@@ -867,6 +867,72 @@
   "settingsBlindCountHelp": "The cashier counts before seeing what the drawer should hold.",
   "settingsVarianceLimit": "Ask why when out by more than",
   "settingsVarianceLimitHelp": "Over or short by more than this needs a reason.",
+  "navMoney": "Money",
+  "permManageExpenses": "Record expenses and the owner's money",
+  "auditExpenseAdded": "Expense recorded",
+  "auditExpenseCategorySaved": "Expense list changed",
+  "auditOwnerCapital": "Owner put money in",
+  "auditOwnerDrawing": "Owner took money",
+  "moneyExpenses": "Expenses",
+  "moneyProfit": "Profit",
+  "moneyOwner": "Owner's money",
+  "periodToday": "Today",
+  "periodThisWeek": "This week",
+  "periodThisMonth": "This month",
+  "periodLastMonth": "Last month",
+  "periodCustom": "Choose dates",
+  "expenseNew": "Add an expense",
+  "expenseCategory": "Category",
+  "expenseCategories": "Expense categories",
+  "expenseCategoryNew": "New category",
+  "expenseCategoryReason": "Change the expense categories.",
+  "expensePaidFrom": "Paid from",
+  "expenseDrawerHelp": "It comes out of the drawer, so close day expects less cash.",
+  "expenseDay": "Day",
+  "expenseSupplier": "Supplier (optional)",
+  "expenseNoSupplier": "No supplier",
+  "expensePickCategory": "Pick a category.",
+  "expensesByCategory": "By category",
+  "expensesNone": "No expenses in this period.",
+  "sourceDrawer": "Drawer cash",
+  "sourceMomo": "MoMo",
+  "sourceBank": "Bank",
+  "sourceOwner": "Owner's pocket",
+  "payOutExpense": "Is it an expense? (optional)",
+  "recurringTitle": "Monthly reminders",
+  "recurringNew": "New reminder",
+  "recurringEdit": "Change reminder",
+  "recurringNone": "No reminders yet. Add rent, ECG and the like.",
+  "recurringName": "Name",
+  "recurringNameHelp": "For example \"Shop rent\".",
+  "recurringDay": "Day of the month",
+  "recurringReason": "Change the monthly reminders.",
+  "recurringConfirm": "Record it",
+  "recurringSkip": "Not this month",
+  "profitThisPeriod": "THIS PERIOD",
+  "profitBefore": "BEFORE",
+  "profitSales": "Sales at menu prices",
+  "profitDiscounts": "Discounts",
+  "profitRefunds": "Refunds",
+  "profitTax": "Tax collected (for GRA)",
+  "profitNetSales": "Net sales",
+  "profitCost": "What the stock cost",
+  "profitGross": "Gross profit",
+  "profitWaste": "Stock thrown away",
+  "profitCounts": "Stock count differences",
+  "profitNet": "Net profit",
+  "profitHelp": "A simple view, not full accounts. \"Before\" is the same length of time just before. Stock costs come from recipes and deliveries.",
+  "ownerTook": "Owner took money",
+  "ownerPut": "Owner put money in",
+  "ownerTookHelp": "Money taken home. It is not an expense, so profit is not understated.",
+  "ownerPutHelp": "The owner's own money put into the shop. It is not a sale.",
+  "ownerTookTotal": "Taken by the owner",
+  "ownerPutTotal": "Put in by the owner",
+  "ownerTakeHome": "Taken home, net",
+  "ownerTakeHomeHelp": "Taken out less put in.",
+  "ownerHelp": "Keep the owner's own money apart from the shop's: drawings and money put in.",
+  "ownerEntries": "History",
+  "ownerNone": "Nothing in this period.",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -2623,6 +2689,82 @@
       },
       "overs": {
         "type": "int"
+      }
+    }
+  },
+  "expenseReason": "Record an expense of {amount}.",
+  "@expenseReason": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expenseSaved": "{amount} expense recorded.",
+  "@expenseSaved": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expensesTotal": "Spent: {amount}",
+  "@expensesTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "recurringLine": "{amount} on day {day}  ·  {category}",
+  "@recurringLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      },
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "recurringDue": "{name}: {amount}, due on day {day}",
+  "@recurringDue": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "profitMargin": "{percent}% of net sales",
+  "@profitMargin": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "ownerTookReason": "Record the owner taking {amount}.",
+  "@ownerTookReason": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ownerPutReason": "Record the owner putting in {amount}.",
+  "@ownerPutReason": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
       }
     }
   }

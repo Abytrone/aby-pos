@@ -47,6 +47,10 @@ enum ActivityFilter {
             AuditAction.bankDeposit,
             AuditAction.shiftOpened,
             AuditAction.momoChecked,
+            AuditAction.expenseAdded,
+            AuditAction.expenseCategorySaved,
+            AuditAction.ownerDrawing,
+            AuditAction.ownerCapital,
           },
         ActivityFilter.staff => {
             AuditAction.staffAdded,

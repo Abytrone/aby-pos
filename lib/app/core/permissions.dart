@@ -26,6 +26,7 @@ enum Permission {
   closeDay(PermissionGroup.cash),
   payOut(PermissionGroup.cash),
   manageCash(PermissionGroup.cash),
+  manageExpenses(PermissionGroup.cash),
 
   // Reports
   viewReports(PermissionGroup.reports),
