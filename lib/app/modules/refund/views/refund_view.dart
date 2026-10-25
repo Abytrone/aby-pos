@@ -20,9 +20,10 @@ class RefundView extends GetView<RefundController> {
     final l = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: Obx(() => Text(controller.withoutReceipt
-            ? l.refundNoReceiptTitle
-            : l.refundTitle(controller.sale.value?.displayNumber ?? ''))),
+        // Without a receipt the title is fixed; with one it waits for the sale.
+        title: controller.withoutReceipt
+            ? Text(l.refundNoReceiptTitle)
+            : Obx(() => Text(l.refundTitle(controller.sale.value?.displayNumber ?? ''))),
         backgroundColor: c.surface,
         surfaceTintColor: Colors.transparent,
         toolbarHeight: 64,

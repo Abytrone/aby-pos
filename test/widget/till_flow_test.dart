@@ -528,6 +528,16 @@ void main() {
     expect(find.textContaining('R-0001'), findsOneWidget);
     expect(find.text('Void'), findsNothing, reason: 'a refunded sale cannot be voided');
 
+    // A refund without a receipt opens too (its title is fixed text).
+    await tester.tap(find.byTooltip('Cash'));
+    await _settle(tester);
+    await tester.tap(find.text('Refund without a receipt'));
+    await _settle(tester);
+    expect(find.text('Refund without a receipt'), findsOneWidget);
+    expect(find.textContaining('a manager approves with their PIN'), findsOneWidget);
+    await tester.tap(find.byType(BackButton));
+    await _settle(tester);
+
     await _dispose(tester);
   });
 
