@@ -9,6 +9,7 @@ import '../../domain/pricing.dart';
 import '../../domain/settlement.dart';
 import '../../models/audit.dart';
 import '../../models/cart_line.dart';
+import '../../models/customer.dart';
 import '../../models/discount.dart';
 import '../../models/enums.dart';
 import '../../models/refund.dart';
@@ -19,6 +20,7 @@ import '../../services/ids.dart';
 import '../../services/money.dart';
 import '../database/app_database.dart';
 import 'audit_repository.dart';
+import 'customer_repository.dart';
 import 'day_close_repository.dart';
 import 'refund_repository.dart';
 import 'stock_repository.dart';
@@ -47,7 +49,7 @@ class ExchangeInput {
 }
 
 class SaleRepository {
-  SaleRepository(this._db, this._stock, this._closes, this._audit, this._device, [this._refunds]);
+  SaleRepository(this._db, this._stock, this._closes, this._audit, this._device, [this._refunds, this._customers]);
 
   final AppDatabase _db;
   final StockRepository _stock;
@@ -55,6 +57,7 @@ class SaleRepository {
   final AuditRepository _audit;
   final DeviceInfo _device;
   final RefundRepository? _refunds;
+  final CustomerRepository? _customers;
 
   /// Short references (the last 4 of a MoMo ID) repeat over time, so they
   /// are only checked for reuse over this window.
@@ -79,6 +82,9 @@ class SaleRepository {
     OrderType? orderType,
     int roundTo = 0,
     ExchangeInput? exchange,
+    Customer? customer,
+    bool changeToWallet = false,
+    Staff? creditApprover,
   }) async {
     if (lines.isEmpty) throw const SaleException('The cart is empty.');
     if (lines.any((l) => l.quantity < 1)) {
@@ -103,11 +109,25 @@ class SaleRepository {
       }
     }
     final fromExchange = credit < total ? credit : total;
+    // Credit and wallet payments are on the attached customer's account.
+    PaymentInput forCustomer(PaymentInput p) =>
+        customer == null || p.method != PaymentMethod.credit || (p.customer ?? '').trim().isNotEmpty
+            ? p
+            : PaymentInput(
+                method: p.method,
+                methodId: p.methodId,
+                methodName: p.methodName,
+                amount: p.amount,
+                customer: customer.name,
+              );
     final tenders = [
       if (fromExchange > 0) PaymentInput(method: PaymentMethod.exchange, methodName: 'Exchange', amount: fromExchange),
-      ...payments,
-      ?payment,
+      for (final p in [...payments, ?payment]) forCustomer(p),
     ];
+    final onAccount = tenders.any((p) => p.method == PaymentMethod.credit || p.method == PaymentMethod.wallet);
+    if (onAccount && customer == null && _customers != null) {
+      throw const SaleException('Choose the customer: credit and wallet payments go on their account.');
+    }
     final Settlement settlement;
     try {
       settlement = Settlement.of(total, tenders, roundTo: roundTo);
@@ -122,6 +142,24 @@ class SaleRepository {
       for (final p in settlement.payments) {
         await _checkReference(p.input);
       }
+      final account = customer == null ? null : await _customers?.find(customer.id);
+      if (customer != null && account == null) throw const SaleException('Customer not found.');
+      for (final p in settlement.payments) {
+        if (p.input.method == PaymentMethod.wallet && p.amount > account!.wallet) {
+          throw SaleException('${account.name} has ${formatMoney(account.wallet)} in their wallet.');
+        }
+        if (p.input.method == PaymentMethod.credit && account != null) {
+          final limit = account.creditLimit;
+          if (limit != null && account.owed + p.amount > limit && creditApprover == null) {
+            throw SaleException(
+              'This takes ${account.name} over their credit limit of ${formatMoney(limit)} '
+              '(they owe ${formatMoney(account.owed)}).',
+            );
+          }
+        }
+      }
+      // Change kept in the wallet stays in the drawer.
+      final kept = changeToWallet && account != null ? settlement.change : 0;
       final now = DateTime.now();
       final saleId = newId();
       final number = await _nextSaleNumber();
@@ -147,6 +185,7 @@ class SaleRepository {
           note: Value(cleanNote),
           orderType: Value(orderType),
           rounding: Value(settlement.rounding),
+          customerId: Value(customer?.id),
         ),
       );
 
@@ -280,13 +319,64 @@ class SaleRepository {
             method: input.method,
             amount: p.amount,
             tendered: Value(input.method == PaymentMethod.cash ? (input.tendered ?? p.amount) : null),
-            changeGiven: Value(input.method == PaymentMethod.cash ? p.change : null),
+            changeGiven: Value(input.method == PaymentMethod.cash ? p.change - (p.change > 0 ? kept : 0) : null),
             momoReference: Value(input.method == PaymentMethod.exchange ? returned?.displayNumber : (ref?.isEmpty ?? true) ? null : ref),
             customer: Value(input.customer?.trim()),
             methodId: Value(input.methodId),
             methodName: Value(input.methodName ?? input.method.label),
           ),
         );
+      }
+
+      if (account != null) {
+        final customers = _customers!;
+        for (final p in settlement.payments) {
+          if (p.input.method == PaymentMethod.credit) {
+            await customers.addEntry(
+              customerId: account.id,
+              account: CustomerAccount.credit,
+              kind: CustomerEntryKind.creditSale,
+              amount: p.amount,
+              byName: cashier.name,
+              saleId: saleId,
+              dueOn: account.dueDays == null ? null : now.add(Duration(days: account.dueDays!)),
+              methodName: p.input.label,
+              approverName: creditApprover?.name,
+            );
+          } else if (p.input.method == PaymentMethod.wallet) {
+            await customers.addEntry(
+              customerId: account.id,
+              account: CustomerAccount.wallet,
+              kind: CustomerEntryKind.walletSpend,
+              amount: -p.amount,
+              byName: cashier.name,
+              saleId: saleId,
+              methodName: p.input.label,
+            );
+          }
+        }
+        if (kept > 0) {
+          await customers.addEntry(
+            customerId: account.id,
+            account: CustomerAccount.wallet,
+            kind: CustomerEntryKind.changeKept,
+            amount: kept,
+            byName: cashier.name,
+            saleId: saleId,
+            method: PaymentMethod.cash,
+            methodName: 'Cash',
+          );
+        }
+        if (creditApprover != null) {
+          await _audit.record(
+            action: AuditAction.customerCreditLimit,
+            actor: cashier,
+            approver: creditApprover,
+            entity: 'sales',
+            entityId: saleId,
+            summary: '${formatSaleNumber(number)} on credit over ${account.name}\'s limit',
+          );
+        }
       }
 
       await _auditAdjustments(pricing, orderDiscount, saleId: saleId, number: number, cashier: cashier);
@@ -299,7 +389,8 @@ class SaleRepository {
         number: number,
         total: total,
         method: main.input.method,
-        changeDue: settlement.change,
+        changeDue: settlement.change - kept,
+        changeKept: kept,
         rounding: settlement.rounding,
         paymentLabels: [for (final p in settlement.payments) '${p.input.label} ${formatMoney(p.amount)}'],
         exchangeRefund: returned,

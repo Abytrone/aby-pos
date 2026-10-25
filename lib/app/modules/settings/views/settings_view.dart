@@ -164,6 +164,33 @@ class SettingsView extends GetView<SettingsController> {
           if (v != null) await c.save(AppSettings.cashRoundTo, v);
         },
       ), keywords: ['coins', 'pesewas', 'round']),
+      _Entry(payments, InfoTile(
+        title: l.settingsOverLimit,
+        subtitle: l.settingsOverLimitHelp,
+        value: c.value(AppSettings.creditOverLimit) == 'block' ? l.settingsOverLimitBlock : l.settingsOverLimitApprove,
+        onTap: () async {
+          final v = await choiceDialog<String>(
+            title: l.settingsOverLimit,
+            options: const ['approve', 'block'],
+            label: (o) => o == 'block' ? l.settingsOverLimitBlock : l.settingsOverLimitApprove,
+            selected: c.value(AppSettings.creditOverLimit),
+          );
+          if (v != null) await c.save(AppSettings.creditOverLimit, v);
+        },
+      ), keywords: ['credit', 'limit', 'book']),
+      _Entry(payments, InfoTile(
+        title: l.settingsReminder,
+        subtitle: c.value(AppSettings.creditReminder),
+        onTap: () async {
+          final v = await textInputDialog(
+            title: l.settingsReminder,
+            label: l.settingsReminder,
+            helper: l.settingsReminderHelp,
+            initial: c.value(AppSettings.creditReminder),
+          );
+          if (v != null && v.trim().isNotEmpty) await c.save(AppSettings.creditReminder, v.trim());
+        },
+      ), keywords: ['whatsapp', 'sms', 'credit', 'reminder']),
       _Entry(selling, InfoTile(
         title: l.settingsOrderTypes,
         subtitle: l.settingsOrderTypesHelp,

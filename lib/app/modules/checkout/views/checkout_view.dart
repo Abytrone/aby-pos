@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../models/enums.dart';
 import '../../../services/money.dart';
+import '../../../ui/customer_picker.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
@@ -101,6 +102,15 @@ class _PaymentForm extends GetView<CheckoutController> {
               ),
             ],
           ),
+          if (controller.customer != null)
+            Text(
+              [
+                controller.customer!.name,
+                if (controller.customer!.owed > 0) l.customerOwes(formatMoney(controller.customer!.owed)),
+                if (controller.customer!.wallet > 0) l.customerWallet(formatMoney(controller.customer!.wallet)),
+              ].join('  ·  '),
+              style: AbyText.body.copyWith(color: c.inkMuted),
+            ),
           Text(l.cartTotal.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
           Text(formatMoney(controller.total), style: AbyText.total.copyWith(color: c.ink)),
           if (controller.credit > 0)
@@ -128,7 +138,17 @@ class _PaymentForm extends GetView<CheckoutController> {
               ],
             ),
             const SizedBox(height: AbySpace.s4),
-            const PaymentFields(),
+            if (controller.needsCustomer && controller.customer == null)
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final picked = await pickCustomer();
+                  if (picked != null) controller.cart.customer.value = picked;
+                },
+                icon: const Icon(Icons.person_search),
+                label: Text(l.checkoutChooseCustomer),
+              )
+            else
+              const PaymentFields(),
           ],
           if (controller.owedBack > 0) ...[
             const SizedBox(height: AbySpace.s4),

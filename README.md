@@ -49,6 +49,10 @@ App icons: `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml`.
   methods, the shop's MoMo number and whether a transaction ID is needed). A transaction ID can
   only be used once. Cash totals can be rounded to 10 or 50 pesewas. *Open the drawer (no sale)*
   is in the cart menu and asks for a reason.
+- **Customers:** Manage → Customers, or *Add a customer* on the cart (search by 4 digits of the
+  phone). Credit sales go on their account with an optional limit and days to pay; record
+  payments, see what is overdue, write off (owner), share a PDF statement or a WhatsApp
+  reminder. The wallet holds money paid in ahead, kept change and refunds, and pays at the till.
 - **Refunds and exchanges:** Today → *Refund* on a sale (or *Find a sale* by number, or *Refund
   without a receipt*). Choose what comes back, whether it goes back into stock, a reason and how
   the money goes back; or *Exchange instead* to put its value towards new items on the till.
@@ -82,7 +86,7 @@ lib/
     ui/                     shared design system: SectionPage, GroupCard, InfoTile, dialogs,
                             PinPad, OptionChip, approval prompt, status dot, labels, formatting
     data/database/          drift tables, AppDatabase, step-by-step migrations, seed
-    data/repositories/      catalog, sale, refund, payment methods, cash events, discounts,
+    data/repositories/      catalog, sale, refund, customer, payment methods, cash events, discounts,
                             parked orders, stock, supplier, receiving, stock count, staff, role,
                             day close, audit, settings, outbox:
                             the only code that touches drift
@@ -90,7 +94,7 @@ lib/
                             device, money, ids, PIN hashing, price scheduler, sync (stub)
     models/                 plain Dart domain classes and enums
     modules/                start, setup, sign_in, shell, till, checkout, today, close_day,
-                            refund, products, product_editor, stock, stock_item, receive,
+                            refund, customers, customer, products, product_editor, stock, stock_item, receive,
                             stock_count, supplier, staff, activity, settings
                             (each: controllers, views, widgets, bindings)
 ```

@@ -213,7 +213,11 @@ class CompletedSale {
     this.paymentLabels = const [],
     this.rounding = 0,
     this.exchangeRefund,
+    this.changeKept = 0,
   });
+
+  /// Pesewas of change put in the customer's wallet instead.
+  final int changeKept;
 
   /// "MTN MoMo GH₵ 20.00", one per payment.
   final List<String> paymentLabels;

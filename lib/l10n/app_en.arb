@@ -654,8 +654,6 @@
   "checkoutAmountHelp": "Leave as it is to pay the rest this way.",
   "checkoutReferenceHelp": "Required, from the payment message. Each one can only be used once.",
   "checkoutReferenceShort": "The last 4 characters are enough. Each one can only be used once.",
-  "checkoutCustomer": "Customer name or phone",
-  "checkoutCustomerHelp": "Written in the credit book for this sale.",
   "checkoutCashGiven": "Cash given",
   "checkoutExact": "Exact",
   "checkoutStillToPay": "Still to pay",
@@ -731,6 +729,68 @@
   "todayVoided": "Voided",
   "voidWhy": "Why?",
   "photoPickerUnavailable": "Photos cannot be picked on this device right now. Close Aby fully and open it again.",
+  "navCustomers": "Customers",
+  "permManageCustomers": "Look after customers and their accounts",
+  "payKindWallet": "Wallet",
+  "auditCreditWrittenOff": "Credit written off",
+  "auditCustomerCreditLimit": "Credit limit",
+  "auditCustomerRepaid": "Customer paid",
+  "auditCustomerSaved": "Customer changed",
+  "auditWalletTopUp": "Money into a wallet",
+  "cartAddCustomer": "Add a customer",
+  "cartRemoveCustomer": "Take the customer off",
+  "checkoutChooseCustomer": "Choose the customer",
+  "customerNew": "New customer",
+  "customerEdit": "Change details",
+  "customerQuickAdd": "New customer",
+  "customerPick": "Customer",
+  "customerName": "Name",
+  "customerPhoneHelp": "Their main number: how you find them at the till.",
+  "customerPhone2": "Second phone (optional)",
+  "customerLocation": "Where they are (optional)",
+  "customerLocationHelp": "As they give directions: \"near the mosque, Lamashegu\".",
+  "customerBirthday": "Birthday",
+  "customerTags": "Tags",
+  "customerTagsHelp": "Separated by commas: Wholesale, Staff.",
+  "customerLimit": "Credit limit (optional)",
+  "customerLimitHelp": "The most they may owe. Empty: no limit.",
+  "customerLimitInvalid": "Check the credit limit.",
+  "customerDueDays": "Days to pay (optional)",
+  "customerDueDaysHelp": "After this a credit sale is overdue.",
+  "customerSearchHint": "Phone (4 digits are enough) or name",
+  "customersNone": "No customers yet.",
+  "customersOwing": "Owe money",
+  "customerOwesLabel": "Owes",
+  "customerWalletLabel": "Wallet",
+  "customerRecordPayment": "Record a payment",
+  "customerAddToWallet": "Add money to the wallet",
+  "customerStatement": "Statement",
+  "customerRemind": "Send a reminder",
+  "customerWriteOff": "Write off",
+  "customerWriteOffWhy": "Why is it written off?",
+  "customerRemindMessage": "Message",
+  "customerRemindWhatsApp": "Open WhatsApp",
+  "customerEditReason": "Change customer details.",
+  "customerAmountInvalid": "Enter the amount.",
+  "customerNoPhone": "Add a phone number first.",
+  "customerCannotOpen": "WhatsApp could not be opened on this device.",
+  "customerHabits": "Buying",
+  "customerSpend": "Spent in all",
+  "customerVisits": "Visits",
+  "customerLastVisit": "Last visit",
+  "customerFavourites": "Buys most",
+  "customerUnpaid": "Still owed",
+  "customerAccount": "Account",
+  "customerNoEntries": "Nothing on the account yet.",
+  "customerSales": "Sales",
+  "customerPayFor": "Pay for",
+  "customerOldestFirst": "Oldest first",
+  "settingsOverLimit": "Credit over the limit",
+  "settingsOverLimitHelp": "When a credit sale takes a customer over their limit.",
+  "settingsOverLimitApprove": "Someone allowed approves with their PIN",
+  "settingsOverLimitBlock": "Not allowed",
+  "settingsReminder": "Credit reminder message",
+  "settingsReminderHelp": "The customer's name, what they owe and the shop's name are filled in.",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -2102,6 +2162,198 @@
   "@todayVoidedBy": {
     "placeholders": {
       "name": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutKeepChange": "Keep {amount} change in their wallet",
+  "@checkoutKeepChange": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutKeepChangeHelp": "{name} can spend it next time.",
+  "@checkoutKeepChangeHelp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutOnAccount": "Goes on {name}'s account.",
+  "@checkoutOnAccount": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutOnAccountLimit": "Goes on {name}'s account ({left} left of their limit).",
+  "@checkoutOnAccountLimit": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutOverLimit": "This takes {name} over their credit limit of {limit}.",
+  "@checkoutOverLimit": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutOverLimitReason": "Let {name} owe {owed} (their limit is {limit}).",
+  "@checkoutOverLimitReason": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "owed": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutWalletHas": "{name} has {amount} in their wallet.",
+  "@checkoutWalletHas": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "customersOwedTotal": "Customers owe {amount} in all.",
+  "@customersOwedTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "customerOwes": "owes {amount}",
+  "@customerOwes": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "customerWallet": "wallet {amount}",
+  "@customerWallet": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "customerLimitLine": "Limit {limit}, {left} left",
+  "@customerLimitLine": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      },
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "customerOverdueLine": "Overdue: {a} (1–30 days), {b} (31–60), {c} (over 60)",
+  "@customerOverdueLine": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      },
+      "c": {
+        "type": "String"
+      }
+    }
+  },
+  "customerRepayReason": "Record a payment from {name}.",
+  "@customerRepayReason": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customerTopUpReason": "Put money into {name}'s wallet.",
+  "@customerTopUpReason": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customerWriteOffReason": "Write off what {name} owes.",
+  "@customerWriteOffReason": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customerRepaid": "{amount} payment recorded.",
+  "@customerRepaid": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "customerToppedUp": "{amount} added to the wallet.",
+  "@customerToppedUp": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "customerWrittenOff": "{amount} written off.",
+  "@customerWrittenOff": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "customerStatementText": "Statement for {name}",
+  "@customerStatementText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customerDaysLate": "{count, plural, =1{1 day late} other{{count} days late}}",
+  "@customerDaysLate": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customerDue": "Due {date}",
+  "@customerDue": {
+    "placeholders": {
+      "date": {
         "type": "String"
       }
     }

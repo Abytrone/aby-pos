@@ -62,9 +62,13 @@ class RefundableSale {
     required this.lines,
     this.refundedTotal = 0,
     this.voided = false,
+    this.customerId,
   });
 
   final String saleId;
+
+  /// The sale's customer: then refunds can go to their wallet or account.
+  final String? customerId;
   final int number;
   final DateTime at;
   final String cashierName;

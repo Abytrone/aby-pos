@@ -68,6 +68,7 @@ const builtInPayMethods = [
   ('bank', 'Bank transfer', PaymentMethod.bank, false, true),
   ('cheque', 'Cheque', PaymentMethod.cheque, false, true),
   ('credit', 'Credit (book)', PaymentMethod.credit, true, false),
+  ('wallet', 'Wallet', PaymentMethod.wallet, true, false),
 ];
 
 @DriftDatabase(tables: [
@@ -95,6 +96,8 @@ const builtInPayMethods = [
   SaleTaxes,
   Payments,
   PayMethods,
+  Customers,
+  CustomerLedger,
   Refunds,
   RefundLines,
   RefundPayments,
@@ -128,7 +131,7 @@ class AppDatabase extends _$AppDatabase {
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -367,6 +370,30 @@ class AppDatabase extends _$AppDatabase {
               );
             }
           },
+          // v8: customers, the credit book and wallets.
+          from7To8: (m, schema) async {
+            final deviceId = await _ensureDeviceId();
+            await m.createTable(schema.customers);
+            await m.createTable(schema.customerLedger);
+            await m.addColumn(schema.sales, schema.sales.customerId);
+            await m.addColumn(schema.dayCloses, schema.dayCloses.customerCash);
+            await _insertBuiltInPayMethods(deviceId);
+            // Managers look after customers too.
+            final manager = await customSelect(
+              'SELECT permissions FROM roles WHERE id = ?',
+              variables: [Variable.withString(BuiltInRole.manager.id)],
+            ).getSingleOrNull();
+            if (manager != null) {
+              final perms = (jsonDecode(manager.read<String>('permissions')) as List).cast<String>();
+              if (!perms.contains(Permission.manageCustomers.name)) {
+                await customStatement('UPDATE roles SET permissions = ? WHERE id = ?', [
+                  jsonEncode([...perms, Permission.manageCustomers.name]),
+                  BuiltInRole.manager.id,
+                ]);
+              }
+            }
+            await _customersFromCreditBook(deviceId);
+          },
         ),
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
@@ -379,6 +406,43 @@ class AppDatabase extends _$AppDatabase {
           }
         },
       );
+
+  /// Before v8 a credit sale only had the customer's name or phone as
+  /// text. Each distinct one becomes a customer, with their credit sales
+  /// on the books.
+  Future<void> _customersFromCreditBook(String deviceId) async {
+    final rows = await customSelect(
+      'SELECT p.sale_id AS sale, p.amount AS amount, TRIM(p.customer) AS who, s.created_at AS at, s.cashier_name AS cashier '
+      "FROM payments p JOIN sales s ON s.id = p.sale_id WHERE p.method = 'credit' AND s.status = 'completed' "
+      "AND p.deleted_at IS NULL AND TRIM(COALESCE(p.customer, '')) <> '' ORDER BY s.created_at",
+    ).get();
+    final ids = <String, String>{};
+    for (final r in rows) {
+      final who = r.read<String>('who');
+      final at = r.read<int>('at');
+      var id = ids[who.toLowerCase()];
+      if (id == null) {
+        id = ids[who.toLowerCase()] = newId();
+        // A phone number typed as the name becomes the phone too.
+        final digits = who.replaceAll(RegExp(r'[^0-9]'), '');
+        final phone = RegExp(r'^(233|0)[0-9]{9}$').hasMatch(digits)
+            ? '+233${digits.substring(digits.length - 9)}'
+            : null;
+        await customStatement(
+          'INSERT INTO customers (id, created_at, updated_at, device_id, name, phone, tags, active) '
+          "VALUES (?, ?, ?, ?, ?, ?, '[]', 1)",
+          [id, at, at, deviceId, who, phone],
+        );
+      }
+      await customStatement(
+        'INSERT INTO customer_ledger (id, created_at, updated_at, device_id, customer_id, account, kind, amount, '
+        "sale_id, method_name, note, by_name) VALUES (?, ?, ?, ?, ?, 'credit', 'creditSale', ?, ?, 'Credit (book)', "
+        "'From the credit book before customers', ?)",
+        [newId(), at, at, deviceId, id, r.read<int>('amount'), r.read<String>('sale'), r.read<String>('cashier')],
+      );
+      await customStatement('UPDATE sales SET customer_id = ? WHERE id = ?', [id, r.read<String>('sale')]);
+    }
+  }
 
   Future<String> _ensureDeviceId() async {
     final existing = await readMeta(MetaKeys.deviceId);

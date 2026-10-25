@@ -10,6 +10,7 @@ import '../../../domain/pricing.dart';
 import '../../../models/audit.dart';
 import '../../../models/cart_line.dart';
 import '../../../models/catalog.dart';
+import '../../../models/customer.dart';
 import '../../../models/discount.dart';
 import '../../../models/enums.dart';
 import '../../../models/refund.dart';
@@ -38,6 +39,9 @@ class CartController extends GetxController {
   /// cart: if the app stops, the return simply has not happened.
   final exchange = Rxn<PendingExchange>();
 
+  /// Who the sale is for (credit, wallet, history).
+  final customer = Rxn<Customer>();
+
   Timer? _saveTimer;
   bool _restored = false;
 
@@ -47,7 +51,7 @@ class CartController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    everAll([lines, orderDiscount, note, orderType, parkedName], (_) => _saveSoon());
+    everAll([lines, orderDiscount, note, orderType, parkedName, customer], (_) => _saveSoon());
   }
 
   @override
@@ -169,6 +173,7 @@ class CartController extends GetxController {
     orderType.value = null;
     parkedName.value = null;
     exchange.value = null;
+    customer.value = null;
   }
 
   void setLineNote(String key, String? text) =>
@@ -223,6 +228,8 @@ class CartController extends GetxController {
         if (orderDiscount.value != null) 'orderDiscount': orderDiscount.value!.toJson(),
         'note': ?note.value,
         'orderType': ?orderType.value?.name,
+        if (customer.value != null)
+          'customer': {'id': customer.value!.id, 'name': customer.value!.name, 'phone': ?customer.value!.phone},
       };
 
   /// Replaces the cart with [json], looked up against [products]. Returns
@@ -238,6 +245,10 @@ class CartController extends GetxController {
     final type = json['orderType'] as String?;
     orderType.value = type == null ? null : OrderType.values.asNameMap()[type];
     parkedName.value = parkedAs;
+    final c = json['customer'];
+    customer.value = c is Map
+        ? Customer(id: c['id'] as String, name: c['name'] as String, phone: c['phone'] as String?)
+        : null;
     return restored.length - lines.length;
   }
 

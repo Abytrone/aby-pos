@@ -10,10 +10,13 @@ import '../../services/money.dart';
 import '../database/app_database.dart';
 import 'audit_repository.dart';
 import 'cash_event_repository.dart';
+import 'customer_repository.dart';
 
 /// End-of-day cash-up for this device's drawer.
 class DayCloseRepository {
-  DayCloseRepository(this._db, this._device, this._audit, [this._cashEvents]);
+  DayCloseRepository(this._db, this._device, this._audit, [this._cashEvents, this._customers]);
+
+  final CustomerRepository? _customers;
 
   final CashEventRepository? _cashEvents;
 
@@ -103,6 +106,7 @@ class DayCloseRepository {
       },
       rounding: rounding.read<int>('r'),
       noSales: await _cashEvents?.noSalesSince(last?.closedAt) ?? const {},
+      customerMoney: await _customers?.moneyInSince(last?.closedAt) ?? const {},
     );
   }
 
@@ -154,6 +158,7 @@ class DayCloseRepository {
           otherTakings: Value(period.otherTakings),
           roundingTotal: Value(period.rounding),
           noSaleCount: Value(period.noSaleCount),
+          customerCash: Value(period.customerCash),
         ),
       );
       final close = _toModel(row);
@@ -198,5 +203,6 @@ class DayCloseRepository {
         cashRefunds: r.cashRefunds,
         otherTakings: r.otherTakings,
         noSaleCount: r.noSaleCount,
+        customerCash: r.customerCash,
       );
 }

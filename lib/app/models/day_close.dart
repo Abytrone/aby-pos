@@ -16,7 +16,14 @@ class OpenPeriod {
     this.refundsByMethod = const {},
     this.rounding = 0,
     this.noSales = const {},
+    this.customerMoney = const {},
   });
+
+  /// Money from customers that was not a sale (repayments, wallet top-ups,
+  /// change kept), per kind of payment.
+  final Map<PaymentMethod, int> customerMoney;
+
+  int get customerCash => customerMoney[PaymentMethod.cash] ?? 0;
 
   /// Highest refund number in the period.
   final int lastRefundNumber;
@@ -60,7 +67,7 @@ class OpenPeriod {
 
   /// Cash that should be in the drawer for a given opening float: the float,
   /// plus cash taken, minus cash given back.
-  int expectedCash(int openingFloat) => openingFloat + cashTakings - cashRefunds;
+  int expectedCash(int openingFloat) => openingFloat + cashTakings + customerCash - cashRefunds;
 }
 
 /// A closed day (cash-up). Pesewas.
@@ -82,8 +89,10 @@ class DayClose {
     this.cashRefunds = 0,
     this.otherTakings = 0,
     this.noSaleCount = 0,
+    this.customerCash = 0,
   });
 
+  final int customerCash;
   final int refundsTotal;
   final int cashRefunds;
   final int otherTakings;

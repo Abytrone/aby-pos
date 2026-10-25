@@ -25,11 +25,11 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  for (final from in [1, 2, 3, 4, 5, 6]) {
-    test('v$from to v7 gives exactly the v7 schema', () async {
+  for (final from in [1, 2, 3, 4, 5, 6, 7]) {
+    test('v$from to v8 gives exactly the v8 schema', () async {
       final schema = await verifier.schemaAt(from);
       final db = AppDatabase(schema.newConnection(), false);
-      await verifier.migrateAndValidate(db, 7);
+      await verifier.migrateAndValidate(db, 8);
       await db.close();
     });
   }
@@ -202,6 +202,33 @@ void main() {
     final r = await Repos.open(db);
     expect((await r.payMethods.list()).map((m) => m.name), contains('Telecel Cash'));
     expect((await r.closes.openPeriod()).byMethod[PaymentMethod.momo], 1200);
+    await db.close();
+  });
+
+  test('v7 to v8 turns the old credit book into customers with what they owe', () async {
+    final schema = await verifier.schemaAt(7);
+    final raw = schema.rawDatabase;
+    const t = 1761000000;
+    raw.execute("INSERT INTO meta (key, value) VALUES ('device_id', 'dev-1')");
+    raw.execute('INSERT INTO roles (id, created_at, updated_at, device_id, name, built_in, permissions, max_discount_percent, sort_order) '
+        "VALUES ('${BuiltInRole.manager.id}', $t, $t, 'dev-1', 'Manager', 'manager', '[\"sell\"]', 50, 1)");
+    for (final (id, n, who, amount) in [('s1', 1, 'Auntie Akos', 1200), ('s2', 2, '024 123 4567', 2000), ('s3', 3, 'auntie akos', 500)]) {
+      raw.execute('INSERT INTO sales (id, created_at, updated_at, device_id, number, status, subtotal, total, cashier_name) '
+          "VALUES ('$id', ${t + n}, ${t + n}, 'dev-1', $n, 'completed', $amount, $amount, 'Ama')");
+      raw.execute('INSERT INTO payments (id, created_at, updated_at, device_id, sale_id, method, amount, customer) '
+          "VALUES ('p$n', ${t + n}, ${t + n}, 'dev-1', '$id', 'credit', $amount, '$who')");
+    }
+
+    final db = AppDatabase(schema.newConnection(), false);
+    final r = await Repos.open(db);
+    final customers = await r.customers.list();
+    expect(customers.map((c) => (c.name, c.owed)), unorderedEquals([('Auntie Akos', 1700), ('024 123 4567', 2000)]));
+    expect(customers.firstWhere((c) => c.owed == 2000).phone, '+233241234567');
+    expect((await (db.select(db.sales)..where((s) => s.id.equals('s3'))).getSingle()).customerId,
+        customers.firstWhere((c) => c.name == 'Auntie Akos').id);
+    final role = await (db.select(db.roles)..where((x) => x.id.equals(BuiltInRole.manager.id))).getSingle();
+    expect(role.permissions, contains(Permission.manageCustomers));
+    expect((await r.payMethods.list()).map((m) => m.name), contains('Wallet'));
     await db.close();
   });
 }

@@ -1176,6 +1176,37 @@ Decisions made on the way:
   `CSH-04` safe drops, `CSH-05` MoMo reconciliation.
 - `EXP-01` expenses, `EXP-02` profit and loss, `EXP-03` drawings.
 
+**Status (25 October 2026): 4a built** (customers, credit book, wallet). Schema version 8. Built:
+
+- `CUS-01`: Manage → Customers, and "Add a customer" on the cart (find by 4 digits of the phone or
+  the name, or add with just a name and phone). Phones are stored as +233 and are unique. The
+  customer page shows what they owe and hold, credit aging, unpaid sales, the account, spend,
+  visits, last visit and what they buy most.
+- `CUS-02`: credit sales go on the customer's account (one ledger; balances are sums). Credit
+  limits block, or ask for a PIN from someone with `giveCredit` (setting). Due days per customer
+  give current / 1–30 / 31–60 / 60+ aging. Repayments by any method (MoMo needs its reference),
+  oldest debt first or a chosen sale. Write-offs need `writeOffCredit` and are audited. A PDF
+  statement for any dates, shared or saved. "Send a reminder" opens WhatsApp with the shop's
+  editable message.
+- `CUS-03`: the wallet: money paid in ahead, change kept ("Keep GH₵ 3.00 change in their
+  wallet"), refunds to the wallet; spent with the Wallet payment method.
+- Refunds of credit sales can come off the account. Cash repayments, top-ups and kept change
+  count in close day's expected cash.
+- The v8 migration turns the old free-text credit book into customers, with their credit sales
+  on their accounts (a phone number typed as the name becomes the phone).
+
+Decisions made on the way:
+
+- A credit or wallet payment now needs a customer attached; the free-text customer field is gone.
+- Managers get the new `manageCustomers` permission; cashiers can find and add customers at the
+  till but not record repayments unless the owner gives them that permission.
+- Statements use "GHS" for money: the PDF's built-in font has no cedi sign.
+- Left for later: deposits / layaway with reserved stock (`CUS-03`), loyalty (`CUS-04`) and gift
+  vouchers (`CUS-05`) are Beyond items for phase 6.
+
+**4b next:** shifts with X / Z reports, denomination counting, pay in / out, safe drops, MoMo
+reconciliation. **4c:** expenses, profit and loss, drawings.
+
 ### Phase 5: Reports, printing and hardware
 
 - `APP-02` owner dashboard, `REP-01` to `REP-07`, `REP-09`.

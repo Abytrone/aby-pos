@@ -4018,18 +4018,6 @@ abstract class AppLocalizations {
   /// **'The last 4 characters are enough. Each one can only be used once.'**
   String get checkoutReferenceShort;
 
-  /// No description provided for @checkoutCustomer.
-  ///
-  /// In en, this message translates to:
-  /// **'Customer name or phone'**
-  String get checkoutCustomer;
-
-  /// No description provided for @checkoutCustomerHelp.
-  ///
-  /// In en, this message translates to:
-  /// **'Written in the credit book for this sale.'**
-  String get checkoutCustomerHelp;
-
   /// No description provided for @checkoutCashGiven.
   ///
   /// In en, this message translates to:
@@ -4479,6 +4467,378 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Photos cannot be picked on this device right now. Close Aby fully and open it again.'**
   String get photoPickerUnavailable;
+
+  /// No description provided for @navCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get navCustomers;
+
+  /// No description provided for @permManageCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Look after customers and their accounts'**
+  String get permManageCustomers;
+
+  /// No description provided for @payKindWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get payKindWallet;
+
+  /// No description provided for @auditCreditWrittenOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit written off'**
+  String get auditCreditWrittenOff;
+
+  /// No description provided for @auditCustomerCreditLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit limit'**
+  String get auditCustomerCreditLimit;
+
+  /// No description provided for @auditCustomerRepaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer paid'**
+  String get auditCustomerRepaid;
+
+  /// No description provided for @auditCustomerSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer changed'**
+  String get auditCustomerSaved;
+
+  /// No description provided for @auditWalletTopUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Money into a wallet'**
+  String get auditWalletTopUp;
+
+  /// No description provided for @cartAddCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a customer'**
+  String get cartAddCustomer;
+
+  /// No description provided for @cartRemoveCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the customer off'**
+  String get cartRemoveCustomer;
+
+  /// No description provided for @checkoutChooseCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the customer'**
+  String get checkoutChooseCustomer;
+
+  /// No description provided for @customerNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New customer'**
+  String get customerNew;
+
+  /// No description provided for @customerEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change details'**
+  String get customerEdit;
+
+  /// No description provided for @customerQuickAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'New customer'**
+  String get customerQuickAdd;
+
+  /// No description provided for @customerPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get customerPick;
+
+  /// No description provided for @customerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get customerName;
+
+  /// No description provided for @customerPhoneHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Their main number: how you find them at the till.'**
+  String get customerPhoneHelp;
+
+  /// No description provided for @customerPhone2.
+  ///
+  /// In en, this message translates to:
+  /// **'Second phone (optional)'**
+  String get customerPhone2;
+
+  /// No description provided for @customerLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Where they are (optional)'**
+  String get customerLocation;
+
+  /// No description provided for @customerLocationHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'As they give directions: \"near the mosque, Lamashegu\".'**
+  String get customerLocationHelp;
+
+  /// No description provided for @customerBirthday.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday'**
+  String get customerBirthday;
+
+  /// No description provided for @customerTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get customerTags;
+
+  /// No description provided for @customerTagsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Separated by commas: Wholesale, Staff.'**
+  String get customerTagsHelp;
+
+  /// No description provided for @customerLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit limit (optional)'**
+  String get customerLimit;
+
+  /// No description provided for @customerLimitHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The most they may owe. Empty: no limit.'**
+  String get customerLimitHelp;
+
+  /// No description provided for @customerLimitInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the credit limit.'**
+  String get customerLimitInvalid;
+
+  /// No description provided for @customerDueDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Days to pay (optional)'**
+  String get customerDueDays;
+
+  /// No description provided for @customerDueDaysHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'After this a credit sale is overdue.'**
+  String get customerDueDaysHelp;
+
+  /// No description provided for @customerSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone (4 digits are enough) or name'**
+  String get customerSearchHint;
+
+  /// No description provided for @customersNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No customers yet.'**
+  String get customersNone;
+
+  /// No description provided for @customersOwing.
+  ///
+  /// In en, this message translates to:
+  /// **'Owe money'**
+  String get customersOwing;
+
+  /// No description provided for @customerOwesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Owes'**
+  String get customerOwesLabel;
+
+  /// No description provided for @customerWalletLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get customerWalletLabel;
+
+  /// No description provided for @customerRecordPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a payment'**
+  String get customerRecordPayment;
+
+  /// No description provided for @customerAddToWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add money to the wallet'**
+  String get customerAddToWallet;
+
+  /// No description provided for @customerStatement.
+  ///
+  /// In en, this message translates to:
+  /// **'Statement'**
+  String get customerStatement;
+
+  /// No description provided for @customerRemind.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a reminder'**
+  String get customerRemind;
+
+  /// No description provided for @customerWriteOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Write off'**
+  String get customerWriteOff;
+
+  /// No description provided for @customerWriteOffWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Why is it written off?'**
+  String get customerWriteOffWhy;
+
+  /// No description provided for @customerRemindMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get customerRemindMessage;
+
+  /// No description provided for @customerRemindWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open WhatsApp'**
+  String get customerRemindWhatsApp;
+
+  /// No description provided for @customerEditReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Change customer details.'**
+  String get customerEditReason;
+
+  /// No description provided for @customerAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the amount.'**
+  String get customerAmountInvalid;
+
+  /// No description provided for @customerNoPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a phone number first.'**
+  String get customerNoPhone;
+
+  /// No description provided for @customerCannotOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp could not be opened on this device.'**
+  String get customerCannotOpen;
+
+  /// No description provided for @customerHabits.
+  ///
+  /// In en, this message translates to:
+  /// **'Buying'**
+  String get customerHabits;
+
+  /// No description provided for @customerSpend.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent in all'**
+  String get customerSpend;
+
+  /// No description provided for @customerVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'Visits'**
+  String get customerVisits;
+
+  /// No description provided for @customerLastVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'Last visit'**
+  String get customerLastVisit;
+
+  /// No description provided for @customerFavourites.
+  ///
+  /// In en, this message translates to:
+  /// **'Buys most'**
+  String get customerFavourites;
+
+  /// No description provided for @customerUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Still owed'**
+  String get customerUnpaid;
+
+  /// No description provided for @customerAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get customerAccount;
+
+  /// No description provided for @customerNoEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on the account yet.'**
+  String get customerNoEntries;
+
+  /// No description provided for @customerSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get customerSales;
+
+  /// No description provided for @customerPayFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay for'**
+  String get customerPayFor;
+
+  /// No description provided for @customerOldestFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest first'**
+  String get customerOldestFirst;
+
+  /// No description provided for @settingsOverLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit over the limit'**
+  String get settingsOverLimit;
+
+  /// No description provided for @settingsOverLimitHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'When a credit sale takes a customer over their limit.'**
+  String get settingsOverLimitHelp;
+
+  /// No description provided for @settingsOverLimitApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone allowed approves with their PIN'**
+  String get settingsOverLimitApprove;
+
+  /// No description provided for @settingsOverLimitBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Not allowed'**
+  String get settingsOverLimitBlock;
+
+  /// No description provided for @settingsReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit reminder message'**
+  String get settingsReminder;
+
+  /// No description provided for @settingsReminderHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer\'s name, what they owe and the shop\'s name are filled in.'**
+  String get settingsReminderHelp;
 
   /// No description provided for @pinMustBeDigits.
   ///
@@ -5457,6 +5817,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Voided by {name}'**
   String todayVoidedBy(String name);
+
+  /// No description provided for @checkoutKeepChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep {amount} change in their wallet'**
+  String checkoutKeepChange(String amount);
+
+  /// No description provided for @checkoutKeepChangeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} can spend it next time.'**
+  String checkoutKeepChangeHelp(String name);
+
+  /// No description provided for @checkoutOnAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Goes on {name}\'s account.'**
+  String checkoutOnAccount(String name);
+
+  /// No description provided for @checkoutOnAccountLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Goes on {name}\'s account ({left} left of their limit).'**
+  String checkoutOnAccountLimit(String name, String left);
+
+  /// No description provided for @checkoutOverLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'This takes {name} over their credit limit of {limit}.'**
+  String checkoutOverLimit(String name, String limit);
+
+  /// No description provided for @checkoutOverLimitReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Let {name} owe {owed} (their limit is {limit}).'**
+  String checkoutOverLimitReason(String name, String owed, String limit);
+
+  /// No description provided for @checkoutWalletHas.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} has {amount} in their wallet.'**
+  String checkoutWalletHas(String name, String amount);
+
+  /// No description provided for @customersOwedTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers owe {amount} in all.'**
+  String customersOwedTotal(String amount);
+
+  /// No description provided for @customerOwes.
+  ///
+  /// In en, this message translates to:
+  /// **'owes {amount}'**
+  String customerOwes(String amount);
+
+  /// No description provided for @customerWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'wallet {amount}'**
+  String customerWallet(String amount);
+
+  /// No description provided for @customerLimitLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit {limit}, {left} left'**
+  String customerLimitLine(String limit, String left);
+
+  /// No description provided for @customerOverdueLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue: {a} (1–30 days), {b} (31–60), {c} (over 60)'**
+  String customerOverdueLine(String a, String b, String c);
+
+  /// No description provided for @customerRepayReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a payment from {name}.'**
+  String customerRepayReason(String name);
+
+  /// No description provided for @customerTopUpReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Put money into {name}\'s wallet.'**
+  String customerTopUpReason(String name);
+
+  /// No description provided for @customerWriteOffReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Write off what {name} owes.'**
+  String customerWriteOffReason(String name);
+
+  /// No description provided for @customerRepaid.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} payment recorded.'**
+  String customerRepaid(String amount);
+
+  /// No description provided for @customerToppedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} added to the wallet.'**
+  String customerToppedUp(String amount);
+
+  /// No description provided for @customerWrittenOff.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} written off.'**
+  String customerWrittenOff(String amount);
+
+  /// No description provided for @customerStatementText.
+  ///
+  /// In en, this message translates to:
+  /// **'Statement for {name}'**
+  String customerStatementText(String name);
+
+  /// No description provided for @customerDaysLate.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day late} other{{count} days late}}'**
+  String customerDaysLate(int count);
+
+  /// No description provided for @customerDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String customerDue(String date);
 }
 
 class _AppLocalizationsDelegate

@@ -157,7 +157,7 @@ void main() {
     final line = CartLine(product: named('Waffle'));
     await r.sales.completeSale(lines: [line], payment: const PaymentInput.momo(momoReference: 'TX1'), cashier: cashier);
     final second = await r.sales.completeSale(
-        lines: [line], payment: const PaymentInput.credit(customer: '024 000 0000'), cashier: cashier);
+        lines: [line], payment: const PaymentInput.cash(tendered: 1200), cashier: cashier);
     expect(second.number, 2);
   });
 

@@ -42,6 +42,17 @@ abstract final class AppSettings {
   /// Round cash totals to the nearest this many pesewas (0 = off, 10, 50).
   static const cashRoundTo = Setting<int>('cash.roundTo', SettingScope.shop, 0);
 
+  /// A credit sale over the customer's limit: 'approve' (someone allowed to
+  /// give credit enters their PIN) or 'block'.
+  static const creditOverLimit = Setting<String>('credit.overLimit', SettingScope.shop, 'approve');
+
+  /// The reminder sent by WhatsApp or SMS. {name}, {amount}, {shop}.
+  static const creditReminder = Setting<String>(
+    'credit.reminder',
+    SettingScope.shop,
+    'Hello {name}, a friendly reminder from {shop}: your balance is {amount}. Thank you!',
+  );
+
   /// Close day warns about parked orders older than this.
   static const parkedWarnHours = Setting<int>('selling.parkedWarnHours', SettingScope.shop, 12);
 
@@ -85,6 +96,8 @@ abstract final class AppSettings {
     scaleValue,
     parkedWarnHours,
     cashRoundTo,
+    creditOverLimit,
+    creditReminder,
     autoLockMinutes,
     autoBackupDaily,
     backupsToKeep,

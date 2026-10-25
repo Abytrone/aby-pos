@@ -531,6 +531,61 @@ void main() {
     await _dispose(tester);
   });
 
+  testWidgets('tablet: a customer buys on credit, then pays it back', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await _settle(tester);
+    await tester.tap(find.text('Kofi'));
+    await _settle(tester);
+    await _typePin(tester, '1234');
+
+    // A new customer from the till, with just a name and phone.
+    await tester.tap(find.text('Waffle'));
+    await _settle(tester);
+    await tester.tap(find.text('Add a customer'));
+    await _settle(tester);
+    await tester.tap(find.text('New customer'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Auntie Akos');
+    await tester.enterText(find.widgetWithText(TextField, 'Phone'), '024 123 4567');
+    await tester.tap(find.text('Save'));
+    await _settle(tester);
+    expect(find.text('Auntie Akos'), findsOneWidget);
+
+    // On credit.
+    await tester.tap(find.text('Pay GH₵ 12.00'));
+    await _settle(tester);
+    await tester.tap(find.text('Credit (book)'));
+    await _settle(tester);
+    expect(find.text("Goes on Auntie Akos's account."), findsOneWidget);
+    await tester.tap(find.text('Complete sale'));
+    await _settle(tester);
+    expect(find.text('Sale complete'), findsOneWidget);
+    await tester.tap(find.text('New sale'));
+    await _settle(tester);
+
+    // Customers: she owes 12.00; she pays 5.00 in cash.
+    await tester.tap(find.text('Customers'));
+    await _settle(tester);
+    expect(find.text('Customers owe GH₵ 12.00 in all.'), findsOneWidget);
+    await tester.tap(find.text('Auntie Akos'));
+    await _settle(tester);
+    expect(find.text('GH₵ 12.00'), findsWidgets);
+    await tester.tap(find.text('Record a payment'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Amount paid'), '5');
+    await tester.tap(find.text('Save'));
+    await _settle(tester);
+    expect(find.text('GH₵ 7.00'), findsWidgets);
+    expect(find.textContaining('Payment (Cash)'), findsOneWidget);
+
+    await _dispose(tester);
+  });
+
   testWidgets('phone portrait, first run: name the shop, create the owner, start selling', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;

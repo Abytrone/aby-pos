@@ -25,6 +25,7 @@ enum ShellSection {
   products(Icons.sell_outlined, Icons.sell, Workspace.manage, {Permission.editProducts, Permission.changePrices}),
   stock(Icons.inventory_2_outlined, Icons.inventory_2, Workspace.manage,
       {Permission.receiveStock, Permission.adjustStock, Permission.approveStockCount}),
+  customers(Icons.people_outline, Icons.people, Workspace.manage, {Permission.manageCustomers, Permission.giveCredit}),
   staff(Icons.badge_outlined, Icons.badge, Workspace.manage, {Permission.manageStaff}),
   activity(Icons.history_outlined, Icons.history, Workspace.manage, {Permission.viewActivityLog}),
   settings(Icons.settings_outlined, Icons.settings, Workspace.manage, null);
@@ -43,6 +44,7 @@ enum ShellSection {
         ShellSection.today => l.navToday,
         ShellSection.products => l.navProducts,
         ShellSection.stock => l.navStock,
+        ShellSection.customers => l.navCustomers,
         ShellSection.staff => l.navStaff,
         ShellSection.activity => l.navActivity,
         ShellSection.settings => l.navSettings,

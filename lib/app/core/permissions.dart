@@ -18,6 +18,7 @@ enum Permission {
   approveStockCount(PermissionGroup.catalogue),
 
   // Customers
+  manageCustomers(PermissionGroup.customers),
   giveCredit(PermissionGroup.customers),
   writeOffCredit(PermissionGroup.customers),
 

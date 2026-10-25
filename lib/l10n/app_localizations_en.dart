@@ -2018,13 +2018,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'The last 4 characters are enough. Each one can only be used once.';
 
   @override
-  String get checkoutCustomer => 'Customer name or phone';
-
-  @override
-  String get checkoutCustomerHelp =>
-      'Written in the credit book for this sale.';
-
-  @override
   String get checkoutCashGiven => 'Cash given';
 
   @override
@@ -2259,6 +2252,198 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get photoPickerUnavailable =>
       'Photos cannot be picked on this device right now. Close Aby fully and open it again.';
+
+  @override
+  String get navCustomers => 'Customers';
+
+  @override
+  String get permManageCustomers => 'Look after customers and their accounts';
+
+  @override
+  String get payKindWallet => 'Wallet';
+
+  @override
+  String get auditCreditWrittenOff => 'Credit written off';
+
+  @override
+  String get auditCustomerCreditLimit => 'Credit limit';
+
+  @override
+  String get auditCustomerRepaid => 'Customer paid';
+
+  @override
+  String get auditCustomerSaved => 'Customer changed';
+
+  @override
+  String get auditWalletTopUp => 'Money into a wallet';
+
+  @override
+  String get cartAddCustomer => 'Add a customer';
+
+  @override
+  String get cartRemoveCustomer => 'Take the customer off';
+
+  @override
+  String get checkoutChooseCustomer => 'Choose the customer';
+
+  @override
+  String get customerNew => 'New customer';
+
+  @override
+  String get customerEdit => 'Change details';
+
+  @override
+  String get customerQuickAdd => 'New customer';
+
+  @override
+  String get customerPick => 'Customer';
+
+  @override
+  String get customerName => 'Name';
+
+  @override
+  String get customerPhoneHelp =>
+      'Their main number: how you find them at the till.';
+
+  @override
+  String get customerPhone2 => 'Second phone (optional)';
+
+  @override
+  String get customerLocation => 'Where they are (optional)';
+
+  @override
+  String get customerLocationHelp =>
+      'As they give directions: \"near the mosque, Lamashegu\".';
+
+  @override
+  String get customerBirthday => 'Birthday';
+
+  @override
+  String get customerTags => 'Tags';
+
+  @override
+  String get customerTagsHelp => 'Separated by commas: Wholesale, Staff.';
+
+  @override
+  String get customerLimit => 'Credit limit (optional)';
+
+  @override
+  String get customerLimitHelp => 'The most they may owe. Empty: no limit.';
+
+  @override
+  String get customerLimitInvalid => 'Check the credit limit.';
+
+  @override
+  String get customerDueDays => 'Days to pay (optional)';
+
+  @override
+  String get customerDueDaysHelp => 'After this a credit sale is overdue.';
+
+  @override
+  String get customerSearchHint => 'Phone (4 digits are enough) or name';
+
+  @override
+  String get customersNone => 'No customers yet.';
+
+  @override
+  String get customersOwing => 'Owe money';
+
+  @override
+  String get customerOwesLabel => 'Owes';
+
+  @override
+  String get customerWalletLabel => 'Wallet';
+
+  @override
+  String get customerRecordPayment => 'Record a payment';
+
+  @override
+  String get customerAddToWallet => 'Add money to the wallet';
+
+  @override
+  String get customerStatement => 'Statement';
+
+  @override
+  String get customerRemind => 'Send a reminder';
+
+  @override
+  String get customerWriteOff => 'Write off';
+
+  @override
+  String get customerWriteOffWhy => 'Why is it written off?';
+
+  @override
+  String get customerRemindMessage => 'Message';
+
+  @override
+  String get customerRemindWhatsApp => 'Open WhatsApp';
+
+  @override
+  String get customerEditReason => 'Change customer details.';
+
+  @override
+  String get customerAmountInvalid => 'Enter the amount.';
+
+  @override
+  String get customerNoPhone => 'Add a phone number first.';
+
+  @override
+  String get customerCannotOpen =>
+      'WhatsApp could not be opened on this device.';
+
+  @override
+  String get customerHabits => 'Buying';
+
+  @override
+  String get customerSpend => 'Spent in all';
+
+  @override
+  String get customerVisits => 'Visits';
+
+  @override
+  String get customerLastVisit => 'Last visit';
+
+  @override
+  String get customerFavourites => 'Buys most';
+
+  @override
+  String get customerUnpaid => 'Still owed';
+
+  @override
+  String get customerAccount => 'Account';
+
+  @override
+  String get customerNoEntries => 'Nothing on the account yet.';
+
+  @override
+  String get customerSales => 'Sales';
+
+  @override
+  String get customerPayFor => 'Pay for';
+
+  @override
+  String get customerOldestFirst => 'Oldest first';
+
+  @override
+  String get settingsOverLimit => 'Credit over the limit';
+
+  @override
+  String get settingsOverLimitHelp =>
+      'When a credit sale takes a customer over their limit.';
+
+  @override
+  String get settingsOverLimitApprove =>
+      'Someone allowed approves with their PIN';
+
+  @override
+  String get settingsOverLimitBlock => 'Not allowed';
+
+  @override
+  String get settingsReminder => 'Credit reminder message';
+
+  @override
+  String get settingsReminderHelp =>
+      'The customer\'s name, what they owe and the shop\'s name are filled in.';
 
   @override
   String pinMustBeDigits(int count) {
@@ -3196,5 +3381,116 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String todayVoidedBy(String name) {
     return 'Voided by $name';
+  }
+
+  @override
+  String checkoutKeepChange(String amount) {
+    return 'Keep $amount change in their wallet';
+  }
+
+  @override
+  String checkoutKeepChangeHelp(String name) {
+    return '$name can spend it next time.';
+  }
+
+  @override
+  String checkoutOnAccount(String name) {
+    return 'Goes on $name\'s account.';
+  }
+
+  @override
+  String checkoutOnAccountLimit(String name, String left) {
+    return 'Goes on $name\'s account ($left left of their limit).';
+  }
+
+  @override
+  String checkoutOverLimit(String name, String limit) {
+    return 'This takes $name over their credit limit of $limit.';
+  }
+
+  @override
+  String checkoutOverLimitReason(String name, String owed, String limit) {
+    return 'Let $name owe $owed (their limit is $limit).';
+  }
+
+  @override
+  String checkoutWalletHas(String name, String amount) {
+    return '$name has $amount in their wallet.';
+  }
+
+  @override
+  String customersOwedTotal(String amount) {
+    return 'Customers owe $amount in all.';
+  }
+
+  @override
+  String customerOwes(String amount) {
+    return 'owes $amount';
+  }
+
+  @override
+  String customerWallet(String amount) {
+    return 'wallet $amount';
+  }
+
+  @override
+  String customerLimitLine(String limit, String left) {
+    return 'Limit $limit, $left left';
+  }
+
+  @override
+  String customerOverdueLine(String a, String b, String c) {
+    return 'Overdue: $a (1–30 days), $b (31–60), $c (over 60)';
+  }
+
+  @override
+  String customerRepayReason(String name) {
+    return 'Record a payment from $name.';
+  }
+
+  @override
+  String customerTopUpReason(String name) {
+    return 'Put money into $name\'s wallet.';
+  }
+
+  @override
+  String customerWriteOffReason(String name) {
+    return 'Write off what $name owes.';
+  }
+
+  @override
+  String customerRepaid(String amount) {
+    return '$amount payment recorded.';
+  }
+
+  @override
+  String customerToppedUp(String amount) {
+    return '$amount added to the wallet.';
+  }
+
+  @override
+  String customerWrittenOff(String amount) {
+    return '$amount written off.';
+  }
+
+  @override
+  String customerStatementText(String name) {
+    return 'Statement for $name';
+  }
+
+  @override
+  String customerDaysLate(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days late',
+      one: '1 day late',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String customerDue(String date) {
+    return 'Due $date';
   }
 }

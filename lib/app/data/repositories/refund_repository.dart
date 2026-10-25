@@ -13,6 +13,7 @@ import '../../services/ids.dart';
 import '../../services/money.dart';
 import '../database/app_database.dart';
 import 'audit_repository.dart';
+import 'customer_repository.dart';
 import 'stock_repository.dart';
 
 class RefundException implements Exception {
@@ -26,12 +27,13 @@ class RefundException implements Exception {
 /// Refunds and returns. Each refund is its own record linked to the sale,
 /// which is never changed. Items go back into stock unless marked damaged.
 class RefundRepository {
-  RefundRepository(this._db, this._device, this._audit, this._stock);
+  RefundRepository(this._db, this._device, this._audit, this._stock, [this._customers]);
 
   final AppDatabase _db;
   final DeviceInfo _device;
   final AuditRepository _audit;
   final StockRepository _stock;
+  final CustomerRepository? _customers;
 
   /// A sale on this device by its number ("#00142" or "142").
   Future<String?> saleIdByNumber(String text) async {
@@ -71,6 +73,7 @@ class RefundRepository {
       cashierName: sale.cashierName,
       total: sale.total,
       voided: sale.status == SaleStatus.voided,
+      customerId: sale.customerId,
       refundedTotal: refunded.values.fold(0, (s, r) => s + r.$2),
       payments: [
         for (final p in payments)
@@ -169,6 +172,21 @@ class RefundRepository {
       final number = ((await q.map((r) => r.read(max)).getSingle()) ?? 0) + 1;
       final sale = d.saleId == null ? null : await (_db.select(_db.sales)..where((s) => s.id.equals(d.saleId!))).getSingle();
       final by = approver ?? actor;
+      final onAccount = payments.where((p) => p.method == PaymentMethod.credit || p.method == PaymentMethod.wallet);
+      if (onAccount.isNotEmpty && (sale?.customerId == null || _customers == null)) {
+        throw const RefundException('Only a sale with a customer can be refunded to their account or wallet.');
+      }
+      if (payments.any((p) => p.method == PaymentMethod.credit)) {
+        final owedOnSale = await _db.customSelect(
+          "SELECT COALESCE(SUM(amount), 0) AS v FROM customer_ledger WHERE sale_id = ? AND account = 'credit' AND deleted_at IS NULL",
+          variables: [Variable.withString(sale!.id)],
+          readsFrom: {_db.customerLedger},
+        ).getSingle();
+        final back = payments.where((p) => p.method == PaymentMethod.credit).fold(0, (s, p) => s + p.amount);
+        if (back > owedOnSale.read<int>('v')) {
+          throw const RefundException('More than was sold on credit cannot go back to the account. Give the rest another way.');
+        }
+      }
 
       await _db.insertTracked(
         _db.refunds,
@@ -229,6 +247,19 @@ class RefundRepository {
             amount: p.amount,
             reference: Value(p.reference?.trim().isEmpty ?? true ? null : p.reference!.trim()),
           ),
+        );
+      }
+
+      for (final p in onAccount) {
+        await _customers!.addEntry(
+          customerId: sale!.customerId!,
+          account: p.method == PaymentMethod.credit ? CustomerAccount.credit : CustomerAccount.wallet,
+          kind: p.method == PaymentMethod.credit ? CustomerEntryKind.creditRefund : CustomerEntryKind.walletRefund,
+          amount: p.method == PaymentMethod.credit ? -p.amount : p.amount,
+          byName: by.name,
+          saleId: sale.id,
+          refundId: id,
+          methodName: p.methodName,
         );
       }
 

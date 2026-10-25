@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/layout.dart';
 import '../../activity/views/activity_view.dart';
+import '../../customers/views/customers_view.dart';
 import '../../products/views/products_view.dart';
 import '../../settings/views/settings_view.dart';
 import '../../stock/views/stock_view.dart';
@@ -24,6 +25,7 @@ class ShellView extends GetView<ShellController> {
         ShellSection.today => const TodayView(),
         ShellSection.products => const ProductsView(),
         ShellSection.stock => const StockView(),
+        ShellSection.customers => const CustomersView(),
         ShellSection.staff => const StaffView(),
         ShellSection.activity => const ActivityView(),
         ShellSection.settings => const SettingsView(),

@@ -6,6 +6,7 @@ import '../../../data/repositories/parked_order_repository.dart';
 import '../../../models/cart_line.dart';
 import '../../../models/enums.dart';
 import '../../../services/money.dart';
+import '../../../ui/customer_picker.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
@@ -88,6 +89,46 @@ class CartPanel extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(AbySpace.s2, 0, AbySpace.s4, AbySpace.s1),
+            child: Row(children: [
+              Expanded(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(AbyRadius.sm),
+                  onTap: () async {
+                    final picked = await pickCustomer();
+                    if (picked != null) cart.customer.value = picked;
+                  },
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: AbySize.tapMin),
+                    child: Row(children: [
+                      const SizedBox(width: AbySpace.s2),
+                      Icon(cart.customer.value == null ? Icons.person_add_alt : Icons.person, size: 20, color: c.blue),
+                      const SizedBox(width: AbySpace.s2),
+                      Expanded(
+                        child: Text(
+                          cart.customer.value == null
+                              ? l.cartAddCustomer
+                              : [
+                                  cart.customer.value!.name,
+                                  if (cart.customer.value!.owed > 0) l.customerOwes(formatMoney(cart.customer.value!.owed)),
+                                ].join('  ·  '),
+                          overflow: TextOverflow.ellipsis,
+                          style: AbyText.body.copyWith(color: c.blue, fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ]),
+                  ),
+                ),
+              ),
+              if (cart.customer.value != null)
+                IconButton(
+                  tooltip: l.cartRemoveCustomer,
+                  onPressed: () => cart.customer.value = null,
+                  icon: Icon(Icons.close, size: 18, color: c.inkMuted),
+                ),
+            ]),
           ),
           if (cart.exchange.value != null)
             Container(

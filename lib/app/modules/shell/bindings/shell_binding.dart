@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import '../../activity/controllers/activity_controller.dart';
+import '../../customers/controllers/customers_controller.dart';
 import '../../products/controllers/catalogue_controller.dart';
 import '../../settings/controllers/backup_controller.dart';
 import '../../settings/controllers/settings_controller.dart';
@@ -23,6 +24,7 @@ class ShellBinding extends Bindings {
     Get.lazyPut(CatalogueController.new, fenix: true);
     Get.lazyPut(StockController.new, fenix: true);
     Get.lazyPut(PurchasingController.new, fenix: true);
+    Get.lazyPut(CustomersController.new, fenix: true);
     Get.lazyPut(StaffController.new, fenix: true);
     Get.lazyPut(RolesController.new, fenix: true);
     Get.lazyPut(ActivityController.new, fenix: true);

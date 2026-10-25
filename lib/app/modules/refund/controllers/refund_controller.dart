@@ -87,16 +87,23 @@ class RefundController extends GetxController {
 
   Future<void> _load() async {
     reasons.assignAll(await _reasons.reasons(ReasonKind.refund));
-    methods.assignAll((await _methods.list()).where((m) => m.kind != PaymentMethod.credit));
+    final all = await _methods.list();
     if (saleId != null) {
       final s = await _refunds.refundable(saleId!);
       sale.value = s;
+      // With a customer, money can also go to their wallet, or come off what
+      // they owe when the sale was on credit.
+      final onCredit = s?.payments.any((p) => p.method == PaymentMethod.credit) ?? false;
+      methods.assignAll(all.where((m) =>
+          (m.kind != PaymentMethod.credit && m.kind != PaymentMethod.wallet) ||
+          (s?.customerId != null && (m.kind == PaymentMethod.wallet || (m.kind == PaymentMethod.credit && onCredit)))));
       // Back the way it was paid, when that method is still on.
       final main = s?.payments.where((p) => p.method != PaymentMethod.exchange).firstOrNull;
       method.value = methods.firstWhereOrNull((m) => m.name == main?.methodName) ??
           methods.firstWhereOrNull((m) => m.kind == main?.method) ??
           methods.firstWhereOrNull((m) => m.isCash);
     } else {
+      methods.assignAll(all.where((m) => m.kind != PaymentMethod.credit && m.kind != PaymentMethod.wallet));
       products.assignAll((await _catalog.load()).products);
       method.value = methods.firstWhereOrNull((m) => m.isCash);
     }

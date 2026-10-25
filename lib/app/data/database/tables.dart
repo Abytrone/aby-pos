@@ -315,6 +315,9 @@ class Sales extends Table with SyncColumns {
   TextColumn get note => text().nullable()();
   TextColumn get orderType => textEnum<OrderType>().nullable()();
 
+  /// The customer the sale is for, when one was attached. v8.
+  TextColumn get customerId => text().nullable()();
+
   /// Pesewas added (or taken off, when negative) by rounding a cash total.
   /// The payments add up to [total] plus this. v7.
   IntColumn get rounding => integer().withDefault(const Constant(0))();
@@ -408,6 +411,60 @@ class Payments extends Table with SyncColumns {
   /// before v7: [method] says what it was. v7.
   TextColumn get methodId => text().nullable()();
   TextColumn get methodName => text().nullable()();
+}
+
+/// People who buy: looked up by phone, with a credit account and a wallet.
+@DataClassName('CustomerRow')
+class Customers extends Table with SyncColumns {
+  TextColumn get name => text()();
+
+  /// +233XXXXXXXXX. Unique among active customers.
+  TextColumn get phone => text().nullable()();
+  TextColumn get phone2 => text().nullable()();
+
+  /// As people give directions ("near the mosque, Lamashegu").
+  TextColumn get location => text().nullable()();
+  TextColumn get notes => text().nullable()();
+  DateTimeColumn get birthday => dateTime().nullable()();
+
+  /// JSON list of tags ("Wholesale", "Staff").
+  TextColumn get tags => text().withDefault(const Constant('[]'))();
+
+  /// Pesewas they may owe at most; null for no limit.
+  IntColumn get creditLimit => integer().nullable()();
+
+  /// Days to pay for a credit sale; null for no due date.
+  IntColumn get dueDays => integer().nullable()();
+  BoolColumn get active => boolean().withDefault(const Constant(true))();
+}
+
+/// Both customer accounts as one append-only ledger. A balance is the sum
+/// of an account's entries, never a stored number.
+@DataClassName('CustomerEntryRow')
+class CustomerLedger extends Table with SyncColumns {
+  TextColumn get customerId => text().references(Customers, #id)();
+  TextColumn get account => textEnum<CustomerAccount>()();
+  TextColumn get kind => textEnum<CustomerEntryKind>()();
+
+  /// Pesewas: on credit, + owed / − paid; on the wallet, + held / − used.
+  IntColumn get amount => integer()();
+  TextColumn get saleId => text().nullable()();
+  TextColumn get refundId => text().nullable()();
+
+  /// A repayment for one sale; null pays the oldest debts first.
+  TextColumn get appliesToSaleId => text().nullable()();
+
+  /// For a credit sale, when it should be paid.
+  DateTimeColumn get dueOn => dateTime().nullable()();
+
+  /// How money came in or went out (repayments, top-ups), so cash ones
+  /// count in the drawer.
+  TextColumn get method => textEnum<PaymentMethod>().nullable()();
+  TextColumn get methodName => text().nullable()();
+  TextColumn get reference => text().nullable()();
+  TextColumn get note => text().nullable()();
+  TextColumn get byName => text()();
+  TextColumn get approverName => text().nullable()();
 }
 
 /// The ways a shop takes payment, which the owner can rename and switch on
@@ -661,6 +718,10 @@ class DayCloses extends Table with SyncColumns {
   IntColumn get otherTakings => integer().withDefault(const Constant(0))();
   IntColumn get roundingTotal => integer().withDefault(const Constant(0))();
   IntColumn get noSaleCount => integer().withDefault(const Constant(0))();
+
+  /// Cash from customers that was not a sale: repayments, wallet top-ups,
+  /// change kept. [expectedCash] includes it. v8.
+  IntColumn get customerCash => integer().withDefault(const Constant(0))();
 }
 
 /// Tamper-evident record of sensitive actions. Each row stores the hash of

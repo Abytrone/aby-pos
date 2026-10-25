@@ -50,13 +50,20 @@ class PaymentFields extends GetView<CheckoutController> {
               ),
             ),
           ],
-          if (m.kind == PaymentMethod.credit) ...[
+          if (m.kind == PaymentMethod.credit && controller.customer != null) ...[
             const SizedBox(height: AbySpace.s3),
-            TextField(
-              controller: controller.customerField,
-              textInputAction: TextInputAction.done,
-              textCapitalization: TextCapitalization.words,
-              decoration: InputDecoration(labelText: l.checkoutCustomer, helperText: l.checkoutCustomerHelp),
+            Text(
+              controller.customer!.creditLimit == null
+                  ? l.checkoutOnAccount(controller.customer!.name)
+                  : l.checkoutOnAccountLimit(controller.customer!.name, formatMoney(controller.customer!.creditLeft!)),
+              style: AbyText.caption.copyWith(color: Theme.of(context).extension<AbyColors>()!.inkMuted),
+            ),
+          ],
+          if (m.kind == PaymentMethod.wallet && controller.customer != null) ...[
+            const SizedBox(height: AbySpace.s3),
+            Text(
+              l.checkoutWalletHas(controller.customer!.name, formatMoney(controller.customer!.wallet)),
+              style: AbyText.caption.copyWith(color: Theme.of(context).extension<AbyColors>()!.inkMuted),
             ),
           ],
         ],
@@ -139,6 +146,16 @@ class _CashFields extends GetView<CheckoutController> {
                 ),
               )),
         const SizedBox(height: AbySpace.s4),
+        Obx(() => controller.customer != null && controller.changeDue > 0
+            ? CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                value: controller.keepChange.value,
+                onChanged: (v) => controller.keepChange.value = v ?? false,
+                title: Text(l.checkoutKeepChange(formatMoney(controller.changeDue))),
+                subtitle: Text(l.checkoutKeepChangeHelp(controller.customer!.name)),
+              )
+            : const SizedBox.shrink()),
         Obx(() {
           final tendered = controller.tendered;
           final short = tendered != null && controller.cashShort;

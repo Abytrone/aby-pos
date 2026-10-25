@@ -15,6 +15,7 @@ String permissionLabel(AppLocalizations l, Permission p) => switch (p) {
       Permission.receiveStock => l.permReceiveStock,
       Permission.adjustStock => l.permAdjustStock,
       Permission.approveStockCount => l.permApproveStockCount,
+      Permission.manageCustomers => l.permManageCustomers,
       Permission.giveCredit => l.permGiveCredit,
       Permission.writeOffCredit => l.permWriteOffCredit,
       Permission.closeDay => l.permCloseDay,
@@ -97,4 +98,9 @@ String auditActionLabel(AppLocalizations l, AuditAction a) => switch (a) {
       AuditAction.refundGiven => l.auditRefundGiven,
       AuditAction.noSale => l.auditNoSale,
       AuditAction.payMethodSaved => l.auditPayMethodSaved,
+      AuditAction.customerSaved => l.auditCustomerSaved,
+      AuditAction.customerCreditLimit => l.auditCustomerCreditLimit,
+      AuditAction.customerRepaid => l.auditCustomerRepaid,
+      AuditAction.walletTopUp => l.auditWalletTopUp,
+      AuditAction.creditWrittenOff => l.auditCreditWrittenOff,
     };

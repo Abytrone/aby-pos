@@ -28,6 +28,9 @@ class FakeSaleRepository implements SaleRepository {
     OrderType? orderType,
     int roundTo = 0,
     ExchangeInput? exchange,
+    Customer? customer,
+    bool changeToWallet = false,
+    Staff? creditApprover,
   }) async {
     if (failWith != null) throw failWith!;
     final all = [...payments, ?payment];
@@ -108,13 +111,26 @@ void main() {
     expect(sales.calls.single.$1.single.methodName, 'MTN MoMo');
   });
 
-  test('credit: needs a customer', () async {
+  test('credit: needs a customer attached', () async {
     await settle();
     checkout.selectMethod(PaymentMethod.credit);
+    expect(checkout.needsCustomer, isTrue);
     expect(checkout.canComplete, isFalse);
-    checkout.customerField.text = 'Auntie Akos';
+    cart.customer.value = const Customer(id: 'c1', name: 'Auntie Akos');
+    expect(checkout.canComplete, isTrue);
     await checkout.complete();
     expect(sales.calls.single.$1.single.customer, 'Auntie Akos');
+  });
+
+  test('wallet: no more than it holds', () async {
+    await settle();
+    cart.customer.value = const Customer(id: 'c1', name: 'Auntie Akos', wallet: 1000);
+    checkout.selectMethod(PaymentMethod.wallet);
+    expect(checkout.amount, 1000, reason: 'the wallet, not the 25.00 total');
+    expect(checkout.canComplete, isFalse);
+    expect(checkout.canTakePart, isTrue);
+    checkout.amountField.text = '12';
+    expect(checkout.canTakePart, isFalse, reason: 'more than the wallet holds');
   });
 
   test('split: part by MoMo, the rest in cash', () async {

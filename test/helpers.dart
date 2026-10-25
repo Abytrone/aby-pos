@@ -3,6 +3,7 @@ import 'package:aby_pos/app/data/database/app_database.dart';
 import 'package:aby_pos/app/data/repositories/audit_repository.dart';
 import 'package:aby_pos/app/data/repositories/cash_event_repository.dart';
 import 'package:aby_pos/app/data/repositories/catalog_repository.dart';
+import 'package:aby_pos/app/data/repositories/customer_repository.dart';
 import 'package:aby_pos/app/data/repositories/day_close_repository.dart';
 import 'package:aby_pos/app/data/repositories/pay_method_repository.dart';
 import 'package:aby_pos/app/data/repositories/refund_repository.dart';
@@ -52,10 +53,11 @@ class Repos {
   Repos._(this.db, this.device) : audit = AuditRepository(db, device) {
     stock = StockRepository(db, device, audit);
     cashEvents = CashEventRepository(db, device, audit);
-    closes = DayCloseRepository(db, device, audit, cashEvents);
-    refunds = RefundRepository(db, device, audit, stock);
+    customers = CustomerRepository(db, device, audit);
+    closes = DayCloseRepository(db, device, audit, cashEvents, customers);
+    refunds = RefundRepository(db, device, audit, stock, customers);
     payMethods = PayMethodRepository(db, device, audit);
-    sales = SaleRepository(db, stock, closes, audit, device, refunds);
+    sales = SaleRepository(db, stock, closes, audit, device, refunds, customers);
     staff = StaffRepository(db, device, audit);
     catalog = CatalogRepository(db, device, audit);
   }
@@ -69,6 +71,7 @@ class Repos {
   late final StockRepository stock;
   late final DayCloseRepository closes;
   late final CashEventRepository cashEvents;
+  late final CustomerRepository customers;
   late final RefundRepository refunds;
   late final PayMethodRepository payMethods;
   late final SaleRepository sales;

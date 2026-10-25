@@ -3,15 +3,20 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
+import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
 import '../../../data/database/app_database.dart' show builtInPayMethods, payMethodRowId;
+import '../../../data/repositories/customer_repository.dart';
 import '../../../data/repositories/pay_method_repository.dart';
 import '../../../data/repositories/sale_repository.dart';
 import '../../../domain/settlement.dart';
+import '../../../models/customer.dart';
 import '../../../models/enums.dart';
 import '../../../models/sale.dart';
+import '../../../models/staff.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/money.dart';
+import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../ui/l10n.dart';
 import '../../till/controllers/cart_controller.dart';
@@ -33,6 +38,9 @@ class CheckoutController extends GetxController {
   /// How the difference goes back when returned items are worth more.
   final payBack = Rxn<PayMethod>();
 
+  /// Put cash change in the customer's wallet instead of handing it over.
+  final keepChange = false.obs;
+
   final saving = false.obs;
   final error = RxnString();
   final completed = Rxn<CompletedSale>();
@@ -40,13 +48,11 @@ class CheckoutController extends GetxController {
   final tenderedField = TextEditingController();
   final amountField = TextEditingController();
   final referenceField = TextEditingController();
-  final customerField = TextEditingController();
 
   // Mirrors of the fields, so Obx can react to typing.
   final _tenderedText = ''.obs;
   final _amountText = ''.obs;
   final _referenceText = ''.obs;
-  final _customerText = ''.obs;
 
   /// Old names, kept for the MoMo field.
   TextEditingController get momoField => referenceField;
@@ -57,16 +63,28 @@ class CheckoutController extends GetxController {
     tenderedField.addListener(() => _tenderedText.value = tenderedField.text);
     amountField.addListener(() => _amountText.value = amountField.text);
     referenceField.addListener(() => _referenceText.value = referenceField.text);
-    customerField.addListener(() => _customerText.value = customerField.text);
     _loadMethods();
+    _refreshCustomer();
   }
+
+  /// The attached customer with today's balances.
+  Future<void> _refreshCustomer() async {
+    final c = cart.customer.value;
+    if (c == null || !Get.isRegistered<CustomerRepository>()) return;
+    final fresh = await Get.find<CustomerRepository>().find(c.id);
+    if (fresh != null) cart.customer.value = fresh;
+  }
+
+  Customer? get customer => cart.customer.value;
+
+  /// Credit and wallet go on the customer's account.
+  bool get needsCustomer => kind == PaymentMethod.credit || kind == PaymentMethod.wallet;
 
   @override
   void onClose() {
     tenderedField.dispose();
     amountField.dispose();
     referenceField.dispose();
-    customerField.dispose();
     super.onClose();
   }
 
@@ -118,13 +136,22 @@ class CheckoutController extends GetxController {
 
   bool get cashShort => (tendered ?? 0) < cashDue;
 
-  /// The amount for a non-cash payment: what is typed, or the rest.
-  int? get amount => _amountText.value.trim().isEmpty ? remaining : parseMoney(_amountText.value);
+  /// The amount for a non-cash payment: what is typed, or the rest (no
+  /// more than the wallet holds).
+  int? get amount {
+    if (_amountText.value.trim().isNotEmpty) return parseMoney(_amountText.value);
+    if (kind == PaymentMethod.wallet) {
+      final held = customer?.wallet ?? 0;
+      return held < remaining ? held : remaining;
+    }
+    return remaining;
+  }
 
   bool get _detailsDone {
     final m = selected.value;
     if (m == null) return false;
-    if (m.kind == PaymentMethod.credit && _customerText.value.trim().isEmpty) return false;
+    if (needsCustomer && customer == null) return false;
+    if (m.kind == PaymentMethod.wallet && (amount ?? 0) > (customer?.wallet ?? 0)) return false;
     if (m.needsReference && _referenceText.value.trim().isEmpty) return false;
     return true;
   }
@@ -180,7 +207,7 @@ class CheckoutController extends GetxController {
       amount: part ? (isCash ? tendered : amount) : null,
       tendered: isCash ? tendered : null,
       reference: m.needsReference ? referenceField.text : null,
-      customer: m.kind == PaymentMethod.credit ? customerField.text : null,
+      customer: m.kind == PaymentMethod.credit ? customer?.name : null,
     );
   }
 
@@ -188,7 +215,7 @@ class CheckoutController extends GetxController {
   void takePart() {
     if (!canTakePart) return;
     taken.add(_current(part: true));
-    for (final f in [tenderedField, amountField, referenceField, customerField]) {
+    for (final f in [tenderedField, amountField, referenceField]) {
       f.clear();
     }
     error.value = null;
@@ -198,10 +225,36 @@ class CheckoutController extends GetxController {
     if (index >= 0 && index < taken.length) taken.removeAt(index);
   }
 
+  /// Pesewas this sale puts on the customer's credit account (the payment
+  /// without an amount pays what remains).
+  int _creditIn(List<PaymentInput> payments) =>
+      payments.where((p) => p.method == PaymentMethod.credit).fold(0, (s, p) => s + (p.amount ?? remaining));
+
   Future<void> complete() async {
     if (!canComplete) return;
     final payments = [...taken, if (remaining > 0) _current(part: false)];
     final pending = cart.exchange.value;
+    final l = appL10n();
+
+    // Over the credit limit: blocked, or someone allowed to give credit
+    // approves, by the shop's setting.
+    Staff? creditApprover;
+    final c = customer;
+    final credit = _creditIn(payments);
+    if (c != null && credit > 0 && c.creditLimit != null && c.owed + credit > c.creditLimit!) {
+      final rule = Get.isRegistered<SettingsService>() ? Get.find<SettingsService>().get(AppSettings.creditOverLimit) : 'approve';
+      if (rule == 'block') {
+        error.value = l.checkoutOverLimit(c.name, formatMoney(c.creditLimit!));
+        return;
+      }
+      final auth = await Get.find<PermissionService>().authorize(
+        Permission.giveCredit,
+        reason: l.checkoutOverLimitReason(c.name, formatMoney(c.owed + credit), formatMoney(c.creditLimit!)),
+      );
+      if (auth == null) return;
+      creditApprover = auth.authority;
+    }
+
     saving.value = true;
     error.value = null;
     try {
@@ -217,6 +270,9 @@ class CheckoutController extends GetxController {
         exchange: pending == null
             ? null
             : ExchangeInput(returned: pending.returned, payBack: payBack.value, approver: pending.approver),
+        customer: c,
+        changeToWallet: keepChange.value && c != null,
+        creditApprover: creditApprover,
       );
       cart.reset();
       taken.clear();

@@ -15,7 +15,8 @@ enum PaymentMethod {
   bank('Bank transfer'),
   cheque('Cheque'),
   exchange('Exchange'),
-  other('Other');
+  other('Other'),
+  wallet('Wallet');
 
   const PaymentMethod(this.label);
   final String label;
@@ -62,3 +63,21 @@ enum ParkedOrderStatus { parked, resumed, discarded }
 
 /// Drawer events that are not sales. Pay in / pay out come with phase 4.
 enum CashEventKind { noSale }
+
+/// A customer's two accounts: what they owe (credit book) and what the shop
+/// holds for them (wallet / store credit).
+enum CustomerAccount { credit, wallet }
+
+/// Entries in a customer account. On the credit account a positive amount
+/// is owed; on the wallet a positive amount is held for the customer.
+enum CustomerEntryKind {
+  creditSale,
+  repayment,
+  writeOff,
+  creditRefund,
+  topUp,
+  changeKept,
+  walletSpend,
+  walletRefund,
+  adjustment,
+}
