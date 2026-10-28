@@ -7162,6 +7162,258 @@ abstract class AppLocalizations {
   /// **'Nothing is left on this voucher.'**
   String get voucherUsedUp;
 
+  /// No description provided for @navOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get navOrders;
+
+  /// No description provided for @ordersNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No open orders. Sales with prep items get a number here.'**
+  String get ordersNone;
+
+  /// No description provided for @orderNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get orderNew;
+
+  /// No description provided for @orderPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing'**
+  String get orderPreparing;
+
+  /// No description provided for @orderReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get orderReady;
+
+  /// No description provided for @orderCollected.
+  ///
+  /// In en, this message translates to:
+  /// **'Collected'**
+  String get orderCollected;
+
+  /// No description provided for @orderMarkCollected.
+  ///
+  /// In en, this message translates to:
+  /// **'Collected'**
+  String get orderMarkCollected;
+
+  /// No description provided for @orderPrintTicket.
+  ///
+  /// In en, this message translates to:
+  /// **'Print kitchen ticket'**
+  String get orderPrintTicket;
+
+  /// No description provided for @orderNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order number'**
+  String get orderNumberLabel;
+
+  /// No description provided for @settingsGroupOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders and screens'**
+  String get settingsGroupOrders;
+
+  /// No description provided for @settingsOrderNumbers.
+  ///
+  /// In en, this message translates to:
+  /// **'Order numbers'**
+  String get settingsOrderNumbers;
+
+  /// No description provided for @settingsOrderNumbersHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales with prep items get a number like A23, a kitchen ticket and a place on the Orders board.'**
+  String get settingsOrderNumbersHelp;
+
+  /// No description provided for @settingsOrderPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Order letter'**
+  String get settingsOrderPrefix;
+
+  /// No description provided for @settingsOrderPrep.
+  ///
+  /// In en, this message translates to:
+  /// **'Items that need prep'**
+  String get settingsOrderPrep;
+
+  /// No description provided for @settingsOrderPrepHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Like milkshakes and waffles. Nothing picked means everything.'**
+  String get settingsOrderPrepHelp;
+
+  /// No description provided for @kitchenPrinterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Kitchen printer'**
+  String get kitchenPrinterTitle;
+
+  /// No description provided for @kitchenPrinterHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Kitchen tickets print here.'**
+  String get kitchenPrinterHelp;
+
+  /// No description provided for @kitchenPrinterSame.
+  ///
+  /// In en, this message translates to:
+  /// **'The receipt printer'**
+  String get kitchenPrinterSame;
+
+  /// No description provided for @settingsScreens.
+  ///
+  /// In en, this message translates to:
+  /// **'Screens on other devices'**
+  String get settingsScreens;
+
+  /// No description provided for @settingsScreensHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A customer display, a prep screen and Now serving, in the browser of a tablet, TV or second monitor on the same Wi-Fi.'**
+  String get settingsScreensHelp;
+
+  /// No description provided for @screensTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open on a tablet or TV'**
+  String get screensTitle;
+
+  /// No description provided for @screensHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a code with the tablet or type its link into the browser. Keep the links to yourself: anyone with one on this Wi-Fi can open it.'**
+  String get screensHelp;
+
+  /// No description provided for @screensNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'This device on'**
+  String get screensNetwork;
+
+  /// No description provided for @screensNotRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'The screens are not running. Turn them off and on again, or another app may be using the port.'**
+  String get screensNotRunning;
+
+  /// No description provided for @screensNoNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'This device is not on a network. Connect it to the shop Wi-Fi.'**
+  String get screensNoNetwork;
+
+  /// No description provided for @screensCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer display'**
+  String get screensCustomer;
+
+  /// No description provided for @screensCustomerHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Faces the customer: the cart, the total, the MoMo number and QR code, then thank you and change.'**
+  String get screensCustomerHelp;
+
+  /// No description provided for @screensPrep.
+  ///
+  /// In en, this message translates to:
+  /// **'Prep screen'**
+  String get screensPrep;
+
+  /// No description provided for @screensPrepHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'For whoever makes the orders: New, Preparing, Ready, with buttons.'**
+  String get screensPrepHelp;
+
+  /// No description provided for @screensServing.
+  ///
+  /// In en, this message translates to:
+  /// **'Now serving'**
+  String get screensServing;
+
+  /// No description provided for @screensServingHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Order numbers being prepared and ready to collect, for a TV.'**
+  String get screensServingHelp;
+
+  /// No description provided for @screensNewLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'New links'**
+  String get screensNewLinks;
+
+  /// No description provided for @screensNewLinksDone.
+  ///
+  /// In en, this message translates to:
+  /// **'New links made. The old ones no longer work.'**
+  String get screensNewLinksDone;
+
+  /// No description provided for @auditBarcodesGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Barcodes made'**
+  String get auditBarcodesGenerated;
+
+  /// No description provided for @labelsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Labels'**
+  String get labelsTitle;
+
+  /// No description provided for @labelsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'How many labels for each product: name, price and barcode.'**
+  String get labelsHelp;
+
+  /// No description provided for @labelsSheet.
+  ///
+  /// In en, this message translates to:
+  /// **'A4 sheet (24)'**
+  String get labelsSheet;
+
+  /// No description provided for @labelsRoll.
+  ///
+  /// In en, this message translates to:
+  /// **'Label roll 50 × 30'**
+  String get labelsRoll;
+
+  /// No description provided for @labelsReceiptPrinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt printer'**
+  String get labelsReceiptPrinter;
+
+  /// No description provided for @labelsNoBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'no barcode'**
+  String get labelsNoBarcode;
+
+  /// No description provided for @labelsMakeBarcodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Make barcodes for products'**
+  String get labelsMakeBarcodes;
+
+  /// No description provided for @labelsForDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Labels for this delivery?'**
+  String get labelsForDelivery;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -8613,6 +8865,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{code}: {amount} left'**
   String voucherHas(String code, String amount);
+
+  /// No description provided for @orderMoveTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to {status}'**
+  String orderMoveTo(String status);
+
+  /// No description provided for @orderBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to {status}'**
+  String orderBack(String status);
+
+  /// No description provided for @screensCannotStart.
+  ///
+  /// In en, this message translates to:
+  /// **'The screens could not start: {error}'**
+  String screensCannotStart(String error);
+
+  /// No description provided for @labelsMakeMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Make a barcode for the 1 without one} other{Make barcodes for the {count} without one}}'**
+  String labelsMakeMissing(int count);
+
+  /// No description provided for @labelsBarcodesMade.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 barcode made.} other{{count} barcodes made.}}'**
+  String labelsBarcodesMade(int count);
+
+  /// No description provided for @labelsPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Print 1 label} other{Print {count} labels}}'**
+  String labelsPrint(int count);
+
+  /// No description provided for @labelsForDeliveryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 product came in that is sold as is. Print its price labels?} other{{count} products came in that are sold as is. Print their price labels?}}'**
+  String labelsForDeliveryBody(int count);
 }
 
 class _AppLocalizationsDelegate

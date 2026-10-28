@@ -1,4 +1,5 @@
 import 'package:aby_pos/app/domain/loyalty.dart';
+import 'package:aby_pos/app/domain/orders.dart';
 import 'package:aby_pos/app/domain/promotions.dart';
 import 'package:aby_pos/app/core/tax.dart';
 import 'package:aby_pos/app/data/repositories/audit_repository.dart';
@@ -35,6 +36,7 @@ class FakeSaleRepository implements SaleRepository {
     Staff? creditApprover,
     List<Promotion> promotions = const [],
     LoyaltyConfig loyalty = const LoyaltyConfig(),
+    OrderConfig? orders,
   }) async {
     if (failWith != null) throw failWith!;
     final all = [...payments, ?payment];

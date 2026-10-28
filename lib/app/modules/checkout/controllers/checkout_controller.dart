@@ -11,11 +11,14 @@ import '../../../data/repositories/customer_repository.dart';
 import '../../../data/repositories/pay_method_repository.dart';
 import '../../../data/repositories/sale_repository.dart';
 import '../../../domain/settlement.dart';
+import '../../../models/cart_line.dart';
 import '../../../models/customer.dart';
 import '../../../models/enums.dart';
 import '../../../models/sale.dart';
 import '../../../models/staff.dart';
+import '../../../models/order.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/display/display_service.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/printing/print_service.dart';
@@ -70,7 +73,18 @@ class CheckoutController extends GetxController {
     ever(selected, (_) => _findVoucher());
     _loadMethods();
     _refreshCustomer();
+    ever(selected, (_) => _toDisplay());
+    _toDisplay();
   }
+
+  /// The customer display shows what to pay, with the MoMo number and QR
+  /// code for MoMo methods.
+  void _toDisplay() {
+    final m = selected.value;
+    display?.paying(due: remaining > 0 ? remaining : total, payToName: m?.name, payToNumber: m?.merchantNumber);
+  }
+
+  DisplayService? get display => Get.isRegistered<DisplayService>() ? Get.find<DisplayService>() : null;
 
   /// The attached customer with today's balances.
   Future<void> _refreshCustomer() async {
@@ -111,6 +125,7 @@ class CheckoutController extends GetxController {
 
   @override
   void onClose() {
+    if (completed.value == null) display?.cancelPaying();
     tenderedField.dispose();
     amountField.dispose();
     referenceField.dispose();
@@ -291,6 +306,18 @@ class CheckoutController extends GetxController {
 
     saving.value = true;
     error.value = null;
+    // What the kitchen makes, kept before the cart clears.
+    final orders = cart.orders;
+    final prep = [
+      for (final l in orders?.prepLines(cart.lines) ?? const <CartLine>[])
+        OrderLine(
+          title: l.title,
+          quantity: l.quantity,
+          sellBy: l.product.sellBy,
+          options: [for (final o in l.options) o.name],
+          note: l.note,
+        ),
+    ];
     try {
       completed.value = await _sales.completeSale(
         lines: cart.lines.toList(),
@@ -309,8 +336,15 @@ class CheckoutController extends GetxController {
         creditApprover: creditApprover,
         promotions: cart.promotions.toList(),
         loyalty: cart.loyalty,
+        orders: orders,
       );
-      unawaited(printService?.afterSale(completed.value!.saleId));
+      unawaited(printService?.afterSale(completed.value!.saleId, prep: prep));
+      final done = completed.value!;
+      display?.done(
+        total: done.total + done.rounding,
+        change: done.changeDue,
+        order: done.orderNumber == null ? null : orders?.label(done.orderNumber!),
+      );
       cart.reset();
       taken.clear();
       if (Get.isRegistered<TillController>()) unawaited(Get.find<TillController>().refreshRecent());

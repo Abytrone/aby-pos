@@ -165,7 +165,7 @@ class AppDatabase extends _$AppDatabase {
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -468,6 +468,12 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(schema.giftVouchers);
             await m.createTable(schema.voucherEntries);
             await _insertBuiltInPayMethods(await _ensureDeviceId());
+          },
+          // v13: queue numbers and prep status on sales.
+          from12To13: (m, schema) async {
+            await m.addColumn(schema.sales, schema.sales.orderNumber);
+            await m.addColumn(schema.sales, schema.sales.orderStatus);
+            await m.addColumn(schema.sales, schema.sales.orderStatusAt);
           },
         ),
         beforeOpen: (details) async {

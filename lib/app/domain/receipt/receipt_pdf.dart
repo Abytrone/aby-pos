@@ -31,6 +31,9 @@ abstract final class ReceiptPdf {
                 ),
               ),
             RImage(:final png) => pw.Center(child: pw.Image(pw.MemoryImage(png), width: 120)),
+            RBarcode(:final data) => pw.Center(
+                child: pw.BarcodeWidget(barcode: pw.Barcode.code128(), data: data, width: 140, height: 40, drawText: false),
+              ),
             RText(:final bold, :final big) => pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [for (final l in layout(b, paper.chars)) text(l, strong: bold, big: big)],

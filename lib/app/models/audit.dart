@@ -37,6 +37,7 @@ enum AuditAction {
   supplierPaid,
   priceScheduled,
   pricesBulkChanged,
+  barcodesGenerated,
   catalogueImported,
   cartLinesRemoved,
   cartCleared,

@@ -9,6 +9,8 @@ import '../../data/repositories/receipt_repository.dart';
 import '../../domain/receipt/escpos.dart';
 import '../../domain/receipt/receipt_builder.dart';
 import '../../domain/receipt/receipt_doc.dart';
+import '../../models/enums.dart';
+import '../../models/order.dart';
 import '../../models/receipt.dart';
 import '../device_service.dart';
 import '../settings_service.dart';
@@ -20,10 +22,13 @@ PrintService? get printService => Get.isRegistered<PrintService>() ? Get.find<Pr
 
 /// Something waiting for the printer.
 class PrintJob {
-  PrintJob(this.title, this.bytes);
+  PrintJob(this.title, this.bytes, {this.target});
 
   final String title;
   final Uint8List bytes;
+
+  /// Another printer than the receipt printer (kitchen tickets).
+  final PrinterTarget? target;
   int attempts = 0;
 
   /// Why the last try failed.
@@ -60,6 +65,9 @@ class PrintService extends GetxService {
   Paper get paper => Paper.fromMillimetres(_settings.get(AppSettings.paperWidth));
   bool get hasDrawer => hasPrinter && _settings.get(AppSettings.cashDrawer);
 
+  /// Kitchen tickets print here, or on the receipt printer.
+  PrinterTarget? get kitchenPrinter => PrinterTarget.decode(_settings.get(AppSettings.kitchenPrinter)) ?? printer;
+
   /// The first job's error, when the queue is stuck.
   String? get problem => queue.firstOrNull?.error;
 
@@ -86,6 +94,7 @@ class PrintService extends GetxService {
       copies: ReceiptDesign.decodeCopies(_settings.get(AppSettings.receiptCopies)),
       loyaltyStyle: _settings.get(AppSettings.loyaltyStyle),
       stampsForReward: _settings.get(AppSettings.loyaltyStamps),
+      orderPrefix: _settings.get(AppSettings.orderPrefix),
     );
   }
 
@@ -97,11 +106,14 @@ class PrintService extends GetxService {
 
   /// Called once a sale is saved: prints it when this device prints
   /// automatically, and opens the drawer for cash.
-  Future<void> afterSale(String saleId) async {
+  /// [prep] are the lines for the kitchen ticket, when the sale got a
+  /// queue number.
+  Future<void> afterSale(String saleId, {List<OrderLine> prep = const []}) async {
     _lastSaleId = saleId;
-    if (!hasPrinter) return;
     final data = await _receipts.sale(saleId);
     if (data == null) return;
+    if (data.orderNumber != null && prep.isNotEmpty) printKitchenTicket(data.orderNumber!, data.at, prep, note: data.note, orderType: data.orderType);
+    if (!hasPrinter) return;
     final kick = hasDrawer && data.paidCash;
     if (_settings.get(AppSettings.autoPrint)) {
       _enqueueSale(data, kick: kick, reprint: false);
@@ -167,6 +179,23 @@ class PrintService extends GetxService {
     return true;
   }
 
+  /// The kitchen / prep ticket for an order. False when there is no printer.
+  bool printKitchenTicket(int number, DateTime at, List<OrderLine> lines, {String? note, OrderType? orderType, String? customerName}) {
+    final target = kitchenPrinter;
+    if (target == null) return false;
+    final paper = PrinterTarget.decode(_settings.get(AppSettings.kitchenPrinter)) == null ? this.paper : Paper.mm80;
+    final doc = ReceiptBuilder.kitchenTicket(
+      number: '${_settings.get(AppSettings.orderPrefix)}$number',
+      at: at,
+      lines: lines,
+      note: note,
+      orderType: orderType,
+      customerName: customerName,
+    );
+    _enqueue(doc.title, EscPos.encode(doc, paper), target: target);
+    return true;
+  }
+
   /// Opens the cash drawer (no-sale, pay in or out), when there is one.
   void openDrawer() {
     if (hasDrawer) _enqueue('Cash drawer', EscPos.kickOnly());
@@ -184,8 +213,8 @@ class PrintService extends GetxService {
     }
   }
 
-  void _enqueue(String title, Uint8List bytes) {
-    queue.add(PrintJob(title, bytes));
+  void _enqueue(String title, Uint8List bytes, {PrinterTarget? target}) {
+    queue.add(PrintJob(title, bytes, target: target));
     unawaited(_pump());
   }
 
@@ -205,12 +234,12 @@ class PrintService extends GetxService {
     _busy = true;
     try {
       while (queue.isNotEmpty) {
-        final target = printer;
-        if (target == null) {
-          queue.clear();
-          break;
-        }
         final job = queue.first;
+        final target = job.target ?? printer;
+        if (target == null) {
+          queue.removeAt(0);
+          continue;
+        }
         try {
           await _links(target).send(job.bytes);
           queue.removeAt(0);

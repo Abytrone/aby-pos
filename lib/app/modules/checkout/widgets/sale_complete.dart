@@ -32,6 +32,15 @@ class SaleComplete extends StatelessWidget {
         Icon(Icons.check_circle, size: 56, color: c.success),
         const SizedBox(height: AbySpace.s3),
         Text(l.checkoutDone, textAlign: TextAlign.center, style: AbyText.title.copyWith(color: c.ink)),
+        if (sale.orderNumber != null) ...[
+          const SizedBox(height: AbySpace.s2),
+          Text(l.orderNumberLabel.toUpperCase(), textAlign: TextAlign.center, style: AbyText.label.copyWith(color: c.inkMuted)),
+          Text(
+            '${Get.find<SettingsService>().get(AppSettings.orderPrefix)}${sale.orderNumber}',
+            textAlign: TextAlign.center,
+            style: AbyText.display.copyWith(color: c.blue),
+          ),
+        ],
         const SizedBox(height: AbySpace.s1),
         Text(
           '${sale.displayNumber}  ·  ${formatMoney(sale.total)}',

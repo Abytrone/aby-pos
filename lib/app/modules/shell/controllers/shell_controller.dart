@@ -22,6 +22,9 @@ enum Workspace { sell, manage }
 enum ShellSection {
   sell(Icons.point_of_sale_outlined, Icons.point_of_sale, Workspace.sell, {Permission.sell}),
   today(Icons.today_outlined, Icons.today, Workspace.sell, null),
+
+  /// Only when the shop uses order numbers (SEL-11).
+  orders(Icons.receipt_long_outlined, Icons.receipt_long, Workspace.sell, {Permission.sell}),
   dashboard(Icons.dashboard_outlined, Icons.dashboard, Workspace.manage, {Permission.viewReports}),
   products(Icons.sell_outlined, Icons.sell, Workspace.manage, {Permission.editProducts, Permission.changePrices}),
   stock(Icons.inventory_2_outlined, Icons.inventory_2, Workspace.manage,
@@ -46,6 +49,7 @@ enum ShellSection {
   String label(AppLocalizations l) => switch (this) {
         ShellSection.sell => l.navSell,
         ShellSection.today => l.navToday,
+        ShellSection.orders => l.navOrders,
         ShellSection.dashboard => l.navDashboard,
         ShellSection.products => l.navProducts,
         ShellSection.stock => l.navStock,
@@ -76,7 +80,7 @@ class ShellController extends GetxController {
   /// Reactive: reads the signed-in person.
   List<ShellSection> get sections => [
         for (final s in ShellSection.values)
-          if (s.anyOf == null || s.anyOf!.any(auth.can)) s,
+          if ((s.anyOf == null || s.anyOf!.any(auth.can)) && (s != ShellSection.orders || _settings.get(AppSettings.ordersOn))) s,
       ];
 
   String get shopName => _settings.get(AppSettings.shopName);

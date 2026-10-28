@@ -1,3 +1,4 @@
+import 'package:barcode/barcode.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -59,6 +60,12 @@ class ReceiptPreview extends StatelessWidget {
                     child: QrImageView(data: data, size: 110, padding: EdgeInsets.zero),
                   ),
                 ),
+              RBarcode(:final data) => Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: AbySpace.s2),
+                    child: CustomPaint(size: Size(width * 0.7, 48), painter: BarcodePainter(data)),
+                  ),
+                ),
               RImage(:final png) => Center(
                   child: Image.memory(
                     png,
@@ -75,4 +82,22 @@ class ReceiptPreview extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Draws a Code 128 barcode (label previews).
+class BarcodePainter extends CustomPainter {
+  BarcodePainter(this.data);
+
+  final String data;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final ink = Paint()..color = const Color(0xFF000000);
+    for (final bar in Barcode.code128().make(data, width: size.width, height: size.height).whereType<BarcodeBar>()) {
+      if (bar.black) canvas.drawRect(Rect.fromLTWH(bar.left, bar.top, bar.width, bar.height), ink);
+    }
+  }
+
+  @override
+  bool shouldRepaint(BarcodePainter old) => old.data != data;
 }

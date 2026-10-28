@@ -197,6 +197,7 @@ class ReceiveController extends GetxController {
         by: auth.authority,
       );
       lastReceipt = receipt;
+      received = {for (final d in drafts) d.stockItemId: (received[d.stockItemId] ?? 0) + d.quantity};
       return true;
     } on StockException catch (e) {
       error = e.message;
@@ -208,4 +209,7 @@ class ReceiveController extends GetxController {
   }
 
   StockReceipt? lastReceipt;
+
+  /// Base units received per stock item, for labels.
+  Map<String, int> received = const {};
 }

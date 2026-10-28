@@ -3655,6 +3655,144 @@ class AppLocalizationsEn extends AppLocalizations {
   String get voucherUsedUp => 'Nothing is left on this voucher.';
 
   @override
+  String get navOrders => 'Orders';
+
+  @override
+  String get ordersNone =>
+      'No open orders. Sales with prep items get a number here.';
+
+  @override
+  String get orderNew => 'New';
+
+  @override
+  String get orderPreparing => 'Preparing';
+
+  @override
+  String get orderReady => 'Ready';
+
+  @override
+  String get orderCollected => 'Collected';
+
+  @override
+  String get orderMarkCollected => 'Collected';
+
+  @override
+  String get orderPrintTicket => 'Print kitchen ticket';
+
+  @override
+  String get orderNumberLabel => 'Order number';
+
+  @override
+  String get settingsGroupOrders => 'Orders and screens';
+
+  @override
+  String get settingsOrderNumbers => 'Order numbers';
+
+  @override
+  String get settingsOrderNumbersHelp =>
+      'Sales with prep items get a number like A23, a kitchen ticket and a place on the Orders board.';
+
+  @override
+  String get settingsOrderPrefix => 'Order letter';
+
+  @override
+  String get settingsOrderPrep => 'Items that need prep';
+
+  @override
+  String get settingsOrderPrepHelp =>
+      'Like milkshakes and waffles. Nothing picked means everything.';
+
+  @override
+  String get kitchenPrinterTitle => 'Kitchen printer';
+
+  @override
+  String get kitchenPrinterHelp => 'Kitchen tickets print here.';
+
+  @override
+  String get kitchenPrinterSame => 'The receipt printer';
+
+  @override
+  String get settingsScreens => 'Screens on other devices';
+
+  @override
+  String get settingsScreensHelp =>
+      'A customer display, a prep screen and Now serving, in the browser of a tablet, TV or second monitor on the same Wi-Fi.';
+
+  @override
+  String get screensTitle => 'Open on a tablet or TV';
+
+  @override
+  String get screensHelp =>
+      'Scan a code with the tablet or type its link into the browser. Keep the links to yourself: anyone with one on this Wi-Fi can open it.';
+
+  @override
+  String get screensNetwork => 'This device on';
+
+  @override
+  String get screensNotRunning =>
+      'The screens are not running. Turn them off and on again, or another app may be using the port.';
+
+  @override
+  String get screensNoNetwork =>
+      'This device is not on a network. Connect it to the shop Wi-Fi.';
+
+  @override
+  String get screensCustomer => 'Customer display';
+
+  @override
+  String get screensCustomerHelp =>
+      'Faces the customer: the cart, the total, the MoMo number and QR code, then thank you and change.';
+
+  @override
+  String get screensPrep => 'Prep screen';
+
+  @override
+  String get screensPrepHelp =>
+      'For whoever makes the orders: New, Preparing, Ready, with buttons.';
+
+  @override
+  String get screensServing => 'Now serving';
+
+  @override
+  String get screensServingHelp =>
+      'Order numbers being prepared and ready to collect, for a TV.';
+
+  @override
+  String get screensNewLinks => 'New links';
+
+  @override
+  String get screensNewLinksDone =>
+      'New links made. The old ones no longer work.';
+
+  @override
+  String get auditBarcodesGenerated => 'Barcodes made';
+
+  @override
+  String get labelsTitle => 'Labels';
+
+  @override
+  String get labelsHelp =>
+      'How many labels for each product: name, price and barcode.';
+
+  @override
+  String get labelsSheet => 'A4 sheet (24)';
+
+  @override
+  String get labelsRoll => 'Label roll 50 × 30';
+
+  @override
+  String get labelsReceiptPrinter => 'Receipt printer';
+
+  @override
+  String get labelsNoBarcode => 'no barcode';
+
+  @override
+  String get labelsMakeBarcodes => 'Make barcodes for products';
+
+  @override
+  String get labelsForDelivery => 'Labels for this delivery?';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }
@@ -5057,5 +5195,65 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String voucherHas(String code, String amount) {
     return '$code: $amount left';
+  }
+
+  @override
+  String orderMoveTo(String status) {
+    return 'Move to $status';
+  }
+
+  @override
+  String orderBack(String status) {
+    return 'Back to $status';
+  }
+
+  @override
+  String screensCannotStart(String error) {
+    return 'The screens could not start: $error';
+  }
+
+  @override
+  String labelsMakeMissing(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Make barcodes for the $count without one',
+      one: 'Make a barcode for the 1 without one',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String labelsBarcodesMade(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count barcodes made.',
+      one: '1 barcode made.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String labelsPrint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Print $count labels',
+      one: 'Print 1 label',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String labelsForDeliveryBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count products came in that are sold as is. Print their price labels?',
+      one: '1 product came in that is sold as is. Print its price labels?',
+    );
+    return '$_temp0';
   }
 }

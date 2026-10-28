@@ -1178,6 +1178,48 @@
   "voucherCodeHelp": "Type or scan the code on the voucher.",
   "voucherNotFound": "No voucher with this code.",
   "voucherUsedUp": "Nothing is left on this voucher.",
+  "navOrders": "Orders",
+  "ordersNone": "No open orders. Sales with prep items get a number here.",
+  "orderNew": "New",
+  "orderPreparing": "Preparing",
+  "orderReady": "Ready",
+  "orderCollected": "Collected",
+  "orderMarkCollected": "Collected",
+  "orderPrintTicket": "Print kitchen ticket",
+  "orderNumberLabel": "Order number",
+  "settingsGroupOrders": "Orders and screens",
+  "settingsOrderNumbers": "Order numbers",
+  "settingsOrderNumbersHelp": "Sales with prep items get a number like A23, a kitchen ticket and a place on the Orders board.",
+  "settingsOrderPrefix": "Order letter",
+  "settingsOrderPrep": "Items that need prep",
+  "settingsOrderPrepHelp": "Like milkshakes and waffles. Nothing picked means everything.",
+  "kitchenPrinterTitle": "Kitchen printer",
+  "kitchenPrinterHelp": "Kitchen tickets print here.",
+  "kitchenPrinterSame": "The receipt printer",
+  "settingsScreens": "Screens on other devices",
+  "settingsScreensHelp": "A customer display, a prep screen and Now serving, in the browser of a tablet, TV or second monitor on the same Wi-Fi.",
+  "screensTitle": "Open on a tablet or TV",
+  "screensHelp": "Scan a code with the tablet or type its link into the browser. Keep the links to yourself: anyone with one on this Wi-Fi can open it.",
+  "screensNetwork": "This device on",
+  "screensNotRunning": "The screens are not running. Turn them off and on again, or another app may be using the port.",
+  "screensNoNetwork": "This device is not on a network. Connect it to the shop Wi-Fi.",
+  "screensCustomer": "Customer display",
+  "screensCustomerHelp": "Faces the customer: the cart, the total, the MoMo number and QR code, then thank you and change.",
+  "screensPrep": "Prep screen",
+  "screensPrepHelp": "For whoever makes the orders: New, Preparing, Ready, with buttons.",
+  "screensServing": "Now serving",
+  "screensServingHelp": "Order numbers being prepared and ready to collect, for a TV.",
+  "screensNewLinks": "New links",
+  "screensNewLinksDone": "New links made. The old ones no longer work.",
+  "auditBarcodesGenerated": "Barcodes made",
+  "labelsTitle": "Labels",
+  "labelsHelp": "How many labels for each product: name, price and barcode.",
+  "labelsSheet": "A4 sheet (24)",
+  "labelsRoll": "Label roll 50 × 30",
+  "labelsReceiptPrinter": "Receipt printer",
+  "labelsNoBarcode": "no barcode",
+  "labelsMakeBarcodes": "Make barcodes for products",
+  "labelsForDelivery": "Labels for this delivery?",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -3269,6 +3311,62 @@
       },
       "amount": {
         "type": "String"
+      }
+    }
+  },
+  "orderMoveTo": "Move to {status}",
+  "@orderMoveTo": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "orderBack": "Back to {status}",
+  "@orderBack": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "screensCannotStart": "The screens could not start: {error}",
+  "@screensCannotStart": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "labelsMakeMissing": "{count, plural, =1{Make a barcode for the 1 without one} other{Make barcodes for the {count} without one}}",
+  "@labelsMakeMissing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsBarcodesMade": "{count, plural, =1{1 barcode made.} other{{count} barcodes made.}}",
+  "@labelsBarcodesMade": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsPrint": "{count, plural, =1{Print 1 label} other{Print {count} labels}}",
+  "@labelsPrint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsForDeliveryBody": "{count, plural, =1{1 product came in that is sold as is. Print its price labels?} other{{count} products came in that are sold as is. Print their price labels?}}",
+  "@labelsForDeliveryBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
       }
     }
   }

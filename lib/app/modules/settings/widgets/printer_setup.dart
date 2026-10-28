@@ -29,12 +29,15 @@ List<PrinterKind> availableKinds() => [
     ];
 
 /// Settings → Receipt printer: which printer, its paper, and a test page.
-Future<void> showPrinterSetup(SettingsController settings) => Get.dialog<void>(_PrinterSetup(settings: settings));
+/// [kitchen]: the printer for kitchen tickets instead.
+Future<void> showPrinterSetup(SettingsController settings, {bool kitchen = false}) =>
+    Get.dialog<void>(_PrinterSetup(settings: settings, kitchen: kitchen));
 
 class _PrinterSetup extends StatefulWidget {
-  const _PrinterSetup({required this.settings});
+  const _PrinterSetup({required this.settings, this.kitchen = false});
 
   final SettingsController settings;
+  final bool kitchen;
 
   @override
   State<_PrinterSetup> createState() => _PrinterSetupState();
@@ -42,7 +45,8 @@ class _PrinterSetup extends StatefulWidget {
 
 class _PrinterSetupState extends State<_PrinterSetup> {
   final _print = Get.find<PrintService>();
-  late final PrinterTarget? _current = _print.printer;
+  late final Setting<String> _setting = widget.kitchen ? AppSettings.kitchenPrinter : AppSettings.receiptPrinter;
+  late final PrinterTarget? _current = PrinterTarget.decode(widget.settings.value(_setting));
   late PrinterKind _kind = _current?.kind ?? availableKinds().last;
   late final _address = TextEditingController(text: _current?.kind == PrinterKind.network ? _current!.address : '');
   late int _paper = widget.settings.value(AppSettings.paperWidth);
@@ -125,8 +129,8 @@ class _PrinterSetupState extends State<_PrinterSetup> {
     final l = context.l10n;
     if (t == null) return _say(l.printerChooseFirst, failed: true);
     final ok = await widget.settings.saveAll([
-      (AppSettings.receiptPrinter, t.encode()),
-      (AppSettings.paperWidth, _paper),
+      (_setting, t.encode()),
+      if (!widget.kitchen) (AppSettings.paperWidth, _paper),
     ]);
     if (!ok) return;
     Get.back<void>();
@@ -134,7 +138,7 @@ class _PrinterSetupState extends State<_PrinterSetup> {
   }
 
   Future<void> _remove() async {
-    if (!await widget.settings.saveAll([(AppSettings.receiptPrinter, '')])) return;
+    if (!await widget.settings.saveAll([(_setting, '')])) return;
     Get.back<void>();
     widget.settings.saved();
   }
@@ -145,7 +149,7 @@ class _PrinterSetupState extends State<_PrinterSetup> {
     final c = Theme.of(context).extension<AbyColors>()!;
     final kinds = availableKinds();
     return AlertDialog(
-      title: Text(l.printerTitle),
+      title: Text(widget.kitchen ? l.kitchenPrinterTitle : l.printerTitle),
       content: SizedBox(
         width: 460,
         child: SingleChildScrollView(
@@ -193,14 +197,17 @@ class _PrinterSetupState extends State<_PrinterSetup> {
                 child: TextButton.icon(onPressed: _busy ? null : _find, icon: const Icon(Icons.refresh), label: Text(l.printerLookAgain)),
               ),
             ],
-            const SizedBox(height: AbySpace.s4),
-            Text(l.printerPaper, style: AbyText.label.copyWith(color: c.inkMuted)),
-            const SizedBox(height: AbySpace.s2),
-            SegmentedButton<int>(
-              segments: const [ButtonSegment(value: 58, label: Text('58 mm')), ButtonSegment(value: 80, label: Text('80 mm'))],
-              selected: {_paper},
-              onSelectionChanged: (s) => setState(() => _paper = s.first),
-            ),
+            // Kitchen tickets are 80 mm.
+            if (!widget.kitchen) ...[
+              const SizedBox(height: AbySpace.s4),
+              Text(l.printerPaper, style: AbyText.label.copyWith(color: c.inkMuted)),
+              const SizedBox(height: AbySpace.s2),
+              SegmentedButton<int>(
+                segments: const [ButtonSegment(value: 58, label: Text('58 mm')), ButtonSegment(value: 80, label: Text('80 mm'))],
+                selected: {_paper},
+                onSelectionChanged: (s) => setState(() => _paper = s.first),
+              ),
+            ],
             const SizedBox(height: AbySpace.s4),
             OutlinedButton.icon(
               onPressed: _busy ? null : _test,

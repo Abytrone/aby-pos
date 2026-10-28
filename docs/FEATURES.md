@@ -1425,6 +1425,36 @@ Decisions made on the way:
   voids reverse them).
 - Points expire after a stretch without a purchase rather than point by point.
 
+**Status (28 October 2026): 6c built** (order numbers, screens, labels). Schema 13. Built:
+
+- `SEL-11` order numbers: Settings → Orders and screens → Order numbers (off by default). Sales
+  with items that need prep (chosen products or categories; nothing chosen means everything)
+  get a number like `A23` that starts again each business day. It shows big when the sale is
+  done and on the receipt, and a kitchen ticket prints with what to make (on the kitchen
+  printer, or the receipt printer when there is none). Sell → Orders is the prep board: New →
+  Preparing → Ready → Collected, with a button on each card and "Print kitchen ticket".
+- `SEL-12` customer display, plus a prep screen and "Now serving": Settings → Screens on other
+  devices. The till serves three pages to any browser on the shop's Wi-Fi (a cheap tablet, a
+  TV, or a second monitor on Windows), each link with a QR code to scan and a secret token
+  ("New links" makes the old ones stop). The customer display shows the logo and today's
+  promotions when idle, the cart lines and total as they are added, the MoMo number with a QR
+  code at payment, then "Thank you" with change and the order number. The prep screen moves
+  orders with buttons; "Now serving" shows numbers preparing and ready.
+- `CAT-08` labels: Products → Tools → Labels. How many of each product; "Make barcodes" gives
+  products without one an internal Code 128 code (`ABY00001` and up); labels on A4 sheets of
+  24, as a 50 × 30 mm roll (PDF, for label printers) or as stickers on the receipt printer.
+  After receiving a delivery, Aby offers labels for products sold as one of a received item.
+
+Decisions made on the way:
+
+- Screens are served by the till itself (a small web server on the shop's network), so they
+  work today on one device without the hub (phase 7); the pages need nothing from the
+  internet. They ask the till every second.
+- Label printers are used through PDF (they print PDFs through their driver); ESC/POS
+  receipt printers print stickers directly. TSPL / ZPL label languages wait until a shop needs
+  them.
+- Kitchen tickets print on 80 mm paper on a separate kitchen printer.
+
 ### Phase 7: Many devices without internet
 
 - `MDV-01` local hub, `MDV-03` device management.

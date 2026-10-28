@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:barcode/barcode.dart';
 import 'package:image/image.dart' as img;
 import 'package:qr/qr.dart';
 
@@ -28,6 +29,29 @@ class MonoBitmap {
         final r = y ~/ scale - 4;
         final c = x ~/ scale - 4;
         if (r >= 0 && c >= 0 && r < code.moduleCount && c < code.moduleCount && code.isDark(r, c)) {
+          bmp.bits[y * bmp.bytesPerRow + (x >> 3)] |= 0x80 >> (x & 7);
+        }
+      }
+    }
+    return bmp;
+  }
+
+  /// A Code 128 barcode no wider than [maxWidth] dots, [height] tall. Every
+  /// bar is a whole number of dots wide, so scanners read it.
+  factory MonoBitmap.code128(String data, {required int maxWidth, int height = 80}) {
+    final code = Barcode.code128();
+    // Bars at 1 unit per module first, to count the modules.
+    final unit = code.make(data, width: 10000, height: 1).whereType<BarcodeBar>().toList();
+    final narrowest = unit.map((b) => b.width).reduce((a, b) => a < b ? a : b);
+    final modules = (10000 / narrowest).round();
+    final scale = (maxWidth ~/ modules).clamp(1, 4);
+    final width = modules * scale;
+    final bmp = MonoBitmap(width, height, Uint8List(((width + 7) ~/ 8) * height));
+    for (final bar in code.make(data, width: width.toDouble(), height: 1).whereType<BarcodeBar>()) {
+      if (!bar.black) continue;
+      final from = bar.left.round(), to = (bar.left + bar.width).round();
+      for (var x = from; x < to && x < width; x++) {
+        for (var y = 0; y < height; y++) {
           bmp.bits[y * bmp.bytesPerRow + (x >> 3)] |= 0x80 >> (x & 7);
         }
       }
@@ -140,6 +164,8 @@ abstract final class EscPos {
           }
         case RQr(:final data):
           out.add(raster(MonoBitmap.qr(data, scale: paper == Paper.mm58 ? 5 : 6)));
+        case RBarcode(:final data):
+          out.add(raster(MonoBitmap.code128(data, maxWidth: paper.dots)));
         case RImage(:final png):
           final bmp = MonoBitmap.picture(png, maxWidth: paper.dots);
           if (bmp != null) out.add(raster(bmp));

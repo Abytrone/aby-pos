@@ -9,6 +9,7 @@ import '../../../data/repositories/parked_order_repository.dart';
 import '../../../data/repositories/customer_repository.dart';
 import '../../../data/repositories/promotion_repository.dart';
 import '../../../domain/loyalty.dart';
+import '../../../domain/orders.dart';
 import '../../../domain/pricing.dart';
 import '../../../domain/promotions.dart';
 import '../../../models/audit.dart';
@@ -91,6 +92,18 @@ class CartController extends GetxController {
   LoyaltyConfig get loyalty => Get.isRegistered<SettingsService>()
       ? LoyaltyConfig.read(Get.find<SettingsService>().get)
       : const LoyaltyConfig();
+
+  /// Queue numbers and prep, when the shop uses them (SEL-11).
+  OrderConfig? get orders {
+    if (!Get.isRegistered<SettingsService>()) return null;
+    final s = Get.find<SettingsService>();
+    if (!s.get(AppSettings.ordersOn)) return null;
+    return OrderConfig(
+      prep: LoyaltyConfig.decodeTarget(s.get(AppSettings.orderPrepTarget)),
+      prefix: s.get(AppSettings.orderPrefix),
+      dayStartMinutes: s.get(AppSettings.businessDayStart),
+    );
+  }
 
   /// The attached customer's stamps or points, for their reward.
   final loyaltyStatus = Rxn<LoyaltyStatus>();

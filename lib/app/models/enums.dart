@@ -63,6 +63,9 @@ enum ReasonKind { discount, voidSale, refund, noSale, payIn, payOut }
 /// Takeaway, eat-in or delivery, when the shop switches order types on.
 enum OrderType { takeaway, eatIn, delivery }
 
+/// Where an order with a queue number is (SEL-11).
+enum OrderStatus { fresh, preparing, ready, collected }
+
 enum ParkedOrderStatus { parked, resumed, discarded }
 
 /// Drawer events that are not sales: opening it without one, cash put in

@@ -89,6 +89,7 @@ class ReceiptRepository {
       voided: s.status == SaleStatus.voided,
       refunded: refunded,
       loyaltyBalance: loyalty,
+      orderNumber: s.orderNumber,
     );
   }
 

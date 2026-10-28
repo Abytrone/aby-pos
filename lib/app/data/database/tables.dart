@@ -326,6 +326,12 @@ class Sales extends Table with SyncColumns {
   /// The payments add up to [total] plus this. v7.
   IntColumn get rounding => integer().withDefault(const Constant(0))();
 
+  /// The queue number for the day ("A23" is 23), when the shop uses order
+  /// numbers, and where the order is in prep. v13.
+  IntColumn get orderNumber => integer().nullable()();
+  TextColumn get orderStatus => textEnum<OrderStatus>().nullable()();
+  DateTimeColumn get orderStatusAt => dateTime().nullable()();
+
   @override
   List<Set<Column<Object>>> get uniqueKeys => [
         {deviceId, number},

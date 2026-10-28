@@ -7,6 +7,7 @@ export 'discount.dart';
 export 'drafts.dart';
 export 'enums.dart';
 export 'expense.dart';
+export 'order.dart';
 export 'purchasing.dart';
 export 'receipt.dart';
 export 'refund.dart';

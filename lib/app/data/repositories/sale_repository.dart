@@ -6,6 +6,7 @@ import '../../core/business_day.dart';
 import '../../core/tax.dart';
 import '../../core/units.dart';
 import '../../domain/loyalty.dart';
+import '../../domain/orders.dart';
 import '../../domain/pricing.dart';
 import '../../domain/promotions.dart';
 import '../../domain/settlement.dart';
@@ -100,6 +101,7 @@ class SaleRepository {
     Staff? creditApprover,
     List<Promotion> promotions = const [],
     LoyaltyConfig loyalty = const LoyaltyConfig(),
+    OrderConfig? orders,
   }) async {
     if (lines.isEmpty) throw const SaleException('The cart is empty.');
     if (lines.any((l) => l.quantity < 1)) {
@@ -183,6 +185,7 @@ class SaleRepository {
       final now = DateTime.now();
       final saleId = newId();
       final number = await _nextSaleNumber();
+      final orderNumber = orders != null && orders.needsPrep(lines) ? await _nextOrderNumber(orders, now) : null;
 
       await _db.insertTracked(
         _db.sales,
@@ -206,6 +209,9 @@ class SaleRepository {
           orderType: Value(orderType),
           rounding: Value(settlement.rounding),
           customerId: Value(customer?.id),
+          orderNumber: Value(orderNumber),
+          orderStatus: Value(orderNumber == null ? null : OrderStatus.fresh),
+          orderStatusAt: Value(orderNumber == null ? null : now),
         ),
       );
 
@@ -456,6 +462,7 @@ class SaleRepository {
         rounding: settlement.rounding,
         paymentLabels: [for (final p in settlement.payments) '${p.input.label} ${formatMoney(p.amount)}'],
         exchangeRefund: returned,
+        orderNumber: orderNumber,
       );
     });
   }
@@ -552,6 +559,17 @@ class SaleRepository {
     if (rows.isNotEmpty) {
       throw SaleException('This reference was already used on sale ${formatSaleNumber(rows.first.read<int>('number'))}.');
     }
+  }
+
+  /// The next queue number on this device in today's business day.
+  Future<int> _nextOrderNumber(OrderConfig orders, DateTime now) async {
+    final day = BusinessDay.containing(now, startMinutes: orders.dayStartMinutes);
+    final row = await _db.customSelect(
+      'SELECT COALESCE(MAX(order_number), 0) AS n FROM sales WHERE device_id = ? AND created_at >= ? AND deleted_at IS NULL',
+      variables: [Variable.withString(_device.deviceId), Variable.withDateTime(day.start)],
+      readsFrom: {_db.sales},
+    ).getSingle();
+    return row.read<int>('n') + 1;
   }
 
   Future<int> _nextSaleNumber() async {

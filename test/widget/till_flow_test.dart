@@ -862,6 +862,56 @@ void main() {
     await _dispose(tester);
   });
 
+  testWidgets('tablet: order numbers on, a waffle gets A1, and the Orders board moves it', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await _settle(tester);
+    await tester.tap(find.text('Kofi'));
+    await _settle(tester);
+    await _typePin(tester, '1234');
+
+    await tester.tap(find.text('Settings'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Search settings'), 'order numbers');
+    await _settle(tester);
+    await tester.tap(find.byType(Switch).first);
+    await _settle(tester);
+    expect(find.text('Orders'), findsOneWidget, reason: 'the Orders section appears');
+
+    await tester.tap(find.text('Sell'));
+    await _settle(tester);
+    await tester.tap(find.text('Waffle'));
+    await _settle(tester);
+    await tester.tap(find.text('Pay GH₵ 12.00'));
+    await _settle(tester);
+    await tester.tap(find.text('Exact'));
+    await _settle(tester);
+    await tester.tap(find.text('Complete sale'));
+    await _settle(tester);
+    expect(find.text('ORDER NUMBER'), findsOneWidget);
+    expect(find.text('A1'), findsOneWidget);
+    await tester.tap(find.text('New sale'));
+    await _settle(tester);
+
+    await tester.tap(find.text('Orders'));
+    await _settle(tester);
+    expect(find.text('A1'), findsOneWidget);
+    await tester.tap(find.text('Move to Preparing'));
+    await _settle(tester);
+    expect(find.text('PREPARING  1'), findsOneWidget);
+    await tester.tap(find.text('Move to Ready'));
+    await _settle(tester);
+    await tester.tap(find.text('Collected'));
+    await _settle(tester);
+    expect(find.textContaining('No open orders'), findsOneWidget);
+
+    await _dispose(tester);
+  });
+
   testWidgets('phone portrait, first run: name the shop, create the owner, start selling', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;

@@ -7,6 +7,7 @@ import '../../../app.dart';
 import '../../../core/settings.dart';
 import '../../../data/repositories/staff_repository.dart';
 import '../../../routes/app_routes.dart';
+import '../../../services/display/display_service.dart';
 import '../../../services/notification_service.dart';
 import '../../../services/backup/backup_service.dart';
 import '../../../services/device_service.dart';
@@ -38,8 +39,19 @@ class StartController extends GetxController {
     final hasStaff = await _staff.hasStaff();
     if (hasStaff) unawaited(_dailyBackup());
     if (hasStaff) unawaited(Get.find<NotificationService>().start());
+    unawaited(_startDisplays());
     await _status.refresh();
     await Get.offAllNamed<void>(hasStaff ? Routes.signIn : Routes.setup);
+  }
+
+  /// The screens for tablets and TVs, when this device serves them. A port
+  /// already in use is shown in Settings, not here.
+  Future<void> _startDisplays() async {
+    try {
+      await Get.find<DisplayService>().apply();
+    } catch (e) {
+      debugPrint('Display server did not start: $e');
+    }
   }
 
   /// Never blocks start-up; a failed automatic backup shows in the status

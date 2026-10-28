@@ -68,6 +68,7 @@ class ReceiptData {
     this.voided = false,
     this.refunded = 0,
     this.loyaltyBalance,
+    this.orderNumber,
   });
 
   final String saleId;
@@ -99,6 +100,9 @@ class ReceiptData {
 
   /// The customer's stamps or points now, when they have a loyalty account.
   final int? loyaltyBalance;
+
+  /// The day's queue number (SEL-11).
+  final int? orderNumber;
 
   String get displayNumber => formatSaleNumber(number);
 
@@ -159,6 +163,7 @@ class ReceiptDesign {
     this.copies = const {},
     this.loyaltyStyle = 'off',
     this.stampsForReward = 9,
+    this.orderPrefix = 'A',
   });
 
   final String shopName;
@@ -182,6 +187,9 @@ class ReceiptDesign {
   /// customer's balance line.
   final String loyaltyStyle;
   final int stampsForReward;
+
+  /// The letter before queue numbers.
+  final String orderPrefix;
 
   /// The most copies any of the payments asks for.
   int copiesFor(Iterable<PaymentMethod> methods) =>

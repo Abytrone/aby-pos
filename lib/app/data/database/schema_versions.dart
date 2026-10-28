@@ -14664,6 +14664,1478 @@ i1.GeneratedColumn<String> _column_247(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NOT NULL REFERENCES gift_vouchers(id)',
     );
+
+final class Schema13 extends i0.VersionedSchema {
+  Schema13({required super.database}) : super(version: 13);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    categories,
+    products,
+    productVariants,
+    optionGroups,
+    optionItems,
+    productOptionGroups,
+    stockItems,
+    recipeItems,
+    taxRates,
+    productTaxes,
+    barcodes,
+    productPhotos,
+    priceChanges,
+    suppliers,
+    supplierLedger,
+    stockReceipts,
+    stockReceiptLines,
+    stockCounts,
+    stockCountLines,
+    sales,
+    saleLines,
+    saleTaxes,
+    payments,
+    payMethods,
+    customers,
+    customerLedger,
+    refunds,
+    refundLines,
+    refundPayments,
+    cashEvents,
+    receiptPhotos,
+    shifts,
+    safeEntries,
+    momoChecks,
+    momoCharges,
+    expenseCategories,
+    expenses,
+    recurringExpenses,
+    promotions,
+    giftVouchers,
+    voucherEntries,
+    ownerMoney,
+    discounts,
+    reasons,
+    parkedOrders,
+    stockMovements,
+    roles,
+    staff,
+    staffPhotos,
+    dayCloses,
+    auditLog,
+    settings,
+    outbox,
+    meta,
+  ];
+  late final Shape19 categories = Shape19(
+    source: i0.VersionedTable(
+      entityName: 'categories',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+        _column_8,
+        _column_95,
+        _column_12,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape42 products = Shape42(
+    source: i0.VersionedTable(
+      entityName: 'products',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_9,
+        _column_6,
+        _column_10,
+        _column_96,
+        _column_12,
+        _column_97,
+        _column_8,
+        _column_156,
+        _column_157,
+        _column_158,
+        _column_159,
+        _column_160,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape21 productVariants = Shape21(
+    source: i0.VersionedTable(
+      entityName: 'product_variants',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_13,
+        _column_98,
+        _column_14,
+        _column_99,
+        _column_12,
+        _column_8,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape22 optionGroups = Shape22(
+    source: i0.VersionedTable(
+      entityName: 'option_groups',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_100,
+        _column_101,
+        _column_102,
+        _column_12,
+        _column_8,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape72 optionItems = Shape72(
+    source: i0.VersionedTable(
+      entityName: 'option_items',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_103,
+        _column_6,
+        _column_104,
+        _column_105,
+        _column_12,
+        _column_8,
+        _column_190,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape24 productOptionGroups = Shape24(
+    source: i0.VersionedTable(
+      entityName: 'product_option_groups',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_13,
+        _column_103,
+        _column_8,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape25 stockItems = Shape25(
+    source: i0.VersionedTable(
+      entityName: 'stock_items',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_106,
+        _column_107,
+        _column_108,
+        _column_109,
+        _column_110,
+        _column_12,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape26 recipeItems = Shape26(
+    source: i0.VersionedTable(
+      entityName: 'recipe_items',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_26,
+        _column_111,
+        _column_112,
+        _column_29,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape27 taxRates = Shape27(
+    source: i0.VersionedTable(
+      entityName: 'tax_rates',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_113,
+        _column_114,
+        _column_12,
+        _column_8,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape28 productTaxes = Shape28(
+    source: i0.VersionedTable(
+      entityName: 'product_taxes',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_13,
+        _column_115,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape29 barcodes = Shape29(
+    source: i0.VersionedTable(
+      entityName: 'barcodes',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_116,
+        _column_117,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape30 productPhotos = Shape30(
+    source: i0.VersionedTable(
+      entityName: 'product_photos',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(product_id)'],
+      columns: [_column_13, _column_94, _column_2],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape31 priceChanges = Shape31(
+    source: i0.VersionedTable(
+      entityName: 'price_changes',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_117,
+        _column_118,
+        _column_119,
+        _column_120,
+        _column_121,
+        _column_122,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape32 suppliers = Shape32(
+    source: i0.VersionedTable(
+      entityName: 'suppliers',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_84,
+        _column_85,
+        _column_86,
+        _column_92,
+        _column_123,
+        _column_12,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape33 supplierLedger = Shape33(
+    source: i0.VersionedTable(
+      entityName: 'supplier_ledger',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_124,
+        _column_125,
+        _column_34,
+        _column_126,
+        _column_127,
+        _column_128,
+        _column_42,
+        _column_129,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape34 stockReceipts = Shape34(
+    source: i0.VersionedTable(
+      entityName: 'stock_receipts',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_16,
+        _column_130,
+        _column_131,
+        _column_19,
+        _column_132,
+        _column_42,
+        _column_133,
+        _column_134,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape35 stockReceiptLines = Shape35(
+    source: i0.VersionedTable(
+      entityName: 'stock_receipt_lines',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_135,
+        _column_112,
+        _column_29,
+        _column_136,
+        _column_31,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape36 stockCounts = Shape36(
+    source: i0.VersionedTable(
+      entityName: 'stock_counts',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_17,
+        _column_137,
+        _column_42,
+        _column_138,
+        _column_139,
+        _column_140,
+        _column_141,
+        _column_142,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape37 stockCountLines = Shape37(
+    source: i0.VersionedTable(
+      entityName: 'stock_count_lines',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_143,
+        _column_112,
+        _column_144,
+        _column_145,
+        _column_146,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape77 sales = Shape77(
+    source: i0.VersionedTable(
+      entityName: 'sales',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)', 'UNIQUE(device_id, number)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_16,
+        _column_17,
+        _column_18,
+        _column_19,
+        _column_20,
+        _column_21,
+        _column_22,
+        _column_23,
+        _column_24,
+        _column_147,
+        _column_161,
+        _column_162,
+        _column_42,
+        _column_163,
+        _column_200,
+        _column_175,
+        _column_248,
+        _column_249,
+        _column_250,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape73 saleLines = Shape73(
+    source: i0.VersionedTable(
+      entityName: 'sale_lines',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_25,
+        _column_13,
+        _column_26,
+        _column_27,
+        _column_28,
+        _column_29,
+        _column_30,
+        _column_31,
+        _column_32,
+        _column_148,
+        _column_147,
+        _column_156,
+        _column_164,
+        _column_165,
+        _column_166,
+        _column_167,
+        _column_236,
+        _column_237,
+        _column_168,
+        _column_42,
+        _column_176,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape40 saleTaxes = Shape40(
+    source: i0.VersionedTable(
+      entityName: 'sale_taxes',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_25,
+        _column_149,
+        _column_6,
+        _column_113,
+        _column_34,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape50 payments = Shape50(
+    source: i0.VersionedTable(
+      entityName: 'payments',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_25,
+        _column_33,
+        _column_34,
+        _column_35,
+        _column_36,
+        _column_37,
+        _column_38,
+        _column_177,
+        _column_178,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape51 payMethods = Shape51(
+    source: i0.VersionedTable(
+      entityName: 'pay_methods',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_125,
+        _column_66,
+        _column_12,
+        _column_179,
+        _column_180,
+        _column_181,
+        _column_8,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape58 customers = Shape58(
+    source: i0.VersionedTable(
+      entityName: 'customers',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_84,
+        _column_201,
+        _column_202,
+        _column_92,
+        _column_203,
+        _column_204,
+        _column_205,
+        _column_206,
+        _column_12,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape59 customerLedger = Shape59(
+    source: i0.VersionedTable(
+      entityName: 'customer_ledger',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_207,
+        _column_208,
+        _column_125,
+        _column_34,
+        _column_209,
+        _column_210,
+        _column_211,
+        _column_212,
+        _column_126,
+        _column_178,
+        _column_128,
+        _column_42,
+        _column_129,
+        _column_76,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape52 refunds = Shape52(
+    source: i0.VersionedTable(
+      entityName: 'refunds',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)', 'UNIQUE(device_id, number)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_16,
+        _column_41,
+        _column_182,
+        _column_19,
+        _column_40,
+        _column_42,
+        _column_183,
+        _column_184,
+        _column_185,
+        _column_186,
+        _column_76,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape53 refundLines = Shape53(
+    source: i0.VersionedTable(
+      entityName: 'refund_lines',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_187,
+        _column_188,
+        _column_189,
+        _column_190,
+        _column_27,
+        _column_28,
+        _column_29,
+        _column_156,
+        _column_34,
+        _column_191,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape54 refundPayments = Shape54(
+    source: i0.VersionedTable(
+      entityName: 'refund_payments',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_187,
+        _column_33,
+        _column_177,
+        _column_192,
+        _column_34,
+        _column_128,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape61 cashEvents = Shape61(
+    source: i0.VersionedTable(
+      entityName: 'cash_events',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_125,
+        _column_193,
+        _column_40,
+        _column_185,
+        _column_186,
+        _column_76,
+        _column_42,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape62 receiptPhotos = Shape62(
+    source: i0.VersionedTable(
+      entityName: 'receipt_photos',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(owner_id)'],
+      columns: [_column_214, _column_94, _column_2],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape63 shifts = Shape63(
+    source: i0.VersionedTable(
+      entityName: 'shifts',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_17,
+        _column_215,
+        _column_216,
+        _column_56,
+        _column_217,
+        _column_218,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape64 safeEntries = Shape64(
+    source: i0.VersionedTable(
+      entityName: 'safe_entries',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_125,
+        _column_34,
+        _column_219,
+        _column_128,
+        _column_42,
+        _column_129,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape65 momoChecks = Shape65(
+    source: i0.VersionedTable(
+      entityName: 'momo_checks',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)', 'UNIQUE(source, item_id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_220,
+        _column_221,
+        _column_222,
+        _column_129,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape66 momoCharges = Shape66(
+    source: i0.VersionedTable(
+      entityName: 'momo_charges',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_223,
+        _column_34,
+        _column_42,
+        _column_129,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape68 expenseCategories = Shape68(
+    source: i0.VersionedTable(
+      entityName: 'expense_categories',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_12,
+        _column_8,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape69 expenses = Shape69(
+    source: i0.VersionedTable(
+      entityName: 'expenses',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_223,
+        _column_34,
+        _column_230,
+        _column_231,
+        _column_110,
+        _column_42,
+        _column_129,
+        _column_232,
+        _column_233,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape70 recurringExpenses = Shape70(
+    source: i0.VersionedTable(
+      entityName: 'recurring_expenses',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_230,
+        _column_34,
+        _column_234,
+        _column_231,
+        _column_12,
+        _column_235,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape74 promotions = Shape74(
+    source: i0.VersionedTable(
+      entityName: 'promotions',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_125,
+        _column_238,
+        _column_239,
+        _column_240,
+        _column_241,
+        _column_242,
+        _column_243,
+        _column_244,
+        _column_12,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape75 giftVouchers = Shape75(
+    source: i0.VersionedTable(
+      entityName: 'gift_vouchers',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_245,
+        _column_34,
+        _column_246,
+        _column_200,
+        _column_42,
+        _column_129,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape76 voucherEntries = Shape76(
+    source: i0.VersionedTable(
+      entityName: 'voucher_entries',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_247,
+        _column_125,
+        _column_34,
+        _column_209,
+        _column_126,
+        _column_178,
+        _column_128,
+        _column_129,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape71 ownerMoney = Shape71(
+    source: i0.VersionedTable(
+      entityName: 'owner_money',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_125,
+        _column_34,
+        _column_220,
+        _column_42,
+        _column_129,
+        _column_232,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape45 discounts = Shape45(
+    source: i0.VersionedTable(
+      entityName: 'discounts',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_125,
+        _column_169,
+        _column_83,
+        _column_12,
+        _column_8,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape46 reasons = Shape46(
+    source: i0.VersionedTable(
+      entityName: 'reasons',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_125,
+        _column_6,
+        _column_12,
+        _column_8,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape47 parkedOrders = Shape47(
+    source: i0.VersionedTable(
+      entityName: 'parked_orders',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_17,
+        _column_170,
+        _column_19,
+        _column_171,
+        _column_172,
+        _column_173,
+        _column_174,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape41 stockMovements = Shape41(
+    source: i0.VersionedTable(
+      entityName: 'stock_movements',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_150,
+        _column_26,
+        _column_151,
+        _column_39,
+        _column_40,
+        _column_152,
+        _column_153,
+        _column_41,
+        _column_154,
+        _column_42,
+        _column_155,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape13 roles = Shape13(
+    source: i0.VersionedTable(
+      entityName: 'roles',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_66,
+        _column_67,
+        _column_68,
+        _column_8,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape17 staff = Shape17(
+    source: i0.VersionedTable(
+      entityName: 'staff',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_69,
+        _column_44,
+        _column_12,
+        _column_84,
+        _column_85,
+        _column_86,
+        _column_87,
+        _column_88,
+        _column_89,
+        _column_90,
+        _column_91,
+        _column_92,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape18 staffPhotos = Shape18(
+    source: i0.VersionedTable(
+      entityName: 'staff_photos',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(staff_id)'],
+      columns: [_column_93, _column_94, _column_2],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape67 dayCloses = Shape67(
+    source: i0.VersionedTable(
+      entityName: 'day_closes',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_45,
+        _column_46,
+        _column_47,
+        _column_48,
+        _column_49,
+        _column_50,
+        _column_51,
+        _column_52,
+        _column_53,
+        _column_54,
+        _column_55,
+        _column_56,
+        _column_57,
+        _column_58,
+        _column_42,
+        _column_194,
+        _column_195,
+        _column_196,
+        _column_197,
+        _column_198,
+        _column_199,
+        _column_213,
+        _column_224,
+        _column_217,
+        _column_225,
+        _column_226,
+        _column_227,
+        _column_228,
+        _column_229,
+        _column_161,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape15 auditLog = Shape15(
+    source: i0.VersionedTable(
+      entityName: 'audit_log',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)', 'UNIQUE(device_id, seq)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_70,
+        _column_71,
+        _column_72,
+        _column_73,
+        _column_74,
+        _column_75,
+        _column_76,
+        _column_77,
+        _column_78,
+        _column_79,
+        _column_80,
+        _column_81,
+        _column_82,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape16 settings = Shape16(
+    source: i0.VersionedTable(
+      entityName: 'settings',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_64,
+        _column_83,
+        _column_65,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape11 outbox = Shape11(
+    source: i0.VersionedTable(
+      entityName: 'outbox',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_59,
+        _column_60,
+        _column_61,
+        _column_62,
+        _column_63,
+        _column_1,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape12 meta = Shape12(
+    source: i0.VersionedTable(
+      entityName: 'meta',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY("key")'],
+      columns: [_column_64, _column_65],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+}
+
+class Shape77 extends i0.VersionedTable {
+  Shape77({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get createdAt =>
+      columnsByName['created_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get updatedAt =>
+      columnsByName['updated_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get deletedAt =>
+      columnsByName['deleted_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get syncedAt =>
+      columnsByName['synced_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get deviceId =>
+      columnsByName['device_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get number =>
+      columnsByName['number']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get status =>
+      columnsByName['status']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get subtotal =>
+      columnsByName['subtotal']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get total =>
+      columnsByName['total']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get cashierId =>
+      columnsByName['cashier_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get cashierName =>
+      columnsByName['cashier_name']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get voidedAt =>
+      columnsByName['voided_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get voidedById =>
+      columnsByName['voided_by_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get voidedBy =>
+      columnsByName['voided_by']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get taxTotal =>
+      columnsByName['tax_total']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get discountTotal =>
+      columnsByName['discount_total']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get orderDiscount =>
+      columnsByName['order_discount']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get note =>
+      columnsByName['note']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get orderType =>
+      columnsByName['order_type']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get customerId =>
+      columnsByName['customer_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get rounding =>
+      columnsByName['rounding']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get orderNumber =>
+      columnsByName['order_number']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get orderStatus =>
+      columnsByName['order_status']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get orderStatusAt =>
+      columnsByName['order_status_at']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<int> _column_248(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'order_number',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<String> _column_249(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'order_status',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<int> _column_250(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'order_status_at',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
@@ -14676,6 +16148,7 @@ i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema10 schema) from9To10,
   required Future<void> Function(i1.Migrator m, Schema11 schema) from10To11,
   required Future<void> Function(i1.Migrator m, Schema12 schema) from11To12,
+  required Future<void> Function(i1.Migrator m, Schema13 schema) from12To13,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -14734,6 +16207,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from11To12(migrator, schema);
         return 12;
+      case 12:
+        final schema = Schema13(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from12To13(migrator, schema);
+        return 13;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -14752,6 +16230,7 @@ i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema10 schema) from9To10,
   required Future<void> Function(i1.Migrator m, Schema11 schema) from10To11,
   required Future<void> Function(i1.Migrator m, Schema12 schema) from11To12,
+  required Future<void> Function(i1.Migrator m, Schema13 schema) from12To13,
 }) => i0.VersionedSchema.stepByStepHelper(
   step: migrationSteps(
     from1To2: from1To2,
@@ -14765,5 +16244,6 @@ i1.OnUpgrade stepByStep({
     from9To10: from9To10,
     from10To11: from10To11,
     from11To12: from11To12,
+    from12To13: from12To13,
   ),
 );

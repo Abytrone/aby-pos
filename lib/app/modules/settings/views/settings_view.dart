@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import '../../../models/enums.dart';
 import '../../../models/receipt.dart';
 import '../../../models/scale.dart';
 import '../../../services/money.dart';
+import '../../../services/display/display_service.dart';
 import '../../../services/printing/print_service.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
@@ -25,6 +27,7 @@ import '../widgets/pay_methods_dialog.dart';
 import '../widgets/printer_setup.dart';
 import '../widgets/promotions_dialog.dart';
 import '../widgets/receipt_designer.dart';
+import '../widgets/screens_dialog.dart';
 import '../widgets/selling_lists.dart';
 
 /// One searchable row. [keywords] widen what search finds.
@@ -38,6 +41,16 @@ class _Entry {
   bool matches(String q) =>
       q.isEmpty ||
       [tile.title, tile.subtitle ?? '', group, ...keywords].any((t) => t.toLowerCase().contains(q));
+}
+
+/// Settings → Items that need prep: products and categories that get a
+/// queue number and a kitchen ticket.
+Future<void> editPrepItems(SettingsController c) async {
+  final picked = await pickProducts(
+    appL10n().settingsOrderPrep,
+    LoyaltyConfig.decodeTarget(c.value(AppSettings.orderPrepTarget)),
+  );
+  if (picked != null) await c.save(AppSettings.orderPrepTarget, jsonEncode(picked.toJson()));
 }
 
 /// Manage → Settings, grouped and searchable.
@@ -123,6 +136,8 @@ class SettingsView extends GetView<SettingsController> {
     final printing = l.settingsGroupPrinting;
     final printer = PrinterTarget.decode(c.value(AppSettings.receiptPrinter));
     final scale = ScaleTarget.decode(c.value(AppSettings.scale));
+    final orders = l.settingsGroupOrders;
+    final kitchen = PrinterTarget.decode(c.value(AppSettings.kitchenPrinter));
     final device = l.settingsGroupDevice;
     final data = l.settingsGroupData;
     final about = l.settingsGroupAbout;
@@ -328,6 +343,52 @@ class SettingsView extends GetView<SettingsController> {
         leading: const Icon(Icons.receipt_long_outlined),
         onTap: () => showReceiptDesigner(c),
       ), keywords: ['receipt', 'logo', 'footer', 'header', 'qr', 'momo', 'copies']),
+      _Entry(orders, InfoTile(
+        title: l.settingsOrderNumbers,
+        subtitle: l.settingsOrderNumbersHelp,
+        trailing: Switch(value: c.value(AppSettings.ordersOn), onChanged: (v) => c.save(AppSettings.ordersOn, v)),
+      ), keywords: ['order', 'queue', 'kitchen', 'ticket', 'prep', 'number']),
+      if (c.value(AppSettings.ordersOn)) ...[
+        _Entry(orders, InfoTile(
+          title: l.settingsOrderPrefix,
+          value: '${c.value(AppSettings.orderPrefix)}23',
+          onTap: () => editText(AppSettings.orderPrefix, l.settingsOrderPrefix),
+        ), keywords: ['order', 'letter']),
+        _Entry(orders, InfoTile(
+          title: l.settingsOrderPrep,
+          subtitle: l.settingsOrderPrepHelp,
+          leading: const Icon(Icons.soup_kitchen_outlined),
+          onTap: () => editPrepItems(c),
+        ), keywords: ['kitchen', 'prep', 'milkshake', 'waffle']),
+        _Entry(orders, InfoTile(
+          title: l.kitchenPrinterTitle,
+          subtitle: l.kitchenPrinterHelp,
+          value: kitchen?.name ?? l.kitchenPrinterSame,
+          leading: const Icon(Icons.print_outlined),
+          onTap: () => showPrinterSetup(c, kitchen: true),
+        ), keywords: ['kitchen', 'printer', 'ticket']),
+      ],
+      _Entry(orders, InfoTile(
+        title: l.settingsScreens,
+        subtitle: l.settingsScreensHelp,
+        trailing: Switch(
+          value: c.value(AppSettings.displayServer),
+          onChanged: (v) async {
+            await c.save(AppSettings.displayServer, v);
+            try {
+              await Get.find<DisplayService>().apply();
+            } on Object catch (e) {
+              showMessage(l.screensCannotStart('$e'));
+            }
+          },
+        ),
+      ), keywords: ['customer display', 'second screen', 'tv', 'tablet', 'monitor', 'now serving', 'kitchen']),
+      if (c.value(AppSettings.displayServer))
+        _Entry(orders, InfoTile(
+          title: l.screensTitle,
+          leading: const Icon(Icons.connected_tv_outlined),
+          onTap: showScreenLinks,
+        ), keywords: ['link', 'qr', 'display']),
       _Entry(security, InfoTile(
         title: l.settingsAutoLock,
         subtitle: l.settingsAutoLockHelp,

@@ -1,6 +1,7 @@
 import '../../models/customer.dart';
 import '../../models/day_close.dart';
 import '../../models/enums.dart';
+import '../../models/order.dart';
 import '../../models/receipt.dart';
 import '../../models/sale.dart';
 import '../customer_documents.dart';
@@ -53,6 +54,11 @@ abstract final class ReceiptBuilder {
       ..._top(d),
       if (d.momoNumber.isNotEmpty) RText('MoMo ${d.momoNumber}', align: ReceiptAlign.center),
       const RRule(),
+      if (s.orderNumber != null) ...[
+        const RText('YOUR ORDER', align: ReceiptAlign.center),
+        RText('${d.orderPrefix}${s.orderNumber}', align: ReceiptAlign.center, bold: true, big: true),
+        const RRule(),
+      ],
       RRow('Receipt ${s.displayNumber}', dateTime(s.at)),
       if (d.showCashier) RText('Served by ${s.cashierName}'),
       if (d.showCustomer && s.customerName != null) RText('Customer: ${s.customerName}'),
@@ -131,6 +137,29 @@ abstract final class ReceiptBuilder {
         const RText('Customer signature:'),
         const RFeed(2),
         const RText('______________________________'),
+      ]);
+
+  /// A kitchen / prep ticket: the queue number big, then what to make.
+  static ReceiptDoc kitchenTicket({
+    required String number,
+    required DateTime at,
+    required List<OrderLine> lines,
+    String? note,
+    OrderType? orderType,
+    String? customerName,
+  }) =>
+      ReceiptDoc('Order $number', [
+        RText(number, align: ReceiptAlign.center, bold: true, big: true),
+        RRow(orderType == null ? 'Order' : _orderType(orderType), dateTime(at)),
+        if (customerName != null) RText(customerName),
+        const RRule(),
+        for (final l in lines) ...[
+          RText(l.sellBy == SellBy.each ? '${l.quantity} x ${l.title}' : '${l.title} ${quantity(l.quantity, l.sellBy)}',
+              bold: true, big: true),
+          for (final o in l.options) RText('  + $o', bold: true),
+          if (l.note != null) RText('  "${l.note}"', bold: true),
+        ],
+        if (note != null) ...[const RRule(), RText('NOTE: $note', bold: true)],
       ]);
 
   /// An X report (the shift so far) or Z report (the day's close).

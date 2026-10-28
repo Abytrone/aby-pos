@@ -103,6 +103,16 @@ abstract final class AppSettings {
   /// Gift vouchers can be spent for this many months (0 = no expiry).
   static const voucherMonths = Setting<int>('voucher.months', SettingScope.shop, 12);
 
+  // Order numbers and prep (SEL-11)
+  /// Sales with prep items get a daily queue number and a kitchen ticket.
+  static const ordersOn = Setting<bool>('orders.on', SettingScope.shop, false);
+
+  /// Letter before the number: "A" gives A23.
+  static const orderPrefix = Setting<String>('orders.prefix', SettingScope.shop, 'A');
+
+  /// Items that need prep ([PromoTarget] as JSON; empty = everything).
+  static const orderPrepTarget = Setting<String>('orders.prepTarget', SettingScope.shop, '{}');
+
   // Receipts (Settings → Receipt design)
   static const receiptHeader = Setting<String>('receipt.header', SettingScope.shop, '');
   static const receiptFooter = Setting<String>('receipt.footer', SettingScope.shop, 'Thank you. Come again!');
@@ -133,6 +143,15 @@ abstract final class AppSettings {
   /// A cash drawer on the printer's drawer port: opens after cash sales,
   /// cash refunds, pay-ins and outs, and no-sales.
   static const cashDrawer = Setting<bool>('device.cashDrawer', SettingScope.device, false);
+
+  /// Where kitchen tickets print ([PrinterTarget] as JSON; '' = the
+  /// receipt printer).
+  static const kitchenPrinter = Setting<String>('device.kitchenPrinter', SettingScope.device, '');
+
+  /// Serve the customer display, prep screen and "Now serving" to browsers
+  /// on the shop's network.
+  static const displayServer = Setting<bool>('device.displayServer', SettingScope.device, false);
+  static const displayPort = Setting<int>('device.displayPort', SettingScope.device, 8080);
 
   /// The scale ([ScaleTarget] as JSON; '' = none).
   static const scale = Setting<String>('device.scale', SettingScope.device, '');
@@ -175,6 +194,12 @@ abstract final class AppSettings {
     autoBackupDaily,
     backupsToKeep,
     offsiteBackupDays,
+    ordersOn,
+    orderPrefix,
+    orderPrepTarget,
+    kitchenPrinter,
+    displayServer,
+    displayPort,
     loyaltyStyle,
     loyaltyStampTarget,
     loyaltyStamps,

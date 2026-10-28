@@ -9,6 +9,7 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/option_chip.dart';
+import '../../products/widgets/labels_dialog.dart';
 import '../controllers/receive_controller.dart';
 
 String payMethodLabel(AppLocalizations l, SupplierPaymentMethod m) => switch (m) {
@@ -42,6 +43,16 @@ class ReceiveView extends StatelessWidget {
                         if (await ctl.save()) {
                           Get.back<void>();
                           showMessage(l.receiveDone(ctl.lastReceipt!.displayNumber));
+                          // Price stickers for what came in.
+                          final counts = await labelCountsFor(ctl.received);
+                          if (counts.isNotEmpty &&
+                              await confirmDialog(
+                                title: l.labelsForDelivery,
+                                message: l.labelsForDeliveryBody(counts.length),
+                                confirmLabel: l.labelsTitle,
+                              )) {
+                            await showLabels(preset: counts);
+                          }
                         }
                       },
                 child: Text(l.receiveSave),

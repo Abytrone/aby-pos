@@ -67,6 +67,9 @@ App icons: `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml`.
 - **Loyalty and gift vouchers:** a stamp card, points or Gold customers, with rewards that
   apply themselves when the customer is attached; gift vouchers with a code and QR code, spent
   as a payment in parts until used up.
+- **Orders, screens and labels:** daily order numbers with kitchen tickets and an Orders board;
+  a customer display, prep screen and "Now serving" served to tablets and TVs on the shop's
+  Wi-Fi; internal barcodes and price labels (A4 sheets, label rolls, receipt-printer stickers).
 - **Money:** Manage → Money: expenses (with categories, receipts and monthly reminders), a simple
   profit and loss for any period beside the one before, and the owner's drawings and money put
   in. A pay-out on Today can be marked as an expense.
@@ -114,17 +117,18 @@ lib/
                             PinPad, OptionChip, approval prompt, status dot, labels, formatting
     data/database/          drift tables, AppDatabase, step-by-step migrations, seed
     data/repositories/      catalog, sale, refund, customer, shift, safe, MoMo, expense, profit, payment methods, cash events, discounts,
-                            parked orders, promotion, receipt, voucher, stock, supplier, receiving, stock count, staff, role,
+                            parked orders, promotion, receipt, voucher, order, stock, supplier, receiving, stock count, staff, role,
                             day close, audit, settings, outbox:
                             the only code that touches drift
     services/               auth, permissions, session (auto-lock), settings, status, backup,
                             device, money, ids, PIN hashing, price scheduler, sync (stub),
                             printing/ (print queue, network, Windows spooler, Bluetooth links),
-                            scale/ (serial port, Bluetooth), notifications, alerts
+                            scale/ (serial port, Bluetooth), display/ (screens server),
+                            notifications, alerts
     models/                 plain Dart domain classes and enums
     modules/                start, setup, sign_in, shell, till, checkout, today, close_day,
                             refund, customers, customer, cash (safe, MoMo check), money,
-                            dashboard, reports, products, product_editor, stock, stock_item, receive,
+                            dashboard, reports, orders, products, product_editor, stock, stock_item, receive,
                             stock_count, supplier, staff, activity, settings
                             (each: controllers, views, widgets, bindings)
 ```

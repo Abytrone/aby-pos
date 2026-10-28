@@ -214,7 +214,12 @@ class CompletedSale {
     this.rounding = 0,
     this.exchangeRefund,
     this.changeKept = 0,
+    this.orderNumber,
   });
+
+  /// The day's queue number, when the sale has prep items and the shop uses
+  /// order numbers.
+  final int? orderNumber;
 
   /// Pesewas of change put in the customer's wallet instead.
   final int changeKept;

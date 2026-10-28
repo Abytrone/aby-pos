@@ -13,6 +13,7 @@ import '../../../ui/section_page.dart';
 import '../../till/widgets/category_dot.dart';
 import '../../till/widgets/variant_sheet.dart' show groupRule;
 import '../controllers/catalogue_controller.dart';
+import '../widgets/labels_dialog.dart';
 import '../widgets/category_editor.dart';
 import '../widgets/option_group_editor.dart';
 import '../widgets/pricing_tools.dart';
@@ -41,12 +42,14 @@ class ProductsView extends GetView<CatalogueController> {
                   onSelected: (v) => switch (v) {
                     0 => showBulkPrices(controller),
                     1 => runImport(controller),
+                    3 => showLabels(),
                     _ => controller.exportProducts(),
                   },
                   itemBuilder: (_) => [
                     PopupMenuItem(value: 0, child: Text(l.bulkTitle)),
                     if (controller.canEdit) PopupMenuItem(value: 1, child: Text(l.importTitle)),
                     PopupMenuItem(value: 2, child: Text(l.exportButton)),
+                    PopupMenuItem(value: 3, child: Text(l.labelsTitle)),
                   ],
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: AbySpace.s3, vertical: AbySpace.s3),

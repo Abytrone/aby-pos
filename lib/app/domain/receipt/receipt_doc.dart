@@ -55,6 +55,13 @@ class RQr extends ReceiptBlock {
   final String data;
 }
 
+/// A Code 128 barcode (labels).
+class RBarcode extends ReceiptBlock {
+  const RBarcode(this.data);
+
+  final String data;
+}
+
 /// The shop's logo (PNG), printed as an image.
 class RImage extends ReceiptBlock {
   const RImage(this.png);
@@ -106,7 +113,7 @@ List<String> layout(ReceiptBlock b, int width) {
       return ['-' * width];
     case RFeed(:final lines):
       return List.filled(lines, '');
-    case RQr() || RImage():
+    case RQr() || RImage() || RBarcode():
       return const [];
   }
 }

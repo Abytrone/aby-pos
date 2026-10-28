@@ -8,6 +8,7 @@ import '../../customers/views/customers_view.dart';
 import '../../dashboard/views/dashboard_view.dart';
 import '../../reports/views/reports_view.dart';
 import '../../money/views/money_view.dart';
+import '../../orders/views/orders_view.dart';
 import '../../products/views/products_view.dart';
 import '../../settings/views/settings_view.dart';
 import '../../stock/views/stock_view.dart';
@@ -26,6 +27,7 @@ class ShellView extends GetView<ShellController> {
   Widget _build(ShellSection s) => switch (s) {
         ShellSection.sell => const TillView(),
         ShellSection.today => const TodayView(),
+        ShellSection.orders => const OrdersView(),
         ShellSection.dashboard => const DashboardView(),
         ShellSection.products => const ProductsView(),
         ShellSection.stock => const StockView(),

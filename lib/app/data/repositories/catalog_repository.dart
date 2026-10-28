@@ -420,6 +420,46 @@ class CatalogRepository {
   }
 
   /// True when the set changed.
+  /// Gives every listed variant that has no barcode an internal one
+  /// (CAT-08): "ABY00001" and up, printed as Code 128. Returns how many.
+  Future<int> generateBarcodes(Iterable<String> variantIds, {required Staff by}) {
+    return _db.transaction(() async {
+      final have = {
+        for (final b in await (_db.select(_db.barcodes)..where((b) => b.deletedAt.isNull())).get()) b.variantId,
+      };
+      final need = [for (final id in variantIds) if (!have.contains(id)) id];
+      if (need.isEmpty) return 0;
+      final last = await _db.customSelect(
+        "SELECT COALESCE(MAX(CAST(SUBSTR(code, 4) AS INTEGER)), 0) AS n FROM barcodes WHERE code GLOB 'ABY[0-9]*'",
+        readsFrom: {_db.barcodes},
+      ).getSingle();
+      var next = last.read<int>('n');
+      final now = DateTime.now();
+      for (final variantId in need) {
+        next++;
+        await _db.insertTracked(
+          _db.barcodes,
+          BarcodesCompanion.insert(
+            id: newId(),
+            createdAt: now,
+            updatedAt: now,
+            deviceId: _device.deviceId,
+            code: 'ABY${next.toString().padLeft(5, '0')}',
+            variantId: variantId,
+          ),
+        );
+      }
+      await _audit.record(
+        action: AuditAction.barcodesGenerated,
+        actor: by,
+        entity: 'barcodes',
+        entityId: need.first,
+        summary: 'Made ${need.length} internal barcode${need.length == 1 ? '' : 's'}',
+      );
+      return need.length;
+    });
+  }
+
   Future<bool> _replaceBarcodes(String variantId, List<String> codes) async {
     final want = codes.map((c) => c.trim()).where((c) => c.isNotEmpty).toSet();
     final rows = await (_db.select(

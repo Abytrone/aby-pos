@@ -82,6 +82,7 @@ enum ActivityFilter {
             AuditAction.supplierPaid,
             AuditAction.priceScheduled,
             AuditAction.pricesBulkChanged,
+            AuditAction.barcodesGenerated,
             AuditAction.catalogueImported,
           },
         ActivityFilter.settingsAndData => {

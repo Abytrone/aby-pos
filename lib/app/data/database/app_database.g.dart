@@ -13392,6 +13392,38 @@ class $SalesTable extends Sales with TableInfo<$SalesTable, SaleRow> {
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _orderNumberMeta = const VerificationMeta(
+    'orderNumber',
+  );
+  @override
+  late final GeneratedColumn<int> orderNumber = GeneratedColumn<int>(
+    'order_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<OrderStatus?, String>
+  orderStatus = GeneratedColumn<String>(
+    'order_status',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<OrderStatus?>($SalesTable.$converterorderStatusn);
+  static const VerificationMeta _orderStatusAtMeta = const VerificationMeta(
+    'orderStatusAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> orderStatusAt =
+      GeneratedColumn<DateTime>(
+        'order_status_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -13416,6 +13448,9 @@ class $SalesTable extends Sales with TableInfo<$SalesTable, SaleRow> {
     orderType,
     customerId,
     rounding,
+    orderNumber,
+    orderStatus,
+    orderStatusAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -13574,6 +13609,24 @@ class $SalesTable extends Sales with TableInfo<$SalesTable, SaleRow> {
         rounding.isAcceptableOrUnknown(data['rounding']!, _roundingMeta),
       );
     }
+    if (data.containsKey('order_number')) {
+      context.handle(
+        _orderNumberMeta,
+        orderNumber.isAcceptableOrUnknown(
+          data['order_number']!,
+          _orderNumberMeta,
+        ),
+      );
+    }
+    if (data.containsKey('order_status_at')) {
+      context.handle(
+        _orderStatusAtMeta,
+        orderStatusAt.isAcceptableOrUnknown(
+          data['order_status_at']!,
+          _orderStatusAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -13679,6 +13732,20 @@ class $SalesTable extends Sales with TableInfo<$SalesTable, SaleRow> {
         DriftSqlType.int,
         data['${effectivePrefix}rounding'],
       )!,
+      orderNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order_number'],
+      ),
+      orderStatus: $SalesTable.$converterorderStatusn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}order_status'],
+        ),
+      ),
+      orderStatusAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}order_status_at'],
+      ),
     );
   }
 
@@ -13693,6 +13760,10 @@ class $SalesTable extends Sales with TableInfo<$SalesTable, SaleRow> {
       const EnumNameConverter<OrderType>(OrderType.values);
   static JsonTypeConverter2<OrderType?, String?, String?> $converterorderTypen =
       JsonTypeConverter2.asNullable($converterorderType);
+  static JsonTypeConverter2<OrderStatus, String, String> $converterorderStatus =
+      const EnumNameConverter<OrderStatus>(OrderStatus.values);
+  static JsonTypeConverter2<OrderStatus?, String?, String?>
+  $converterorderStatusn = JsonTypeConverter2.asNullable($converterorderStatus);
 }
 
 class SaleRow extends DataClass implements Insertable<SaleRow> {
@@ -13742,6 +13813,12 @@ class SaleRow extends DataClass implements Insertable<SaleRow> {
   /// Pesewas added (or taken off, when negative) by rounding a cash total.
   /// The payments add up to [total] plus this. v7.
   final int rounding;
+
+  /// The queue number for the day ("A23" is 23), when the shop uses order
+  /// numbers, and where the order is in prep. v13.
+  final int? orderNumber;
+  final OrderStatus? orderStatus;
+  final DateTime? orderStatusAt;
   const SaleRow({
     required this.id,
     required this.createdAt,
@@ -13765,6 +13842,9 @@ class SaleRow extends DataClass implements Insertable<SaleRow> {
     this.orderType,
     this.customerId,
     required this.rounding,
+    this.orderNumber,
+    this.orderStatus,
+    this.orderStatusAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -13817,6 +13897,17 @@ class SaleRow extends DataClass implements Insertable<SaleRow> {
       map['customer_id'] = Variable<String>(customerId);
     }
     map['rounding'] = Variable<int>(rounding);
+    if (!nullToAbsent || orderNumber != null) {
+      map['order_number'] = Variable<int>(orderNumber);
+    }
+    if (!nullToAbsent || orderStatus != null) {
+      map['order_status'] = Variable<String>(
+        $SalesTable.$converterorderStatusn.toSql(orderStatus),
+      );
+    }
+    if (!nullToAbsent || orderStatusAt != null) {
+      map['order_status_at'] = Variable<DateTime>(orderStatusAt);
+    }
     return map;
   }
 
@@ -13862,6 +13953,15 @@ class SaleRow extends DataClass implements Insertable<SaleRow> {
           ? const Value.absent()
           : Value(customerId),
       rounding: Value(rounding),
+      orderNumber: orderNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(orderNumber),
+      orderStatus: orderStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(orderStatus),
+      orderStatusAt: orderStatusAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(orderStatusAt),
     );
   }
 
@@ -13897,6 +13997,11 @@ class SaleRow extends DataClass implements Insertable<SaleRow> {
       ),
       customerId: serializer.fromJson<String?>(json['customerId']),
       rounding: serializer.fromJson<int>(json['rounding']),
+      orderNumber: serializer.fromJson<int?>(json['orderNumber']),
+      orderStatus: $SalesTable.$converterorderStatusn.fromJson(
+        serializer.fromJson<String?>(json['orderStatus']),
+      ),
+      orderStatusAt: serializer.fromJson<DateTime?>(json['orderStatusAt']),
     );
   }
   @override
@@ -13929,6 +14034,11 @@ class SaleRow extends DataClass implements Insertable<SaleRow> {
       ),
       'customerId': serializer.toJson<String?>(customerId),
       'rounding': serializer.toJson<int>(rounding),
+      'orderNumber': serializer.toJson<int?>(orderNumber),
+      'orderStatus': serializer.toJson<String?>(
+        $SalesTable.$converterorderStatusn.toJson(orderStatus),
+      ),
+      'orderStatusAt': serializer.toJson<DateTime?>(orderStatusAt),
     };
   }
 
@@ -13955,6 +14065,9 @@ class SaleRow extends DataClass implements Insertable<SaleRow> {
     Value<OrderType?> orderType = const Value.absent(),
     Value<String?> customerId = const Value.absent(),
     int? rounding,
+    Value<int?> orderNumber = const Value.absent(),
+    Value<OrderStatus?> orderStatus = const Value.absent(),
+    Value<DateTime?> orderStatusAt = const Value.absent(),
   }) => SaleRow(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -13980,6 +14093,11 @@ class SaleRow extends DataClass implements Insertable<SaleRow> {
     orderType: orderType.present ? orderType.value : this.orderType,
     customerId: customerId.present ? customerId.value : this.customerId,
     rounding: rounding ?? this.rounding,
+    orderNumber: orderNumber.present ? orderNumber.value : this.orderNumber,
+    orderStatus: orderStatus.present ? orderStatus.value : this.orderStatus,
+    orderStatusAt: orderStatusAt.present
+        ? orderStatusAt.value
+        : this.orderStatusAt,
   );
   SaleRow copyWithCompanion(SalesCompanion data) {
     return SaleRow(
@@ -14015,6 +14133,15 @@ class SaleRow extends DataClass implements Insertable<SaleRow> {
           ? data.customerId.value
           : this.customerId,
       rounding: data.rounding.present ? data.rounding.value : this.rounding,
+      orderNumber: data.orderNumber.present
+          ? data.orderNumber.value
+          : this.orderNumber,
+      orderStatus: data.orderStatus.present
+          ? data.orderStatus.value
+          : this.orderStatus,
+      orderStatusAt: data.orderStatusAt.present
+          ? data.orderStatusAt.value
+          : this.orderStatusAt,
     );
   }
 
@@ -14042,7 +14169,10 @@ class SaleRow extends DataClass implements Insertable<SaleRow> {
           ..write('note: $note, ')
           ..write('orderType: $orderType, ')
           ..write('customerId: $customerId, ')
-          ..write('rounding: $rounding')
+          ..write('rounding: $rounding, ')
+          ..write('orderNumber: $orderNumber, ')
+          ..write('orderStatus: $orderStatus, ')
+          ..write('orderStatusAt: $orderStatusAt')
           ..write(')'))
         .toString();
   }
@@ -14071,6 +14201,9 @@ class SaleRow extends DataClass implements Insertable<SaleRow> {
     orderType,
     customerId,
     rounding,
+    orderNumber,
+    orderStatus,
+    orderStatusAt,
   ]);
   @override
   bool operator ==(Object other) =>
@@ -14097,7 +14230,10 @@ class SaleRow extends DataClass implements Insertable<SaleRow> {
           other.note == this.note &&
           other.orderType == this.orderType &&
           other.customerId == this.customerId &&
-          other.rounding == this.rounding);
+          other.rounding == this.rounding &&
+          other.orderNumber == this.orderNumber &&
+          other.orderStatus == this.orderStatus &&
+          other.orderStatusAt == this.orderStatusAt);
 }
 
 class SalesCompanion extends UpdateCompanion<SaleRow> {
@@ -14123,6 +14259,9 @@ class SalesCompanion extends UpdateCompanion<SaleRow> {
   final Value<OrderType?> orderType;
   final Value<String?> customerId;
   final Value<int> rounding;
+  final Value<int?> orderNumber;
+  final Value<OrderStatus?> orderStatus;
+  final Value<DateTime?> orderStatusAt;
   final Value<int> rowid;
   const SalesCompanion({
     this.id = const Value.absent(),
@@ -14147,6 +14286,9 @@ class SalesCompanion extends UpdateCompanion<SaleRow> {
     this.orderType = const Value.absent(),
     this.customerId = const Value.absent(),
     this.rounding = const Value.absent(),
+    this.orderNumber = const Value.absent(),
+    this.orderStatus = const Value.absent(),
+    this.orderStatusAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SalesCompanion.insert({
@@ -14172,6 +14314,9 @@ class SalesCompanion extends UpdateCompanion<SaleRow> {
     this.orderType = const Value.absent(),
     this.customerId = const Value.absent(),
     this.rounding = const Value.absent(),
+    this.orderNumber = const Value.absent(),
+    this.orderStatus = const Value.absent(),
+    this.orderStatusAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -14205,6 +14350,9 @@ class SalesCompanion extends UpdateCompanion<SaleRow> {
     Expression<String>? orderType,
     Expression<String>? customerId,
     Expression<int>? rounding,
+    Expression<int>? orderNumber,
+    Expression<String>? orderStatus,
+    Expression<DateTime>? orderStatusAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -14230,6 +14378,9 @@ class SalesCompanion extends UpdateCompanion<SaleRow> {
       if (orderType != null) 'order_type': orderType,
       if (customerId != null) 'customer_id': customerId,
       if (rounding != null) 'rounding': rounding,
+      if (orderNumber != null) 'order_number': orderNumber,
+      if (orderStatus != null) 'order_status': orderStatus,
+      if (orderStatusAt != null) 'order_status_at': orderStatusAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -14257,6 +14408,9 @@ class SalesCompanion extends UpdateCompanion<SaleRow> {
     Value<OrderType?>? orderType,
     Value<String?>? customerId,
     Value<int>? rounding,
+    Value<int?>? orderNumber,
+    Value<OrderStatus?>? orderStatus,
+    Value<DateTime?>? orderStatusAt,
     Value<int>? rowid,
   }) {
     return SalesCompanion(
@@ -14282,6 +14436,9 @@ class SalesCompanion extends UpdateCompanion<SaleRow> {
       orderType: orderType ?? this.orderType,
       customerId: customerId ?? this.customerId,
       rounding: rounding ?? this.rounding,
+      orderNumber: orderNumber ?? this.orderNumber,
+      orderStatus: orderStatus ?? this.orderStatus,
+      orderStatusAt: orderStatusAt ?? this.orderStatusAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -14359,6 +14516,17 @@ class SalesCompanion extends UpdateCompanion<SaleRow> {
     if (rounding.present) {
       map['rounding'] = Variable<int>(rounding.value);
     }
+    if (orderNumber.present) {
+      map['order_number'] = Variable<int>(orderNumber.value);
+    }
+    if (orderStatus.present) {
+      map['order_status'] = Variable<String>(
+        $SalesTable.$converterorderStatusn.toSql(orderStatus.value),
+      );
+    }
+    if (orderStatusAt.present) {
+      map['order_status_at'] = Variable<DateTime>(orderStatusAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -14390,6 +14558,9 @@ class SalesCompanion extends UpdateCompanion<SaleRow> {
           ..write('orderType: $orderType, ')
           ..write('customerId: $customerId, ')
           ..write('rounding: $rounding, ')
+          ..write('orderNumber: $orderNumber, ')
+          ..write('orderStatus: $orderStatus, ')
+          ..write('orderStatusAt: $orderStatusAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -52080,6 +52251,9 @@ typedef $$SalesTableCreateCompanionBuilder = SalesCompanion Function({
   Value<OrderType?> orderType,
   Value<String?> customerId,
   Value<int> rounding,
+  Value<int?> orderNumber,
+  Value<OrderStatus?> orderStatus,
+  Value<DateTime?> orderStatusAt,
   Value<int> rowid,
 });
 typedef $$SalesTableUpdateCompanionBuilder = SalesCompanion Function({
@@ -52105,6 +52279,9 @@ typedef $$SalesTableUpdateCompanionBuilder = SalesCompanion Function({
   Value<OrderType?> orderType,
   Value<String?> customerId,
   Value<int> rounding,
+  Value<int?> orderNumber,
+  Value<OrderStatus?> orderStatus,
+  Value<DateTime?> orderStatusAt,
   Value<int> rowid,
 });
 
@@ -52321,6 +52498,22 @@ class $$SalesTableFilterComposer extends Composer<_$AppDatabase, $SalesTable> {
 
   ColumnFilters<int> get rounding => $composableBuilder(
     column: $table.rounding,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get orderNumber => $composableBuilder(
+    column: $table.orderNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<OrderStatus?, OrderStatus, String>
+  get orderStatus => $composableBuilder(
+    column: $table.orderStatus,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get orderStatusAt => $composableBuilder(
+    column: $table.orderStatusAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -52568,6 +52761,21 @@ class $$SalesTableOrderingComposer
     column: $table.rounding,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get orderNumber => $composableBuilder(
+    column: $table.orderNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get orderStatus => $composableBuilder(
+    column: $table.orderStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get orderStatusAt => $composableBuilder(
+    column: $table.orderStatusAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$SalesTableAnnotationComposer
@@ -52654,6 +52862,22 @@ class $$SalesTableAnnotationComposer
 
   GeneratedColumn<int> get rounding =>
       $composableBuilder(column: $table.rounding, builder: (column) => column);
+
+  GeneratedColumn<int> get orderNumber => $composableBuilder(
+    column: $table.orderNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<OrderStatus?, String> get orderStatus =>
+      $composableBuilder(
+        column: $table.orderStatus,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<DateTime> get orderStatusAt => $composableBuilder(
+    column: $table.orderStatusAt,
+    builder: (column) => column,
+  );
 
   Expression<T> saleLinesRefs<T extends Object>(
     Expression<T> Function($$SaleLinesTableAnnotationComposer a) f,
@@ -52837,6 +53061,9 @@ class $$SalesTableTableManager
                 Value<OrderType?> orderType = const Value.absent(),
                 Value<String?> customerId = const Value.absent(),
                 Value<int> rounding = const Value.absent(),
+                Value<int?> orderNumber = const Value.absent(),
+                Value<OrderStatus?> orderStatus = const Value.absent(),
+                Value<DateTime?> orderStatusAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SalesCompanion(
                 id: id,
@@ -52861,6 +53088,9 @@ class $$SalesTableTableManager
                 orderType: orderType,
                 customerId: customerId,
                 rounding: rounding,
+                orderNumber: orderNumber,
+                orderStatus: orderStatus,
+                orderStatusAt: orderStatusAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -52887,6 +53117,9 @@ class $$SalesTableTableManager
                 Value<OrderType?> orderType = const Value.absent(),
                 Value<String?> customerId = const Value.absent(),
                 Value<int> rounding = const Value.absent(),
+                Value<int?> orderNumber = const Value.absent(),
+                Value<OrderStatus?> orderStatus = const Value.absent(),
+                Value<DateTime?> orderStatusAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SalesCompanion.insert(
                 id: id,
@@ -52911,6 +53144,9 @@ class $$SalesTableTableManager
                 orderType: orderType,
                 customerId: customerId,
                 rounding: rounding,
+                orderNumber: orderNumber,
+                orderStatus: orderStatus,
+                orderStatusAt: orderStatusAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

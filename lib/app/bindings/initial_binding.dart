@@ -13,6 +13,7 @@ import '../data/repositories/momo_repository.dart';
 import '../data/repositories/safe_repository.dart';
 import '../data/repositories/shift_repository.dart';
 import '../data/repositories/discount_repository.dart';
+import '../data/repositories/order_repository.dart';
 import '../data/repositories/outbox_repository.dart';
 import '../data/repositories/parked_order_repository.dart';
 import '../data/repositories/pay_method_repository.dart';
@@ -36,6 +37,7 @@ import '../services/alert_service.dart';
 import '../services/auth_service.dart';
 import '../services/backup/backup_service.dart';
 import '../services/device_service.dart';
+import '../services/display/display_service.dart';
 import '../services/notification_service.dart';
 import '../services/permission_service.dart';
 import '../services/price_scheduler.dart';
@@ -88,6 +90,7 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => RefundRepository(db, device, audit, Get.find(), Get.find<CustomerRepository>()), fenix: true);
     Get.lazyPut(() => PayMethodRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => VoucherRepository(db, device, audit), fenix: true);
+    Get.lazyPut(() => OrderRepository(db), fenix: true);
     Get.lazyPut(
       () => SaleRepository(
         db,
@@ -125,6 +128,10 @@ class InitialBinding extends Bindings {
     Get.put(ScaleService(settings), permanent: true);
 
     // Shared by the till and checkout.
-    Get.put(CartController(), permanent: true);
+    final cart = Get.put(CartController(), permanent: true);
+    Get.put(DisplayService(db, settings), permanent: true).promotions = () {
+      final now = DateTime.now();
+      return [for (final p in cart.promotions) if (p.runsAt(now)) p.name];
+    };
   }
 }

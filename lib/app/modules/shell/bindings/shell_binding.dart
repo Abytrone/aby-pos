@@ -5,6 +5,7 @@ import '../../customers/controllers/customers_controller.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
 import '../../reports/controllers/reports_controller.dart';
 import '../../money/controllers/money_controller.dart';
+import '../../orders/controllers/orders_controller.dart';
 import '../../products/controllers/catalogue_controller.dart';
 import '../../settings/controllers/backup_controller.dart';
 import '../../settings/controllers/settings_controller.dart';
@@ -24,6 +25,7 @@ class ShellBinding extends Bindings {
     Get.put(ShellController());
     Get.lazyPut(TillController.new, fenix: true);
     Get.lazyPut(TodayController.new, fenix: true);
+    Get.lazyPut(OrdersController.new, fenix: true);
     Get.lazyPut(CatalogueController.new, fenix: true);
     Get.lazyPut(StockController.new, fenix: true);
     Get.lazyPut(PurchasingController.new, fenix: true);

@@ -152,6 +152,13 @@ class _PromotionsState extends State<_Promotions> {
   }
 }
 
+/// Picks products and categories (null when cancelled), outside a
+/// promotion: the items that need prep, for example.
+Future<PromoTarget?> pickProducts(String title, PromoTarget current) async {
+  final menu = await Get.find<CatalogRepository>().load(includeInactive: true);
+  return Get.dialog<PromoTarget>(_TargetPicker(target: current, menu: menu, title: title));
+}
+
 /// Products and categories, as a short line: "Everything", "Cones, Waffle".
 String _targetText(AppLocalizations l, PromoTarget t, Catalogue menu) {
   if (t.everything) return l.promoEverything;
