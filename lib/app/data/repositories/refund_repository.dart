@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 
 import '../../core/units.dart';
+import '../../domain/receipt/receipt_code.dart';
 import '../../models/audit.dart';
 import '../../models/enums.dart';
 import '../../models/refund.dart';
@@ -35,8 +36,14 @@ class RefundRepository {
   final StockRepository _stock;
   final CustomerRepository? _customers;
 
-  /// A sale on this device by its number ("#00142" or "142").
+  /// A sale on this device by its number ("#00142" or "142"), or any
+  /// sale by its receipt's QR code.
   Future<String?> saleIdByNumber(String text) async {
+    final scanned = ReceiptCode.parse(text);
+    if (scanned != null) {
+      final row = await (_db.select(_db.sales)..where((s) => s.id.equals(scanned))).getSingleOrNull();
+      return row?.id;
+    }
     final n = int.tryParse(text.replaceAll(RegExp(r'[^0-9]'), ''));
     if (n == null) return null;
     final row = await (_db.select(_db.sales)

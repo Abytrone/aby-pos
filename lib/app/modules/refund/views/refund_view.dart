@@ -9,6 +9,7 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/option_chip.dart';
+import '../../../ui/receipt_actions.dart';
 import '../controllers/refund_controller.dart';
 
 class RefundView extends GetView<RefundController> {
@@ -269,7 +270,12 @@ class _Done extends StatelessWidget {
             Text(l.refundGiveBack.toUpperCase(), textAlign: TextAlign.center, style: AbyText.label.copyWith(color: c.inkMuted)),
             Text(formatMoney(refund.paidBack), textAlign: TextAlign.center, style: AbyText.total.copyWith(color: c.ink)),
             const SizedBox(height: AbySpace.s6),
-            // TODO(print): print a refund slip here.
+            OutlinedButton.icon(
+              onPressed: () => printRefundSlip(refund.refundId),
+              icon: const Icon(Icons.print_outlined),
+              label: Text(l.refundPrintSlip),
+            ),
+            const SizedBox(height: AbySpace.s2),
             FilledButton(autofocus: true, onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
           ]),
         ),

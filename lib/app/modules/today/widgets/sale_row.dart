@@ -13,8 +13,14 @@ class SaleRow extends StatelessWidget {
     required this.sale,
     required this.onVoid,
     required this.onRefund,
+    this.onPrint,
+    this.onSend,
     this.locked = false,
   });
+
+  /// Print or send the receipt again.
+  final VoidCallback? onPrint;
+  final VoidCallback? onSend;
 
   final Sale sale;
 
@@ -93,17 +99,19 @@ class SaleRow extends StatelessWidget {
                   style: muted,
                 ),
               )
-            else if (narrow)
+            else if (!narrow)
+              Row(mainAxisSize: MainAxisSize.min, children: actions),
+            if (narrow || onPrint != null || onSend != null)
               PopupMenuButton<VoidCallback>(
                 tooltip: l.commonMore,
                 onSelected: (f) => f(),
                 itemBuilder: (_) => [
-                  if (onRefund != null) PopupMenuItem(value: onRefund, child: Text(l.todayRefund)),
-                  if (onVoid != null) PopupMenuItem(value: onVoid, child: Text(l.todayVoid)),
+                  if (narrow && onRefund != null) PopupMenuItem(value: onRefund, child: Text(l.todayRefund)),
+                  if (narrow && onVoid != null) PopupMenuItem(value: onVoid, child: Text(l.todayVoid)),
+                  if (onPrint != null) PopupMenuItem(value: onPrint, child: Text(l.receiptPrint)),
+                  if (onSend != null) PopupMenuItem(value: onSend, child: Text(l.receiptSend)),
                 ],
-              )
-            else
-              Row(mainAxisSize: MainAxisSize.min, children: actions),
+              ),
           ],
         ),
       ),

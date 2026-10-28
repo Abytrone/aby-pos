@@ -16,6 +16,7 @@ import '../data/repositories/discount_repository.dart';
 import '../data/repositories/outbox_repository.dart';
 import '../data/repositories/parked_order_repository.dart';
 import '../data/repositories/pay_method_repository.dart';
+import '../data/repositories/receipt_repository.dart';
 import '../data/repositories/role_repository.dart';
 import '../data/repositories/sale_repository.dart';
 import '../data/repositories/settings_repository.dart';
@@ -35,6 +36,7 @@ import '../services/backup/backup_service.dart';
 import '../services/device_service.dart';
 import '../services/permission_service.dart';
 import '../services/price_scheduler.dart';
+import '../services/printing/print_service.dart';
 import '../services/session_service.dart';
 import '../services/settings_service.dart';
 import '../services/status_service.dart';
@@ -98,6 +100,7 @@ class InitialBinding extends Bindings {
     final sync = Get.put(SyncService(Get.find()), permanent: true);
     final backups = Get.put(BackupService(db, audit, settings), permanent: true);
     Get.put(PriceScheduler(Get.find()), permanent: true);
+    Get.put(PrintService(settings, ReceiptRepository(db), device), permanent: true);
     Get.put(StatusService(backups, audit, settings, sync), permanent: true);
     Get.put(AlertService(db), permanent: true);
 

@@ -29,6 +29,9 @@ dependencies:
   pdf: ^3.13.1
   url_launcher: ^6.3.3
   archive: ^4.5.2
+  image: ^4.12.0
+  qr: ^3.0.2
+  ffi: ^2.2.0
 
 dev_dependencies:
   flutter_test:

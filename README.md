@@ -53,6 +53,11 @@ App icons: `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml`.
   and what needs attention. Manage → Reports covers sales, times, products, payments, staff,
   customers, stock and tax for any period, with CSV exports and a month-end zip for the
   accountant.
+- **Receipts and printing:** ESC/POS printers over the network, Windows (USB) or Bluetooth
+  (Android), 58 or 80 mm, set up per device with a test page. A receipt designer with a live
+  preview, a print queue that retries, reprint last, receipts sent by WhatsApp, SMS or PDF, a QR
+  code that opens the sale for refunds, X / Z reports and refund slips on paper, and the cash
+  drawer.
 - **Money:** Manage → Money: expenses (with categories, receipts and monthly reminders), a simple
   profit and loss for any period beside the one before, and the owner's drawings and money put
   in. A pay-out on Today can be marked as an expense.
@@ -92,17 +97,19 @@ lib/
     routes/                 route names, GetPage list, AuthMiddleware
     core/                   permissions and built-in roles, typed settings, business day, tax,
                             units, validators, CSV
-    domain/                 catalogue rules, inventory arithmetic, catalogue import/export
+    domain/                 catalogue rules, inventory arithmetic, catalogue import/export,
+                            receipt/ (layout, ESC/POS bytes, PDF, QR codes)
     theme/                  brand kit (copied as-is from brand/flutter/lib/theme)
     ui/                     shared design system: SectionPage, GroupCard, InfoTile, dialogs,
                             PinPad, OptionChip, approval prompt, status dot, labels, formatting
     data/database/          drift tables, AppDatabase, step-by-step migrations, seed
     data/repositories/      catalog, sale, refund, customer, shift, safe, MoMo, expense, profit, payment methods, cash events, discounts,
-                            parked orders, stock, supplier, receiving, stock count, staff, role,
+                            parked orders, receipt, stock, supplier, receiving, stock count, staff, role,
                             day close, audit, settings, outbox:
                             the only code that touches drift
     services/               auth, permissions, session (auto-lock), settings, status, backup,
-                            device, money, ids, PIN hashing, price scheduler, sync (stub)
+                            device, money, ids, PIN hashing, price scheduler, sync (stub),
+                            printing/ (print queue, network, Windows spooler, Bluetooth links)
     models/                 plain Dart domain classes and enums
     modules/                start, setup, sign_in, shell, till, checkout, today, close_day,
                             refund, customers, customer, cash (safe, MoMo check), money,
@@ -126,7 +133,7 @@ lib/
   The older selling screens still have English literals; they move over as they are reworked.
 - Lime is only for the Pay button, the waiting dot and cart counts.
 
-Plug-in points for later work are marked `TODO(sync)`, `TODO(print)` and `TODO(storage)`.
+Plug-in points for later work are marked `TODO(sync)`, `TODO(notify)` and `TODO(storage)`.
 
 ## Changing the database
 

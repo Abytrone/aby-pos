@@ -3051,6 +3051,196 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportNoTax => 'No tax charged.';
 
   @override
+  String get commonTryAgain => 'Try again';
+
+  @override
+  String get statusPrinter => 'Receipt printer';
+
+  @override
+  String get statusPrinterReady => 'Ready. Nothing waiting.';
+
+  @override
+  String get printClear => 'Clear';
+
+  @override
+  String get printSent => 'Sent to the printer.';
+
+  @override
+  String get printNoPrinter =>
+      'No receipt printer on this device. Set one up in Settings, Receipts and printing.';
+
+  @override
+  String get printReprintLast => 'Reprint the last receipt';
+
+  @override
+  String get printNothingYet => 'No sale to reprint yet.';
+
+  @override
+  String get receiptPrint => 'Print receipt';
+
+  @override
+  String get receiptPrintAgain => 'Print again';
+
+  @override
+  String get receiptSend => 'Send receipt';
+
+  @override
+  String get receiptPhone => 'Customer\'s phone';
+
+  @override
+  String get receiptPhoneHelp => 'Leave it empty to pick the chat in WhatsApp.';
+
+  @override
+  String get receiptPhoneInvalid =>
+      'Enter a Ghana phone number, like 024 123 4567.';
+
+  @override
+  String get receiptSms => 'SMS';
+
+  @override
+  String get receiptPdf => 'PDF';
+
+  @override
+  String get refundPrintSlip => 'Print refund slip';
+
+  @override
+  String get closePrintZ => 'Print Z report';
+
+  @override
+  String get customerPrintBalance => 'Print the balance';
+
+  @override
+  String get settingsGroupPrinting => 'Receipts and printing';
+
+  @override
+  String get printerTitle => 'Receipt printer';
+
+  @override
+  String get printerNoneHelp =>
+      'Bluetooth, USB or network thermal printers, 58 or 80 mm.';
+
+  @override
+  String get printerNetwork => 'Network';
+
+  @override
+  String get printerWindows => 'This computer';
+
+  @override
+  String get printerBluetooth => 'Bluetooth';
+
+  @override
+  String get printerAddress => 'Printer\'s IP address';
+
+  @override
+  String get printerAddressHelp =>
+      'Like 192.168.1.50. Print the printer\'s own test page to find it.';
+
+  @override
+  String get printerWindowsHelp =>
+      'USB printers show here once their Windows driver is installed.';
+
+  @override
+  String get printerBluetoothHelp =>
+      'Pair the printer in Android\'s Bluetooth settings first (the PIN is often 0000 or 1234).';
+
+  @override
+  String get printerNoneFound => 'No printers found.';
+
+  @override
+  String get printerLookAgain => 'Look again';
+
+  @override
+  String get printerPaper => 'Paper width';
+
+  @override
+  String get printerTest => 'Print a test page';
+
+  @override
+  String get printerTestSent =>
+      'Sent. If nothing came out, check the paper and that the printer is on.';
+
+  @override
+  String get printerChooseFirst => 'Choose a printer first.';
+
+  @override
+  String get printerRemove => 'Remove printer';
+
+  @override
+  String get settingsAutoPrint => 'Print every receipt';
+
+  @override
+  String get settingsAutoPrintHelp =>
+      'Off: print only when asked, or use Send receipt for no paper.';
+
+  @override
+  String get settingsCashDrawer => 'Cash drawer';
+
+  @override
+  String get settingsCashDrawerHelp =>
+      'Plugged into the printer. Opens for cash sales, cash refunds, pay in or out, and no-sales.';
+
+  @override
+  String get settingsTestDrawer => 'Open the drawer to test it';
+
+  @override
+  String get receiptDesign => 'Receipt design';
+
+  @override
+  String get receiptDesignHelp =>
+      'Logo, header, footer, MoMo number and what each receipt shows.';
+
+  @override
+  String get receiptShopFromSettings =>
+      'The shop name, address and phone come from the Shop settings.';
+
+  @override
+  String get receiptLogoAdd => 'Add a logo';
+
+  @override
+  String get receiptLogoChange => 'Change the logo';
+
+  @override
+  String get receiptLogoRemove => 'Remove the logo';
+
+  @override
+  String get receiptLogoUnreadable =>
+      'That picture could not be read. Try a PNG or JPEG.';
+
+  @override
+  String get receiptHeader => 'Header';
+
+  @override
+  String get receiptHeaderHelp =>
+      'Under the shop name, like opening hours or a landmark.';
+
+  @override
+  String get receiptMomo => 'MoMo number to pay';
+
+  @override
+  String get receiptFooter => 'Footer';
+
+  @override
+  String get receiptShowCashier => 'Who served';
+
+  @override
+  String get receiptShowCustomer => 'The customer\'s name';
+
+  @override
+  String get receiptShowTax => 'Tax included';
+
+  @override
+  String get receiptShowQr => 'QR code for refunds and reprints';
+
+  @override
+  String get receiptCreditCopies => 'Credit sales';
+
+  @override
+  String get receiptOneCopy => 'One copy';
+
+  @override
+  String get receiptTwoCopies => 'Customer and shop copy';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }
@@ -4344,6 +4534,17 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: 'Short $count times',
       one: 'Short once',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statusPrintsWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count waiting to print.',
+      one: '1 waiting to print.',
     );
     return '$_temp0';
   }

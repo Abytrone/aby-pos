@@ -129,6 +129,12 @@ class _Summary extends GetView<CustomerController> {
             ),
           ),
           const SizedBox(width: AbySpace.s2),
+          IconButton.outlined(
+            tooltip: l.customerPrintBalance,
+            onPressed: controller.printStatement,
+            icon: const Icon(Icons.print_outlined),
+          ),
+          const SizedBox(width: AbySpace.s2),
           Expanded(
             child: OutlinedButton.icon(
               onPressed: customer.owed <= 0 ? null : () => _remind(context),

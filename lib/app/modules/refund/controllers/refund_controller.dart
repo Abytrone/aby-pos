@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
@@ -13,6 +15,7 @@ import '../../../models/refund.dart';
 import '../../../models/sale.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
+import '../../../services/printing/print_service.dart';
 import '../../../ui/l10n.dart';
 import '../../shell/controllers/shell_controller.dart';
 import '../../till/controllers/cart_controller.dart';
@@ -216,6 +219,7 @@ class RefundController extends GetxController {
         actor: auth.actor,
         approver: auth.approver,
       );
+      unawaited(printService?.afterRefund(done.value!.refundId));
     } on RefundException catch (e) {
       error.value = e.message;
     } finally {

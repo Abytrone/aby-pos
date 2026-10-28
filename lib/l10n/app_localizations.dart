@@ -6022,6 +6022,360 @@ abstract class AppLocalizations {
   /// **'No tax charged.'**
   String get reportNoTax;
 
+  /// No description provided for @commonTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get commonTryAgain;
+
+  /// No description provided for @statusPrinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt printer'**
+  String get statusPrinter;
+
+  /// No description provided for @statusPrinterReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready. Nothing waiting.'**
+  String get statusPrinterReady;
+
+  /// No description provided for @printClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get printClear;
+
+  /// No description provided for @printSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to the printer.'**
+  String get printSent;
+
+  /// No description provided for @printNoPrinter.
+  ///
+  /// In en, this message translates to:
+  /// **'No receipt printer on this device. Set one up in Settings, Receipts and printing.'**
+  String get printNoPrinter;
+
+  /// No description provided for @printReprintLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Reprint the last receipt'**
+  String get printReprintLast;
+
+  /// No description provided for @printNothingYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No sale to reprint yet.'**
+  String get printNothingYet;
+
+  /// No description provided for @receiptPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Print receipt'**
+  String get receiptPrint;
+
+  /// No description provided for @receiptPrintAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Print again'**
+  String get receiptPrintAgain;
+
+  /// No description provided for @receiptSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send receipt'**
+  String get receiptSend;
+
+  /// No description provided for @receiptPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer\'s phone'**
+  String get receiptPhone;
+
+  /// No description provided for @receiptPhoneHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave it empty to pick the chat in WhatsApp.'**
+  String get receiptPhoneHelp;
+
+  /// No description provided for @receiptPhoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a Ghana phone number, like 024 123 4567.'**
+  String get receiptPhoneInvalid;
+
+  /// No description provided for @receiptSms.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS'**
+  String get receiptSms;
+
+  /// No description provided for @receiptPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get receiptPdf;
+
+  /// No description provided for @refundPrintSlip.
+  ///
+  /// In en, this message translates to:
+  /// **'Print refund slip'**
+  String get refundPrintSlip;
+
+  /// No description provided for @closePrintZ.
+  ///
+  /// In en, this message translates to:
+  /// **'Print Z report'**
+  String get closePrintZ;
+
+  /// No description provided for @customerPrintBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Print the balance'**
+  String get customerPrintBalance;
+
+  /// No description provided for @settingsGroupPrinting.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts and printing'**
+  String get settingsGroupPrinting;
+
+  /// No description provided for @printerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt printer'**
+  String get printerTitle;
+
+  /// No description provided for @printerNoneHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth, USB or network thermal printers, 58 or 80 mm.'**
+  String get printerNoneHelp;
+
+  /// No description provided for @printerNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get printerNetwork;
+
+  /// No description provided for @printerWindows.
+  ///
+  /// In en, this message translates to:
+  /// **'This computer'**
+  String get printerWindows;
+
+  /// No description provided for @printerBluetooth.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth'**
+  String get printerBluetooth;
+
+  /// No description provided for @printerAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Printer\'s IP address'**
+  String get printerAddress;
+
+  /// No description provided for @printerAddressHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Like 192.168.1.50. Print the printer\'s own test page to find it.'**
+  String get printerAddressHelp;
+
+  /// No description provided for @printerWindowsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'USB printers show here once their Windows driver is installed.'**
+  String get printerWindowsHelp;
+
+  /// No description provided for @printerBluetoothHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair the printer in Android\'s Bluetooth settings first (the PIN is often 0000 or 1234).'**
+  String get printerBluetoothHelp;
+
+  /// No description provided for @printerNoneFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No printers found.'**
+  String get printerNoneFound;
+
+  /// No description provided for @printerLookAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Look again'**
+  String get printerLookAgain;
+
+  /// No description provided for @printerPaper.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper width'**
+  String get printerPaper;
+
+  /// No description provided for @printerTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Print a test page'**
+  String get printerTest;
+
+  /// No description provided for @printerTestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. If nothing came out, check the paper and that the printer is on.'**
+  String get printerTestSent;
+
+  /// No description provided for @printerChooseFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a printer first.'**
+  String get printerChooseFirst;
+
+  /// No description provided for @printerRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove printer'**
+  String get printerRemove;
+
+  /// No description provided for @settingsAutoPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Print every receipt'**
+  String get settingsAutoPrint;
+
+  /// No description provided for @settingsAutoPrintHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Off: print only when asked, or use Send receipt for no paper.'**
+  String get settingsAutoPrintHelp;
+
+  /// No description provided for @settingsCashDrawer.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash drawer'**
+  String get settingsCashDrawer;
+
+  /// No description provided for @settingsCashDrawerHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugged into the printer. Opens for cash sales, cash refunds, pay in or out, and no-sales.'**
+  String get settingsCashDrawerHelp;
+
+  /// No description provided for @settingsTestDrawer.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the drawer to test it'**
+  String get settingsTestDrawer;
+
+  /// No description provided for @receiptDesign.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt design'**
+  String get receiptDesign;
+
+  /// No description provided for @receiptDesignHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo, header, footer, MoMo number and what each receipt shows.'**
+  String get receiptDesignHelp;
+
+  /// No description provided for @receiptShopFromSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop name, address and phone come from the Shop settings.'**
+  String get receiptShopFromSettings;
+
+  /// No description provided for @receiptLogoAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a logo'**
+  String get receiptLogoAdd;
+
+  /// No description provided for @receiptLogoChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the logo'**
+  String get receiptLogoChange;
+
+  /// No description provided for @receiptLogoRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the logo'**
+  String get receiptLogoRemove;
+
+  /// No description provided for @receiptLogoUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'That picture could not be read. Try a PNG or JPEG.'**
+  String get receiptLogoUnreadable;
+
+  /// No description provided for @receiptHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Header'**
+  String get receiptHeader;
+
+  /// No description provided for @receiptHeaderHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Under the shop name, like opening hours or a landmark.'**
+  String get receiptHeaderHelp;
+
+  /// No description provided for @receiptMomo.
+  ///
+  /// In en, this message translates to:
+  /// **'MoMo number to pay'**
+  String get receiptMomo;
+
+  /// No description provided for @receiptFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Footer'**
+  String get receiptFooter;
+
+  /// No description provided for @receiptShowCashier.
+  ///
+  /// In en, this message translates to:
+  /// **'Who served'**
+  String get receiptShowCashier;
+
+  /// No description provided for @receiptShowCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer\'s name'**
+  String get receiptShowCustomer;
+
+  /// No description provided for @receiptShowTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax included'**
+  String get receiptShowTax;
+
+  /// No description provided for @receiptShowQr.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code for refunds and reprints'**
+  String get receiptShowQr;
+
+  /// No description provided for @receiptCreditCopies.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit sales'**
+  String get receiptCreditCopies;
+
+  /// No description provided for @receiptOneCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'One copy'**
+  String get receiptOneCopy;
+
+  /// No description provided for @receiptTwoCopies.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer and shop copy'**
+  String get receiptTwoCopies;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -7359,6 +7713,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{Short once} other{Short {count} times}}'**
   String reportShorts(int count);
+
+  /// No description provided for @statusPrintsWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 waiting to print.} other{{count} waiting to print.}}'**
+  String statusPrintsWaiting(int count);
 }
 
 class _AppLocalizationsDelegate

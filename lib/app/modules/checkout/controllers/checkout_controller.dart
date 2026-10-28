@@ -17,6 +17,7 @@ import '../../../models/staff.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
+import '../../../services/printing/print_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../ui/l10n.dart';
 import '../../till/controllers/cart_controller.dart';
@@ -274,6 +275,7 @@ class CheckoutController extends GetxController {
         changeToWallet: keepChange.value && c != null,
         creditApprover: creditApprover,
       );
+      unawaited(printService?.afterSale(completed.value!.saleId));
       cart.reset();
       taken.clear();
       if (Get.isRegistered<TillController>()) unawaited(Get.find<TillController>().refreshRecent());

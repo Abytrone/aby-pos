@@ -6,6 +6,7 @@ import '../../../core/settings.dart';
 import '../../../data/repositories/customer_repository.dart';
 import '../../../data/repositories/pay_method_repository.dart';
 import '../../../domain/customer_documents.dart';
+import '../../../domain/receipt/receipt_builder.dart';
 import '../../../models/customer.dart';
 import '../../../models/enums.dart';
 import '../../../models/sale.dart';
@@ -15,6 +16,7 @@ import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../ui/files.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/receipt_actions.dart';
 
 /// One customer: balances, credit aging, history, repayments, wallet,
 /// write-offs, statements and reminders. Argument: the customer ID.
@@ -145,6 +147,17 @@ class CustomerController extends GetxController {
     );
     final safe = c.name.replaceAll(RegExp(r'[^A-Za-z0-9]+'), '-');
     await shareOrSaveBytes('Statement-$safe.pdf', pdf, text: appL10n().customerStatementText(c.name));
+  }
+
+  /// The balance and the last ten credit entries on the receipt printer.
+  void printStatement() {
+    final recent = entries.where((e) => e.account == CustomerAccount.credit).take(10).toList().reversed.toList();
+    printOnPaper(ReceiptBuilder.statement(
+      shopName: _settings.get(AppSettings.shopName),
+      customer: customer.value!,
+      entries: recent,
+      at: DateTime.now(),
+    ));
   }
 
   String get reminderText => CustomerDocuments.reminder(

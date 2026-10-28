@@ -5,16 +5,21 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/denominations.dart';
+import '../../../core/settings.dart';
+import '../../../domain/receipt/receipt_builder.dart';
 import '../../../models/day_close.dart';
 import '../../../models/discount.dart';
 import '../../../models/expense.dart';
+import '../../../services/auth_service.dart';
 import '../../../services/money.dart';
+import '../../../services/settings_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/cash_count_dialog.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/option_chip.dart';
 import '../../../ui/photo_picker.dart';
+import '../../../ui/receipt_actions.dart';
 import '../../close_day/widgets/period_summary.dart';
 
 /// Opening float: typed, or counted note by note. Null when cancelled.
@@ -108,7 +113,18 @@ Future<void> showXReport(OpenPeriod period) => Get.dialog<void>(Builder(builder:
           child: SingleChildScrollView(child: PeriodSummary(period: period, openingFloat: float)),
         ),
         actions: [
-          // TODO(print): print the X report.
+          OutlinedButton.icon(
+            onPressed: () => printOnPaper(ReceiptBuilder.period(
+              period,
+              title: 'X report',
+              shopName: Get.find<SettingsService>().get(AppSettings.shopName),
+              at: DateTime.now(),
+              byName: Get.find<AuthService>().user.name,
+              openingFloat: float,
+            )),
+            icon: const Icon(Icons.print_outlined),
+            label: Text(l.receiptPrint),
+          ),
           FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
         ],
       );

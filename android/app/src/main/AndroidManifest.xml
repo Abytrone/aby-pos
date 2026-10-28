@@ -1,4 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Network receipt printers (port 9100). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Bluetooth receipt printers (MainActivity.kt). -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <application
         android:label="Aby"
         android:name="${applicationName}"

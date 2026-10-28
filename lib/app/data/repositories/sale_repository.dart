@@ -386,7 +386,7 @@ class SaleRepository {
 
       await _auditAdjustments(pricing, orderDiscount, saleId: saleId, number: number, cashier: cashier);
 
-      // TODO(print): hand the saved sale to the receipt printer here.
+      // The checkout hands the saved sale to PrintService.afterSale.
       final main = settlement.payments.where((p) => p.input.method != PaymentMethod.exchange).firstOrNull ??
           settlement.payments.first;
       return CompletedSale(

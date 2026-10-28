@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../services/printing/print_service.dart';
 import '../../../services/status_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
@@ -57,6 +58,7 @@ String _title(AppLocalizations l, StatusItem item) => switch (item) {
       StatusItem.offsiteBackup => l.statusOffsiteBackup,
       StatusItem.activityLog => l.statusActivityLog,
       StatusItem.sync => l.statusSync,
+      StatusItem.printer => l.statusPrinter,
     };
 
 String _detail(AppLocalizations l, StatusCheck check) => switch (check.item) {
@@ -65,6 +67,9 @@ String _detail(AppLocalizations l, StatusCheck check) => switch (check.item) {
       StatusItem.activityLog =>
         check.level == StatusLevel.ok ? l.statusChainIntact : l.statusChainBroken,
       StatusItem.sync => (check.count ?? 0) == 0 ? l.statusNothingWaiting : l.statusSalesWaiting(check.count!),
+      StatusItem.printer => check.detail == null
+          ? l.statusPrinterReady
+          : '${l.statusPrintsWaiting(check.count ?? 0)} ${check.detail}',
     };
 
 Widget? _action(AppLocalizations l, StatusCheck check, BackupController backups, ShellController shell) {
@@ -80,5 +85,9 @@ Widget? _action(AppLocalizations l, StatusCheck check, BackupController backups,
         child: Text(l.statusOpenActivity),
       ),
     StatusItem.sync => null,
+    StatusItem.printer => Row(mainAxisSize: MainAxisSize.min, children: [
+        TextButton(onPressed: Get.find<PrintService>().clearQueue, child: Text(l.printClear)),
+        TextButton(onPressed: Get.find<PrintService>().retryNow, child: Text(l.commonTryAgain)),
+      ]),
   };
 }

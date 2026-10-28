@@ -78,6 +78,37 @@ abstract final class AppSettings {
   static const offsiteBackupDays =
       Setting<int>('backup.offsiteReminderDays', SettingScope.shop, 7);
 
+  // Receipts (Settings → Receipt design)
+  static const receiptHeader = Setting<String>('receipt.header', SettingScope.shop, '');
+  static const receiptFooter = Setting<String>('receipt.footer', SettingScope.shop, 'Thank you. Come again!');
+  static const receiptMomo = Setting<String>('receipt.momo', SettingScope.shop, '');
+
+  /// The logo as a base64 PNG, already sized for 80 mm paper ('' = none).
+  static const receiptLogo = Setting<String>('receipt.logo', SettingScope.shop, '');
+  static const receiptShowCashier = Setting<bool>('receipt.showCashier', SettingScope.shop, true);
+  static const receiptShowCustomer = Setting<bool>('receipt.showCustomer', SettingScope.shop, true);
+  static const receiptShowTax = Setting<bool>('receipt.showTax', SettingScope.shop, true);
+  static const receiptShowQr = Setting<bool>('receipt.showQr', SettingScope.shop, true);
+
+  /// Copies per kind of payment, as JSON: credit sales print a customer copy
+  /// and a shop copy to sign.
+  static const receiptCopies = Setting<String>('receipt.copies', SettingScope.shop, '{"credit":2}');
+
+  // This device's hardware (Settings → This device)
+  /// The receipt printer ([PrinterTarget] as JSON; '' = none).
+  static const receiptPrinter = Setting<String>('device.printer', SettingScope.device, '');
+
+  /// 58 or 80.
+  static const paperWidth = Setting<int>('device.paperMm', SettingScope.device, 80);
+
+  /// Print each sale's receipt without asking (off: the button only, or no
+  /// paper at all).
+  static const autoPrint = Setting<bool>('device.autoPrint', SettingScope.device, true);
+
+  /// A cash drawer on the printer's drawer port: opens after cash sales,
+  /// cash refunds, pay-ins and outs, and no-sales.
+  static const cashDrawer = Setting<bool>('device.cashDrawer', SettingScope.device, false);
+
   // This device
   static const deviceName = Setting<String>('device.name', SettingScope.device, '');
 
@@ -110,6 +141,19 @@ abstract final class AppSettings {
     autoBackupDaily,
     backupsToKeep,
     offsiteBackupDays,
+    receiptHeader,
+    receiptFooter,
+    receiptMomo,
+    receiptLogo,
+    receiptShowCashier,
+    receiptShowCustomer,
+    receiptShowTax,
+    receiptShowQr,
+    receiptCopies,
+    receiptPrinter,
+    paperWidth,
+    autoPrint,
+    cashDrawer,
     deviceName,
     themeMode,
     largeText,

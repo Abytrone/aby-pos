@@ -695,6 +695,66 @@ void main() {
     await _dispose(tester);
   });
 
+  testWidgets('tablet: receipt buttons, the receipt designer and printer setup', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await _settle(tester);
+    await tester.tap(find.text('Kofi'));
+    await _settle(tester);
+    await _typePin(tester, '1234');
+
+    await tester.tap(find.text('Waffle'));
+    await _settle(tester);
+    await tester.tap(find.text('Pay GH₵ 12.00'));
+    await _settle(tester);
+    await tester.tap(find.text('Exact'));
+    await _settle(tester);
+    await tester.tap(find.text('Complete sale'));
+    await _settle(tester);
+    expect(find.text('Send receipt'), findsOneWidget);
+    await tester.tap(find.text('Print receipt'));
+    await _settle(tester);
+    expect(find.textContaining('No receipt printer on this device'), findsOneWidget);
+    // Let the message go: it covers the buttons.
+    await tester.pump(const Duration(seconds: 6));
+    await _settle(tester);
+    await tester.tap(find.text('New sale'));
+    await _settle(tester);
+
+    await tester.tap(find.text('Settings'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Search settings'), 'receipt');
+    await _settle(tester);
+    await tester.tap(find.text('Receipt design'));
+    await _settle(tester);
+    expect(find.textContaining('Receipt #00142'), findsOneWidget, reason: 'the live preview');
+    await tester.enterText(find.widgetWithText(TextField, 'Footer'), 'Akwaaba to Scoops!');
+    await _settle(tester);
+    expect(find.textContaining('Akwaaba to Scoops!'), findsNWidgets(2), reason: 'the field and the preview');
+    await tester.tap(find.text('Save'));
+    await _settle(tester);
+    expect(find.text('Receipt design'), findsOneWidget);
+
+    await tester.tap(find.text('Receipt printer'));
+    await _settle(tester);
+    expect(find.text('Print a test page'), findsOneWidget);
+    await tester.tap(find.text('Network'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, "Printer's IP address"), '192.168.1.50');
+    await tester.tap(find.text('58 mm'));
+    await tester.tap(find.text('Save'));
+    await _settle(tester);
+    expect(find.text('192.168.1.50'), findsOneWidget);
+    expect(find.text('Print every receipt'), findsOneWidget);
+    expect(find.byTooltip('Reprint the last receipt'), findsOneWidget);
+
+    await _dispose(tester);
+  });
+
   testWidgets('phone portrait, first run: name the shop, create the owner, start selling', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;

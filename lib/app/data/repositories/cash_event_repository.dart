@@ -60,7 +60,7 @@ class CashEventRepository {
     if (clean.isEmpty) throw ArgumentError('A no-sale needs a reason.');
     await _db.transaction(() async {
       final id = await record(kind: CashEventKind.noSale, amount: 0, reason: clean, actor: actor, approver: approver);
-      // TODO(print): kick the cash drawer open here.
+      // The screen opens the drawer (PrintService.openDrawer) once saved.
       await _audit.record(
         action: AuditAction.noSale,
         actor: actor,
@@ -95,7 +95,7 @@ class CashEventRepository {
         approver: approver,
       );
       if (photo != null) await savePhoto(id, photo);
-      // TODO(print): kick the cash drawer open here.
+      // The screen opens the drawer (PrintService.openDrawer) once saved.
       await _audit.record(
         action: payIn ? AuditAction.cashPaidIn : AuditAction.cashPaidOut,
         actor: actor,

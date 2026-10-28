@@ -25,6 +25,7 @@ import '../../../services/auth_service.dart';
 import '../../../services/device_service.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
+import '../../../services/printing/print_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../ui/l10n.dart';
 
@@ -126,6 +127,7 @@ class TodayController extends GetxController {
         actor: auth.actor,
         approver: auth.approver,
       );
+      printService?.openDrawer();
       return l.payOutDone(formatMoney(amount));
     }
     await _cash.payInOrOut(
@@ -137,6 +139,7 @@ class TodayController extends GetxController {
       actor: auth.actor,
       approver: auth.approver,
     );
+    printService?.openDrawer();
     return payIn ? l.payInDone(formatMoney(amount)) : l.payOutDone(formatMoney(amount));
   }
 
@@ -147,6 +150,7 @@ class TodayController extends GetxController {
     if (auth == null) return null;
     try {
       await _safe.drop(amount, actor: auth.actor, approver: auth.approver, note: note);
+      printService?.openDrawer();
       return l.safeDropDone(formatMoney(amount));
     } on SafeException catch (e) {
       return e.message;

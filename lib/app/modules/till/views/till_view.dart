@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../core/settings.dart';
 import '../../../models/catalog.dart';
 import '../../../models/enums.dart';
+import '../../../routes/app_routes.dart';
 import '../../../services/money.dart';
 import '../../../services/settings_service.dart';
 import '../../../theme/aby_colors.dart';
@@ -142,6 +143,8 @@ Future<void> submitCode(BuildContext context, TillController controller) async {
       } else {
         showMessage(l.tillCodeNotFound(code));
       }
+    case CodeReceipt(:final saleId):
+      await Get.toNamed<void>(Routes.refund, arguments: saleId);
     case CodeNothing():
       break;
   }

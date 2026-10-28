@@ -3,13 +3,17 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../../core/denominations.dart';
+import '../../../core/settings.dart';
+import '../../../domain/receipt/receipt_builder.dart';
 import '../../../models/day_close.dart';
 import '../../../services/money.dart';
+import '../../../services/settings_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/cash_count_dialog.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/receipt_actions.dart';
 import '../controllers/close_day_controller.dart';
 import '../widgets/difference_box.dart';
 import '../widgets/period_summary.dart';
@@ -189,6 +193,10 @@ class _CountForm extends GetView<CloseDayController> {
   }
 }
 
+/// The Z report on the receipt printer.
+void printZ(DayClose close) =>
+    printOnPaper(ReceiptBuilder.dayClose(close, shopName: Get.find<SettingsService>().get(AppSettings.shopName)));
+
 class _Closed extends StatelessWidget {
   const _Closed({required this.close, required this.onDone});
 
@@ -221,7 +229,12 @@ class _Closed extends StatelessWidget {
         const SizedBox(height: AbySpace.s4),
         Text(l.checkoutSavedHere, textAlign: TextAlign.center, style: AbyText.caption.copyWith(color: c.inkMuted)),
         const SizedBox(height: AbySpace.s4),
-        // TODO(print): print the Z report.
+        OutlinedButton.icon(
+          onPressed: () => printZ(close),
+          icon: const Icon(Icons.print_outlined),
+          label: Text(l.closePrintZ),
+        ),
+        const SizedBox(height: AbySpace.s2),
         FilledButton(onPressed: onDone, child: Text(l.commonDone)),
       ],
     );
@@ -257,6 +270,7 @@ class _HistoryRow extends StatelessWidget {
           Text(formatMoney(close.salesTotal), style: AbyText.price.copyWith(color: c.ink)),
           Text(diffText, style: AbyText.caption.copyWith(color: d == 0 ? c.success : (d > 0 ? c.warning : c.danger))),
         ]),
+        IconButton(tooltip: l.closePrintZ, onPressed: () => printZ(close), icon: const Icon(Icons.print_outlined)),
       ]),
     );
   }

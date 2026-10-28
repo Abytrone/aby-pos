@@ -10,6 +10,7 @@ import '../../../ui/dialogs.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/option_chip.dart';
+import '../../../ui/receipt_actions.dart';
 import '../../../ui/section_page.dart';
 import '../controllers/today_controller.dart';
 import '../../../routes/app_routes.dart';
@@ -108,6 +109,8 @@ class TodayView extends GetView<TodayController> {
                     locked: locked[s.id]!,
                     onVoid: !s.isVoided && !locked[s.id]! && !s.hasRefunds ? () => _confirmVoid(context, s) : null,
                     onRefund: !s.isVoided && !s.fullyRefunded ? () => controller.openRefund(s.id) : null,
+                    onPrint: () => printSaleReceipt(s.id),
+                    onSend: s.isVoided ? null : () => sendSaleReceipt(s.id),
                   );
                 },
               ),
@@ -135,6 +138,11 @@ class TodayView extends GetView<TodayController> {
                       r.methods.join(', '),
                     ].join('  ·  '),
                     value: '−${formatMoney(r.total)}',
+                    trailing: IconButton(
+                      tooltip: l.refundPrintSlip,
+                      onPressed: () => printRefundSlip(r.id),
+                      icon: const Icon(Icons.print_outlined),
+                    ),
                   );
                 },
               ),

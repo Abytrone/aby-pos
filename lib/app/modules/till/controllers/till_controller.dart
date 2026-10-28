@@ -12,6 +12,7 @@ import '../../../data/repositories/catalog_repository.dart';
 import '../../../data/repositories/discount_repository.dart';
 import '../../../data/repositories/parked_order_repository.dart';
 import '../../../data/repositories/sale_repository.dart';
+import '../../../domain/receipt/receipt_code.dart';
 import '../../../data/repositories/stock_repository.dart';
 import '../../../domain/catalogue_rules.dart';
 import '../../../models/cart_line.dart';
@@ -23,6 +24,7 @@ import '../../../services/auth_service.dart';
 import '../../../services/device_service.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
+import '../../../services/printing/print_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../ui/l10n.dart';
 import '../../shell/controllers/shell_controller.dart';
@@ -82,6 +84,12 @@ class CodeNotFound extends CodeResult {
 
   /// Looks like a barcode and the person may add products.
   final bool canCreate;
+}
+
+/// A receipt's QR code: the screen opens the sale for a refund or reprint.
+class CodeReceipt extends CodeResult {
+  const CodeReceipt(this.saleId);
+  final String saleId;
 }
 
 class CodeNothing extends CodeResult {
@@ -376,6 +384,11 @@ class TillController extends GetxController {
   Future<CodeResult> submitCode() async {
     final text = query.value.trim();
     if (text.isEmpty) return const CodeNothing();
+    final receipt = ReceiptCode.parse(text);
+    if (receipt != null) {
+      search.clear();
+      return CodeReceipt(receipt);
+    }
     final byId = {for (final p in products) p.id: p};
 
     Future<(Product, Variant)?> lookup(String code) async {
@@ -643,6 +656,7 @@ class TillController extends GetxController {
     final auth = await _permissions.authorize(Permission.noSale, reason: appL10n().noSaleApprovalReason);
     if (auth == null) return false;
     await Get.find<CashEventRepository>().noSale(reason: reason, actor: auth.actor, approver: auth.approver);
+    printService?.openDrawer();
     message.value = appL10n().noSaleDone;
     return true;
   }

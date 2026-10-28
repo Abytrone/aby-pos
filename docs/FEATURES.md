@@ -1167,7 +1167,7 @@ Decisions made on the way:
 - Short (last-4) references are only checked for reuse over 48 hours; full references always.
 - The outgoing reference on a MoMo refund is optional (for the record).
 - Change to the customer's wallet, deposits and store credit wait for customers (phase 4).
-- Cash drawer kick and refund slips wait for printers (phase 5): see TODO(print).
+- Cash drawer kick and refund slips wait for printers (phase 5): done in 5b.
 
 ### Phase 4: Customers and money
 
@@ -1287,8 +1287,48 @@ Decisions made on the way:
 - The side rail is a little shorter per item so an owner's eleven places fit an 800-pixel
   tablet.
 
-**5b next:** printers and receipts (`PRN-01` to `PRN-05`), the cash drawer, camera scanning,
-scales and per-device hardware (`HW-01` to `HW-05`), and notifications outside the app.
+**Status (28 October 2026): 5b built** (printing, receipts, the cash drawer). Schema unchanged
+(10). Built:
+
+- `PRN-01`: ESC/POS receipt printers, 58 and 80 mm: network (port 9100) everywhere, installed
+  printers on Windows (USB printers with their driver, sent as RAW jobs through the spooler), and
+  paired Bluetooth printers on Android (serial port profile, through Aby's own small Android
+  code). Settings → Receipts and printing → Receipt printer, with "Print a test page". Jobs queue
+  and retry every 15 seconds while the printer is off or out of paper; the sale is never held up.
+  The status centre shows what is waiting, with Try again and Clear. "Reprint the last receipt"
+  is a printer button in the header, on every screen.
+- `PRN-02`: Settings → Receipt design: logo (printed as a dithered image), header, MoMo number,
+  footer, who served, the customer, tax included, the QR code, and one or two copies for credit
+  sales (the shop copy has a line to sign). A live preview shows the receipt as it will print.
+- `PRN-03`: "Send receipt" (after a sale and on Today): WhatsApp or SMS with the receipt as text,
+  or a PDF through the share sheet. "Print every receipt" can be turned off per device, for
+  shops with no paper.
+- `PRN-04`: each receipt has a QR code with the sale ID and a check code. Scanned at the till (or
+  typed into Refund's receipt box) it opens the sale for a refund or reprint.
+- `PRN-05`: the X report, the Z report (also reprinted from past closes), refund slips and a
+  customer's balance on the receipt printer.
+- `HW-02`: the cash drawer on the printer's port opens for cash sales, cash refunds, pay in or
+  out, safe drops and no-sales; "Open the drawer to test it" in Settings.
+- `HW-05` (printing part): the printer, paper width, automatic printing and the drawer are this
+  device's own settings.
+
+Decisions made on the way:
+
+- Printed text is plain ASCII in English (like the PDF statements): cheap printers have no cedi
+  sign or Ghanaian letters, so GH₵ prints as GHS and ɛ / ɔ as e / o.
+- Logos and QR codes print as raster images (GS v 0), which every ESC/POS printer understands,
+  rather than the printer's own QR command, which many cheap ones lack.
+- Android USB (OTG) printers wait: most Android POS devices have Bluetooth or a built-in printer
+  that shows up as one. Kitchen tickets (`SEL-11`) and labels (`CAT-08`) get their own printers
+  when those features come (phase 6).
+- The print queue lives in memory: a job waiting when the app closes is not printed later
+  (Reprint is one tap).
+- Tested here: the bytes, layouts, queue, retries and a real network socket in unit tests; the
+  Windows spooler lists printers on a real PC. Still to try on the shop's own printers: see
+  open question 4.
+
+**5c next:** camera scanning (`HW-01`), scales (`HW-04`) and phone / Windows notifications
+(`NTF-01`, see TODO(notify)).
 
 ### Phase 6: Beyond standard
 

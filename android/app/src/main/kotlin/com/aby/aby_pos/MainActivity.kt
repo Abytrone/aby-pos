@@ -1,5 +1,82 @@
 package com.aby.aby_pos
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.bluetooth.BluetoothManager
+import android.content.pm.PackageManager
+import android.os.Build
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodChannel
+import java.util.UUID
+import java.util.concurrent.Executors
 
-class MainActivity : FlutterActivity()
+/// Bluetooth printers for Aby (lib/app/services/printing/bluetooth_link.dart):
+/// lists the paired devices and writes bytes over the serial port profile,
+/// which most cheap thermal printers (and built-in printers that show up as
+/// Bluetooth devices) speak.
+class MainActivity : FlutterActivity() {
+    private val io = Executors.newSingleThreadExecutor()
+    private val spp: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "aby/bluetooth").setMethodCallHandler { call, result ->
+            if (!allowed()) {
+                result.error("permission", "Allow Aby to use nearby devices (Bluetooth), then try again.", null)
+                return@setMethodCallHandler
+            }
+            val adapter = getSystemService(BluetoothManager::class.java)?.adapter
+            if (adapter == null || !adapter.isEnabled) {
+                result.error("off", "Bluetooth is off. Turn it on, then try again.", null)
+                return@setMethodCallHandler
+            }
+            when (call.method) {
+                "bonded" -> result.success(bonded(adapter))
+                "write" -> {
+                    val address = call.argument<String>("address")
+                    val bytes = call.argument<ByteArray>("bytes")
+                    if (address == null || bytes == null) {
+                        result.error("args", "No printer or nothing to print.", null)
+                    } else {
+                        write(adapter, address, bytes, result)
+                    }
+                }
+                else -> result.notImplemented()
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun bonded(adapter: android.bluetooth.BluetoothAdapter): List<Map<String, String>> =
+        adapter.bondedDevices.map { mapOf("name" to (it.name ?: it.address), "address" to it.address) }
+
+    @SuppressLint("MissingPermission")
+    private fun write(adapter: android.bluetooth.BluetoothAdapter, address: String, bytes: ByteArray, result: MethodChannel.Result) {
+        io.execute {
+            try {
+                adapter.cancelDiscovery()
+                adapter.getRemoteDevice(address).createRfcommSocketToServiceRecord(spp).use { socket ->
+                    socket.connect()
+                    socket.outputStream.write(bytes)
+                    socket.outputStream.flush()
+                    // Some printers drop what is still in their buffer when
+                    // the link closes straight away.
+                    Thread.sleep(400L + bytes.size / 20)
+                }
+                runOnUiThread { result.success(null) }
+            } catch (e: Exception) {
+                runOnUiThread { result.error("io", "Cannot reach the Bluetooth printer: ${e.message}", null) }
+            }
+        }
+    }
+
+    /// Android 12 and later ask the person once; older versions grant it at
+    /// install.
+    private fun allowed(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return true
+        if (checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) return true
+        requestPermissions(arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1)
+        return false
+    }
+}

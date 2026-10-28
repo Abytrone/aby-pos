@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../services/printing/print_service.dart';
 import '../../../services/status_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_mark.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/dialogs.dart';
 import '../../../ui/layout.dart';
 import '../../../ui/permission_labels.dart';
 import '../../../ui/staff_avatar.dart';
@@ -43,6 +45,21 @@ class ShellHeader extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     )),
           ),
+          // "Reprint last" is one tap from anywhere.
+          Obx(() {
+            final print = Get.find<PrintService>();
+            if (!print.hasPrinter) return const SizedBox.shrink();
+            final l = context.l10n;
+            return IconButton(
+              tooltip: l.printReprintLast,
+              onPressed: () async => showMessage(await print.reprintLast() ? l.printSent : l.printNothingYet),
+              icon: Badge(
+                isLabelVisible: print.queue.isNotEmpty,
+                label: Text('${print.queue.length}'),
+                child: const Icon(Icons.print_outlined),
+              ),
+            );
+          }),
           Obx(() => _StatusChip(level: controller.status.overall, compact: narrow)),
           const SizedBox(width: AbySpace.s2),
           Obx(() {

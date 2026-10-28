@@ -4,7 +4,9 @@ import 'package:get/get.dart';
 
 import '../../../core/settings.dart';
 import '../../../models/enums.dart';
+import '../../../models/receipt.dart';
 import '../../../services/money.dart';
+import '../../../services/printing/print_service.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/format.dart';
@@ -14,6 +16,8 @@ import '../controllers/backup_controller.dart';
 import '../controllers/settings_controller.dart';
 import '../widgets/local_backups_dialog.dart';
 import '../widgets/pay_methods_dialog.dart';
+import '../widgets/printer_setup.dart';
+import '../widgets/receipt_designer.dart';
 import '../widgets/selling_lists.dart';
 
 /// One searchable row. [keywords] widen what search finds.
@@ -109,6 +113,8 @@ class SettingsView extends GetView<SettingsController> {
           _ => l.settingsOff,
         };
     final security = l.settingsGroupSecurity;
+    final printing = l.settingsGroupPrinting;
+    final printer = PrinterTarget.decode(c.value(AppSettings.receiptPrinter));
     final device = l.settingsGroupDevice;
     final data = l.settingsGroupData;
     final about = l.settingsGroupAbout;
@@ -270,6 +276,37 @@ class SettingsView extends GetView<SettingsController> {
           if (v != null) await c.save(AppSettings.varianceLimit, v);
         },
       ), keywords: ['short', 'over', 'close day', 'drawer']),
+      _Entry(printing, InfoTile(
+        title: l.printerTitle,
+        subtitle: printer == null ? l.printerNoneHelp : '${printerKindLabel(l, printer.kind)}  ·  ${c.value(AppSettings.paperWidth)} mm',
+        value: printer?.name ?? l.settingsNotSet,
+        leading: const Icon(Icons.print_outlined),
+        onTap: () => showPrinterSetup(c),
+      ), keywords: ['printer', 'bluetooth', 'usb', 'wifi', 'network', 'thermal', 'paper', '58', '80']),
+      if (printer != null)
+        _Entry(printing, InfoTile(
+          title: l.settingsAutoPrint,
+          subtitle: l.settingsAutoPrintHelp,
+          trailing: Switch(value: c.value(AppSettings.autoPrint), onChanged: (v) => c.save(AppSettings.autoPrint, v)),
+        ), keywords: ['printer', 'receipt', 'paper']),
+      if (printer != null)
+        _Entry(printing, InfoTile(
+          title: l.settingsCashDrawer,
+          subtitle: l.settingsCashDrawerHelp,
+          trailing: Switch(value: c.value(AppSettings.cashDrawer), onChanged: (v) => c.save(AppSettings.cashDrawer, v)),
+        ), keywords: ['drawer', 'cash', 'kick']),
+      if (printer != null && c.value(AppSettings.cashDrawer))
+        _Entry(printing, InfoTile(
+          title: l.settingsTestDrawer,
+          leading: const Icon(Icons.point_of_sale_outlined),
+          onTap: Get.find<PrintService>().openDrawer,
+        ), keywords: ['drawer', 'cash']),
+      _Entry(printing, InfoTile(
+        title: l.receiptDesign,
+        subtitle: l.receiptDesignHelp,
+        leading: const Icon(Icons.receipt_long_outlined),
+        onTap: () => showReceiptDesigner(c),
+      ), keywords: ['receipt', 'logo', 'footer', 'header', 'qr', 'momo', 'copies']),
       _Entry(security, InfoTile(
         title: l.settingsAutoLock,
         subtitle: l.settingsAutoLockHelp,
