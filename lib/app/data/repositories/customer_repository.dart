@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 
 import '../../core/validators.dart';
+import '../../domain/loyalty.dart';
 import '../../models/audit.dart';
 import '../../models/customer.dart';
 import '../../models/enums.dart';
@@ -34,18 +35,21 @@ class CustomerRepository {
   // ---------------------------------------------------------------------------
   // Customers
 
-  Future<Map<String, (int, int)>> _balances([String? customerId]) async {
+  Future<Map<String, (int, int, int)>> _balances([String? customerId]) async {
     final rows = await _db.customSelect(
       "SELECT customer_id AS id, COALESCE(SUM(CASE WHEN account = 'credit' THEN amount END), 0) AS owed, "
-      "COALESCE(SUM(CASE WHEN account = 'wallet' THEN amount END), 0) AS wallet FROM customer_ledger "
+      "COALESCE(SUM(CASE WHEN account = 'wallet' THEN amount END), 0) AS wallet, "
+      "COALESCE(SUM(CASE WHEN account = 'loyalty' THEN amount END), 0) AS loyalty FROM customer_ledger "
       'WHERE deleted_at IS NULL ${customerId == null ? '' : 'AND customer_id = ?'} GROUP BY customer_id',
       variables: [if (customerId != null) Variable.withString(customerId)],
       readsFrom: {_db.customerLedger},
     ).get();
-    return {for (final r in rows) r.read<String>('id'): (r.read<int>('owed'), r.read<int>('wallet'))};
+    return {
+      for (final r in rows) r.read<String>('id'): (r.read<int>('owed'), r.read<int>('wallet'), r.read<int>('loyalty')),
+    };
   }
 
-  Customer _toModel(CustomerRow r, (int, int)? balance) => Customer(
+  Customer _toModel(CustomerRow r, (int, int, int)? balance) => Customer(
         id: r.id,
         name: r.name,
         phone: r.phone,
@@ -59,6 +63,7 @@ class CustomerRepository {
         active: r.active,
         owed: balance?.$1 ?? 0,
         wallet: balance?.$2 ?? 0,
+        loyalty: balance?.$3 ?? 0,
       );
 
   /// By name. [query]: 4 or more digits match phone numbers, anything else
@@ -86,6 +91,58 @@ class CustomerRepository {
   Future<Customer?> find(String id) async {
     final row = await (_db.select(_db.customers)..where((c) => c.id.equals(id))).getSingleOrNull();
     return row == null ? null : _toModel(row, (await _balances(id))[id]);
+  }
+
+  /// Stamps or points held, and what was spent in the last 90 days. Points
+  /// not used for [LoyaltyConfig.expireDays] without a purchase expire first.
+  Future<LoyaltyStatus> loyaltyStatus(String customerId, LoyaltyConfig c, {DateTime? now, String byName = 'Aby'}) async {
+    final at = now ?? DateTime.now();
+    var balance = (await _balances(customerId))[customerId]?.$3 ?? 0;
+    if (c.style == LoyaltyStyle.points && c.expireDays > 0 && balance > 0) {
+      final last = await (_db.select(_db.customerLedger)
+            ..where((x) =>
+                x.customerId.equals(customerId) & x.account.equalsValue(CustomerAccount.loyalty) & x.deletedAt.isNull())
+            ..orderBy([(x) => OrderingTerm.desc(x.createdAt)])
+            ..limit(1))
+          .getSingleOrNull();
+      if (last != null && at.difference(last.createdAt).inDays >= c.expireDays) {
+        await addEntry(
+          customerId: customerId,
+          account: CustomerAccount.loyalty,
+          kind: CustomerEntryKind.loyaltyExpire,
+          amount: -balance,
+          byName: byName,
+          note: 'No purchase for ${c.expireDays} days',
+        );
+        balance = 0;
+      }
+    }
+    final spend = await _db.customSelect(
+      "SELECT COALESCE(SUM(total), 0) AS v FROM sales WHERE customer_id = ? AND status = 'completed' "
+      'AND deleted_at IS NULL AND created_at >= ?',
+      variables: [Variable.withString(customerId), Variable.withDateTime(at.subtract(const Duration(days: 90)))],
+      readsFrom: {_db.sales},
+    ).getSingle();
+    return LoyaltyStatus(balance: balance, spend90: spend.read<int>('v'));
+  }
+
+  /// Undoes every account entry of a voided sale: credit owed, wallet spent
+  /// or kept, stamps and points.
+  Future<void> reverseSale(String saleId, {required String byName, required String saleNumber}) async {
+    final entries = await (_db.select(_db.customerLedger)
+          ..where((x) => x.saleId.equals(saleId) & x.deletedAt.isNull() & x.kind.equalsValue(CustomerEntryKind.voidReversal).not()))
+        .get();
+    for (final e in entries) {
+      await addEntry(
+        customerId: e.customerId,
+        account: e.account,
+        kind: CustomerEntryKind.voidReversal,
+        amount: -e.amount,
+        byName: byName,
+        saleId: saleId,
+        note: 'Void $saleNumber',
+      );
+    }
   }
 
   Future<Customer?> byPhone(String phone) async {
@@ -276,7 +333,7 @@ class CustomerRepository {
     for (final r in rows) {
       if (r.appliesToSaleId != null) {
         aimed[r.appliesToSaleId!] = (aimed[r.appliesToSaleId!] ?? 0) - r.amount;
-      } else if (r.saleId != null && r.kind == CustomerEntryKind.creditRefund) {
+      } else if (r.saleId != null && (r.kind == CustomerEntryKind.creditRefund || r.kind == CustomerEntryKind.voidReversal)) {
         aimed[r.saleId!] = (aimed[r.saleId!] ?? 0) - r.amount;
       } else {
         free -= r.amount;
@@ -487,15 +544,22 @@ class CustomerRepository {
     });
   }
 
-  /// Cash from customers on this device since [from], for the drawer:
-  /// repayments, top-ups and change kept, by kind of payment.
+  /// Money from customers on this device since [from] that was not a sale,
+  /// for the drawer: repayments, top-ups, change kept and gift vouchers
+  /// sold, by kind of payment.
   Future<Map<PaymentMethod, int>> moneyInSince(DateTime? from) async {
+    final since = from == null ? '' : 'AND created_at > ?';
+    final vars = [Variable.withString(_device.deviceId), if (from != null) Variable.withDateTime(from)];
+    // Gift vouchers sold count too: money in that is not a sale.
     final rows = await _db.customSelect(
-      'SELECT method, COALESCE(SUM(ABS(amount)), 0) AS total FROM customer_ledger '
-      "WHERE device_id = ? AND deleted_at IS NULL AND method IS NOT NULL AND kind IN ('repayment', 'topUp', 'changeKept') "
-      '${from == null ? '' : 'AND created_at > ?'} GROUP BY method',
-      variables: [Variable.withString(_device.deviceId), if (from != null) Variable.withDateTime(from)],
-      readsFrom: {_db.customerLedger},
+      'SELECT method, COALESCE(SUM(v), 0) AS total FROM ('
+      'SELECT method, ABS(amount) AS v FROM customer_ledger '
+      "WHERE device_id = ? AND deleted_at IS NULL AND method IS NOT NULL AND kind IN ('repayment', 'topUp', 'changeKept') $since "
+      'UNION ALL SELECT method, amount AS v FROM voucher_entries '
+      "WHERE device_id = ? AND deleted_at IS NULL AND method IS NOT NULL AND kind = 'issued' $since"
+      ') GROUP BY method',
+      variables: [...vars, ...vars],
+      readsFrom: {_db.customerLedger, _db.voucherEntries},
     ).get();
     return {for (final r in rows) PaymentMethod.values.byName(r.read<String>('method')): r.read<int>('total')};
   }

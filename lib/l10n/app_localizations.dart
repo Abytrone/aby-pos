@@ -6922,6 +6922,246 @@ abstract class AppLocalizations {
   /// **'Pick at least one day.'**
   String get promoDaysRequired;
 
+  /// No description provided for @auditVoucherIssued.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift voucher sold'**
+  String get auditVoucherIssued;
+
+  /// No description provided for @payKindVoucher.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift voucher'**
+  String get payKindVoucher;
+
+  /// No description provided for @loyaltyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Loyalty'**
+  String get loyaltyTitle;
+
+  /// No description provided for @loyaltySettingsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Stamp card, points or Gold customers. Customers are known by their phone number.'**
+  String get loyaltySettingsHelp;
+
+  /// No description provided for @loyaltyHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick one style for the shop. Attach the customer at the till: rewards apply by themselves.'**
+  String get loyaltyHelp;
+
+  /// No description provided for @loyaltyOffHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'No loyalty rewards.'**
+  String get loyaltyOffHelp;
+
+  /// No description provided for @loyaltyStampCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Stamps'**
+  String get loyaltyStampCard;
+
+  /// No description provided for @loyaltyPointsStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Points'**
+  String get loyaltyPointsStyle;
+
+  /// No description provided for @loyaltyTiers.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold'**
+  String get loyaltyTiers;
+
+  /// No description provided for @loyaltyStampsNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Stamps for a free item'**
+  String get loyaltyStampsNeeded;
+
+  /// No description provided for @loyaltyStampsNeededHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'9 means buy 9, get the 10th free. One stamp per item.'**
+  String get loyaltyStampsNeededHelp;
+
+  /// No description provided for @loyaltyStampProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Items that earn stamps (and the free one)'**
+  String get loyaltyStampProducts;
+
+  /// No description provided for @loyaltyPointsPerCedi.
+  ///
+  /// In en, this message translates to:
+  /// **'Points per GH₵ 1 spent'**
+  String get loyaltyPointsPerCedi;
+
+  /// No description provided for @loyaltyPointsForReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Points for a reward'**
+  String get loyaltyPointsForReward;
+
+  /// No description provided for @loyaltyRewardValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward value'**
+  String get loyaltyRewardValue;
+
+  /// No description provided for @loyaltyExpireDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Points expire after'**
+  String get loyaltyExpireDays;
+
+  /// No description provided for @loyaltyExpireDaysHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Days without a purchase. 0 means never.'**
+  String get loyaltyExpireDaysHelp;
+
+  /// No description provided for @loyaltyDays.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get loyaltyDays;
+
+  /// No description provided for @loyaltyTiersHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers who spent enough in the last 90 days are Gold and get a discount on everything.'**
+  String get loyaltyTiersHelp;
+
+  /// No description provided for @loyaltyGoldSpend.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold from this spend in 90 days'**
+  String get loyaltyGoldSpend;
+
+  /// No description provided for @loyaltyGoldPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold discount'**
+  String get loyaltyGoldPercent;
+
+  /// No description provided for @loyaltyNumbersInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the numbers: each needs to be 1 or more.'**
+  String get loyaltyNumbersInvalid;
+
+  /// No description provided for @voucherTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift vouchers'**
+  String get voucherTitle;
+
+  /// No description provided for @voucherTitleOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift voucher'**
+  String get voucherTitleOne;
+
+  /// No description provided for @voucherHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold for money now, spent later as a payment. What is left stays on the code.'**
+  String get voucherHelp;
+
+  /// No description provided for @voucherNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No gift vouchers yet.'**
+  String get voucherNone;
+
+  /// No description provided for @voucherSell.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell a gift voucher'**
+  String get voucherSell;
+
+  /// No description provided for @voucherSellButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell voucher'**
+  String get voucherSellButton;
+
+  /// No description provided for @voucherExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This voucher has expired.'**
+  String get voucherExpired;
+
+  /// No description provided for @voucherValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get voucherValue;
+
+  /// No description provided for @voucherPaidBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid by'**
+  String get voucherPaidBy;
+
+  /// No description provided for @voucherLasts.
+  ///
+  /// In en, this message translates to:
+  /// **'Can be used for'**
+  String get voucherLasts;
+
+  /// No description provided for @voucherNoExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Always'**
+  String get voucherNoExpiry;
+
+  /// No description provided for @voucherNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional), like who it is for'**
+  String get voucherNote;
+
+  /// No description provided for @voucherReferenceNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the payment reference.'**
+  String get voucherReferenceNeeded;
+
+  /// No description provided for @voucherSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get voucherSend;
+
+  /// No description provided for @voucherCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift voucher code'**
+  String get voucherCode;
+
+  /// No description provided for @voucherCodeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Type or scan the code on the voucher.'**
+  String get voucherCodeHelp;
+
+  /// No description provided for @voucherNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No voucher with this code.'**
+  String get voucherNotFound;
+
+  /// No description provided for @voucherUsedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is left on this voucher.'**
+  String get voucherUsedUp;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -8313,6 +8553,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'until {date}'**
   String promoUntil(String date);
+
+  /// No description provided for @loyaltyFreeReady.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} has a free item'**
+  String loyaltyFreeReady(String name);
+
+  /// No description provided for @loyaltyStampsHave.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {needed} stamps'**
+  String loyaltyStampsHave(int count, int needed);
+
+  /// No description provided for @loyaltyPointsHave.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} points'**
+  String loyaltyPointsHave(int count);
+
+  /// No description provided for @loyaltyPointsReward.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} points: {amount} off'**
+  String loyaltyPointsReward(int count, String amount);
+
+  /// No description provided for @loyaltyGold.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold: {percent}% off'**
+  String loyaltyGold(int percent);
+
+  /// No description provided for @voucherSoldFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold for {amount} on {date}'**
+  String voucherSoldFor(String amount, String date);
+
+  /// No description provided for @voucherUseBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Use by {date}'**
+  String voucherUseBy(String date);
+
+  /// No description provided for @voucherMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 month} other{{count} months}}'**
+  String voucherMonths(int count);
+
+  /// No description provided for @voucherLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{left} left of {amount}'**
+  String voucherLeft(String left, String amount);
+
+  /// No description provided for @voucherHas.
+  ///
+  /// In en, this message translates to:
+  /// **'{code}: {amount} left'**
+  String voucherHas(String code, String amount);
 }
 
 class _AppLocalizationsDelegate

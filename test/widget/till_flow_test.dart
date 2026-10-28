@@ -818,6 +818,50 @@ void main() {
     await _dispose(tester);
   });
 
+  testWidgets('tablet: loyalty stamps on, and a gift voucher sold from Customers', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await _settle(tester);
+    await tester.tap(find.text('Kofi'));
+    await _settle(tester);
+    await _typePin(tester, '1234');
+
+    await tester.tap(find.text('Settings'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Search settings'), 'loyalty');
+    await _settle(tester);
+    await tester.tap(find.text('Loyalty'));
+    await _settle(tester);
+    await tester.tap(find.text('Stamps'));
+    await _settle(tester);
+    expect(find.text('Stamps for a free item'), findsOneWidget);
+    await tester.tap(find.text('Save'));
+    await _settle(tester);
+    expect(find.text('Stamps'), findsOneWidget, reason: 'the setting shows the style');
+
+    await tester.tap(find.text('Customers'));
+    await _settle(tester);
+    await tester.tap(find.text('Gift vouchers'));
+    await _settle(tester);
+    expect(find.text('No gift vouchers yet.'), findsOneWidget);
+    await tester.tap(find.text('Sell a gift voucher'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Value'), '50');
+    await tester.tap(find.text('Sell voucher'));
+    await _settle(tester);
+    expect(find.textContaining(RegExp(r'^SCO-')), findsWidgets, reason: 'on the card and in the list behind');
+    expect(find.text('GH₵ 50.00 left of GH₵ 50.00'), findsOneWidget);
+    await tester.tap(find.text('Done').last);
+    await _settle(tester);
+    expect(find.textContaining('Sold for GH₵ 50.00'), findsOneWidget);
+
+    await _dispose(tester);
+  });
+
   testWidgets('phone portrait, first run: name the shop, create the owner, start selling', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;

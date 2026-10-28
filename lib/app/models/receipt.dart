@@ -67,6 +67,7 @@ class ReceiptData {
     this.note,
     this.voided = false,
     this.refunded = 0,
+    this.loyaltyBalance,
   });
 
   final String saleId;
@@ -95,6 +96,9 @@ class ReceiptData {
 
   /// Pesewas given back by refunds since.
   final int refunded;
+
+  /// The customer's stamps or points now, when they have a loyalty account.
+  final int? loyaltyBalance;
 
   String get displayNumber => formatSaleNumber(number);
 
@@ -153,6 +157,8 @@ class ReceiptDesign {
     this.showTax = true,
     this.showQr = true,
     this.copies = const {},
+    this.loyaltyStyle = 'off',
+    this.stampsForReward = 9,
   });
 
   final String shopName;
@@ -171,6 +177,11 @@ class ReceiptDesign {
 
   /// Copies to print per kind of payment ('credit': 2); 1 when not listed.
   final Map<String, int> copies;
+
+  /// The shop's loyalty style (off, stamps, points, tiers), for the
+  /// customer's balance line.
+  final String loyaltyStyle;
+  final int stampsForReward;
 
   /// The most copies any of the payments asks for.
   int copiesFor(Iterable<PaymentMethod> methods) =>

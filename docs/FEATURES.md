@@ -1397,6 +1397,34 @@ Decisions made on the way:
   promotion on the cup, or a cup with sprinkles at its price.
 - No new permission: promotions change prices, so they need "Change prices".
 
+**Status (28 October 2026): 6b built** (loyalty, gift vouchers). Schema 12. Built:
+
+- `CUS-04` loyalty: Settings → Loyalty, one style per shop. **Stamps:** one per eligible item
+  (chosen products or categories); after N stamps the next eligible item is free and N stamps
+  are used. **Points:** points per cedi spent, whole rewards of a set value taken off the sale,
+  and points lost after a number of days without a purchase. **Gold:** customers who spent a
+  set amount in the last 90 days get a percent off everything. The customer is attached at the
+  till (by phone or name); the cart shows "Ama has a free item", "4 of 9 stamps" or "230
+  points: GH₵ 10.00 off", and the reward applies by itself (as a promotion that stacks, so it
+  shows on the line and the receipt). Stamps and points are a third account on the customer
+  ledger; the receipt prints the stamp or point balance.
+- `CUS-05` gift vouchers: Customers → Gift vouchers. Selling one takes the money (any method
+  but credit, wallet or a voucher), counts it in the drawer at close, and gives a code like
+  `SCO-7KQ4` with a QR code, printed or sent as a PDF. Each voucher has an expiry (months set
+  in the sale, 12 by default) and a balance ledger. "Gift voucher" is a payment method: type or
+  scan the code at checkout, the balance shows and limits the amount; part use leaves a
+  balance. The method switches itself on when the first voucher is sold.
+- Voids now put back everything on the customer's accounts (credit owed, wallet money spent or
+  kept, stamps and points) and voucher money. Before 6b a voided credit sale stayed owed.
+
+Decisions made on the way:
+
+- A voucher sold is money in, not a sale: revenue counts when it is spent, as accountants
+  expect. Its value shows in "From customers" at close.
+- Refunds do not take back stamps or points, and money is not refunded onto vouchers (only
+  voids reverse them).
+- Points expire after a stretch without a purchase rather than point by point.
+
 ### Phase 7: Many devices without internet
 
 - `MDV-01` local hub, `MDV-03` device management.

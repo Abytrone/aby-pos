@@ -89,6 +89,8 @@ const builtInPayMethods = [
   ('cheque', 'Cheque', PaymentMethod.cheque, false, true),
   ('credit', 'Credit (book)', PaymentMethod.credit, true, false),
   ('wallet', 'Wallet', PaymentMethod.wallet, true, false),
+  // Off until the shop sells gift vouchers (Settings → Payment methods).
+  ('voucher', 'Gift voucher', PaymentMethod.voucher, false, true),
 ];
 
 @DriftDatabase(tables: [
@@ -131,6 +133,8 @@ const builtInPayMethods = [
   Expenses,
   RecurringExpenses,
   Promotions,
+  GiftVouchers,
+  VoucherEntries,
   OwnerMoney,
   Discounts,
   Reasons,
@@ -161,7 +165,7 @@ class AppDatabase extends _$AppDatabase {
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -458,6 +462,12 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(schema.saleLines, schema.saleLines.promotion);
             await m.addColumn(schema.saleLines, schema.saleLines.promotionName);
             await m.addColumn(schema.optionItems, schema.optionItems.variantId);
+          },
+          // v12: gift vouchers, and the gift voucher payment method.
+          from11To12: (m, schema) async {
+            await m.createTable(schema.giftVouchers);
+            await m.createTable(schema.voucherEntries);
+            await _insertBuiltInPayMethods(await _ensureDeviceId());
           },
         ),
         beforeOpen: (details) async {

@@ -94,6 +94,9 @@ abstract final class ReceiptBuilder {
         if (p.method == PaymentMethod.exchange && p.momoReference != null) RText('  Returned items ${p.momoReference}'),
       ],
       if (s.refunded > 0) RRow('Refunded since', paperMoney(-s.refunded)),
+      if (s.loyaltyBalance != null && d.loyaltyStyle == 'stamps')
+        RText('Stamps: ${s.loyaltyBalance} of ${d.stampsForReward}. Then one free!'),
+      if (s.loyaltyBalance != null && d.loyaltyStyle == 'points') RText('Points: ${s.loyaltyBalance}'),
       if (s.note != null) RText('Note: ${s.note}'),
       if (credit > 0 && copy != ReceiptCopy.customer) ...[
         const RFeed(2),
@@ -244,6 +247,26 @@ abstract final class ReceiptBuilder {
         const RRule(),
         RRow('OWED GHS', paperMoney(customer.owed), bold: true),
         if (customer.wallet > 0) RRow('In wallet', paperMoney(customer.wallet)),
+      ]);
+
+  /// A gift voucher to hand over or send: the code big, its QR code, the
+  /// value and the last day.
+  static ReceiptDoc voucher({
+    required String shopName,
+    required String code,
+    required int amount,
+    DateTime? expiresOn,
+  }) =>
+      ReceiptDoc('Gift voucher $code', [
+        RText(shopName, align: ReceiptAlign.center, bold: true),
+        const RText('GIFT VOUCHER', align: ReceiptAlign.center, bold: true, big: true),
+        const RRule(),
+        RText('GHS ${paperMoney(amount)}', align: ReceiptAlign.center, bold: true, big: true),
+        RText(code, align: ReceiptAlign.center, bold: true, big: true),
+        RQr(code),
+        if (expiresOn != null)
+          RText('Use by ${_two(expiresOn.day)}/${_two(expiresOn.month)}/${expiresOn.year}', align: ReceiptAlign.center),
+        RText('Pay with it at $shopName. What is left stays on the code.', align: ReceiptAlign.center),
       ]);
 
   /// Shows the paper width, the characters and a QR code.

@@ -11,6 +11,7 @@ import '../../../ui/option_chip.dart';
 import '../../../ui/section_page.dart';
 import '../controllers/customers_controller.dart';
 import '../widgets/customer_form.dart';
+import '../widgets/vouchers_dialog.dart';
 
 class CustomersView extends GetView<CustomersController> {
   const CustomersView({super.key});
@@ -22,6 +23,7 @@ class CustomersView extends GetView<CustomersController> {
     return SectionPage(
       title: l.navCustomers,
       actions: [
+        OutlinedButton.icon(onPressed: showVouchers, icon: const Icon(Icons.card_giftcard), label: Text(l.voucherTitle)),
         if (controller.canManage)
           FilledButton.icon(
             onPressed: () => showCustomerForm(onSave: controller.save).then((_) => _flush()),

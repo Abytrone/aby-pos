@@ -22,6 +22,7 @@ String payKindLabel(AppLocalizations l, PaymentMethod k) => switch (k) {
       PaymentMethod.exchange => l.payKindExchange,
       PaymentMethod.other => l.payKindOther,
       PaymentMethod.wallet => l.payKindWallet,
+      PaymentMethod.voucher => l.payKindVoucher,
     };
 
 Future<Authorization?> _authorize() =>

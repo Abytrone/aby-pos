@@ -28,6 +28,7 @@ import '../data/repositories/refund_repository.dart';
 import '../data/repositories/stock_count_repository.dart';
 import '../data/repositories/stock_repository.dart';
 import '../data/repositories/supplier_repository.dart';
+import '../data/repositories/voucher_repository.dart';
 import '../domain/catalogue_io.dart';
 import '../domain/catalogue_rules.dart';
 import '../modules/till/controllers/cart_controller.dart';
@@ -86,7 +87,20 @@ class InitialBinding extends Bindings {
         ), fenix: true);
     Get.lazyPut(() => RefundRepository(db, device, audit, Get.find(), Get.find<CustomerRepository>()), fenix: true);
     Get.lazyPut(() => PayMethodRepository(db, device, audit), fenix: true);
-    Get.lazyPut(() => SaleRepository(db, Get.find(), Get.find(), audit, device, Get.find<RefundRepository>(), Get.find<CustomerRepository>()), fenix: true);
+    Get.lazyPut(() => VoucherRepository(db, device, audit), fenix: true);
+    Get.lazyPut(
+      () => SaleRepository(
+        db,
+        Get.find(),
+        Get.find(),
+        audit,
+        device,
+        Get.find<RefundRepository>(),
+        Get.find<CustomerRepository>(),
+        Get.find<VoucherRepository>(),
+      ),
+      fenix: true,
+    );
     Get.lazyPut(() => DiscountRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => PromotionRepository(db, device, audit), fenix: true);
     // The cart saves itself through this, so it is ready before the cart.

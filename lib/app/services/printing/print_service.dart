@@ -84,6 +84,8 @@ class PrintService extends GetxService {
       showTax: _settings.get(AppSettings.receiptShowTax),
       showQr: _settings.get(AppSettings.receiptShowQr),
       copies: ReceiptDesign.decodeCopies(_settings.get(AppSettings.receiptCopies)),
+      loyaltyStyle: _settings.get(AppSettings.loyaltyStyle),
+      stampsForReward: _settings.get(AppSettings.loyaltyStamps),
     );
   }
 

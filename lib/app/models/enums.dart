@@ -16,7 +16,8 @@ enum PaymentMethod {
   cheque('Cheque'),
   exchange('Exchange'),
   other('Other'),
-  wallet('Wallet');
+  wallet('Wallet'),
+  voucher('Gift voucher');
 
   const PaymentMethod(this.label);
   final String label;
@@ -76,7 +77,8 @@ enum ShiftStatus { open, closed }
 
 /// A customer's two accounts: what they owe (credit book) and what the shop
 /// holds for them (wallet / store credit).
-enum CustomerAccount { credit, wallet }
+/// The loyalty account counts stamps or points, not money.
+enum CustomerAccount { credit, wallet, loyalty }
 
 /// Entries in a customer account. On the credit account a positive amount
 /// is owed; on the wallet a positive amount is held for the customer.
@@ -90,7 +92,17 @@ enum CustomerEntryKind {
   walletSpend,
   walletRefund,
   adjustment,
+  loyaltyEarn,
+  loyaltyRedeem,
+  loyaltyExpire,
+
+  /// Undoes an entry of a voided sale.
+  voidReversal,
 }
+
+/// Movements on a gift voucher: what it was sold for, spending, money put
+/// back by a void, and what was left when it expired.
+enum VoucherEntryKind { issued, spent, voidReturn, expired }
 
 /// Where the money for an expense or an owner drawing came from.
 enum MoneySource { drawer, momo, bank, ownerPocket }

@@ -7,6 +7,7 @@ import '../../../models/enums.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/barcode_scanner.dart';
 import '../../../ui/l10n.dart';
 import '../controllers/checkout_controller.dart';
 
@@ -43,11 +44,20 @@ class PaymentFields extends GetView<CheckoutController> {
               controller: controller.referenceField,
               textInputAction: TextInputAction.done,
               textCapitalization: TextCapitalization.characters,
-              decoration: InputDecoration(
-                labelText: l.checkoutReference(m.name),
-                helperText: m.shortReference ? l.checkoutReferenceShort : l.checkoutReferenceHelp,
-                helperMaxLines: 2,
-              ),
+              decoration: m.kind == PaymentMethod.voucher
+                  ? InputDecoration(
+                      labelText: l.voucherCode,
+                      errorText: controller.voucherProblem.value,
+                      helperText: controller.voucher.value == null
+                          ? l.voucherCodeHelp
+                          : l.voucherHas(controller.voucher.value!.code, formatMoney(controller.voucher.value!.balance)),
+                      suffixIcon: cameraScanButton((code) => controller.referenceField.text = code),
+                    )
+                  : InputDecoration(
+                      labelText: l.checkoutReference(m.name),
+                      helperText: m.shortReference ? l.checkoutReferenceShort : l.checkoutReferenceHelp,
+                      helperMaxLines: 2,
+                    ),
             ),
           ],
           if (m.kind == PaymentMethod.credit && controller.customer != null) ...[

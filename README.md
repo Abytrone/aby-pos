@@ -64,6 +64,9 @@ App icons: `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml`.
 - **Promotions and combos:** happy hours, buy X get Y, bundles, quantity prices and spend
   rewards apply themselves at the till (best deal wins), shown on the cart and receipt. Combo
   options are linked products, so their stock goes down.
+- **Loyalty and gift vouchers:** a stamp card, points or Gold customers, with rewards that
+  apply themselves when the customer is attached; gift vouchers with a code and QR code, spent
+  as a payment in parts until used up.
 - **Money:** Manage → Money: expenses (with categories, receipts and monthly reminders), a simple
   profit and loss for any period beside the one before, and the owner's drawings and money put
   in. A pay-out on Today can be marked as an expense.
@@ -111,7 +114,7 @@ lib/
                             PinPad, OptionChip, approval prompt, status dot, labels, formatting
     data/database/          drift tables, AppDatabase, step-by-step migrations, seed
     data/repositories/      catalog, sale, refund, customer, shift, safe, MoMo, expense, profit, payment methods, cash events, discounts,
-                            parked orders, promotion, receipt, stock, supplier, receiving, stock count, staff, role,
+                            parked orders, promotion, receipt, voucher, stock, supplier, receiving, stock count, staff, role,
                             day close, audit, settings, outbox:
                             the only code that touches drift
     services/               auth, permissions, session (auto-lock), settings, status, backup,

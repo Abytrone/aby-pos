@@ -16,6 +16,7 @@ import 'package:aby_pos/app/data/repositories/refund_repository.dart';
 import 'package:aby_pos/app/data/repositories/sale_repository.dart';
 import 'package:aby_pos/app/data/repositories/staff_repository.dart';
 import 'package:aby_pos/app/data/repositories/stock_repository.dart';
+import 'package:aby_pos/app/data/repositories/voucher_repository.dart';
 import 'package:aby_pos/app/models/models.dart';
 import 'package:aby_pos/app/services/device_service.dart';
 import 'package:drift/drift.dart';
@@ -69,7 +70,8 @@ class Repos {
     closes = DayCloseRepository(db, device, audit, cashEvents, customers, shifts);
     refunds = RefundRepository(db, device, audit, stock, customers);
     payMethods = PayMethodRepository(db, device, audit);
-    sales = SaleRepository(db, stock, closes, audit, device, refunds, customers);
+    vouchers = VoucherRepository(db, device, audit);
+    sales = SaleRepository(db, stock, closes, audit, device, refunds, customers, vouchers);
     staff = StaffRepository(db, device, audit);
     catalog = CatalogRepository(db, device, audit);
   }
@@ -92,6 +94,7 @@ class Repos {
   late final ReportRepository reports;
   late final RefundRepository refunds;
   late final PayMethodRepository payMethods;
+  late final VoucherRepository vouchers;
   late final SaleRepository sales;
   late final StaffRepository staff;
   late final CatalogRepository catalog;

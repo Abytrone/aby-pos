@@ -78,6 +78,31 @@ abstract final class AppSettings {
   static const offsiteBackupDays =
       Setting<int>('backup.offsiteReminderDays', SettingScope.shop, 7);
 
+  // Loyalty (CUS-04): one style per shop.
+  /// off | stamps | points | tiers
+  static const loyaltyStyle = Setting<String>('loyalty.style', SettingScope.shop, 'off');
+
+  /// Which products earn stamps ([PromoTarget] as JSON; empty = everything).
+  static const loyaltyStampTarget = Setting<String>('loyalty.stampTarget', SettingScope.shop, '{}');
+
+  /// Buy this many, get the next one free.
+  static const loyaltyStamps = Setting<int>('loyalty.stamps', SettingScope.shop, 9);
+  static const loyaltyPointsPerCedi = Setting<int>('loyalty.pointsPerCedi', SettingScope.shop, 1);
+  static const loyaltyPointsForReward = Setting<int>('loyalty.pointsForReward', SettingScope.shop, 100);
+
+  /// Pesewas off for each [loyaltyPointsForReward] points.
+  static const loyaltyRewardValue = Setting<int>('loyalty.rewardValue', SettingScope.shop, 500);
+
+  /// Points are lost after this many days without a purchase (0 = never).
+  static const loyaltyExpireDays = Setting<int>('loyalty.expireDays', SettingScope.shop, 0);
+
+  /// Gold: pesewas spent in the last 90 days, and the Gold discount.
+  static const loyaltyGoldSpend = Setting<int>('loyalty.goldSpend', SettingScope.shop, 50000);
+  static const loyaltyGoldPercent = Setting<int>('loyalty.goldPercent', SettingScope.shop, 5);
+
+  /// Gift vouchers can be spent for this many months (0 = no expiry).
+  static const voucherMonths = Setting<int>('voucher.months', SettingScope.shop, 12);
+
   // Receipts (Settings → Receipt design)
   static const receiptHeader = Setting<String>('receipt.header', SettingScope.shop, '');
   static const receiptFooter = Setting<String>('receipt.footer', SettingScope.shop, 'Thank you. Come again!');
@@ -150,6 +175,16 @@ abstract final class AppSettings {
     autoBackupDaily,
     backupsToKeep,
     offsiteBackupDays,
+    loyaltyStyle,
+    loyaltyStampTarget,
+    loyaltyStamps,
+    loyaltyPointsPerCedi,
+    loyaltyPointsForReward,
+    loyaltyRewardValue,
+    loyaltyExpireDays,
+    loyaltyGoldSpend,
+    loyaltyGoldPercent,
+    voucherMonths,
     receiptHeader,
     receiptFooter,
     receiptMomo,

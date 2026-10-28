@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
 import '../../../data/database/app_database.dart' show builtInPayMethods, payMethodRowId;
+import '../../../data/repositories/voucher_repository.dart';
 import '../../../data/repositories/customer_repository.dart';
 import '../../../data/repositories/pay_method_repository.dart';
 import '../../../data/repositories/sale_repository.dart';
@@ -64,6 +65,9 @@ class CheckoutController extends GetxController {
     tenderedField.addListener(() => _tenderedText.value = tenderedField.text);
     amountField.addListener(() => _amountText.value = amountField.text);
     referenceField.addListener(() => _referenceText.value = referenceField.text);
+    // A gift voucher's code: look it up as it is typed or scanned.
+    debounce(_referenceText, (_) => _findVoucher(), time: const Duration(milliseconds: 250));
+    ever(selected, (_) => _findVoucher());
     _loadMethods();
     _refreshCustomer();
   }
@@ -77,6 +81,30 @@ class CheckoutController extends GetxController {
   }
 
   Customer? get customer => cart.customer.value;
+
+  /// The gift voucher whose code is in the reference box, when paying by
+  /// voucher; null while not found.
+  final voucher = Rxn<GiftVoucher>();
+  final voucherProblem = RxnString();
+
+  Future<void> _findVoucher() async {
+    voucher.value = null;
+    voucherProblem.value = null;
+    final code = _referenceText.value.trim();
+    if (kind != PaymentMethod.voucher || code.isEmpty || !Get.isRegistered<VoucherRepository>()) return;
+    final found = await Get.find<VoucherRepository>().find(code);
+    if (_referenceText.value.trim() != code) return;
+    final l = appL10n();
+    if (found == null) {
+      voucherProblem.value = l.voucherNotFound;
+    } else if (found.expiredAt(DateTime.now())) {
+      voucherProblem.value = l.voucherExpired;
+    } else if (found.balance <= 0) {
+      voucherProblem.value = l.voucherUsedUp;
+    } else {
+      voucher.value = found;
+    }
+  }
 
   /// Credit and wallet go on the customer's account.
   bool get needsCustomer => kind == PaymentMethod.credit || kind == PaymentMethod.wallet;
@@ -145,6 +173,10 @@ class CheckoutController extends GetxController {
       final held = customer?.wallet ?? 0;
       return held < remaining ? held : remaining;
     }
+    if (kind == PaymentMethod.voucher) {
+      final held = voucher.value?.balance ?? 0;
+      return held < remaining ? held : remaining;
+    }
     return remaining;
   }
 
@@ -153,6 +185,7 @@ class CheckoutController extends GetxController {
     if (m == null) return false;
     if (needsCustomer && customer == null) return false;
     if (m.kind == PaymentMethod.wallet && (amount ?? 0) > (customer?.wallet ?? 0)) return false;
+    if (m.kind == PaymentMethod.voucher && (voucher.value == null || (amount ?? 0) > voucher.value!.balance)) return false;
     if (m.needsReference && _referenceText.value.trim().isEmpty) return false;
     return true;
   }
@@ -275,6 +308,7 @@ class CheckoutController extends GetxController {
         changeToWallet: keepChange.value && c != null,
         creditApprover: creditApprover,
         promotions: cart.promotions.toList(),
+        loyalty: cart.loyalty,
       );
       unawaited(printService?.afterSale(completed.value!.saleId));
       cart.reset();

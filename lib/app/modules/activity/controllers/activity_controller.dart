@@ -40,6 +40,7 @@ enum ActivityFilter {
             AuditAction.customerCreditLimit,
             AuditAction.customerRepaid,
             AuditAction.walletTopUp,
+            AuditAction.voucherIssued,
             AuditAction.creditWrittenOff,
             AuditAction.cashPaidIn,
             AuditAction.cashPaidOut,

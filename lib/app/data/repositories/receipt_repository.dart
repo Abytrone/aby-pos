@@ -33,6 +33,13 @@ class ReceiptRepository {
         .map((r) => r.read(refundSum) ?? 0)
         .getSingle();
     // The discount column includes promotions.
+    final loyalty = s.customerId == null
+        ? null
+        : await _db.customSelect(
+            "SELECT SUM(amount) AS v FROM customer_ledger WHERE customer_id = ? AND account = 'loyalty' AND deleted_at IS NULL",
+            variables: [Variable.withString(s.customerId!)],
+            readsFrom: {_db.customerLedger},
+          ).map((r) => r.read<int?>('v')).getSingle();
     final lineDiscounts = lines.fold(0, (t, l) => t + l.discount);
     final exclusive = s.taxTotal > 0 && s.total == s.subtotal - s.discountTotal + s.taxTotal;
     return ReceiptData(
@@ -81,6 +88,7 @@ class ReceiptRepository {
       note: s.note,
       voided: s.status == SaleStatus.voided,
       refunded: refunded,
+      loyaltyBalance: loyalty,
     );
   }
 

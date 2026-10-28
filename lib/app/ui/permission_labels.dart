@@ -105,6 +105,7 @@ String auditActionLabel(AppLocalizations l, AuditAction a) => switch (a) {
       AuditAction.customerCreditLimit => l.auditCustomerCreditLimit,
       AuditAction.customerRepaid => l.auditCustomerRepaid,
       AuditAction.walletTopUp => l.auditWalletTopUp,
+      AuditAction.voucherIssued => l.auditVoucherIssued,
       AuditAction.creditWrittenOff => l.auditCreditWrittenOff,
       AuditAction.cashPaidIn => l.auditCashPaidIn,
       AuditAction.cashPaidOut => l.auditCashPaidOut,

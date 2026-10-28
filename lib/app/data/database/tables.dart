@@ -956,3 +956,35 @@ class Promotions extends Table with SyncColumns {
   BoolColumn get stackable => boolean().withDefault(const Constant(false))();
   BoolColumn get active => boolean().withDefault(const Constant(true))();
 }
+
+/// A gift voucher (CUS-05). Selling one is money in, not a sale: it is
+/// spent later as a payment. Its balance is the sum of its entries. v12.
+@DataClassName('GiftVoucherRow')
+class GiftVouchers extends Table with SyncColumns {
+  /// "SCP-7KQ4": printed, shared and typed or scanned at the till.
+  TextColumn get code => text().unique()();
+
+  /// Pesewas it was sold for.
+  IntColumn get amount => integer()();
+
+  /// The last day it can be spent; null for never.
+  DateTimeColumn get expiresOn => dateTime().nullable()();
+  TextColumn get customerId => text().nullable()();
+  TextColumn get note => text().nullable()();
+  TextColumn get byName => text()();
+}
+
+/// Money on a gift voucher: + when sold, - when spent. v12.
+@DataClassName('VoucherEntryRow')
+class VoucherEntries extends Table with SyncColumns {
+  TextColumn get voucherId => text().references(GiftVouchers, #id)();
+  TextColumn get kind => textEnum<VoucherEntryKind>()();
+  IntColumn get amount => integer()();
+  TextColumn get saleId => text().nullable()();
+
+  /// How it was paid for, when sold (counts in the drawer at close).
+  TextColumn get method => textEnum<PaymentMethod>().nullable()();
+  TextColumn get methodName => text().nullable()();
+  TextColumn get reference => text().nullable()();
+  TextColumn get byName => text()();
+}

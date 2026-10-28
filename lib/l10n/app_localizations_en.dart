@@ -3528,6 +3528,133 @@ class AppLocalizationsEn extends AppLocalizations {
   String get promoDaysRequired => 'Pick at least one day.';
 
   @override
+  String get auditVoucherIssued => 'Gift voucher sold';
+
+  @override
+  String get payKindVoucher => 'Gift voucher';
+
+  @override
+  String get loyaltyTitle => 'Loyalty';
+
+  @override
+  String get loyaltySettingsHelp =>
+      'Stamp card, points or Gold customers. Customers are known by their phone number.';
+
+  @override
+  String get loyaltyHelp =>
+      'Pick one style for the shop. Attach the customer at the till: rewards apply by themselves.';
+
+  @override
+  String get loyaltyOffHelp => 'No loyalty rewards.';
+
+  @override
+  String get loyaltyStampCard => 'Stamps';
+
+  @override
+  String get loyaltyPointsStyle => 'Points';
+
+  @override
+  String get loyaltyTiers => 'Gold';
+
+  @override
+  String get loyaltyStampsNeeded => 'Stamps for a free item';
+
+  @override
+  String get loyaltyStampsNeededHelp =>
+      '9 means buy 9, get the 10th free. One stamp per item.';
+
+  @override
+  String get loyaltyStampProducts =>
+      'Items that earn stamps (and the free one)';
+
+  @override
+  String get loyaltyPointsPerCedi => 'Points per GH₵ 1 spent';
+
+  @override
+  String get loyaltyPointsForReward => 'Points for a reward';
+
+  @override
+  String get loyaltyRewardValue => 'Reward value';
+
+  @override
+  String get loyaltyExpireDays => 'Points expire after';
+
+  @override
+  String get loyaltyExpireDaysHelp => 'Days without a purchase. 0 means never.';
+
+  @override
+  String get loyaltyDays => 'days';
+
+  @override
+  String get loyaltyTiersHelp =>
+      'Customers who spent enough in the last 90 days are Gold and get a discount on everything.';
+
+  @override
+  String get loyaltyGoldSpend => 'Gold from this spend in 90 days';
+
+  @override
+  String get loyaltyGoldPercent => 'Gold discount';
+
+  @override
+  String get loyaltyNumbersInvalid =>
+      'Check the numbers: each needs to be 1 or more.';
+
+  @override
+  String get voucherTitle => 'Gift vouchers';
+
+  @override
+  String get voucherTitleOne => 'Gift voucher';
+
+  @override
+  String get voucherHelp =>
+      'Sold for money now, spent later as a payment. What is left stays on the code.';
+
+  @override
+  String get voucherNone => 'No gift vouchers yet.';
+
+  @override
+  String get voucherSell => 'Sell a gift voucher';
+
+  @override
+  String get voucherSellButton => 'Sell voucher';
+
+  @override
+  String get voucherExpired => 'This voucher has expired.';
+
+  @override
+  String get voucherValue => 'Value';
+
+  @override
+  String get voucherPaidBy => 'Paid by';
+
+  @override
+  String get voucherLasts => 'Can be used for';
+
+  @override
+  String get voucherNoExpiry => 'Always';
+
+  @override
+  String get voucherNote => 'Note (optional), like who it is for';
+
+  @override
+  String get voucherReferenceNeeded => 'Enter the payment reference.';
+
+  @override
+  String get voucherSend => 'Send';
+
+  @override
+  String get voucherCode => 'Gift voucher code';
+
+  @override
+  String get voucherCodeHelp => 'Type or scan the code on the voucher.';
+
+  @override
+  String get voucherNotFound => 'No voucher with this code.';
+
+  @override
+  String get voucherUsedUp => 'Nothing is left on this voucher.';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }
@@ -4874,5 +5001,61 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String promoUntil(String date) {
     return 'until $date';
+  }
+
+  @override
+  String loyaltyFreeReady(String name) {
+    return '$name has a free item';
+  }
+
+  @override
+  String loyaltyStampsHave(int count, int needed) {
+    return '$count of $needed stamps';
+  }
+
+  @override
+  String loyaltyPointsHave(int count) {
+    return '$count points';
+  }
+
+  @override
+  String loyaltyPointsReward(int count, String amount) {
+    return '$count points: $amount off';
+  }
+
+  @override
+  String loyaltyGold(int percent) {
+    return 'Gold: $percent% off';
+  }
+
+  @override
+  String voucherSoldFor(String amount, String date) {
+    return 'Sold for $amount on $date';
+  }
+
+  @override
+  String voucherUseBy(String date) {
+    return 'Use by $date';
+  }
+
+  @override
+  String voucherMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count months',
+      one: '1 month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String voucherLeft(String left, String amount) {
+    return '$left left of $amount';
+  }
+
+  @override
+  String voucherHas(String code, String amount) {
+    return '$code: $amount left';
   }
 }

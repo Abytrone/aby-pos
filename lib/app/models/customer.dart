@@ -16,6 +16,7 @@ class Customer {
     this.active = true,
     this.owed = 0,
     this.wallet = 0,
+    this.loyalty = 0,
   });
 
   final String id;
@@ -39,6 +40,9 @@ class Customer {
   /// Pesewas they owe now, and the shop holds for them.
   final int owed;
   final int wallet;
+
+  /// Stamps or points, by the shop's loyalty style.
+  final int loyalty;
 
   /// Pesewas they can still take on credit; null for no limit.
   int? get creditLeft => creditLimit == null ? null : creditLimit! - owed;

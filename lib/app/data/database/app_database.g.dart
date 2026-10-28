@@ -29749,6 +29749,1536 @@ class PromotionsCompanion extends UpdateCompanion<PromotionRow> {
   }
 }
 
+class $GiftVouchersTable extends GiftVouchers
+    with TableInfo<$GiftVouchersTable, GiftVoucherRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GiftVouchersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
+    'syncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
+    'synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+    'code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _expiresOnMeta = const VerificationMeta(
+    'expiresOn',
+  );
+  @override
+  late final GeneratedColumn<DateTime> expiresOn = GeneratedColumn<DateTime>(
+    'expires_on',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _customerIdMeta = const VerificationMeta(
+    'customerId',
+  );
+  @override
+  late final GeneratedColumn<String> customerId = GeneratedColumn<String>(
+    'customer_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _byNameMeta = const VerificationMeta('byName');
+  @override
+  late final GeneratedColumn<String> byName = GeneratedColumn<String>(
+    'by_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    syncedAt,
+    deviceId,
+    code,
+    amount,
+    expiresOn,
+    customerId,
+    note,
+    byName,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'gift_vouchers';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GiftVoucherRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('synced_at')) {
+      context.handle(
+        _syncedAtMeta,
+        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
+      );
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('code')) {
+      context.handle(
+        _codeMeta,
+        code.isAcceptableOrUnknown(data['code']!, _codeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_codeMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('expires_on')) {
+      context.handle(
+        _expiresOnMeta,
+        expiresOn.isAcceptableOrUnknown(data['expires_on']!, _expiresOnMeta),
+      );
+    }
+    if (data.containsKey('customer_id')) {
+      context.handle(
+        _customerIdMeta,
+        customerId.isAcceptableOrUnknown(data['customer_id']!, _customerIdMeta),
+      );
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('by_name')) {
+      context.handle(
+        _byNameMeta,
+        byName.isAcceptableOrUnknown(data['by_name']!, _byNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_byNameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GiftVoucherRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GiftVoucherRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      syncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}synced_at'],
+      ),
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      code: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}code'],
+      )!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount'],
+      )!,
+      expiresOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}expires_on'],
+      ),
+      customerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_id'],
+      ),
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      byName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}by_name'],
+      )!,
+    );
+  }
+
+  @override
+  $GiftVouchersTable createAlias(String alias) {
+    return $GiftVouchersTable(attachedDatabase, alias);
+  }
+}
+
+class GiftVoucherRow extends DataClass implements Insertable<GiftVoucherRow> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+
+  /// When the server last confirmed this row. Null means not yet synced.
+  final DateTime? syncedAt;
+  final String deviceId;
+
+  /// "SCP-7KQ4": printed, shared and typed or scanned at the till.
+  final String code;
+
+  /// Pesewas it was sold for.
+  final int amount;
+
+  /// The last day it can be spent; null for never.
+  final DateTime? expiresOn;
+  final String? customerId;
+  final String? note;
+  final String byName;
+  const GiftVoucherRow({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    this.syncedAt,
+    required this.deviceId,
+    required this.code,
+    required this.amount,
+    this.expiresOn,
+    this.customerId,
+    this.note,
+    required this.byName,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || syncedAt != null) {
+      map['synced_at'] = Variable<DateTime>(syncedAt);
+    }
+    map['device_id'] = Variable<String>(deviceId);
+    map['code'] = Variable<String>(code);
+    map['amount'] = Variable<int>(amount);
+    if (!nullToAbsent || expiresOn != null) {
+      map['expires_on'] = Variable<DateTime>(expiresOn);
+    }
+    if (!nullToAbsent || customerId != null) {
+      map['customer_id'] = Variable<String>(customerId);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    map['by_name'] = Variable<String>(byName);
+    return map;
+  }
+
+  GiftVouchersCompanion toCompanion(bool nullToAbsent) {
+    return GiftVouchersCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      syncedAt: syncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedAt),
+      deviceId: Value(deviceId),
+      code: Value(code),
+      amount: Value(amount),
+      expiresOn: expiresOn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(expiresOn),
+      customerId: customerId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerId),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      byName: Value(byName),
+    );
+  }
+
+  factory GiftVoucherRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GiftVoucherRow(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      code: serializer.fromJson<String>(json['code']),
+      amount: serializer.fromJson<int>(json['amount']),
+      expiresOn: serializer.fromJson<DateTime?>(json['expiresOn']),
+      customerId: serializer.fromJson<String?>(json['customerId']),
+      note: serializer.fromJson<String?>(json['note']),
+      byName: serializer.fromJson<String>(json['byName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'syncedAt': serializer.toJson<DateTime?>(syncedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'code': serializer.toJson<String>(code),
+      'amount': serializer.toJson<int>(amount),
+      'expiresOn': serializer.toJson<DateTime?>(expiresOn),
+      'customerId': serializer.toJson<String?>(customerId),
+      'note': serializer.toJson<String?>(note),
+      'byName': serializer.toJson<String>(byName),
+    };
+  }
+
+  GiftVoucherRow copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    Value<DateTime?> syncedAt = const Value.absent(),
+    String? deviceId,
+    String? code,
+    int? amount,
+    Value<DateTime?> expiresOn = const Value.absent(),
+    Value<String?> customerId = const Value.absent(),
+    Value<String?> note = const Value.absent(),
+    String? byName,
+  }) => GiftVoucherRow(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
+    deviceId: deviceId ?? this.deviceId,
+    code: code ?? this.code,
+    amount: amount ?? this.amount,
+    expiresOn: expiresOn.present ? expiresOn.value : this.expiresOn,
+    customerId: customerId.present ? customerId.value : this.customerId,
+    note: note.present ? note.value : this.note,
+    byName: byName ?? this.byName,
+  );
+  GiftVoucherRow copyWithCompanion(GiftVouchersCompanion data) {
+    return GiftVoucherRow(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      code: data.code.present ? data.code.value : this.code,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      expiresOn: data.expiresOn.present ? data.expiresOn.value : this.expiresOn,
+      customerId: data.customerId.present
+          ? data.customerId.value
+          : this.customerId,
+      note: data.note.present ? data.note.value : this.note,
+      byName: data.byName.present ? data.byName.value : this.byName,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GiftVoucherRow(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('code: $code, ')
+          ..write('amount: $amount, ')
+          ..write('expiresOn: $expiresOn, ')
+          ..write('customerId: $customerId, ')
+          ..write('note: $note, ')
+          ..write('byName: $byName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    syncedAt,
+    deviceId,
+    code,
+    amount,
+    expiresOn,
+    customerId,
+    note,
+    byName,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GiftVoucherRow &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.syncedAt == this.syncedAt &&
+          other.deviceId == this.deviceId &&
+          other.code == this.code &&
+          other.amount == this.amount &&
+          other.expiresOn == this.expiresOn &&
+          other.customerId == this.customerId &&
+          other.note == this.note &&
+          other.byName == this.byName);
+}
+
+class GiftVouchersCompanion extends UpdateCompanion<GiftVoucherRow> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<DateTime?> syncedAt;
+  final Value<String> deviceId;
+  final Value<String> code;
+  final Value<int> amount;
+  final Value<DateTime?> expiresOn;
+  final Value<String?> customerId;
+  final Value<String?> note;
+  final Value<String> byName;
+  final Value<int> rowid;
+  const GiftVouchersCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.code = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.expiresOn = const Value.absent(),
+    this.customerId = const Value.absent(),
+    this.note = const Value.absent(),
+    this.byName = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GiftVouchersCompanion.insert({
+    required String id,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    required String deviceId,
+    required String code,
+    required int amount,
+    this.expiresOn = const Value.absent(),
+    this.customerId = const Value.absent(),
+    this.note = const Value.absent(),
+    required String byName,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       code = Value(code),
+       amount = Value(amount),
+       byName = Value(byName);
+  static Insertable<GiftVoucherRow> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<DateTime>? syncedAt,
+    Expression<String>? deviceId,
+    Expression<String>? code,
+    Expression<int>? amount,
+    Expression<DateTime>? expiresOn,
+    Expression<String>? customerId,
+    Expression<String>? note,
+    Expression<String>? byName,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (syncedAt != null) 'synced_at': syncedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (code != null) 'code': code,
+      if (amount != null) 'amount': amount,
+      if (expiresOn != null) 'expires_on': expiresOn,
+      if (customerId != null) 'customer_id': customerId,
+      if (note != null) 'note': note,
+      if (byName != null) 'by_name': byName,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GiftVouchersCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<DateTime?>? syncedAt,
+    Value<String>? deviceId,
+    Value<String>? code,
+    Value<int>? amount,
+    Value<DateTime?>? expiresOn,
+    Value<String?>? customerId,
+    Value<String?>? note,
+    Value<String>? byName,
+    Value<int>? rowid,
+  }) {
+    return GiftVouchersCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      syncedAt: syncedAt ?? this.syncedAt,
+      deviceId: deviceId ?? this.deviceId,
+      code: code ?? this.code,
+      amount: amount ?? this.amount,
+      expiresOn: expiresOn ?? this.expiresOn,
+      customerId: customerId ?? this.customerId,
+      note: note ?? this.note,
+      byName: byName ?? this.byName,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<DateTime>(syncedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (expiresOn.present) {
+      map['expires_on'] = Variable<DateTime>(expiresOn.value);
+    }
+    if (customerId.present) {
+      map['customer_id'] = Variable<String>(customerId.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (byName.present) {
+      map['by_name'] = Variable<String>(byName.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GiftVouchersCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('code: $code, ')
+          ..write('amount: $amount, ')
+          ..write('expiresOn: $expiresOn, ')
+          ..write('customerId: $customerId, ')
+          ..write('note: $note, ')
+          ..write('byName: $byName, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $VoucherEntriesTable extends VoucherEntries
+    with TableInfo<$VoucherEntriesTable, VoucherEntryRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VoucherEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
+    'syncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
+    'synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _voucherIdMeta = const VerificationMeta(
+    'voucherId',
+  );
+  @override
+  late final GeneratedColumn<String> voucherId = GeneratedColumn<String>(
+    'voucher_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES gift_vouchers (id)',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<VoucherEntryKind, String> kind =
+      GeneratedColumn<String>(
+        'kind',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<VoucherEntryKind>($VoucherEntriesTable.$converterkind);
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _saleIdMeta = const VerificationMeta('saleId');
+  @override
+  late final GeneratedColumn<String> saleId = GeneratedColumn<String>(
+    'sale_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<PaymentMethod?, String> method =
+      GeneratedColumn<String>(
+        'method',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<PaymentMethod?>($VoucherEntriesTable.$convertermethodn);
+  static const VerificationMeta _methodNameMeta = const VerificationMeta(
+    'methodName',
+  );
+  @override
+  late final GeneratedColumn<String> methodName = GeneratedColumn<String>(
+    'method_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _referenceMeta = const VerificationMeta(
+    'reference',
+  );
+  @override
+  late final GeneratedColumn<String> reference = GeneratedColumn<String>(
+    'reference',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _byNameMeta = const VerificationMeta('byName');
+  @override
+  late final GeneratedColumn<String> byName = GeneratedColumn<String>(
+    'by_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    syncedAt,
+    deviceId,
+    voucherId,
+    kind,
+    amount,
+    saleId,
+    method,
+    methodName,
+    reference,
+    byName,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'voucher_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<VoucherEntryRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('synced_at')) {
+      context.handle(
+        _syncedAtMeta,
+        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
+      );
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('voucher_id')) {
+      context.handle(
+        _voucherIdMeta,
+        voucherId.isAcceptableOrUnknown(data['voucher_id']!, _voucherIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_voucherIdMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('sale_id')) {
+      context.handle(
+        _saleIdMeta,
+        saleId.isAcceptableOrUnknown(data['sale_id']!, _saleIdMeta),
+      );
+    }
+    if (data.containsKey('method_name')) {
+      context.handle(
+        _methodNameMeta,
+        methodName.isAcceptableOrUnknown(data['method_name']!, _methodNameMeta),
+      );
+    }
+    if (data.containsKey('reference')) {
+      context.handle(
+        _referenceMeta,
+        reference.isAcceptableOrUnknown(data['reference']!, _referenceMeta),
+      );
+    }
+    if (data.containsKey('by_name')) {
+      context.handle(
+        _byNameMeta,
+        byName.isAcceptableOrUnknown(data['by_name']!, _byNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_byNameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  VoucherEntryRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return VoucherEntryRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      syncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}synced_at'],
+      ),
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      voucherId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}voucher_id'],
+      )!,
+      kind: $VoucherEntriesTable.$converterkind.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}kind'],
+        )!,
+      ),
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount'],
+      )!,
+      saleId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sale_id'],
+      ),
+      method: $VoucherEntriesTable.$convertermethodn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}method'],
+        ),
+      ),
+      methodName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}method_name'],
+      ),
+      reference: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reference'],
+      ),
+      byName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}by_name'],
+      )!,
+    );
+  }
+
+  @override
+  $VoucherEntriesTable createAlias(String alias) {
+    return $VoucherEntriesTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<VoucherEntryKind, String, String> $converterkind =
+      const EnumNameConverter<VoucherEntryKind>(VoucherEntryKind.values);
+  static JsonTypeConverter2<PaymentMethod, String, String> $convertermethod =
+      const EnumNameConverter<PaymentMethod>(PaymentMethod.values);
+  static JsonTypeConverter2<PaymentMethod?, String?, String?>
+  $convertermethodn = JsonTypeConverter2.asNullable($convertermethod);
+}
+
+class VoucherEntryRow extends DataClass implements Insertable<VoucherEntryRow> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+
+  /// When the server last confirmed this row. Null means not yet synced.
+  final DateTime? syncedAt;
+  final String deviceId;
+  final String voucherId;
+  final VoucherEntryKind kind;
+  final int amount;
+  final String? saleId;
+
+  /// How it was paid for, when sold (counts in the drawer at close).
+  final PaymentMethod? method;
+  final String? methodName;
+  final String? reference;
+  final String byName;
+  const VoucherEntryRow({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    this.syncedAt,
+    required this.deviceId,
+    required this.voucherId,
+    required this.kind,
+    required this.amount,
+    this.saleId,
+    this.method,
+    this.methodName,
+    this.reference,
+    required this.byName,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || syncedAt != null) {
+      map['synced_at'] = Variable<DateTime>(syncedAt);
+    }
+    map['device_id'] = Variable<String>(deviceId);
+    map['voucher_id'] = Variable<String>(voucherId);
+    {
+      map['kind'] = Variable<String>(
+        $VoucherEntriesTable.$converterkind.toSql(kind),
+      );
+    }
+    map['amount'] = Variable<int>(amount);
+    if (!nullToAbsent || saleId != null) {
+      map['sale_id'] = Variable<String>(saleId);
+    }
+    if (!nullToAbsent || method != null) {
+      map['method'] = Variable<String>(
+        $VoucherEntriesTable.$convertermethodn.toSql(method),
+      );
+    }
+    if (!nullToAbsent || methodName != null) {
+      map['method_name'] = Variable<String>(methodName);
+    }
+    if (!nullToAbsent || reference != null) {
+      map['reference'] = Variable<String>(reference);
+    }
+    map['by_name'] = Variable<String>(byName);
+    return map;
+  }
+
+  VoucherEntriesCompanion toCompanion(bool nullToAbsent) {
+    return VoucherEntriesCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      syncedAt: syncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedAt),
+      deviceId: Value(deviceId),
+      voucherId: Value(voucherId),
+      kind: Value(kind),
+      amount: Value(amount),
+      saleId: saleId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(saleId),
+      method: method == null && nullToAbsent
+          ? const Value.absent()
+          : Value(method),
+      methodName: methodName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(methodName),
+      reference: reference == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reference),
+      byName: Value(byName),
+    );
+  }
+
+  factory VoucherEntryRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return VoucherEntryRow(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      voucherId: serializer.fromJson<String>(json['voucherId']),
+      kind: $VoucherEntriesTable.$converterkind.fromJson(
+        serializer.fromJson<String>(json['kind']),
+      ),
+      amount: serializer.fromJson<int>(json['amount']),
+      saleId: serializer.fromJson<String?>(json['saleId']),
+      method: $VoucherEntriesTable.$convertermethodn.fromJson(
+        serializer.fromJson<String?>(json['method']),
+      ),
+      methodName: serializer.fromJson<String?>(json['methodName']),
+      reference: serializer.fromJson<String?>(json['reference']),
+      byName: serializer.fromJson<String>(json['byName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'syncedAt': serializer.toJson<DateTime?>(syncedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'voucherId': serializer.toJson<String>(voucherId),
+      'kind': serializer.toJson<String>(
+        $VoucherEntriesTable.$converterkind.toJson(kind),
+      ),
+      'amount': serializer.toJson<int>(amount),
+      'saleId': serializer.toJson<String?>(saleId),
+      'method': serializer.toJson<String?>(
+        $VoucherEntriesTable.$convertermethodn.toJson(method),
+      ),
+      'methodName': serializer.toJson<String?>(methodName),
+      'reference': serializer.toJson<String?>(reference),
+      'byName': serializer.toJson<String>(byName),
+    };
+  }
+
+  VoucherEntryRow copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    Value<DateTime?> syncedAt = const Value.absent(),
+    String? deviceId,
+    String? voucherId,
+    VoucherEntryKind? kind,
+    int? amount,
+    Value<String?> saleId = const Value.absent(),
+    Value<PaymentMethod?> method = const Value.absent(),
+    Value<String?> methodName = const Value.absent(),
+    Value<String?> reference = const Value.absent(),
+    String? byName,
+  }) => VoucherEntryRow(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
+    deviceId: deviceId ?? this.deviceId,
+    voucherId: voucherId ?? this.voucherId,
+    kind: kind ?? this.kind,
+    amount: amount ?? this.amount,
+    saleId: saleId.present ? saleId.value : this.saleId,
+    method: method.present ? method.value : this.method,
+    methodName: methodName.present ? methodName.value : this.methodName,
+    reference: reference.present ? reference.value : this.reference,
+    byName: byName ?? this.byName,
+  );
+  VoucherEntryRow copyWithCompanion(VoucherEntriesCompanion data) {
+    return VoucherEntryRow(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      voucherId: data.voucherId.present ? data.voucherId.value : this.voucherId,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      saleId: data.saleId.present ? data.saleId.value : this.saleId,
+      method: data.method.present ? data.method.value : this.method,
+      methodName: data.methodName.present
+          ? data.methodName.value
+          : this.methodName,
+      reference: data.reference.present ? data.reference.value : this.reference,
+      byName: data.byName.present ? data.byName.value : this.byName,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VoucherEntryRow(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('voucherId: $voucherId, ')
+          ..write('kind: $kind, ')
+          ..write('amount: $amount, ')
+          ..write('saleId: $saleId, ')
+          ..write('method: $method, ')
+          ..write('methodName: $methodName, ')
+          ..write('reference: $reference, ')
+          ..write('byName: $byName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    syncedAt,
+    deviceId,
+    voucherId,
+    kind,
+    amount,
+    saleId,
+    method,
+    methodName,
+    reference,
+    byName,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is VoucherEntryRow &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.syncedAt == this.syncedAt &&
+          other.deviceId == this.deviceId &&
+          other.voucherId == this.voucherId &&
+          other.kind == this.kind &&
+          other.amount == this.amount &&
+          other.saleId == this.saleId &&
+          other.method == this.method &&
+          other.methodName == this.methodName &&
+          other.reference == this.reference &&
+          other.byName == this.byName);
+}
+
+class VoucherEntriesCompanion extends UpdateCompanion<VoucherEntryRow> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<DateTime?> syncedAt;
+  final Value<String> deviceId;
+  final Value<String> voucherId;
+  final Value<VoucherEntryKind> kind;
+  final Value<int> amount;
+  final Value<String?> saleId;
+  final Value<PaymentMethod?> method;
+  final Value<String?> methodName;
+  final Value<String?> reference;
+  final Value<String> byName;
+  final Value<int> rowid;
+  const VoucherEntriesCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.voucherId = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.saleId = const Value.absent(),
+    this.method = const Value.absent(),
+    this.methodName = const Value.absent(),
+    this.reference = const Value.absent(),
+    this.byName = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  VoucherEntriesCompanion.insert({
+    required String id,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    required String deviceId,
+    required String voucherId,
+    required VoucherEntryKind kind,
+    required int amount,
+    this.saleId = const Value.absent(),
+    this.method = const Value.absent(),
+    this.methodName = const Value.absent(),
+    this.reference = const Value.absent(),
+    required String byName,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       voucherId = Value(voucherId),
+       kind = Value(kind),
+       amount = Value(amount),
+       byName = Value(byName);
+  static Insertable<VoucherEntryRow> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<DateTime>? syncedAt,
+    Expression<String>? deviceId,
+    Expression<String>? voucherId,
+    Expression<String>? kind,
+    Expression<int>? amount,
+    Expression<String>? saleId,
+    Expression<String>? method,
+    Expression<String>? methodName,
+    Expression<String>? reference,
+    Expression<String>? byName,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (syncedAt != null) 'synced_at': syncedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (voucherId != null) 'voucher_id': voucherId,
+      if (kind != null) 'kind': kind,
+      if (amount != null) 'amount': amount,
+      if (saleId != null) 'sale_id': saleId,
+      if (method != null) 'method': method,
+      if (methodName != null) 'method_name': methodName,
+      if (reference != null) 'reference': reference,
+      if (byName != null) 'by_name': byName,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  VoucherEntriesCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<DateTime?>? syncedAt,
+    Value<String>? deviceId,
+    Value<String>? voucherId,
+    Value<VoucherEntryKind>? kind,
+    Value<int>? amount,
+    Value<String?>? saleId,
+    Value<PaymentMethod?>? method,
+    Value<String?>? methodName,
+    Value<String?>? reference,
+    Value<String>? byName,
+    Value<int>? rowid,
+  }) {
+    return VoucherEntriesCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      syncedAt: syncedAt ?? this.syncedAt,
+      deviceId: deviceId ?? this.deviceId,
+      voucherId: voucherId ?? this.voucherId,
+      kind: kind ?? this.kind,
+      amount: amount ?? this.amount,
+      saleId: saleId ?? this.saleId,
+      method: method ?? this.method,
+      methodName: methodName ?? this.methodName,
+      reference: reference ?? this.reference,
+      byName: byName ?? this.byName,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<DateTime>(syncedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (voucherId.present) {
+      map['voucher_id'] = Variable<String>(voucherId.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(
+        $VoucherEntriesTable.$converterkind.toSql(kind.value),
+      );
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (saleId.present) {
+      map['sale_id'] = Variable<String>(saleId.value);
+    }
+    if (method.present) {
+      map['method'] = Variable<String>(
+        $VoucherEntriesTable.$convertermethodn.toSql(method.value),
+      );
+    }
+    if (methodName.present) {
+      map['method_name'] = Variable<String>(methodName.value);
+    }
+    if (reference.present) {
+      map['reference'] = Variable<String>(reference.value);
+    }
+    if (byName.present) {
+      map['by_name'] = Variable<String>(byName.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VoucherEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('voucherId: $voucherId, ')
+          ..write('kind: $kind, ')
+          ..write('amount: $amount, ')
+          ..write('saleId: $saleId, ')
+          ..write('method: $method, ')
+          ..write('methodName: $methodName, ')
+          ..write('reference: $reference, ')
+          ..write('byName: $byName, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $OwnerMoneyTable extends OwnerMoney
     with TableInfo<$OwnerMoneyTable, OwnerMoneyRow> {
   @override
@@ -39867,6 +41397,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $RecurringExpensesTable recurringExpenses =
       $RecurringExpensesTable(this);
   late final $PromotionsTable promotions = $PromotionsTable(this);
+  late final $GiftVouchersTable giftVouchers = $GiftVouchersTable(this);
+  late final $VoucherEntriesTable voucherEntries = $VoucherEntriesTable(this);
   late final $OwnerMoneyTable ownerMoney = $OwnerMoneyTable(this);
   late final $DiscountsTable discounts = $DiscountsTable(this);
   late final $ReasonsTable reasons = $ReasonsTable(this);
@@ -39924,6 +41456,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     expenses,
     recurringExpenses,
     promotions,
+    giftVouchers,
+    voucherEntries,
     ownerMoney,
     discounts,
     reasons,
@@ -60374,6 +61908,941 @@ typedef $$PromotionsTableProcessedTableManager =
       PromotionRow,
       PrefetchHooks Function()
     >;
+typedef $$GiftVouchersTableCreateCompanionBuilder =
+    GiftVouchersCompanion Function({
+      required String id,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<DateTime?> syncedAt,
+      required String deviceId,
+      required String code,
+      required int amount,
+      Value<DateTime?> expiresOn,
+      Value<String?> customerId,
+      Value<String?> note,
+      required String byName,
+      Value<int> rowid,
+    });
+typedef $$GiftVouchersTableUpdateCompanionBuilder =
+    GiftVouchersCompanion Function({
+      Value<String> id,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<DateTime?> syncedAt,
+      Value<String> deviceId,
+      Value<String> code,
+      Value<int> amount,
+      Value<DateTime?> expiresOn,
+      Value<String?> customerId,
+      Value<String?> note,
+      Value<String> byName,
+      Value<int> rowid,
+    });
+
+final class $$GiftVouchersTableReferences
+    extends BaseReferences<_$AppDatabase, $GiftVouchersTable, GiftVoucherRow> {
+  $$GiftVouchersTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$VoucherEntriesTable, List<VoucherEntryRow>>
+  _voucherEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.voucherEntries,
+    aliasName: 'gift_vouchers__id__voucher_entries__voucher_id',
+  );
+
+  $$VoucherEntriesTableProcessedTableManager get voucherEntriesRefs {
+    final manager = $$VoucherEntriesTableTableManager(
+      $_db,
+      $_db.voucherEntries,
+    ).filter((f) => f.voucherId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_voucherEntriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$GiftVouchersTableFilterComposer
+    extends Composer<_$AppDatabase, $GiftVouchersTable> {
+  $$GiftVouchersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get expiresOn => $composableBuilder(
+    column: $table.expiresOn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerId => $composableBuilder(
+    column: $table.customerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get byName => $composableBuilder(
+    column: $table.byName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> voucherEntriesRefs(
+    Expression<bool> Function($$VoucherEntriesTableFilterComposer f) f,
+  ) {
+    final $$VoucherEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.voucherEntries,
+      getReferencedColumn: (t) => t.voucherId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VoucherEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.voucherEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$GiftVouchersTableOrderingComposer
+    extends Composer<_$AppDatabase, $GiftVouchersTable> {
+  $$GiftVouchersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get expiresOn => $composableBuilder(
+    column: $table.expiresOn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerId => $composableBuilder(
+    column: $table.customerId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get byName => $composableBuilder(
+    column: $table.byName,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$GiftVouchersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GiftVouchersTable> {
+  $$GiftVouchersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get syncedAt =>
+      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<String> get code =>
+      $composableBuilder(column: $table.code, builder: (column) => column);
+
+  GeneratedColumn<int> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get expiresOn =>
+      $composableBuilder(column: $table.expiresOn, builder: (column) => column);
+
+  GeneratedColumn<String> get customerId => $composableBuilder(
+    column: $table.customerId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get byName =>
+      $composableBuilder(column: $table.byName, builder: (column) => column);
+
+  Expression<T> voucherEntriesRefs<T extends Object>(
+    Expression<T> Function($$VoucherEntriesTableAnnotationComposer a) f,
+  ) {
+    final $$VoucherEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.voucherEntries,
+      getReferencedColumn: (t) => t.voucherId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VoucherEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.voucherEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$GiftVouchersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GiftVouchersTable,
+          GiftVoucherRow,
+          $$GiftVouchersTableFilterComposer,
+          $$GiftVouchersTableOrderingComposer,
+          $$GiftVouchersTableAnnotationComposer,
+          $$GiftVouchersTableCreateCompanionBuilder,
+          $$GiftVouchersTableUpdateCompanionBuilder,
+          (GiftVoucherRow, $$GiftVouchersTableReferences),
+          GiftVoucherRow,
+          PrefetchHooks Function({bool voucherEntriesRefs})
+        > {
+  $$GiftVouchersTableTableManager(_$AppDatabase db, $GiftVouchersTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GiftVouchersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GiftVouchersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GiftVouchersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<DateTime?> syncedAt = const Value.absent(),
+                Value<String> deviceId = const Value.absent(),
+                Value<String> code = const Value.absent(),
+                Value<int> amount = const Value.absent(),
+                Value<DateTime?> expiresOn = const Value.absent(),
+                Value<String?> customerId = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<String> byName = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => GiftVouchersCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                syncedAt: syncedAt,
+                deviceId: deviceId,
+                code: code,
+                amount: amount,
+                expiresOn: expiresOn,
+                customerId: customerId,
+                note: note,
+                byName: byName,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<DateTime?> syncedAt = const Value.absent(),
+                required String deviceId,
+                required String code,
+                required int amount,
+                Value<DateTime?> expiresOn = const Value.absent(),
+                Value<String?> customerId = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                required String byName,
+                Value<int> rowid = const Value.absent(),
+              }) => GiftVouchersCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                syncedAt: syncedAt,
+                deviceId: deviceId,
+                code: code,
+                amount: amount,
+                expiresOn: expiresOn,
+                customerId: customerId,
+                note: note,
+                byName: byName,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$GiftVouchersTable, GiftVoucherRow>(table),
+                  $$GiftVouchersTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({voucherEntriesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (voucherEntriesRefs) db.voucherEntries,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (voucherEntriesRefs)
+                    await $_getPrefetchedData<
+                      GiftVoucherRow,
+                      $GiftVouchersTable,
+                      VoucherEntryRow
+                    >(
+                      currentTable: table,
+                      referencedTable: $$GiftVouchersTableReferences
+                          ._voucherEntriesRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$GiftVouchersTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).voucherEntriesRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.voucherId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$GiftVouchersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GiftVouchersTable,
+      GiftVoucherRow,
+      $$GiftVouchersTableFilterComposer,
+      $$GiftVouchersTableOrderingComposer,
+      $$GiftVouchersTableAnnotationComposer,
+      $$GiftVouchersTableCreateCompanionBuilder,
+      $$GiftVouchersTableUpdateCompanionBuilder,
+      (GiftVoucherRow, $$GiftVouchersTableReferences),
+      GiftVoucherRow,
+      PrefetchHooks Function({bool voucherEntriesRefs})
+    >;
+typedef $$VoucherEntriesTableCreateCompanionBuilder =
+    VoucherEntriesCompanion Function({
+      required String id,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<DateTime?> syncedAt,
+      required String deviceId,
+      required String voucherId,
+      required VoucherEntryKind kind,
+      required int amount,
+      Value<String?> saleId,
+      Value<PaymentMethod?> method,
+      Value<String?> methodName,
+      Value<String?> reference,
+      required String byName,
+      Value<int> rowid,
+    });
+typedef $$VoucherEntriesTableUpdateCompanionBuilder =
+    VoucherEntriesCompanion Function({
+      Value<String> id,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<DateTime?> syncedAt,
+      Value<String> deviceId,
+      Value<String> voucherId,
+      Value<VoucherEntryKind> kind,
+      Value<int> amount,
+      Value<String?> saleId,
+      Value<PaymentMethod?> method,
+      Value<String?> methodName,
+      Value<String?> reference,
+      Value<String> byName,
+      Value<int> rowid,
+    });
+
+final class $$VoucherEntriesTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $VoucherEntriesTable, VoucherEntryRow> {
+  $$VoucherEntriesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $GiftVouchersTable _voucherIdTable(_$AppDatabase db) => db.giftVouchers
+      .createAlias('voucher_entries__voucher_id__gift_vouchers__id');
+
+  $$GiftVouchersTableProcessedTableManager get voucherId {
+    final $_column = $_itemColumn<String>('voucher_id')!;
+
+    final manager = $$GiftVouchersTableTableManager(
+      $_db,
+      $_db.giftVouchers,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_voucherIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$VoucherEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $VoucherEntriesTable> {
+  $$VoucherEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<VoucherEntryKind, VoucherEntryKind, String>
+  get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get saleId => $composableBuilder(
+    column: $table.saleId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<PaymentMethod?, PaymentMethod, String>
+  get method => $composableBuilder(
+    column: $table.method,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get methodName => $composableBuilder(
+    column: $table.methodName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reference => $composableBuilder(
+    column: $table.reference,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get byName => $composableBuilder(
+    column: $table.byName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$GiftVouchersTableFilterComposer get voucherId {
+    final $$GiftVouchersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.voucherId,
+      referencedTable: $db.giftVouchers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GiftVouchersTableFilterComposer(
+            $db: $db,
+            $table: $db.giftVouchers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VoucherEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $VoucherEntriesTable> {
+  $$VoucherEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get saleId => $composableBuilder(
+    column: $table.saleId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get method => $composableBuilder(
+    column: $table.method,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get methodName => $composableBuilder(
+    column: $table.methodName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reference => $composableBuilder(
+    column: $table.reference,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get byName => $composableBuilder(
+    column: $table.byName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$GiftVouchersTableOrderingComposer get voucherId {
+    final $$GiftVouchersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.voucherId,
+      referencedTable: $db.giftVouchers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GiftVouchersTableOrderingComposer(
+            $db: $db,
+            $table: $db.giftVouchers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VoucherEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $VoucherEntriesTable> {
+  $$VoucherEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get syncedAt =>
+      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<VoucherEntryKind, String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<int> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<String> get saleId =>
+      $composableBuilder(column: $table.saleId, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<PaymentMethod?, String> get method =>
+      $composableBuilder(column: $table.method, builder: (column) => column);
+
+  GeneratedColumn<String> get methodName => $composableBuilder(
+    column: $table.methodName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get reference =>
+      $composableBuilder(column: $table.reference, builder: (column) => column);
+
+  GeneratedColumn<String> get byName =>
+      $composableBuilder(column: $table.byName, builder: (column) => column);
+
+  $$GiftVouchersTableAnnotationComposer get voucherId {
+    final $$GiftVouchersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.voucherId,
+      referencedTable: $db.giftVouchers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GiftVouchersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.giftVouchers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VoucherEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $VoucherEntriesTable,
+          VoucherEntryRow,
+          $$VoucherEntriesTableFilterComposer,
+          $$VoucherEntriesTableOrderingComposer,
+          $$VoucherEntriesTableAnnotationComposer,
+          $$VoucherEntriesTableCreateCompanionBuilder,
+          $$VoucherEntriesTableUpdateCompanionBuilder,
+          (VoucherEntryRow, $$VoucherEntriesTableReferences),
+          VoucherEntryRow,
+          PrefetchHooks Function({bool voucherId})
+        > {
+  $$VoucherEntriesTableTableManager(
+    _$AppDatabase db,
+    $VoucherEntriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$VoucherEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$VoucherEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$VoucherEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<DateTime?> syncedAt = const Value.absent(),
+                Value<String> deviceId = const Value.absent(),
+                Value<String> voucherId = const Value.absent(),
+                Value<VoucherEntryKind> kind = const Value.absent(),
+                Value<int> amount = const Value.absent(),
+                Value<String?> saleId = const Value.absent(),
+                Value<PaymentMethod?> method = const Value.absent(),
+                Value<String?> methodName = const Value.absent(),
+                Value<String?> reference = const Value.absent(),
+                Value<String> byName = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => VoucherEntriesCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                syncedAt: syncedAt,
+                deviceId: deviceId,
+                voucherId: voucherId,
+                kind: kind,
+                amount: amount,
+                saleId: saleId,
+                method: method,
+                methodName: methodName,
+                reference: reference,
+                byName: byName,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<DateTime?> syncedAt = const Value.absent(),
+                required String deviceId,
+                required String voucherId,
+                required VoucherEntryKind kind,
+                required int amount,
+                Value<String?> saleId = const Value.absent(),
+                Value<PaymentMethod?> method = const Value.absent(),
+                Value<String?> methodName = const Value.absent(),
+                Value<String?> reference = const Value.absent(),
+                required String byName,
+                Value<int> rowid = const Value.absent(),
+              }) => VoucherEntriesCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                syncedAt: syncedAt,
+                deviceId: deviceId,
+                voucherId: voucherId,
+                kind: kind,
+                amount: amount,
+                saleId: saleId,
+                method: method,
+                methodName: methodName,
+                reference: reference,
+                byName: byName,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$VoucherEntriesTable, VoucherEntryRow>(table),
+                  $$VoucherEntriesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({voucherId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (voucherId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.voucherId,
+                        referencedTable: $$VoucherEntriesTableReferences
+                            ._voucherIdTable(db),
+                        referencedColumn: $$VoucherEntriesTableReferences
+                            ._voucherIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$VoucherEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $VoucherEntriesTable,
+      VoucherEntryRow,
+      $$VoucherEntriesTableFilterComposer,
+      $$VoucherEntriesTableOrderingComposer,
+      $$VoucherEntriesTableAnnotationComposer,
+      $$VoucherEntriesTableCreateCompanionBuilder,
+      $$VoucherEntriesTableUpdateCompanionBuilder,
+      (VoucherEntryRow, $$VoucherEntriesTableReferences),
+      VoucherEntryRow,
+      PrefetchHooks Function({bool voucherId})
+    >;
 typedef $$OwnerMoneyTableCreateCompanionBuilder = OwnerMoneyCompanion Function({
   required String id,
   required DateTime createdAt,
@@ -65955,6 +68424,10 @@ class $AppDatabaseManager {
       $$RecurringExpensesTableTableManager(_db, _db.recurringExpenses);
   $$PromotionsTableTableManager get promotions =>
       $$PromotionsTableTableManager(_db, _db.promotions);
+  $$GiftVouchersTableTableManager get giftVouchers =>
+      $$GiftVouchersTableTableManager(_db, _db.giftVouchers);
+  $$VoucherEntriesTableTableManager get voucherEntries =>
+      $$VoucherEntriesTableTableManager(_db, _db.voucherEntries);
   $$OwnerMoneyTableTableManager get ownerMoney =>
       $$OwnerMoneyTableTableManager(_db, _db.ownerMoney);
   $$DiscountsTableTableManager get discounts =>

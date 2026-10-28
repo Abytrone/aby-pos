@@ -54,6 +54,7 @@ enum AuditAction {
   customerCreditLimit,
   customerRepaid,
   walletTopUp,
+  voucherIssued,
   creditWrittenOff,
   cashPaidIn,
   cashPaidOut,

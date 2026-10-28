@@ -147,7 +147,7 @@ class Promotion {
 
 /// What the promotions take off each cart line, and which ones.
 class PromotionResult {
-  const PromotionResult(this.off, this.names);
+  const PromotionResult(this.off, this.names, [this.byPromotion = const {}]);
 
   /// Nothing applies.
   static PromotionResult none(int lines) =>
@@ -158,6 +158,9 @@ class PromotionResult {
 
   /// Promotion names per cart line.
   final List<List<String>> names;
+
+  /// Pesewas each applied promotion took off, by its ID.
+  final Map<String, int> byPromotion;
 
   int get total => off.fold(0, (s, o) => s + o);
 }
@@ -207,6 +210,7 @@ abstract final class PromotionEngine {
     final left = [for (final u in units) u.price];
     final off = List.filled(lines.length, 0);
     final names = List.generate(lines.length, (_) => <String>[]);
+    final byPromotion = <String, int>{};
     for (final p in chosen) {
       final offs = results[p]!;
       for (final (i, u) in units.indexed) {
@@ -214,10 +218,11 @@ abstract final class PromotionEngine {
         if (take <= 0) continue;
         left[i] -= take;
         off[u.line] += take;
+        byPromotion[p.id] = (byPromotion[p.id] ?? 0) + take;
         if (!names[u.line].contains(p.name)) names[u.line].add(p.name);
       }
     }
-    return PromotionResult(off, names);
+    return PromotionResult(off, names, byPromotion);
   }
 
   /// Pesewas off each unit for one promotion on its own.

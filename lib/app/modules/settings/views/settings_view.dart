@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../../core/settings.dart';
+import '../../../domain/loyalty.dart';
 import '../../../models/enums.dart';
 import '../../../models/receipt.dart';
 import '../../../models/scale.dart';
@@ -19,6 +20,7 @@ import '../controllers/backup_controller.dart';
 import '../controllers/settings_controller.dart';
 import '../widgets/device_hardware.dart';
 import '../widgets/local_backups_dialog.dart';
+import '../widgets/loyalty_settings.dart';
 import '../widgets/pay_methods_dialog.dart';
 import '../widgets/printer_setup.dart';
 import '../widgets/promotions_dialog.dart';
@@ -223,6 +225,13 @@ class SettingsView extends GetView<SettingsController> {
         leading: const Icon(Icons.local_offer_outlined),
         onTap: showSavedDiscounts,
       ), keywords: ['discount', 'student', 'staff']),
+      _Entry(selling, InfoTile(
+        title: l.loyaltyTitle,
+        subtitle: l.loyaltySettingsHelp,
+        value: loyaltyStyleLabel(l, LoyaltyStyle.values.asNameMap()[c.value(AppSettings.loyaltyStyle)] ?? LoyaltyStyle.off),
+        leading: const Icon(Icons.loyalty_outlined),
+        onTap: () => showLoyaltySettings(c),
+      ), keywords: ['loyalty', 'stamps', 'points', 'gold', 'reward', 'free']),
       _Entry(selling, InfoTile(
         title: l.promoTitle,
         subtitle: l.promoSettingsHelp,

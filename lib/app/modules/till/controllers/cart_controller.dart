@@ -6,7 +6,9 @@ import '../../../core/settings.dart';
 import '../../../core/tax.dart';
 import '../../../data/repositories/audit_repository.dart';
 import '../../../data/repositories/parked_order_repository.dart';
+import '../../../data/repositories/customer_repository.dart';
 import '../../../data/repositories/promotion_repository.dart';
+import '../../../domain/loyalty.dart';
 import '../../../domain/pricing.dart';
 import '../../../domain/promotions.dart';
 import '../../../models/audit.dart';
@@ -54,6 +56,7 @@ class CartController extends GetxController {
   void onInit() {
     super.onInit();
     everAll([lines, orderDiscount, note, orderType, parkedName, customer], (_) => _saveSoon());
+    ever(customer, _loadLoyalty);
     if (Get.isRegistered<PromotionRepository>()) {
       _promotionSub = Get.find<PromotionRepository>().watch().listen(promotions.assignAll);
     }
@@ -81,8 +84,26 @@ class CartController extends GetxController {
         lines,
         orderDiscount: orderDiscount.value,
         taxMode: taxMode,
-        promotions: PromotionEngine.apply(lines, promotions, DateTime.now()),
+        promotions: Loyalty.apply(lines, promotions, DateTime.now(), loyalty, loyaltyStatus.value),
       );
+
+  /// The shop's loyalty rules (off when settings are not loaded).
+  LoyaltyConfig get loyalty => Get.isRegistered<SettingsService>()
+      ? LoyaltyConfig.read(Get.find<SettingsService>().get)
+      : const LoyaltyConfig();
+
+  /// The attached customer's stamps or points, for their reward.
+  final loyaltyStatus = Rxn<LoyaltyStatus>();
+
+  Future<void> _loadLoyalty(Customer? c) async {
+    final config = loyalty;
+    if (c == null || !config.on || !Get.isRegistered<CustomerRepository>()) {
+      loyaltyStatus.value = null;
+      return;
+    }
+    final status = await Get.find<CustomerRepository>().loyaltyStatus(c.id, config);
+    if (customer.value?.id == c.id) loyaltyStatus.value = status;
+  }
 
   /// The lines as priced, before discounts.
   int get subtotal => pricing.subtotal;

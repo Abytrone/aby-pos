@@ -5,6 +5,7 @@ import 'package:drift/drift.dart';
 import '../../core/business_day.dart';
 import '../../core/tax.dart';
 import '../../core/units.dart';
+import '../../domain/loyalty.dart';
 import '../../domain/pricing.dart';
 import '../../domain/promotions.dart';
 import '../../domain/settlement.dart';
@@ -25,6 +26,7 @@ import 'customer_repository.dart';
 import 'day_close_repository.dart';
 import 'refund_repository.dart';
 import 'stock_repository.dart';
+import 'voucher_repository.dart';
 
 /// Thrown when a sale cannot be saved as asked. Nothing has been written.
 class SaleException implements Exception {
@@ -50,7 +52,16 @@ class ExchangeInput {
 }
 
 class SaleRepository {
-  SaleRepository(this._db, this._stock, this._closes, this._audit, this._device, [this._refunds, this._customers]);
+  SaleRepository(
+    this._db,
+    this._stock,
+    this._closes,
+    this._audit,
+    this._device, [
+    this._refunds,
+    this._customers,
+    this._vouchers,
+  ]);
 
   final AppDatabase _db;
   final StockRepository _stock;
@@ -59,6 +70,7 @@ class SaleRepository {
   final DeviceInfo _device;
   final RefundRepository? _refunds;
   final CustomerRepository? _customers;
+  final VoucherRepository? _vouchers;
 
   /// Short references (the last 4 of a MoMo ID) repeat over time, so they
   /// are only checked for reuse over this window.
@@ -87,18 +99,19 @@ class SaleRepository {
     bool changeToWallet = false,
     Staff? creditApprover,
     List<Promotion> promotions = const [],
+    LoyaltyConfig loyalty = const LoyaltyConfig(),
   }) async {
     if (lines.isEmpty) throw const SaleException('The cart is empty.');
     if (lines.any((l) => l.quantity < 1)) {
       throw const SaleException('Every line needs a quantity of at least 1.');
     }
     if (lines.any((l) => l.unitPrice < 0)) throw const SaleException('A price cannot be negative.');
-    final pricing = CartPricing.of(
-      lines,
-      orderDiscount: orderDiscount,
-      taxMode: taxMode,
-      promotions: PromotionEngine.apply(lines, promotions, DateTime.now()),
-    );
+    // The customer's loyalty reward, worked out as the cart showed it.
+    final status = loyalty.on && customer != null && _customers != null
+        ? await _customers.loyaltyStatus(customer.id, loyalty, byName: cashier.name)
+        : null;
+    final promoted = Loyalty.apply(lines, promotions, DateTime.now(), loyalty, status);
+    final pricing = CartPricing.of(lines, orderDiscount: orderDiscount, taxMode: taxMode, promotions: promoted);
     final subtotal = pricing.subtotal;
     final taxTotal = pricing.taxTotal;
     final total = pricing.total;
@@ -325,6 +338,13 @@ class SaleRepository {
 
       for (final p in settlement.payments) {
         final input = p.input;
+        if (input.method == PaymentMethod.voucher) {
+          try {
+            await _vouchers!.spend(input.reference ?? '', p.amount, saleId: saleId, byName: cashier.name);
+          } on VoucherException catch (e) {
+            throw SaleException(e.message);
+          }
+        }
         final ref = input.reference == null ? null : Settlement.cleanReference(input.reference!);
         await _db.insertTracked(
           _db.payments,
@@ -384,6 +404,30 @@ class SaleRepository {
             method: PaymentMethod.cash,
             methodName: 'Cash',
           );
+        }
+        if (loyalty.on) {
+          final used = Loyalty.redeemed(loyalty, promoted);
+          if (used > 0) {
+            await customers.addEntry(
+              customerId: account.id,
+              account: CustomerAccount.loyalty,
+              kind: CustomerEntryKind.loyaltyRedeem,
+              amount: -used,
+              byName: cashier.name,
+              saleId: saleId,
+            );
+          }
+          final got = Loyalty.earned(loyalty, lines, promoted, total);
+          if (got > 0) {
+            await customers.addEntry(
+              customerId: account.id,
+              account: CustomerAccount.loyalty,
+              kind: CustomerEntryKind.loyaltyEarn,
+              amount: got,
+              byName: cashier.name,
+              saleId: saleId,
+            );
+          }
         }
         if (creditApprover != null) {
           await _audit.record(
@@ -482,6 +526,16 @@ class SaleRepository {
   /// twice is a payment taken twice. Short references are checked over
   /// [shortReferenceWindow] only.
   Future<void> _checkReference(PaymentInput p) async {
+    // A gift voucher's code is used until its balance runs out.
+    if (p.method == PaymentMethod.voucher) {
+      if (_vouchers == null) throw const SaleException('Gift vouchers are not available here.');
+      try {
+        await _vouchers.check(p.reference ?? '', p.amount ?? 0);
+      } on VoucherException catch (e) {
+        throw SaleException(e.message);
+      }
+      return;
+    }
     if (!p.needsReference || p.reference == null) return;
     final ref = Settlement.cleanReference(p.reference!);
     if (ref.isEmpty) return;
@@ -567,6 +621,9 @@ class SaleRepository {
           at: now,
         );
       }
+      // Credit owed, wallet money, stamps, points and vouchers go back too.
+      await _customers?.reverseSale(saleId, byName: by.name, saleNumber: formatSaleNumber(sale.number));
+      await _vouchers?.reverseSale(saleId, byName: by.name);
       await _audit.record(
         action: AuditAction.saleVoided,
         actor: actor,

@@ -31,6 +31,10 @@ abstract final class CustomerDocuments {
         CustomerEntryKind.walletSpend => 'Spent on a sale',
         CustomerEntryKind.walletRefund => 'Refund to wallet',
         CustomerEntryKind.adjustment => 'Adjustment',
+        CustomerEntryKind.loyaltyEarn => 'Earned',
+        CustomerEntryKind.loyaltyRedeem => 'Reward',
+        CustomerEntryKind.loyaltyExpire => 'Expired',
+        CustomerEntryKind.voidReversal => 'Sale voided',
       };
 
   /// A credit statement for [from] to [to]: the balance brought forward,

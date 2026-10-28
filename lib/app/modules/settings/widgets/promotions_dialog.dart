@@ -162,8 +162,8 @@ String _targetText(AppLocalizations l, PromoTarget t, Catalogue menu) {
 }
 
 /// A field that picks products and categories.
-class _TargetField extends StatelessWidget {
-  const _TargetField({required this.label, required this.target, required this.menu, required this.onChanged});
+class PromoTargetField extends StatelessWidget {
+  const PromoTargetField({super.key, required this.label, required this.target, required this.menu, required this.onChanged});
 
   final String label;
   final PromoTarget target;
@@ -411,12 +411,12 @@ class _PromotionEditorState extends State<_PromotionEditor> {
             gap,
             ...switch (_kind) {
               PromotionKind.percentOff => [
-                  _TargetField(label: l.promoOn, target: _target, menu: menu, onChanged: (t) => setState(() => _target = t)),
+                  PromoTargetField(label: l.promoOn, target: _target, menu: menu, onChanged: (t) => setState(() => _target = t)),
                   gap,
                   number(_percent, l.promoPercentOff, suffix: '%'),
                 ],
               PromotionKind.quantityBreak => [
-                  _TargetField(label: l.promoOn, target: _target, menu: menu, onChanged: (t) => setState(() => _target = t)),
+                  PromoTargetField(label: l.promoOn, target: _target, menu: menu, onChanged: (t) => setState(() => _target = t)),
                   gap,
                   Row(children: [
                     Expanded(child: number(_quantity, l.promoMinQuantity)),
@@ -429,7 +429,7 @@ class _PromotionEditorState extends State<_PromotionEditor> {
                     SizedBox(width: 96, child: number(_quantity, l.promoBuy)),
                     const SizedBox(width: AbySpace.s3),
                     Expanded(
-                      child: _TargetField(label: l.promoOf, target: _target, menu: menu, onChanged: (t) => setState(() => _target = t)),
+                      child: PromoTargetField(label: l.promoOf, target: _target, menu: menu, onChanged: (t) => setState(() => _target = t)),
                     ),
                   ]),
                   gap,
@@ -437,7 +437,7 @@ class _PromotionEditorState extends State<_PromotionEditor> {
                     SizedBox(width: 96, child: number(_rewardQuantity, l.promoGet)),
                     const SizedBox(width: AbySpace.s3),
                     Expanded(
-                      child: _TargetField(
+                      child: PromoTargetField(
                         label: l.promoOfSameOrOther,
                         target: _reward,
                         menu: menu,
@@ -454,7 +454,7 @@ class _PromotionEditorState extends State<_PromotionEditor> {
                       padding: const EdgeInsets.only(bottom: AbySpace.s2),
                       child: Row(children: [
                         Expanded(
-                          child: _TargetField(
+                          child: PromoTargetField(
                             label: l.promoPart(i + 1),
                             target: part,
                             menu: menu,
@@ -495,7 +495,7 @@ class _PromotionEditorState extends State<_PromotionEditor> {
                   switch (_spendReward) {
                     SpendReward.percent => number(_percent, l.promoPercentOff, suffix: '%'),
                     SpendReward.amount => number(_amount, l.promoAmountOff, money: true),
-                    SpendReward.free => _TargetField(
+                    SpendReward.free => PromoTargetField(
                         label: l.promoFreeItem,
                         target: _reward,
                         menu: menu,

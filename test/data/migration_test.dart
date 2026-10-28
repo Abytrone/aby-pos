@@ -25,11 +25,11 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  for (final from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
-    test('v$from to v11 gives exactly the v11 schema', () async {
+  for (final from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]) {
+    test('v$from to v12 gives exactly the v12 schema', () async {
       final schema = await verifier.schemaAt(from);
       final db = AppDatabase(schema.newConnection(), false);
-      await verifier.migrateAndValidate(db, 11);
+      await verifier.migrateAndValidate(db, 12);
       await db.close();
     });
   }
@@ -286,6 +286,16 @@ void main() {
     final option = await (db.select(db.optionItems)..where((o) => o.id.equals('o1'))).getSingle();
     expect(option.variantId, isNull);
     expect(await db.select(db.promotions).get(), isEmpty);
+    await db.close();
+  });
+
+  test('v11 to v12 adds gift vouchers and the gift voucher payment method', () async {
+    final schema = await verifier.schemaAt(11);
+    schema.rawDatabase.execute("INSERT INTO meta (key, value) VALUES ('device_id', 'dev-1')");
+    final db = AppDatabase(schema.newConnection(), false);
+    final r = await Repos.open(db);
+    expect((await r.payMethods.list(includeInactive: true)).where((m) => m.kind == PaymentMethod.voucher), hasLength(1));
+    expect(await r.vouchers.list(), isEmpty);
     await db.close();
   });
 }

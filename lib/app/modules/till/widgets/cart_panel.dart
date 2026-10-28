@@ -8,6 +8,7 @@ import '../../../models/cart_line.dart';
 import '../../../models/enums.dart';
 import '../../../services/money.dart';
 import '../../../ui/customer_picker.dart';
+import '../../../ui/loyalty_text.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
@@ -109,16 +110,25 @@ class CartPanel extends StatelessWidget {
                       Icon(cart.customer.value == null ? Icons.person_add_alt : Icons.person, size: 20, color: c.blue),
                       const SizedBox(width: AbySpace.s2),
                       Expanded(
-                        child: Text(
-                          cart.customer.value == null
-                              ? l.cartAddCustomer
-                              : [
-                                  cart.customer.value!.name,
-                                  if (cart.customer.value!.owed > 0) l.customerOwes(formatMoney(cart.customer.value!.owed)),
-                                ].join('  ·  '),
-                          overflow: TextOverflow.ellipsis,
-                          style: AbyText.body.copyWith(color: c.blue, fontWeight: FontWeight.w700),
-                        ),
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text(
+                            cart.customer.value == null
+                                ? l.cartAddCustomer
+                                : [
+                                    cart.customer.value!.name,
+                                    if (cart.customer.value!.owed > 0) l.customerOwes(formatMoney(cart.customer.value!.owed)),
+                                  ].join('  ·  '),
+                            overflow: TextOverflow.ellipsis,
+                            style: AbyText.body.copyWith(color: c.blue, fontWeight: FontWeight.w700),
+                          ),
+                          if (cart.customer.value != null)
+                            if (loyaltyText(l, cart.loyalty, cart.loyaltyStatus.value, cart.customer.value!.name) case final line?)
+                              Text(
+                                line,
+                                overflow: TextOverflow.ellipsis,
+                                style: AbyText.caption.copyWith(color: c.success, fontWeight: FontWeight.w700),
+                              ),
+                        ]),
                       ),
                     ]),
                   ),

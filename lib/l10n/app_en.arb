@@ -1138,6 +1138,46 @@
   "promoThresholdInvalid": "Enter how much they must spend.",
   "promoPartsInvalid": "A bundle needs at least 2 parts.",
   "promoDaysRequired": "Pick at least one day.",
+  "auditVoucherIssued": "Gift voucher sold",
+  "payKindVoucher": "Gift voucher",
+  "loyaltyTitle": "Loyalty",
+  "loyaltySettingsHelp": "Stamp card, points or Gold customers. Customers are known by their phone number.",
+  "loyaltyHelp": "Pick one style for the shop. Attach the customer at the till: rewards apply by themselves.",
+  "loyaltyOffHelp": "No loyalty rewards.",
+  "loyaltyStampCard": "Stamps",
+  "loyaltyPointsStyle": "Points",
+  "loyaltyTiers": "Gold",
+  "loyaltyStampsNeeded": "Stamps for a free item",
+  "loyaltyStampsNeededHelp": "9 means buy 9, get the 10th free. One stamp per item.",
+  "loyaltyStampProducts": "Items that earn stamps (and the free one)",
+  "loyaltyPointsPerCedi": "Points per GH₵ 1 spent",
+  "loyaltyPointsForReward": "Points for a reward",
+  "loyaltyRewardValue": "Reward value",
+  "loyaltyExpireDays": "Points expire after",
+  "loyaltyExpireDaysHelp": "Days without a purchase. 0 means never.",
+  "loyaltyDays": "days",
+  "loyaltyTiersHelp": "Customers who spent enough in the last 90 days are Gold and get a discount on everything.",
+  "loyaltyGoldSpend": "Gold from this spend in 90 days",
+  "loyaltyGoldPercent": "Gold discount",
+  "loyaltyNumbersInvalid": "Check the numbers: each needs to be 1 or more.",
+  "voucherTitle": "Gift vouchers",
+  "voucherTitleOne": "Gift voucher",
+  "voucherHelp": "Sold for money now, spent later as a payment. What is left stays on the code.",
+  "voucherNone": "No gift vouchers yet.",
+  "voucherSell": "Sell a gift voucher",
+  "voucherSellButton": "Sell voucher",
+  "voucherExpired": "This voucher has expired.",
+  "voucherValue": "Value",
+  "voucherPaidBy": "Paid by",
+  "voucherLasts": "Can be used for",
+  "voucherNoExpiry": "Always",
+  "voucherNote": "Note (optional), like who it is for",
+  "voucherReferenceNeeded": "Enter the payment reference.",
+  "voucherSend": "Send",
+  "voucherCode": "Gift voucher code",
+  "voucherCodeHelp": "Type or scan the code on the voucher.",
+  "voucherNotFound": "No voucher with this code.",
+  "voucherUsedUp": "Nothing is left on this voucher.",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -3133,6 +3173,101 @@
   "@promoUntil": {
     "placeholders": {
       "date": {
+        "type": "String"
+      }
+    }
+  },
+  "loyaltyFreeReady": "{name} has a free item",
+  "@loyaltyFreeReady": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "loyaltyStampsHave": "{count} of {needed} stamps",
+  "@loyaltyStampsHave": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "needed": {
+        "type": "int"
+      }
+    }
+  },
+  "loyaltyPointsHave": "{count} points",
+  "@loyaltyPointsHave": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loyaltyPointsReward": "{count} points: {amount} off",
+  "@loyaltyPointsReward": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "loyaltyGold": "Gold: {percent}% off",
+  "@loyaltyGold": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "voucherSoldFor": "Sold for {amount} on {date}",
+  "@voucherSoldFor": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "voucherUseBy": "Use by {date}",
+  "@voucherUseBy": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "voucherMonths": "{count, plural, =1{1 month} other{{count} months}}",
+  "@voucherMonths": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "voucherLeft": "{left} left of {amount}",
+  "@voucherLeft": {
+    "placeholders": {
+      "left": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "voucherHas": "{code}: {amount} left",
+  "@voucherHas": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      },
+      "amount": {
         "type": "String"
       }
     }
