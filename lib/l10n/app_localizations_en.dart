@@ -3341,6 +3341,193 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifyExpenses => 'Expenses due';
 
   @override
+  String get commonDelete => 'Delete';
+
+  @override
+  String get auditPromotionSaved => 'Promotion changed';
+
+  @override
+  String get optionsComboPart => 'Is a product (combo part)';
+
+  @override
+  String get optionsComboPartHelp =>
+      'Uses that product\'s recipe, so its stock goes down.';
+
+  @override
+  String get optionsNotAProduct => 'No, just an option';
+
+  @override
+  String get promoTitle => 'Promotions';
+
+  @override
+  String get promoSettingsHelp =>
+      'Happy hours, buy X get Y, bundles, quantity prices and spend rewards.';
+
+  @override
+  String get promoHelp =>
+      'They apply themselves at the till when their conditions are met. When several could apply, the best deal for the customer wins.';
+
+  @override
+  String get promoNone => 'No promotions yet.';
+
+  @override
+  String get promoNew => 'New promotion';
+
+  @override
+  String get promoEdit => 'Change promotion';
+
+  @override
+  String get promoRunningNow => 'On now';
+
+  @override
+  String get promoApprovalReason => 'Promotions change prices.';
+
+  @override
+  String get promoName => 'Name';
+
+  @override
+  String get promoNameHelp =>
+      'Shown on the cart and the receipt, like Happy hour.';
+
+  @override
+  String get promoNameRequired => 'Give the promotion a name.';
+
+  @override
+  String get promoKind => 'What it does';
+
+  @override
+  String get promoKindPercent => 'Percent off';
+
+  @override
+  String get promoKindPercentExample => 'Happy hour 2 to 4 pm: 15% off cups.';
+
+  @override
+  String get promoKindBuyGet => 'Buy some, get some';
+
+  @override
+  String get promoKindBuyGetExample =>
+      'Buy 2 cones, get 1 free (the cheapest).';
+
+  @override
+  String get promoKindBundle => 'Bundle price';
+
+  @override
+  String get promoKindBundleExample =>
+      'Cone and milkshake together for GH₵ 32.';
+
+  @override
+  String get promoKindQuantity => 'Quantity price';
+
+  @override
+  String get promoKindQuantityExample => '6 or more tubs: GH₵ 55 each.';
+
+  @override
+  String get promoKindSpend => 'Spend reward';
+
+  @override
+  String get promoKindSpendExample => 'Spend GH₵ 100, get a free waffle.';
+
+  @override
+  String get promoEverything => 'Everything';
+
+  @override
+  String get promoPickHelp =>
+      'Pick categories, products or both. Nothing picked means everything.';
+
+  @override
+  String get promoOn => 'On';
+
+  @override
+  String get promoPercentOff => 'Percent off';
+
+  @override
+  String get promoMinQuantity => 'How many at least';
+
+  @override
+  String get promoPriceEach => 'Price each';
+
+  @override
+  String get promoBuy => 'Buy';
+
+  @override
+  String get promoOf => 'Of';
+
+  @override
+  String get promoGet => 'Get';
+
+  @override
+  String get promoOfSameOrOther => 'Of (Everything: the same as bought)';
+
+  @override
+  String get promoRewardPercent => 'Percent off what they get (100 = free)';
+
+  @override
+  String get promoAddPart => 'Add a part';
+
+  @override
+  String get promoBundlePrice => 'Bundle price';
+
+  @override
+  String get promoSpendAtLeast => 'When they spend at least';
+
+  @override
+  String get promoRewardPercentOff => 'Percent off';
+
+  @override
+  String get promoRewardAmountOff => 'Money off';
+
+  @override
+  String get promoRewardFree => 'A free item';
+
+  @override
+  String get promoAmountOff => 'Money off';
+
+  @override
+  String get promoFreeItem => 'Free item (the cheapest in the cart)';
+
+  @override
+  String get promoWhen => 'When';
+
+  @override
+  String get promoAllDay => 'All day';
+
+  @override
+  String get promoStartsNow => 'From now';
+
+  @override
+  String get promoNoEnd => 'No end date';
+
+  @override
+  String get promoAnyDate => 'Any date';
+
+  @override
+  String get promoStackable => 'Works with other promotions';
+
+  @override
+  String get promoStackableHelp => 'Off: only the best deal applies.';
+
+  @override
+  String get promoOn2 => 'On';
+
+  @override
+  String get promoPercentInvalid => 'Enter a percentage from 1 to 100.';
+
+  @override
+  String get promoAmountInvalid => 'Enter an amount, like 32 or 5.50.';
+
+  @override
+  String get promoQuantityInvalid => 'Enter how many, 1 or more.';
+
+  @override
+  String get promoThresholdInvalid => 'Enter how much they must spend.';
+
+  @override
+  String get promoPartsInvalid => 'A bundle needs at least 2 parts.';
+
+  @override
+  String get promoDaysRequired => 'Pick at least one day.';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }
@@ -4662,5 +4849,30 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String notifyHelp(String name) {
     return 'For $name on this device.';
+  }
+
+  @override
+  String reportPromotionsPart(String amount) {
+    return 'Promotions: $amount';
+  }
+
+  @override
+  String promoAllIn(String category) {
+    return 'All $category';
+  }
+
+  @override
+  String promoPart(int n) {
+    return 'Part $n';
+  }
+
+  @override
+  String promoFrom(String date) {
+    return 'from $date';
+  }
+
+  @override
+  String promoUntil(String date) {
+    return 'until $date';
   }
 }

@@ -6,7 +6,9 @@ import '../../../core/settings.dart';
 import '../../../core/tax.dart';
 import '../../../data/repositories/audit_repository.dart';
 import '../../../data/repositories/parked_order_repository.dart';
+import '../../../data/repositories/promotion_repository.dart';
 import '../../../domain/pricing.dart';
+import '../../../domain/promotions.dart';
 import '../../../models/audit.dart';
 import '../../../models/cart_line.dart';
 import '../../../models/catalog.dart';
@@ -52,11 +54,15 @@ class CartController extends GetxController {
   void onInit() {
     super.onInit();
     everAll([lines, orderDiscount, note, orderType, parkedName, customer], (_) => _saveSoon());
+    if (Get.isRegistered<PromotionRepository>()) {
+      _promotionSub = Get.find<PromotionRepository>().watch().listen(promotions.assignAll);
+    }
   }
 
   @override
   void onClose() {
     _saveTimer?.cancel();
+    _promotionSub?.cancel();
     super.onClose();
   }
 
@@ -65,7 +71,18 @@ class CartController extends GetxController {
       ? TaxMode.fromName(Get.find<SettingsService>().get(AppSettings.taxMode))
       : TaxMode.off;
 
-  CartPricing get pricing => CartPricing.of(lines, orderDiscount: orderDiscount.value, taxMode: taxMode);
+  /// The shop's automatic promotions, kept up to date.
+  final promotions = <Promotion>[].obs;
+  StreamSubscription<List<Promotion>>? _promotionSub;
+
+  /// Promotions are worked out for now: a happy hour starts or ends with
+  /// the next change to the cart.
+  CartPricing get pricing => CartPricing.of(
+        lines,
+        orderDiscount: orderDiscount.value,
+        taxMode: taxMode,
+        promotions: PromotionEngine.apply(lines, promotions, DateTime.now()),
+      );
 
   /// The lines as priced, before discounts.
   int get subtotal => pricing.subtotal;

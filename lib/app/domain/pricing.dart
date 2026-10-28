@@ -1,12 +1,24 @@
 import '../core/tax.dart';
 import '../models/cart_line.dart';
 import '../models/discount.dart';
+import 'promotions.dart';
 
-/// One cart line, priced: its share of the order discount and its tax.
+/// One cart line, priced: promotions, its share of the order discount and
+/// its tax.
 class PricedLine {
-  const PricedLine({required this.line, required this.orderShare, required this.tax});
+  const PricedLine({
+    required this.line,
+    required this.orderShare,
+    required this.tax,
+    this.promotion = 0,
+    this.promotionNames = const [],
+  });
 
   final CartLine line;
+
+  /// Pesewas taken off by automatic promotions, and which.
+  final int promotion;
+  final List<String> promotionNames;
 
   /// Pesewas of the order discount carried by this line.
   final int orderShare;
@@ -14,8 +26,11 @@ class PricedLine {
   /// Tax worked out on the line after both discounts.
   final TaxResult tax;
 
-  /// Pesewas after both discounts (tax included when prices include it).
-  int get net => line.netTotal - orderShare;
+  /// Pesewas after every discount (tax included when prices include it).
+  int get net => line.netTotal - promotion - orderShare;
+
+  /// Pesewas after the line's own discount and promotions.
+  int get lineNet => line.netTotal - promotion;
 }
 
 /// The cart's numbers, the same in the cart panel, checkout and the saved
@@ -23,11 +38,18 @@ class PricedLine {
 class CartPricing {
   const CartPricing._(this.lines, this.orderDiscountAmount, this.taxMode);
 
-  /// The order discount is a percentage or amount of what is left after line
-  /// discounts, shared across lines in proportion (largest remainder, so the
-  /// shares add up exactly). Tax is worked out per line on what is left.
-  factory CartPricing.of(List<CartLine> lines, {Discount? orderDiscount, TaxMode taxMode = TaxMode.off}) {
-    final nets = [for (final l in lines) l.netTotal];
+  /// Promotions come off after line discounts. The order discount is a
+  /// percentage or amount of what is left, shared across lines in proportion
+  /// (largest remainder, so the shares add up exactly). Tax is worked out
+  /// per line on what is left.
+  factory CartPricing.of(
+    List<CartLine> lines, {
+    Discount? orderDiscount,
+    TaxMode taxMode = TaxMode.off,
+    PromotionResult? promotions,
+  }) {
+    final promo = promotions ?? PromotionResult.none(lines.length);
+    final nets = [for (final (i, l) in lines.indexed) l.netTotal - promo.off[i]];
     final base = nets.fold(0, (s, n) => s + n);
     final off = orderDiscount?.amountOn(base) ?? 0;
     final shares = allocate(off, nets);
@@ -37,6 +59,8 @@ class CartPricing {
           PricedLine(
             line: l,
             orderShare: shares[i],
+            promotion: promo.off[i],
+            promotionNames: promo.names[i],
             tax: computeTax(nets[i] - shares[i], [for (final t in l.product.taxes) t.spec], taxMode),
           ),
       ],
@@ -52,9 +76,12 @@ class CartPricing {
   /// Before any discount.
   int get subtotal => lines.fold(0, (s, l) => s + l.line.lineTotal);
 
+  /// Manual line discounts.
   int get lineDiscounts => lines.fold(0, (s, l) => s + l.line.discountAmount);
 
-  int get discountTotal => lineDiscounts + orderDiscountAmount;
+  int get promotionTotal => lines.fold(0, (s, l) => s + l.promotion);
+
+  int get discountTotal => lineDiscounts + promotionTotal + orderDiscountAmount;
 
   /// After discounts, before tax added on top.
   int get net => subtotal - discountTotal;

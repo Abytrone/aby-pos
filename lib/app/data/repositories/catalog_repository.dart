@@ -127,7 +127,11 @@ class CatalogRepository {
                   name: o.name,
                   priceDelta: o.priceDelta,
                   isDefault: o.isDefault,
-                  recipe: recipe((r) => r.optionId == o.id),
+                  variantId: o.variantId,
+                  recipe: switch (recipe((r) => r.optionId == o.id)) {
+                    final own when own.isNotEmpty || o.variantId == null => own,
+                    _ => recipe((r) => r.variantId == o.variantId),
+                  },
                 ),
             ],
           ),
@@ -677,6 +681,7 @@ class CatalogRepository {
               priceDelta: Value(od.priceDelta),
               isDefault: Value(od.isDefault),
               sortOrder: Value(i),
+              variantId: Value(od.variantId),
             ),
           );
         } else {
@@ -685,6 +690,7 @@ class CatalogRepository {
             priceDelta: od.priceDelta,
             isDefault: od.isDefault,
             sortOrder: i,
+            variantId: Value(od.variantId),
           );
           if (updated != current) await _db.updateTracked(_db.optionItems, updated.copyWith(updatedAt: now));
         }

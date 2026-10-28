@@ -274,6 +274,7 @@ class CheckoutController extends GetxController {
         customer: c,
         changeToWallet: keepChange.value && c != null,
         creditApprover: creditApprover,
+        promotions: cart.promotions.toList(),
       );
       unawaited(printService?.afterSale(completed.value!.saleId));
       cart.reset();

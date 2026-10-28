@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/tax.dart';
+import '../../../domain/pricing.dart';
 import '../../../data/repositories/parked_order_repository.dart';
 import '../../../models/cart_line.dart';
 import '../../../models/enums.dart';
@@ -40,6 +41,7 @@ class CartPanel extends StatelessWidget {
     return Obx(() {
       final lines = cart.lines.toList();
       final pricing = cart.pricing;
+      final priced = pricing.lines;
       final parked = till.parkedOrders.toList();
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -194,6 +196,7 @@ class CartPanel extends StatelessWidget {
                     separatorBuilder: (_, _) => const Divider(height: 1, indent: AbySpace.s4),
                     itemBuilder: (_, i) => _CartLineRow(
                       line: lines[i],
+                      priced: priced.length == lines.length ? priced[i] : null,
                       onTap: () => showLineEditor(till, lines[i]),
                       onAdd: () => cart.increment(lines[i].key),
                       onSubtract: () => cart.decrement(lines[i].key),
@@ -262,7 +265,7 @@ class CartPanel extends StatelessWidget {
   }
 
   Future<void> _orderDiscount(TillController till, CartController cart) async {
-    final base = cart.pricing.lines.fold(0, (s, l) => s + l.line.netTotal);
+    final base = cart.pricing.lines.fold(0, (s, l) => s + l.lineNet);
     final choice = await showDiscountDialog(
       title: appL10n().cartOrderDiscount,
       base: base,
@@ -397,9 +400,13 @@ class _CartLineRow extends StatelessWidget {
     required this.onTap,
     required this.onAdd,
     required this.onSubtract,
+    this.priced,
   });
 
   final CartLine line;
+
+  /// With promotions applied.
+  final PricedLine? priced;
   final VoidCallback onTap;
   final VoidCallback onAdd;
   final VoidCallback onSubtract;
@@ -433,6 +440,11 @@ class _CartLineRow extends StatelessWidget {
                 l.cartLineDiscount(line.discount!.name ?? line.discount!.label, formatMoney(line.discountAmount)),
                 style: AbyText.caption.copyWith(color: c.success, fontWeight: FontWeight.w700),
               ),
+            if ((priced?.promotion ?? 0) > 0)
+              Text(
+                l.cartLineDiscount(priced!.promotionNames.join(', '), formatMoney(priced!.promotion)),
+                style: AbyText.caption.copyWith(color: c.success, fontWeight: FontWeight.w700),
+              ),
             const SizedBox(height: AbySpace.s1),
             Row(
               children: [
@@ -447,7 +459,7 @@ class _CartLineRow extends StatelessWidget {
                   _StepButton(icon: Icons.add, tooltip: l.cartOneMore, onPressed: onAdd),
                 ],
                 const Spacer(),
-                Text(formatMoney(line.netTotal), style: AbyText.price.copyWith(color: c.ink)),
+                Text(formatMoney(priced?.lineNet ?? line.netTotal), style: AbyText.price.copyWith(color: c.ink)),
               ],
             ),
           ],

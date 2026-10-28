@@ -1368,6 +1368,35 @@ Decisions made on the way:
 - `STF-01` badge login, `STF-04` clock in / out, `STF-07` performance and commission.
 - `APP-06` further languages.
 
+Built in parts: 6a promotions and combos; 6b loyalty and gift vouchers; 6c order tickets, the
+customer display and labels; 6d purchase orders, batches and expiry, production; 6e badge login,
+clock in / out, commission; 6f the command bar, templates, training mode, insights, the daily
+summary and languages.
+
+**Status (28 October 2026): 6a built** (promotions, combos). Schema 11. Built:
+
+- `SEL-06` automatic promotions: Settings → Promotions. Five kinds: percent off (happy hours),
+  buy some get some (the cheapest qualifying items are the reward), bundle price, quantity price,
+  and spend rewards (percent, money off, or the cheapest of some items free). Each is on
+  products, categories or everything, with start and end dates, days of the week, a time window
+  (it may pass midnight) and whether it stacks. Of those that do not stack, the best deal for the
+  customer applies; stacking ones add on, and no item goes below zero. The cart shows "Happy
+  hour: −GH₵ 3.75" on the line; the receipt prints it apart from manual discounts. Each sale
+  line keeps the promotion amount and names; reports show promotions inside discounts, and a
+  cashier's "discounts given" leaves them out. Changes need "Change prices".
+- `CAT-04` combos: an option can be a product ("Is a product (combo part)"). A combo is a product
+  with "pick one" groups of such options (any cone + any drink) or a single default option
+  (fixed parts); its price is the combo price, each part uses up its product's recipe, and the
+  options report shows the parts.
+
+Decisions made on the way:
+
+- Promotions come off after line discounts and before the order discount; they are worked out
+  at the moment of the sale on this device (branches wait for multi-branch, phase 7).
+- Buy-get rewards and bundle parts are products, not toppings: "sprinkles free" is a percent-off
+  promotion on the cup, or a cup with sprinkles at its price.
+- No new permission: promotions change prices, so they need "Change prices".
+
 ### Phase 7: Many devices without internet
 
 - `MDV-01` local hub, `MDV-03` device management.

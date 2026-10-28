@@ -778,6 +778,46 @@ void main() {
     await _dispose(tester);
   });
 
+  testWidgets('tablet: the owner adds a promotion and the till applies it', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await _settle(tester);
+    await tester.tap(find.text('Kofi'));
+    await _settle(tester);
+    await _typePin(tester, '1234');
+
+    await tester.tap(find.text('Settings'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Search settings'), 'promotion');
+    await _settle(tester);
+    await tester.tap(find.text('Promotions'));
+    await _settle(tester);
+    expect(find.text('No promotions yet.'), findsOneWidget);
+    await tester.tap(find.text('New promotion'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Half price');
+    await tester.enterText(find.widgetWithText(TextField, 'Percent off'), '50');
+    await tester.tap(find.text('Save'));
+    await _settle(tester);
+    expect(find.text('Half price'), findsOneWidget);
+    expect(find.textContaining('On now'), findsOneWidget);
+    await tester.tap(find.text('Done'));
+    await _settle(tester);
+
+    await tester.tap(find.text('Sell'));
+    await _settle(tester);
+    await tester.tap(find.text('Waffle'));
+    await _settle(tester);
+    expect(find.text('Half price: −GH₵ 6.00'), findsOneWidget);
+    expect(find.text('Pay GH₵ 6.00'), findsOneWidget);
+
+    await _dispose(tester);
+  });
+
   testWidgets('phone portrait, first run: name the shop, create the owner, start selling', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;

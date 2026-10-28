@@ -71,6 +71,7 @@ abstract final class ReceiptBuilder {
         ],
         for (final o in l.options) RText('  + $o'),
         if (l.note != null) RText('  "${l.note}"'),
+        if (l.promotion > 0) RRow('  ${l.promotionName ?? 'Promotion'}', paperMoney(-l.promotion)),
         if (l.discount > 0) RRow('  Discount', paperMoney(-l.discount)),
       ],
       const RRule(),

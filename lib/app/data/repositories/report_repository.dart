@@ -28,7 +28,8 @@ class ReportRepository {
       readsFrom: {_db.sales},
     ).getSingle();
     final items = await _db.customSelect(
-      "SELECT COALESCE(SUM(CASE WHEN l.sell_by = 'each' THEN l.quantity ELSE 1 END), 0) AS n "
+      "SELECT COALESCE(SUM(CASE WHEN l.sell_by = 'each' THEN l.quantity ELSE 1 END), 0) AS n, "
+      'COALESCE(SUM(l.promotion), 0) AS promo '
       'FROM sale_lines l JOIN sales s ON s.id = l.sale_id WHERE l.deleted_at IS NULL AND $_completed',
       variables: _range(r),
       readsFrom: {_db.sales, _db.saleLines},
@@ -46,6 +47,7 @@ class ReportRepository {
     return SalesSummary(
       gross: totals.read<int>('gross'),
       discounts: totals.read<int>('discounts'),
+      promotions: items.read<int>('promo'),
       tax: totals.read<int>('tax'),
       count: totals.read<int>('n'),
       items: items.read<int>('n'),
@@ -203,10 +205,12 @@ class ReportRepository {
   Future<List<StaffFigures>> staff(DateRange r) async {
     final vars = _range(r);
     final sales = await _db.customSelect(
-      'SELECT s.cashier_name AS name, COUNT(*) AS n, SUM(s.total) AS total, SUM(s.discount_total) AS discounts '
+      // Discounts the cashier gave: promotions apply themselves.
+      'SELECT s.cashier_name AS name, COUNT(*) AS n, SUM(s.total) AS total, '
+      'SUM(s.discount_total - (SELECT COALESCE(SUM(l.promotion), 0) FROM sale_lines l WHERE l.sale_id = s.id)) AS discounts '
       'FROM sales s WHERE $_completed GROUP BY s.cashier_name',
       variables: vars,
-      readsFrom: {_db.sales},
+      readsFrom: {_db.sales, _db.saleLines},
     ).get();
     final voids = await _db.customSelect(
       "SELECT voided_by AS name, COUNT(*) AS n FROM sales WHERE status = 'voided' AND created_at >= ? AND created_at < ? "

@@ -32,6 +32,7 @@ class ReceiptRepository {
           ..where(_db.refunds.saleId.equals(saleId) & _db.refunds.deletedAt.isNull()))
         .map((r) => r.read(refundSum) ?? 0)
         .getSingle();
+    // The discount column includes promotions.
     final lineDiscounts = lines.fold(0, (t, l) => t + l.discount);
     final exclusive = s.taxTotal > 0 && s.total == s.subtotal - s.discountTotal + s.taxTotal;
     return ReceiptData(
@@ -48,7 +49,9 @@ class ReceiptRepository {
             quantity: l.quantity,
             unitPrice: l.unitPrice,
             total: l.lineTotal,
-            discount: l.discount,
+            discount: l.discount - l.promotion,
+            promotion: l.promotion,
+            promotionName: l.promotionName,
             sellBy: l.sellBy,
             note: l.note,
           ),

@@ -6,6 +6,7 @@ import '../../core/business_day.dart';
 import '../../core/tax.dart';
 import '../../core/units.dart';
 import '../../domain/pricing.dart';
+import '../../domain/promotions.dart';
 import '../../domain/settlement.dart';
 import '../../models/audit.dart';
 import '../../models/cart_line.dart';
@@ -85,13 +86,19 @@ class SaleRepository {
     Customer? customer,
     bool changeToWallet = false,
     Staff? creditApprover,
+    List<Promotion> promotions = const [],
   }) async {
     if (lines.isEmpty) throw const SaleException('The cart is empty.');
     if (lines.any((l) => l.quantity < 1)) {
       throw const SaleException('Every line needs a quantity of at least 1.');
     }
     if (lines.any((l) => l.unitPrice < 0)) throw const SaleException('A price cannot be negative.');
-    final pricing = CartPricing.of(lines, orderDiscount: orderDiscount, taxMode: taxMode);
+    final pricing = CartPricing.of(
+      lines,
+      orderDiscount: orderDiscount,
+      taxMode: taxMode,
+      promotions: PromotionEngine.apply(lines, promotions, DateTime.now()),
+    );
     final subtotal = pricing.subtotal;
     final taxTotal = pricing.taxTotal;
     final total = pricing.total;
@@ -209,7 +216,10 @@ class SaleRepository {
 
         await consume(await _stock.recipe(variantId: line.variant.id));
         for (final option in line.options) {
-          await consume(await _stock.recipe(optionId: option.id));
+          final own = await _stock.recipe(optionId: option.id);
+          // A combo part with no recipe of its own uses its product's.
+          final linked = option.variantId;
+          await consume(own.isEmpty && linked != null ? await _stock.recipe(variantId: linked) : own);
         }
         // No recipe: the cost typed on the product (per one, or per kg / litre).
         final manual = line.variant.manualCost;
@@ -240,7 +250,10 @@ class SaleRepository {
             sellBy: Value(line.product.sellBy),
             listPrice: Value(line.customPrice == null ? null : line.listPrice),
             priceOverriddenBy: Value(line.priceOverriddenBy),
-            discount: Value(line.discountAmount),
+            // Manual and promotion discounts; promotion says how much was which.
+            discount: Value(line.discountAmount + priced.promotion),
+            promotion: Value(priced.promotion),
+            promotionName: Value(priced.promotionNames.isEmpty ? null : priced.promotionNames.join(', ')),
             orderDiscountShare: Value(priced.orderShare),
             discountDetail: Value(line.discount == null ? null : jsonEncode(line.discount!.toJson())),
             note: Value(line.note?.trim().isEmpty ?? true ? null : line.note!.trim()),

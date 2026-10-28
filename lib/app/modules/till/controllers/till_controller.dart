@@ -543,7 +543,7 @@ class TillController extends GetxController {
       cart.orderDiscount.value = null;
       return true;
     }
-    final base = cart.pricing.lines.fold(0, (s, l) => s + l.line.netTotal);
+    final base = cart.pricing.lines.fold(0, (s, l) => s + l.lineNet);
     final approved = await _approveDiscount(discount, base: base, what: appL10n().cartWholeOrder);
     if (approved == null) return false;
     cart.orderDiscount.value = approved;

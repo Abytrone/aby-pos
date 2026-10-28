@@ -16,7 +16,14 @@ Future<void> showOptionGroupEditor(CatalogueController controller, [OptionGroup?
     Get.dialog<void>(_GroupEditor(controller: controller, group: group));
 
 class _OptionForm {
-  _OptionForm({this.id, String name = '', String price = '', this.isDefault = false, List<RecipeLineForm>? recipe})
+  _OptionForm({
+    this.id,
+    String name = '',
+    String price = '',
+    this.isDefault = false,
+    List<RecipeLineForm>? recipe,
+    this.variantId,
+  })
       : name = TextEditingController(text: name),
         price = TextEditingController(text: price),
         recipe = recipe ?? [];
@@ -26,6 +33,9 @@ class _OptionForm {
   final TextEditingController price;
   bool isDefault;
   final List<RecipeLineForm> recipe;
+
+  /// A combo part's product variant.
+  String? variantId;
 
   void dispose() {
     name.dispose();
@@ -58,7 +68,9 @@ class _GroupEditorState extends State<_GroupEditor> {
         name: o.name,
         price: o.priceDelta == 0 ? '' : (o.priceDelta / 100).toStringAsFixed(2),
         isDefault: o.isDefault,
-        recipe: [for (final r in o.recipe) RecipeLineForm.from(r)],
+        variantId: o.variantId,
+        // A combo part shows its product's recipe; it has none of its own.
+        recipe: o.variantId == null ? [for (final r in o.recipe) RecipeLineForm.from(r)] : [],
       ),
     if (widget.group == null) _OptionForm(),
   ];
@@ -90,7 +102,8 @@ class _GroupEditorState extends State<_GroupEditor> {
         name: o.name.text,
         priceDelta: price,
         isDefault: o.isDefault,
-        recipe: [for (final r in o.recipe) ?r.draft(items)],
+        variantId: o.variantId,
+        recipe: o.variantId != null ? const [] : [for (final r in o.recipe) ?r.draft(items)],
       ));
     }
     final ok = await widget.controller.saveOptionGroup(OptionGroupDraft(
@@ -114,6 +127,12 @@ class _GroupEditorState extends State<_GroupEditor> {
     final c = Theme.of(context).extension<AbyColors>()!;
     final l = context.l10n;
     final digits = [FilteringTextInputFormatter.digitsOnly];
+    // Products a combo option can be: (variant ID, "Milkshake, 350 ml").
+    final parts = [
+      for (final p in widget.controller.catalogue.value?.products ?? const <Product>[])
+        if (!p.archived)
+          for (final v in p.variants) (v.id, v.name == null ? p.name : '${p.name}, ${v.name}'),
+    ];
     return AlertDialog(
       title: Text(widget.group == null ? l.optionsNew : l.optionsEdit),
       content: SizedBox(
@@ -194,12 +213,31 @@ class _GroupEditorState extends State<_GroupEditor> {
                       value: o.isDefault,
                       onChanged: (v) => setState(() => o.isDefault = v ?? false),
                     ),
-                    Text(l.recipeUses.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
-                    RecipeLinesEditor(
-                      lines: o.recipe,
-                      stockItems: widget.controller.stockItems,
-                      onChanged: () => setState(() {}),
+                    DropdownButtonFormField<String?>(
+                      initialValue: parts.any((p) => p.$1 == o.variantId) ? o.variantId : null,
+                      isExpanded: true,
+                      decoration: InputDecoration(labelText: l.optionsComboPart, helperText: l.optionsComboPartHelp, isDense: true),
+                      items: [
+                        DropdownMenuItem<String?>(child: Text(l.optionsNotAProduct)),
+                        for (final (id, label) in parts)
+                          DropdownMenuItem<String?>(value: id, child: Text(label, overflow: TextOverflow.ellipsis)),
+                      ],
+                      onChanged: (v) => setState(() {
+                        o.variantId = v;
+                        if (v != null && o.name.text.trim().isEmpty) {
+                          o.name.text = parts.firstWhere((p) => p.$1 == v).$2;
+                        }
+                      }),
                     ),
+                    const SizedBox(height: AbySpace.s2),
+                    if (o.variantId == null) ...[
+                      Text(l.recipeUses.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
+                      RecipeLinesEditor(
+                        lines: o.recipe,
+                        stockItems: widget.controller.stockItems,
+                        onChanged: () => setState(() {}),
+                      ),
+                    ],
                   ]),
                 ),
               ),

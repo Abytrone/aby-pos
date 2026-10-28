@@ -21,6 +21,7 @@ import '../widgets/device_hardware.dart';
 import '../widgets/local_backups_dialog.dart';
 import '../widgets/pay_methods_dialog.dart';
 import '../widgets/printer_setup.dart';
+import '../widgets/promotions_dialog.dart';
 import '../widgets/receipt_designer.dart';
 import '../widgets/selling_lists.dart';
 
@@ -222,6 +223,12 @@ class SettingsView extends GetView<SettingsController> {
         leading: const Icon(Icons.local_offer_outlined),
         onTap: showSavedDiscounts,
       ), keywords: ['discount', 'student', 'staff']),
+      _Entry(selling, InfoTile(
+        title: l.promoTitle,
+        subtitle: l.promoSettingsHelp,
+        leading: const Icon(Icons.celebration_outlined),
+        onTap: showPromotions,
+      ), keywords: ['promotion', 'happy hour', 'buy', 'free', 'bundle', 'combo', 'deal', 'offer']),
       for (final kind in ReasonKind.values)
         _Entry(selling, InfoTile(
           title: reasonKindLabel(l, kind),

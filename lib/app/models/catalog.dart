@@ -84,6 +84,7 @@ class Option {
     this.priceDelta = 0,
     this.isDefault = false,
     this.recipe = const [],
+    this.variantId,
   });
 
   final String id;
@@ -93,7 +94,13 @@ class Option {
   /// Pesewas added to the price.
   final int priceDelta;
   final bool isDefault;
+
+  /// What it uses up: its own recipe, or for a combo part with none, the
+  /// linked variant's.
   final List<RecipeLine> recipe;
+
+  /// A combo part: this option is that product variant (CAT-04).
+  final String? variantId;
 
   int get cost => recipe.fold(0, (s, r) => s + r.cost);
 }

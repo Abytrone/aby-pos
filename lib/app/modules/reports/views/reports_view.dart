@@ -120,7 +120,11 @@ class _SalesTab extends GetView<ReportsController> {
         const SizedBox(height: AbySpace.s4),
         GroupCard(title: l.reportBreakdown, children: [
           InfoTile(title: l.profitSales, value: formatMoney(s.gross)),
-          InfoTile(title: l.profitDiscounts, value: '−${formatMoney(s.discounts)}'),
+          InfoTile(
+            title: l.profitDiscounts,
+            subtitle: s.promotions > 0 ? l.reportPromotionsPart(formatMoney(s.promotions)) : null,
+            value: '−${formatMoney(s.discounts)}',
+          ),
           InfoTile(title: l.profitRefunds, value: '−${formatMoney(s.refunds)}'),
           InfoTile(title: l.reportNetSales, value: formatMoney(s.net)),
           InfoTile(title: l.reportTax, value: formatMoney(s.tax)),

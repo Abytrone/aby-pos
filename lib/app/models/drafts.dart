@@ -92,6 +92,7 @@ class OptionDraft {
     this.priceDelta = 0,
     this.isDefault = false,
     this.recipe = const [],
+    this.variantId,
   });
 
   final String? id;
@@ -99,6 +100,9 @@ class OptionDraft {
   final int priceDelta;
   final bool isDefault;
   final List<RecipeDraftLine> recipe;
+
+  /// A combo part's product variant; its recipe is used instead.
+  final String? variantId;
 }
 
 class OptionGroupDraft {

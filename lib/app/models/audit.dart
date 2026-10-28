@@ -45,6 +45,7 @@ enum AuditAction {
   orderParked,
   parkedOrderDiscarded,
   discountSaved,
+  promotionSaved,
   reasonSaved,
   refundGiven,
   noSale,

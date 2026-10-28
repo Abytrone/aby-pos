@@ -25,11 +25,11 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  for (final from in [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
-    test('v$from to v10 gives exactly the v10 schema', () async {
+  for (final from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
+    test('v$from to v11 gives exactly the v11 schema', () async {
       final schema = await verifier.schemaAt(from);
       final db = AppDatabase(schema.newConnection(), false);
-      await verifier.migrateAndValidate(db, 10);
+      await verifier.migrateAndValidate(db, 11);
       await db.close();
     });
   }
@@ -269,6 +269,23 @@ void main() {
     expect((await r.expenses.categories()).map((c) => c.name), contains('Electricity (ECG)'));
     final role = await (db.select(db.roles)..where((x) => x.id.equals(BuiltInRole.manager.id))).getSingle();
     expect(role.permissions, contains(Permission.manageExpenses));
+    await db.close();
+  });
+
+  test('v10 to v11 keeps sale lines (no promotion) and options (no linked product)', () async {
+    final schema = await verifier.schemaAt(10);
+    final raw = schema.rawDatabase;
+    const t = 1761000000;
+    raw.execute("INSERT INTO meta (key, value) VALUES ('device_id', 'dev-1')");
+    raw.execute('INSERT INTO option_groups (id, created_at, updated_at, device_id, name) '
+        "VALUES ('g1', $t, $t, 'dev-1', 'Toppings')");
+    raw.execute('INSERT INTO option_items (id, created_at, updated_at, device_id, group_id, name, price_delta) '
+        "VALUES ('o1', $t, $t, 'dev-1', 'g1', 'Sprinkles', 300)");
+
+    final db = AppDatabase(schema.newConnection(), false);
+    final option = await (db.select(db.optionItems)..where((o) => o.id.equals('o1'))).getSingle();
+    expect(option.variantId, isNull);
+    expect(await db.select(db.promotions).get(), isEmpty);
     await db.close();
   });
 }

@@ -16,6 +16,7 @@ import '../data/repositories/discount_repository.dart';
 import '../data/repositories/outbox_repository.dart';
 import '../data/repositories/parked_order_repository.dart';
 import '../data/repositories/pay_method_repository.dart';
+import '../data/repositories/promotion_repository.dart';
 import '../data/repositories/receipt_repository.dart';
 import '../data/repositories/role_repository.dart';
 import '../data/repositories/sale_repository.dart';
@@ -87,6 +88,7 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => PayMethodRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => SaleRepository(db, Get.find(), Get.find(), audit, device, Get.find<RefundRepository>(), Get.find<CustomerRepository>()), fenix: true);
     Get.lazyPut(() => DiscountRepository(db, device, audit), fenix: true);
+    Get.lazyPut(() => PromotionRepository(db, device, audit), fenix: true);
     // The cart saves itself through this, so it is ready before the cart.
     Get.put(ParkedOrderRepository(db, device, audit), permanent: true);
     Get.lazyPut(() => RoleRepository(db, device, audit), fenix: true);

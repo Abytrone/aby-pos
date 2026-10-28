@@ -107,6 +107,10 @@ class OptionItems extends Table with SyncColumns {
   BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
   BoolColumn get active => boolean().withDefault(const Constant(true))();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+
+  /// A combo part: this option is that product variant, and uses up its
+  /// recipe when the option has none of its own. v11.
+  TextColumn get variantId => text().nullable()();
 }
 
 @DataClassName('ProductOptionGroupRow')
@@ -368,6 +372,11 @@ class SaleLines extends Table with SyncColumns {
   /// is before both. v6.
   IntColumn get discount => integer().withDefault(const Constant(0))();
   IntColumn get orderDiscountShare => integer().withDefault(const Constant(0))();
+
+  /// Pesewas of [discount] that came from automatic promotions, and their
+  /// names. v11.
+  IntColumn get promotion => integer().withDefault(const Constant(0))();
+  TextColumn get promotionName => text().nullable()();
 
   /// The line discount as given (JSON: kind, value, reason, name). v6.
   TextColumn get discountDetail => text().nullable()();
@@ -922,4 +931,28 @@ class Meta extends Table {
 
   @override
   Set<Column<Object>> get primaryKey => {key};
+}
+
+/// An automatic promotion (SEL-06): applies itself when its conditions are
+/// met. What it does is in [rule] (JSON, see domain/promotions.dart). v11.
+@DataClassName('PromotionRow')
+class Promotions extends Table with SyncColumns {
+  TextColumn get name => text()();
+  TextColumn get kind => textEnum<PromotionKind>()();
+  TextColumn get rule => text()();
+
+  /// First and last day it runs (dates at midnight); null for open-ended.
+  DateTimeColumn get startsOn => dateTime().nullable()();
+  DateTimeColumn get endsOn => dateTime().nullable()();
+
+  /// Days of the week it runs: bit 0 Monday ... bit 6 Sunday.
+  IntColumn get days => integer().withDefault(const Constant(127))();
+
+  /// Minutes after midnight, for happy hours; null for all day.
+  IntColumn get fromMinute => integer().nullable()();
+  IntColumn get toMinute => integer().nullable()();
+
+  /// Can apply together with other promotions.
+  BoolColumn get stackable => boolean().withDefault(const Constant(false))();
+  BoolColumn get active => boolean().withDefault(const Constant(true))();
 }

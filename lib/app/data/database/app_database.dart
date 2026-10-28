@@ -130,6 +130,7 @@ const builtInPayMethods = [
   ExpenseCategories,
   Expenses,
   RecurringExpenses,
+  Promotions,
   OwnerMoney,
   Discounts,
   Reasons,
@@ -160,7 +161,7 @@ class AppDatabase extends _$AppDatabase {
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -449,6 +450,14 @@ class AppDatabase extends _$AppDatabase {
             }
             await _insertExpenseCategories(deviceId);
             await _grantToManager(Permission.manageExpenses);
+          },
+          // v11: automatic promotions, promotion amounts on sale lines, and
+          // combo parts linked to products.
+          from10To11: (m, schema) async {
+            await m.createTable(schema.promotions);
+            await m.addColumn(schema.saleLines, schema.saleLines.promotion);
+            await m.addColumn(schema.saleLines, schema.saleLines.promotionName);
+            await m.addColumn(schema.optionItems, schema.optionItems.variantId);
           },
         ),
         beforeOpen: (details) async {

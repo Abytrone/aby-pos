@@ -3,6 +3,7 @@ class SalesSummary {
   const SalesSummary({
     this.gross = 0,
     this.discounts = 0,
+    this.promotions = 0,
     this.refunds = 0,
     this.tax = 0,
     this.count = 0,
@@ -14,6 +15,9 @@ class SalesSummary {
   /// At menu prices, before discounts.
   final int gross;
   final int discounts;
+
+  /// The part of [discounts] from automatic promotions.
+  final int promotions;
   final int refunds;
   final int tax;
   final int count;

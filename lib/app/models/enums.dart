@@ -50,6 +50,9 @@ enum SellBy { each, kg, litre }
 
 enum DiscountKind { percent, amount }
 
+/// What an automatic promotion does.
+enum PromotionKind { percentOff, buyGet, bundle, quantityBreak, spend }
+
 /// Where a saved discount can be used.
 enum DiscountScope { line, order, any }
 

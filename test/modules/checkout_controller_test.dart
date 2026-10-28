@@ -1,3 +1,4 @@
+import 'package:aby_pos/app/domain/promotions.dart';
 import 'package:aby_pos/app/core/tax.dart';
 import 'package:aby_pos/app/data/repositories/audit_repository.dart';
 import 'package:aby_pos/app/data/repositories/sale_repository.dart';
@@ -31,6 +32,7 @@ class FakeSaleRepository implements SaleRepository {
     Customer? customer,
     bool changeToWallet = false,
     Staff? creditApprover,
+    List<Promotion> promotions = const [],
   }) async {
     if (failWith != null) throw failWith!;
     final all = [...payments, ?payment];

@@ -86,6 +86,7 @@ enum ActivityFilter {
         ActivityFilter.settingsAndData => {
             AuditAction.settingChanged,
             AuditAction.discountSaved,
+            AuditAction.promotionSaved,
             AuditAction.reasonSaved,
             AuditAction.payMethodSaved,
             AuditAction.backupCreated,

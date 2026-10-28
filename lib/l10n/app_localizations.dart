@@ -6562,6 +6562,366 @@ abstract class AppLocalizations {
   /// **'Expenses due'**
   String get notifyExpenses;
 
+  /// No description provided for @commonDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get commonDelete;
+
+  /// No description provided for @auditPromotionSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotion changed'**
+  String get auditPromotionSaved;
+
+  /// No description provided for @optionsComboPart.
+  ///
+  /// In en, this message translates to:
+  /// **'Is a product (combo part)'**
+  String get optionsComboPart;
+
+  /// No description provided for @optionsComboPartHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses that product\'s recipe, so its stock goes down.'**
+  String get optionsComboPartHelp;
+
+  /// No description provided for @optionsNotAProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'No, just an option'**
+  String get optionsNotAProduct;
+
+  /// No description provided for @promoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotions'**
+  String get promoTitle;
+
+  /// No description provided for @promoSettingsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Happy hours, buy X get Y, bundles, quantity prices and spend rewards.'**
+  String get promoSettingsHelp;
+
+  /// No description provided for @promoHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'They apply themselves at the till when their conditions are met. When several could apply, the best deal for the customer wins.'**
+  String get promoHelp;
+
+  /// No description provided for @promoNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No promotions yet.'**
+  String get promoNone;
+
+  /// No description provided for @promoNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New promotion'**
+  String get promoNew;
+
+  /// No description provided for @promoEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change promotion'**
+  String get promoEdit;
+
+  /// No description provided for @promoRunningNow.
+  ///
+  /// In en, this message translates to:
+  /// **'On now'**
+  String get promoRunningNow;
+
+  /// No description provided for @promoApprovalReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotions change prices.'**
+  String get promoApprovalReason;
+
+  /// No description provided for @promoName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get promoName;
+
+  /// No description provided for @promoNameHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown on the cart and the receipt, like Happy hour.'**
+  String get promoNameHelp;
+
+  /// No description provided for @promoNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the promotion a name.'**
+  String get promoNameRequired;
+
+  /// No description provided for @promoKind.
+  ///
+  /// In en, this message translates to:
+  /// **'What it does'**
+  String get promoKind;
+
+  /// No description provided for @promoKindPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent off'**
+  String get promoKindPercent;
+
+  /// No description provided for @promoKindPercentExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Happy hour 2 to 4 pm: 15% off cups.'**
+  String get promoKindPercentExample;
+
+  /// No description provided for @promoKindBuyGet.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy some, get some'**
+  String get promoKindBuyGet;
+
+  /// No description provided for @promoKindBuyGetExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy 2 cones, get 1 free (the cheapest).'**
+  String get promoKindBuyGetExample;
+
+  /// No description provided for @promoKindBundle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundle price'**
+  String get promoKindBundle;
+
+  /// No description provided for @promoKindBundleExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Cone and milkshake together for GH₵ 32.'**
+  String get promoKindBundleExample;
+
+  /// No description provided for @promoKindQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity price'**
+  String get promoKindQuantity;
+
+  /// No description provided for @promoKindQuantityExample.
+  ///
+  /// In en, this message translates to:
+  /// **'6 or more tubs: GH₵ 55 each.'**
+  String get promoKindQuantityExample;
+
+  /// No description provided for @promoKindSpend.
+  ///
+  /// In en, this message translates to:
+  /// **'Spend reward'**
+  String get promoKindSpend;
+
+  /// No description provided for @promoKindSpendExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Spend GH₵ 100, get a free waffle.'**
+  String get promoKindSpendExample;
+
+  /// No description provided for @promoEverything.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything'**
+  String get promoEverything;
+
+  /// No description provided for @promoPickHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick categories, products or both. Nothing picked means everything.'**
+  String get promoPickHelp;
+
+  /// No description provided for @promoOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get promoOn;
+
+  /// No description provided for @promoPercentOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent off'**
+  String get promoPercentOff;
+
+  /// No description provided for @promoMinQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'How many at least'**
+  String get promoMinQuantity;
+
+  /// No description provided for @promoPriceEach.
+  ///
+  /// In en, this message translates to:
+  /// **'Price each'**
+  String get promoPriceEach;
+
+  /// No description provided for @promoBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get promoBuy;
+
+  /// No description provided for @promoOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Of'**
+  String get promoOf;
+
+  /// No description provided for @promoGet.
+  ///
+  /// In en, this message translates to:
+  /// **'Get'**
+  String get promoGet;
+
+  /// No description provided for @promoOfSameOrOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Of (Everything: the same as bought)'**
+  String get promoOfSameOrOther;
+
+  /// No description provided for @promoRewardPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent off what they get (100 = free)'**
+  String get promoRewardPercent;
+
+  /// No description provided for @promoAddPart.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a part'**
+  String get promoAddPart;
+
+  /// No description provided for @promoBundlePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundle price'**
+  String get promoBundlePrice;
+
+  /// No description provided for @promoSpendAtLeast.
+  ///
+  /// In en, this message translates to:
+  /// **'When they spend at least'**
+  String get promoSpendAtLeast;
+
+  /// No description provided for @promoRewardPercentOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent off'**
+  String get promoRewardPercentOff;
+
+  /// No description provided for @promoRewardAmountOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Money off'**
+  String get promoRewardAmountOff;
+
+  /// No description provided for @promoRewardFree.
+  ///
+  /// In en, this message translates to:
+  /// **'A free item'**
+  String get promoRewardFree;
+
+  /// No description provided for @promoAmountOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Money off'**
+  String get promoAmountOff;
+
+  /// No description provided for @promoFreeItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Free item (the cheapest in the cart)'**
+  String get promoFreeItem;
+
+  /// No description provided for @promoWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get promoWhen;
+
+  /// No description provided for @promoAllDay.
+  ///
+  /// In en, this message translates to:
+  /// **'All day'**
+  String get promoAllDay;
+
+  /// No description provided for @promoStartsNow.
+  ///
+  /// In en, this message translates to:
+  /// **'From now'**
+  String get promoStartsNow;
+
+  /// No description provided for @promoNoEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'No end date'**
+  String get promoNoEnd;
+
+  /// No description provided for @promoAnyDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Any date'**
+  String get promoAnyDate;
+
+  /// No description provided for @promoStackable.
+  ///
+  /// In en, this message translates to:
+  /// **'Works with other promotions'**
+  String get promoStackable;
+
+  /// No description provided for @promoStackableHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Off: only the best deal applies.'**
+  String get promoStackableHelp;
+
+  /// No description provided for @promoOn2.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get promoOn2;
+
+  /// No description provided for @promoPercentInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a percentage from 1 to 100.'**
+  String get promoPercentInvalid;
+
+  /// No description provided for @promoAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount, like 32 or 5.50.'**
+  String get promoAmountInvalid;
+
+  /// No description provided for @promoQuantityInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter how many, 1 or more.'**
+  String get promoQuantityInvalid;
+
+  /// No description provided for @promoThresholdInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter how much they must spend.'**
+  String get promoThresholdInvalid;
+
+  /// No description provided for @promoPartsInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'A bundle needs at least 2 parts.'**
+  String get promoPartsInvalid;
+
+  /// No description provided for @promoDaysRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least one day.'**
+  String get promoDaysRequired;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -7923,6 +8283,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'For {name} on this device.'**
   String notifyHelp(String name);
+
+  /// No description provided for @reportPromotionsPart.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotions: {amount}'**
+  String reportPromotionsPart(String amount);
+
+  /// No description provided for @promoAllIn.
+  ///
+  /// In en, this message translates to:
+  /// **'All {category}'**
+  String promoAllIn(String category);
+
+  /// No description provided for @promoPart.
+  ///
+  /// In en, this message translates to:
+  /// **'Part {n}'**
+  String promoPart(int n);
+
+  /// No description provided for @promoFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'from {date}'**
+  String promoFrom(String date);
+
+  /// No description provided for @promoUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'until {date}'**
+  String promoUntil(String date);
 }
 
 class _AppLocalizationsDelegate

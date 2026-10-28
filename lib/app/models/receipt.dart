@@ -14,6 +14,8 @@ class ReceiptLine {
     this.variant,
     this.options = const [],
     this.discount = 0,
+    this.promotion = 0,
+    this.promotionName,
     this.sellBy = SellBy.each,
     this.note,
   });
@@ -32,8 +34,12 @@ class ReceiptLine {
   /// Pesewas before this line's discount.
   final int total;
 
-  /// Pesewas off this line.
+  /// Pesewas off this line by hand.
   final int discount;
+
+  /// Pesewas off by automatic promotions, and their names.
+  final int promotion;
+  final String? promotionName;
   final String? note;
 
   String get title => variant == null || variant!.isEmpty ? name : '$name ($variant)';
@@ -92,7 +98,7 @@ class ReceiptData {
 
   String get displayNumber => formatSaleNumber(number);
 
-  int get lineDiscounts => lines.fold(0, (s, l) => s + l.discount);
+  int get lineDiscounts => lines.fold(0, (s, l) => s + l.discount + l.promotion);
 
   bool get paidCash => payments.any((p) => p.method == PaymentMethod.cash);
 }

@@ -1078,6 +1078,66 @@
   "notifyDayOpen": "A day not closed",
   "notifyParked": "Old parked orders",
   "notifyExpenses": "Expenses due",
+  "commonDelete": "Delete",
+  "auditPromotionSaved": "Promotion changed",
+  "optionsComboPart": "Is a product (combo part)",
+  "optionsComboPartHelp": "Uses that product's recipe, so its stock goes down.",
+  "optionsNotAProduct": "No, just an option",
+  "promoTitle": "Promotions",
+  "promoSettingsHelp": "Happy hours, buy X get Y, bundles, quantity prices and spend rewards.",
+  "promoHelp": "They apply themselves at the till when their conditions are met. When several could apply, the best deal for the customer wins.",
+  "promoNone": "No promotions yet.",
+  "promoNew": "New promotion",
+  "promoEdit": "Change promotion",
+  "promoRunningNow": "On now",
+  "promoApprovalReason": "Promotions change prices.",
+  "promoName": "Name",
+  "promoNameHelp": "Shown on the cart and the receipt, like Happy hour.",
+  "promoNameRequired": "Give the promotion a name.",
+  "promoKind": "What it does",
+  "promoKindPercent": "Percent off",
+  "promoKindPercentExample": "Happy hour 2 to 4 pm: 15% off cups.",
+  "promoKindBuyGet": "Buy some, get some",
+  "promoKindBuyGetExample": "Buy 2 cones, get 1 free (the cheapest).",
+  "promoKindBundle": "Bundle price",
+  "promoKindBundleExample": "Cone and milkshake together for GH₵ 32.",
+  "promoKindQuantity": "Quantity price",
+  "promoKindQuantityExample": "6 or more tubs: GH₵ 55 each.",
+  "promoKindSpend": "Spend reward",
+  "promoKindSpendExample": "Spend GH₵ 100, get a free waffle.",
+  "promoEverything": "Everything",
+  "promoPickHelp": "Pick categories, products or both. Nothing picked means everything.",
+  "promoOn": "On",
+  "promoPercentOff": "Percent off",
+  "promoMinQuantity": "How many at least",
+  "promoPriceEach": "Price each",
+  "promoBuy": "Buy",
+  "promoOf": "Of",
+  "promoGet": "Get",
+  "promoOfSameOrOther": "Of (Everything: the same as bought)",
+  "promoRewardPercent": "Percent off what they get (100 = free)",
+  "promoAddPart": "Add a part",
+  "promoBundlePrice": "Bundle price",
+  "promoSpendAtLeast": "When they spend at least",
+  "promoRewardPercentOff": "Percent off",
+  "promoRewardAmountOff": "Money off",
+  "promoRewardFree": "A free item",
+  "promoAmountOff": "Money off",
+  "promoFreeItem": "Free item (the cheapest in the cart)",
+  "promoWhen": "When",
+  "promoAllDay": "All day",
+  "promoStartsNow": "From now",
+  "promoNoEnd": "No end date",
+  "promoAnyDate": "Any date",
+  "promoStackable": "Works with other promotions",
+  "promoStackableHelp": "Off: only the best deal applies.",
+  "promoOn2": "On",
+  "promoPercentInvalid": "Enter a percentage from 1 to 100.",
+  "promoAmountInvalid": "Enter an amount, like 32 or 5.50.",
+  "promoQuantityInvalid": "Enter how many, 1 or more.",
+  "promoThresholdInvalid": "Enter how much they must spend.",
+  "promoPartsInvalid": "A bundle needs at least 2 parts.",
+  "promoDaysRequired": "Pick at least one day.",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -3033,6 +3093,46 @@
   "@notifyHelp": {
     "placeholders": {
       "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reportPromotionsPart": "Promotions: {amount}",
+  "@reportPromotionsPart": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "promoAllIn": "All {category}",
+  "@promoAllIn": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "promoPart": "Part {n}",
+  "@promoPart": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "promoFrom": "from {date}",
+  "@promoFrom": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "promoUntil": "until {date}",
+  "@promoUntil": {
+    "placeholders": {
+      "date": {
         "type": "String"
       }
     }

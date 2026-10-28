@@ -61,6 +61,9 @@ App icons: `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml`.
 - **Scanning, scales and notifications:** a camera Scan button on Android (barcodes and receipt
   QR codes), a COM-port scale on Windows or a Bluetooth scale on Android that fills in the weight,
   and alerts as phone or Windows notifications, chosen per person.
+- **Promotions and combos:** happy hours, buy X get Y, bundles, quantity prices and spend
+  rewards apply themselves at the till (best deal wins), shown on the cart and receipt. Combo
+  options are linked products, so their stock goes down.
 - **Money:** Manage → Money: expenses (with categories, receipts and monthly reminders), a simple
   profit and loss for any period beside the one before, and the owner's drawings and money put
   in. A pay-out on Today can be marked as an expense.
@@ -101,13 +104,14 @@ lib/
     core/                   permissions and built-in roles, typed settings, business day, tax,
                             units, validators, CSV
     domain/                 catalogue rules, inventory arithmetic, catalogue import/export,
+                            pricing and the promotions engine,
                             receipt/ (layout, ESC/POS bytes, PDF, QR codes)
     theme/                  brand kit (copied as-is from brand/flutter/lib/theme)
     ui/                     shared design system: SectionPage, GroupCard, InfoTile, dialogs,
                             PinPad, OptionChip, approval prompt, status dot, labels, formatting
     data/database/          drift tables, AppDatabase, step-by-step migrations, seed
     data/repositories/      catalog, sale, refund, customer, shift, safe, MoMo, expense, profit, payment methods, cash events, discounts,
-                            parked orders, receipt, stock, supplier, receiving, stock count, staff, role,
+                            parked orders, promotion, receipt, stock, supplier, receiving, stock count, staff, role,
                             day close, audit, settings, outbox:
                             the only code that touches drift
     services/               auth, permissions, session (auto-lock), settings, status, backup,

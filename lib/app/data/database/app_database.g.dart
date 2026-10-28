@@ -3265,6 +3265,17 @@ class $OptionItemsTable extends OptionItems
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _variantIdMeta = const VerificationMeta(
+    'variantId',
+  );
+  @override
+  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
+    'variant_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -3279,6 +3290,7 @@ class $OptionItemsTable extends OptionItems
     isDefault,
     active,
     sortOrder,
+    variantId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3373,6 +3385,12 @@ class $OptionItemsTable extends OptionItems
         sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
       );
     }
+    if (data.containsKey('variant_id')) {
+      context.handle(
+        _variantIdMeta,
+        variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta),
+      );
+    }
     return context;
   }
 
@@ -3430,6 +3448,10 @@ class $OptionItemsTable extends OptionItems
         DriftSqlType.int,
         data['${effectivePrefix}sort_order'],
       )!,
+      variantId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}variant_id'],
+      ),
     );
   }
 
@@ -3458,6 +3480,10 @@ class OptionRow extends DataClass implements Insertable<OptionRow> {
   final bool isDefault;
   final bool active;
   final int sortOrder;
+
+  /// A combo part: this option is that product variant, and uses up its
+  /// recipe when the option has none of its own. v11.
+  final String? variantId;
   const OptionRow({
     required this.id,
     required this.createdAt,
@@ -3471,6 +3497,7 @@ class OptionRow extends DataClass implements Insertable<OptionRow> {
     required this.isDefault,
     required this.active,
     required this.sortOrder,
+    this.variantId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3491,6 +3518,9 @@ class OptionRow extends DataClass implements Insertable<OptionRow> {
     map['is_default'] = Variable<bool>(isDefault);
     map['active'] = Variable<bool>(active);
     map['sort_order'] = Variable<int>(sortOrder);
+    if (!nullToAbsent || variantId != null) {
+      map['variant_id'] = Variable<String>(variantId);
+    }
     return map;
   }
 
@@ -3512,6 +3542,9 @@ class OptionRow extends DataClass implements Insertable<OptionRow> {
       isDefault: Value(isDefault),
       active: Value(active),
       sortOrder: Value(sortOrder),
+      variantId: variantId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(variantId),
     );
   }
 
@@ -3533,6 +3566,7 @@ class OptionRow extends DataClass implements Insertable<OptionRow> {
       isDefault: serializer.fromJson<bool>(json['isDefault']),
       active: serializer.fromJson<bool>(json['active']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      variantId: serializer.fromJson<String?>(json['variantId']),
     );
   }
   @override
@@ -3551,6 +3585,7 @@ class OptionRow extends DataClass implements Insertable<OptionRow> {
       'isDefault': serializer.toJson<bool>(isDefault),
       'active': serializer.toJson<bool>(active),
       'sortOrder': serializer.toJson<int>(sortOrder),
+      'variantId': serializer.toJson<String?>(variantId),
     };
   }
 
@@ -3567,6 +3602,7 @@ class OptionRow extends DataClass implements Insertable<OptionRow> {
     bool? isDefault,
     bool? active,
     int? sortOrder,
+    Value<String?> variantId = const Value.absent(),
   }) => OptionRow(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -3580,6 +3616,7 @@ class OptionRow extends DataClass implements Insertable<OptionRow> {
     isDefault: isDefault ?? this.isDefault,
     active: active ?? this.active,
     sortOrder: sortOrder ?? this.sortOrder,
+    variantId: variantId.present ? variantId.value : this.variantId,
   );
   OptionRow copyWithCompanion(OptionItemsCompanion data) {
     return OptionRow(
@@ -3597,6 +3634,7 @@ class OptionRow extends DataClass implements Insertable<OptionRow> {
       isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
       active: data.active.present ? data.active.value : this.active,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      variantId: data.variantId.present ? data.variantId.value : this.variantId,
     );
   }
 
@@ -3614,7 +3652,8 @@ class OptionRow extends DataClass implements Insertable<OptionRow> {
           ..write('priceDelta: $priceDelta, ')
           ..write('isDefault: $isDefault, ')
           ..write('active: $active, ')
-          ..write('sortOrder: $sortOrder')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('variantId: $variantId')
           ..write(')'))
         .toString();
   }
@@ -3633,6 +3672,7 @@ class OptionRow extends DataClass implements Insertable<OptionRow> {
     isDefault,
     active,
     sortOrder,
+    variantId,
   );
   @override
   bool operator ==(Object other) =>
@@ -3649,7 +3689,8 @@ class OptionRow extends DataClass implements Insertable<OptionRow> {
           other.priceDelta == this.priceDelta &&
           other.isDefault == this.isDefault &&
           other.active == this.active &&
-          other.sortOrder == this.sortOrder);
+          other.sortOrder == this.sortOrder &&
+          other.variantId == this.variantId);
 }
 
 class OptionItemsCompanion extends UpdateCompanion<OptionRow> {
@@ -3665,6 +3706,7 @@ class OptionItemsCompanion extends UpdateCompanion<OptionRow> {
   final Value<bool> isDefault;
   final Value<bool> active;
   final Value<int> sortOrder;
+  final Value<String?> variantId;
   final Value<int> rowid;
   const OptionItemsCompanion({
     this.id = const Value.absent(),
@@ -3679,6 +3721,7 @@ class OptionItemsCompanion extends UpdateCompanion<OptionRow> {
     this.isDefault = const Value.absent(),
     this.active = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.variantId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   OptionItemsCompanion.insert({
@@ -3694,6 +3737,7 @@ class OptionItemsCompanion extends UpdateCompanion<OptionRow> {
     this.isDefault = const Value.absent(),
     this.active = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.variantId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -3714,6 +3758,7 @@ class OptionItemsCompanion extends UpdateCompanion<OptionRow> {
     Expression<bool>? isDefault,
     Expression<bool>? active,
     Expression<int>? sortOrder,
+    Expression<String>? variantId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -3729,6 +3774,7 @@ class OptionItemsCompanion extends UpdateCompanion<OptionRow> {
       if (isDefault != null) 'is_default': isDefault,
       if (active != null) 'active': active,
       if (sortOrder != null) 'sort_order': sortOrder,
+      if (variantId != null) 'variant_id': variantId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -3746,6 +3792,7 @@ class OptionItemsCompanion extends UpdateCompanion<OptionRow> {
     Value<bool>? isDefault,
     Value<bool>? active,
     Value<int>? sortOrder,
+    Value<String?>? variantId,
     Value<int>? rowid,
   }) {
     return OptionItemsCompanion(
@@ -3761,6 +3808,7 @@ class OptionItemsCompanion extends UpdateCompanion<OptionRow> {
       isDefault: isDefault ?? this.isDefault,
       active: active ?? this.active,
       sortOrder: sortOrder ?? this.sortOrder,
+      variantId: variantId ?? this.variantId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -3804,6 +3852,9 @@ class OptionItemsCompanion extends UpdateCompanion<OptionRow> {
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
+    if (variantId.present) {
+      map['variant_id'] = Variable<String>(variantId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -3825,6 +3876,7 @@ class OptionItemsCompanion extends UpdateCompanion<OptionRow> {
           ..write('isDefault: $isDefault, ')
           ..write('active: $active, ')
           ..write('sortOrder: $sortOrder, ')
+          ..write('variantId: $variantId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -14599,6 +14651,29 @@ class $SaleLinesTable extends SaleLines
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _promotionMeta = const VerificationMeta(
+    'promotion',
+  );
+  @override
+  late final GeneratedColumn<int> promotion = GeneratedColumn<int>(
+    'promotion',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _promotionNameMeta = const VerificationMeta(
+    'promotionName',
+  );
+  @override
+  late final GeneratedColumn<String> promotionName = GeneratedColumn<String>(
+    'promotion_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _discountDetailMeta = const VerificationMeta(
     'discountDetail',
   );
@@ -14654,6 +14729,8 @@ class $SaleLinesTable extends SaleLines
     priceOverriddenBy,
     discount,
     orderDiscountShare,
+    promotion,
+    promotionName,
     discountDetail,
     note,
     stockUsed,
@@ -14819,6 +14896,21 @@ class $SaleLinesTable extends SaleLines
         ),
       );
     }
+    if (data.containsKey('promotion')) {
+      context.handle(
+        _promotionMeta,
+        promotion.isAcceptableOrUnknown(data['promotion']!, _promotionMeta),
+      );
+    }
+    if (data.containsKey('promotion_name')) {
+      context.handle(
+        _promotionNameMeta,
+        promotionName.isAcceptableOrUnknown(
+          data['promotion_name']!,
+          _promotionNameMeta,
+        ),
+      );
+    }
     if (data.containsKey('discount_detail')) {
       context.handle(
         _discountDetailMeta,
@@ -14941,6 +15033,14 @@ class $SaleLinesTable extends SaleLines
         DriftSqlType.int,
         data['${effectivePrefix}order_discount_share'],
       )!,
+      promotion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}promotion'],
+      )!,
+      promotionName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}promotion_name'],
+      ),
       discountDetail: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}discount_detail'],
@@ -15015,6 +15115,11 @@ class SaleLineRow extends DataClass implements Insertable<SaleLineRow> {
   final int discount;
   final int orderDiscountShare;
 
+  /// Pesewas of [discount] that came from automatic promotions, and their
+  /// names. v11.
+  final int promotion;
+  final String? promotionName;
+
   /// The line discount as given (JSON: kind, value, reason, name). v6.
   final String? discountDetail;
   final String? note;
@@ -15045,6 +15150,8 @@ class SaleLineRow extends DataClass implements Insertable<SaleLineRow> {
     this.priceOverriddenBy,
     required this.discount,
     required this.orderDiscountShare,
+    required this.promotion,
+    this.promotionName,
     this.discountDetail,
     this.note,
     this.stockUsed,
@@ -15094,6 +15201,10 @@ class SaleLineRow extends DataClass implements Insertable<SaleLineRow> {
     }
     map['discount'] = Variable<int>(discount);
     map['order_discount_share'] = Variable<int>(orderDiscountShare);
+    map['promotion'] = Variable<int>(promotion);
+    if (!nullToAbsent || promotionName != null) {
+      map['promotion_name'] = Variable<String>(promotionName);
+    }
     if (!nullToAbsent || discountDetail != null) {
       map['discount_detail'] = Variable<String>(discountDetail);
     }
@@ -15142,6 +15253,10 @@ class SaleLineRow extends DataClass implements Insertable<SaleLineRow> {
           : Value(priceOverriddenBy),
       discount: Value(discount),
       orderDiscountShare: Value(orderDiscountShare),
+      promotion: Value(promotion),
+      promotionName: promotionName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(promotionName),
       discountDetail: discountDetail == null && nullToAbsent
           ? const Value.absent()
           : Value(discountDetail),
@@ -15186,6 +15301,8 @@ class SaleLineRow extends DataClass implements Insertable<SaleLineRow> {
       ),
       discount: serializer.fromJson<int>(json['discount']),
       orderDiscountShare: serializer.fromJson<int>(json['orderDiscountShare']),
+      promotion: serializer.fromJson<int>(json['promotion']),
+      promotionName: serializer.fromJson<String?>(json['promotionName']),
       discountDetail: serializer.fromJson<String?>(json['discountDetail']),
       note: serializer.fromJson<String?>(json['note']),
       stockUsed: serializer.fromJson<String?>(json['stockUsed']),
@@ -15221,6 +15338,8 @@ class SaleLineRow extends DataClass implements Insertable<SaleLineRow> {
       'priceOverriddenBy': serializer.toJson<String?>(priceOverriddenBy),
       'discount': serializer.toJson<int>(discount),
       'orderDiscountShare': serializer.toJson<int>(orderDiscountShare),
+      'promotion': serializer.toJson<int>(promotion),
+      'promotionName': serializer.toJson<String?>(promotionName),
       'discountDetail': serializer.toJson<String?>(discountDetail),
       'note': serializer.toJson<String?>(note),
       'stockUsed': serializer.toJson<String?>(stockUsed),
@@ -15250,6 +15369,8 @@ class SaleLineRow extends DataClass implements Insertable<SaleLineRow> {
     Value<String?> priceOverriddenBy = const Value.absent(),
     int? discount,
     int? orderDiscountShare,
+    int? promotion,
+    Value<String?> promotionName = const Value.absent(),
     Value<String?> discountDetail = const Value.absent(),
     Value<String?> note = const Value.absent(),
     Value<String?> stockUsed = const Value.absent(),
@@ -15278,6 +15399,10 @@ class SaleLineRow extends DataClass implements Insertable<SaleLineRow> {
         : this.priceOverriddenBy,
     discount: discount ?? this.discount,
     orderDiscountShare: orderDiscountShare ?? this.orderDiscountShare,
+    promotion: promotion ?? this.promotion,
+    promotionName: promotionName.present
+        ? promotionName.value
+        : this.promotionName,
     discountDetail: discountDetail.present
         ? discountDetail.value
         : this.discountDetail,
@@ -15316,6 +15441,10 @@ class SaleLineRow extends DataClass implements Insertable<SaleLineRow> {
       orderDiscountShare: data.orderDiscountShare.present
           ? data.orderDiscountShare.value
           : this.orderDiscountShare,
+      promotion: data.promotion.present ? data.promotion.value : this.promotion,
+      promotionName: data.promotionName.present
+          ? data.promotionName.value
+          : this.promotionName,
       discountDetail: data.discountDetail.present
           ? data.discountDetail.value
           : this.discountDetail,
@@ -15349,6 +15478,8 @@ class SaleLineRow extends DataClass implements Insertable<SaleLineRow> {
           ..write('priceOverriddenBy: $priceOverriddenBy, ')
           ..write('discount: $discount, ')
           ..write('orderDiscountShare: $orderDiscountShare, ')
+          ..write('promotion: $promotion, ')
+          ..write('promotionName: $promotionName, ')
           ..write('discountDetail: $discountDetail, ')
           ..write('note: $note, ')
           ..write('stockUsed: $stockUsed')
@@ -15380,6 +15511,8 @@ class SaleLineRow extends DataClass implements Insertable<SaleLineRow> {
     priceOverriddenBy,
     discount,
     orderDiscountShare,
+    promotion,
+    promotionName,
     discountDetail,
     note,
     stockUsed,
@@ -15410,6 +15543,8 @@ class SaleLineRow extends DataClass implements Insertable<SaleLineRow> {
           other.priceOverriddenBy == this.priceOverriddenBy &&
           other.discount == this.discount &&
           other.orderDiscountShare == this.orderDiscountShare &&
+          other.promotion == this.promotion &&
+          other.promotionName == this.promotionName &&
           other.discountDetail == this.discountDetail &&
           other.note == this.note &&
           other.stockUsed == this.stockUsed);
@@ -15438,6 +15573,8 @@ class SaleLinesCompanion extends UpdateCompanion<SaleLineRow> {
   final Value<String?> priceOverriddenBy;
   final Value<int> discount;
   final Value<int> orderDiscountShare;
+  final Value<int> promotion;
+  final Value<String?> promotionName;
   final Value<String?> discountDetail;
   final Value<String?> note;
   final Value<String?> stockUsed;
@@ -15465,6 +15602,8 @@ class SaleLinesCompanion extends UpdateCompanion<SaleLineRow> {
     this.priceOverriddenBy = const Value.absent(),
     this.discount = const Value.absent(),
     this.orderDiscountShare = const Value.absent(),
+    this.promotion = const Value.absent(),
+    this.promotionName = const Value.absent(),
     this.discountDetail = const Value.absent(),
     this.note = const Value.absent(),
     this.stockUsed = const Value.absent(),
@@ -15493,6 +15632,8 @@ class SaleLinesCompanion extends UpdateCompanion<SaleLineRow> {
     this.priceOverriddenBy = const Value.absent(),
     this.discount = const Value.absent(),
     this.orderDiscountShare = const Value.absent(),
+    this.promotion = const Value.absent(),
+    this.promotionName = const Value.absent(),
     this.discountDetail = const Value.absent(),
     this.note = const Value.absent(),
     this.stockUsed = const Value.absent(),
@@ -15530,6 +15671,8 @@ class SaleLinesCompanion extends UpdateCompanion<SaleLineRow> {
     Expression<String>? priceOverriddenBy,
     Expression<int>? discount,
     Expression<int>? orderDiscountShare,
+    Expression<int>? promotion,
+    Expression<String>? promotionName,
     Expression<String>? discountDetail,
     Expression<String>? note,
     Expression<String>? stockUsed,
@@ -15559,6 +15702,8 @@ class SaleLinesCompanion extends UpdateCompanion<SaleLineRow> {
       if (discount != null) 'discount': discount,
       if (orderDiscountShare != null)
         'order_discount_share': orderDiscountShare,
+      if (promotion != null) 'promotion': promotion,
+      if (promotionName != null) 'promotion_name': promotionName,
       if (discountDetail != null) 'discount_detail': discountDetail,
       if (note != null) 'note': note,
       if (stockUsed != null) 'stock_used': stockUsed,
@@ -15589,6 +15734,8 @@ class SaleLinesCompanion extends UpdateCompanion<SaleLineRow> {
     Value<String?>? priceOverriddenBy,
     Value<int>? discount,
     Value<int>? orderDiscountShare,
+    Value<int>? promotion,
+    Value<String?>? promotionName,
     Value<String?>? discountDetail,
     Value<String?>? note,
     Value<String?>? stockUsed,
@@ -15617,6 +15764,8 @@ class SaleLinesCompanion extends UpdateCompanion<SaleLineRow> {
       priceOverriddenBy: priceOverriddenBy ?? this.priceOverriddenBy,
       discount: discount ?? this.discount,
       orderDiscountShare: orderDiscountShare ?? this.orderDiscountShare,
+      promotion: promotion ?? this.promotion,
+      promotionName: promotionName ?? this.promotionName,
       discountDetail: discountDetail ?? this.discountDetail,
       note: note ?? this.note,
       stockUsed: stockUsed ?? this.stockUsed,
@@ -15697,6 +15846,12 @@ class SaleLinesCompanion extends UpdateCompanion<SaleLineRow> {
     if (orderDiscountShare.present) {
       map['order_discount_share'] = Variable<int>(orderDiscountShare.value);
     }
+    if (promotion.present) {
+      map['promotion'] = Variable<int>(promotion.value);
+    }
+    if (promotionName.present) {
+      map['promotion_name'] = Variable<String>(promotionName.value);
+    }
     if (discountDetail.present) {
       map['discount_detail'] = Variable<String>(discountDetail.value);
     }
@@ -15737,6 +15892,8 @@ class SaleLinesCompanion extends UpdateCompanion<SaleLineRow> {
           ..write('priceOverriddenBy: $priceOverriddenBy, ')
           ..write('discount: $discount, ')
           ..write('orderDiscountShare: $orderDiscountShare, ')
+          ..write('promotion: $promotion, ')
+          ..write('promotionName: $promotionName, ')
           ..write('discountDetail: $discountDetail, ')
           ..write('note: $note, ')
           ..write('stockUsed: $stockUsed, ')
@@ -28683,6 +28840,915 @@ class RecurringExpensesCompanion extends UpdateCompanion<RecurringExpenseRow> {
   }
 }
 
+class $PromotionsTable extends Promotions
+    with TableInfo<$PromotionsTable, PromotionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PromotionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
+    'syncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
+    'synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<PromotionKind, String> kind =
+      GeneratedColumn<String>(
+        'kind',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<PromotionKind>($PromotionsTable.$converterkind);
+  static const VerificationMeta _ruleMeta = const VerificationMeta('rule');
+  @override
+  late final GeneratedColumn<String> rule = GeneratedColumn<String>(
+    'rule',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startsOnMeta = const VerificationMeta(
+    'startsOn',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startsOn = GeneratedColumn<DateTime>(
+    'starts_on',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _endsOnMeta = const VerificationMeta('endsOn');
+  @override
+  late final GeneratedColumn<DateTime> endsOn = GeneratedColumn<DateTime>(
+    'ends_on',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _daysMeta = const VerificationMeta('days');
+  @override
+  late final GeneratedColumn<int> days = GeneratedColumn<int>(
+    'days',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(127),
+  );
+  static const VerificationMeta _fromMinuteMeta = const VerificationMeta(
+    'fromMinute',
+  );
+  @override
+  late final GeneratedColumn<int> fromMinute = GeneratedColumn<int>(
+    'from_minute',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _toMinuteMeta = const VerificationMeta(
+    'toMinute',
+  );
+  @override
+  late final GeneratedColumn<int> toMinute = GeneratedColumn<int>(
+    'to_minute',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _stackableMeta = const VerificationMeta(
+    'stackable',
+  );
+  @override
+  late final GeneratedColumn<bool> stackable = GeneratedColumn<bool>(
+    'stackable',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("stackable" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _activeMeta = const VerificationMeta('active');
+  @override
+  late final GeneratedColumn<bool> active = GeneratedColumn<bool>(
+    'active',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("active" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    syncedAt,
+    deviceId,
+    name,
+    kind,
+    rule,
+    startsOn,
+    endsOn,
+    days,
+    fromMinute,
+    toMinute,
+    stackable,
+    active,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'promotions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PromotionRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('synced_at')) {
+      context.handle(
+        _syncedAtMeta,
+        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
+      );
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('rule')) {
+      context.handle(
+        _ruleMeta,
+        rule.isAcceptableOrUnknown(data['rule']!, _ruleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ruleMeta);
+    }
+    if (data.containsKey('starts_on')) {
+      context.handle(
+        _startsOnMeta,
+        startsOn.isAcceptableOrUnknown(data['starts_on']!, _startsOnMeta),
+      );
+    }
+    if (data.containsKey('ends_on')) {
+      context.handle(
+        _endsOnMeta,
+        endsOn.isAcceptableOrUnknown(data['ends_on']!, _endsOnMeta),
+      );
+    }
+    if (data.containsKey('days')) {
+      context.handle(
+        _daysMeta,
+        days.isAcceptableOrUnknown(data['days']!, _daysMeta),
+      );
+    }
+    if (data.containsKey('from_minute')) {
+      context.handle(
+        _fromMinuteMeta,
+        fromMinute.isAcceptableOrUnknown(data['from_minute']!, _fromMinuteMeta),
+      );
+    }
+    if (data.containsKey('to_minute')) {
+      context.handle(
+        _toMinuteMeta,
+        toMinute.isAcceptableOrUnknown(data['to_minute']!, _toMinuteMeta),
+      );
+    }
+    if (data.containsKey('stackable')) {
+      context.handle(
+        _stackableMeta,
+        stackable.isAcceptableOrUnknown(data['stackable']!, _stackableMeta),
+      );
+    }
+    if (data.containsKey('active')) {
+      context.handle(
+        _activeMeta,
+        active.isAcceptableOrUnknown(data['active']!, _activeMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PromotionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PromotionRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      syncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}synced_at'],
+      ),
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      kind: $PromotionsTable.$converterkind.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}kind'],
+        )!,
+      ),
+      rule: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rule'],
+      )!,
+      startsOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}starts_on'],
+      ),
+      endsOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}ends_on'],
+      ),
+      days: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}days'],
+      )!,
+      fromMinute: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}from_minute'],
+      ),
+      toMinute: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}to_minute'],
+      ),
+      stackable: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}stackable'],
+      )!,
+      active: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}active'],
+      )!,
+    );
+  }
+
+  @override
+  $PromotionsTable createAlias(String alias) {
+    return $PromotionsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<PromotionKind, String, String> $converterkind =
+      const EnumNameConverter<PromotionKind>(PromotionKind.values);
+}
+
+class PromotionRow extends DataClass implements Insertable<PromotionRow> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+
+  /// When the server last confirmed this row. Null means not yet synced.
+  final DateTime? syncedAt;
+  final String deviceId;
+  final String name;
+  final PromotionKind kind;
+  final String rule;
+
+  /// First and last day it runs (dates at midnight); null for open-ended.
+  final DateTime? startsOn;
+  final DateTime? endsOn;
+
+  /// Days of the week it runs: bit 0 Monday ... bit 6 Sunday.
+  final int days;
+
+  /// Minutes after midnight, for happy hours; null for all day.
+  final int? fromMinute;
+  final int? toMinute;
+
+  /// Can apply together with other promotions.
+  final bool stackable;
+  final bool active;
+  const PromotionRow({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    this.syncedAt,
+    required this.deviceId,
+    required this.name,
+    required this.kind,
+    required this.rule,
+    this.startsOn,
+    this.endsOn,
+    required this.days,
+    this.fromMinute,
+    this.toMinute,
+    required this.stackable,
+    required this.active,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || syncedAt != null) {
+      map['synced_at'] = Variable<DateTime>(syncedAt);
+    }
+    map['device_id'] = Variable<String>(deviceId);
+    map['name'] = Variable<String>(name);
+    {
+      map['kind'] = Variable<String>(
+        $PromotionsTable.$converterkind.toSql(kind),
+      );
+    }
+    map['rule'] = Variable<String>(rule);
+    if (!nullToAbsent || startsOn != null) {
+      map['starts_on'] = Variable<DateTime>(startsOn);
+    }
+    if (!nullToAbsent || endsOn != null) {
+      map['ends_on'] = Variable<DateTime>(endsOn);
+    }
+    map['days'] = Variable<int>(days);
+    if (!nullToAbsent || fromMinute != null) {
+      map['from_minute'] = Variable<int>(fromMinute);
+    }
+    if (!nullToAbsent || toMinute != null) {
+      map['to_minute'] = Variable<int>(toMinute);
+    }
+    map['stackable'] = Variable<bool>(stackable);
+    map['active'] = Variable<bool>(active);
+    return map;
+  }
+
+  PromotionsCompanion toCompanion(bool nullToAbsent) {
+    return PromotionsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      syncedAt: syncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedAt),
+      deviceId: Value(deviceId),
+      name: Value(name),
+      kind: Value(kind),
+      rule: Value(rule),
+      startsOn: startsOn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startsOn),
+      endsOn: endsOn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endsOn),
+      days: Value(days),
+      fromMinute: fromMinute == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fromMinute),
+      toMinute: toMinute == null && nullToAbsent
+          ? const Value.absent()
+          : Value(toMinute),
+      stackable: Value(stackable),
+      active: Value(active),
+    );
+  }
+
+  factory PromotionRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PromotionRow(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      name: serializer.fromJson<String>(json['name']),
+      kind: $PromotionsTable.$converterkind.fromJson(
+        serializer.fromJson<String>(json['kind']),
+      ),
+      rule: serializer.fromJson<String>(json['rule']),
+      startsOn: serializer.fromJson<DateTime?>(json['startsOn']),
+      endsOn: serializer.fromJson<DateTime?>(json['endsOn']),
+      days: serializer.fromJson<int>(json['days']),
+      fromMinute: serializer.fromJson<int?>(json['fromMinute']),
+      toMinute: serializer.fromJson<int?>(json['toMinute']),
+      stackable: serializer.fromJson<bool>(json['stackable']),
+      active: serializer.fromJson<bool>(json['active']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'syncedAt': serializer.toJson<DateTime?>(syncedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'name': serializer.toJson<String>(name),
+      'kind': serializer.toJson<String>(
+        $PromotionsTable.$converterkind.toJson(kind),
+      ),
+      'rule': serializer.toJson<String>(rule),
+      'startsOn': serializer.toJson<DateTime?>(startsOn),
+      'endsOn': serializer.toJson<DateTime?>(endsOn),
+      'days': serializer.toJson<int>(days),
+      'fromMinute': serializer.toJson<int?>(fromMinute),
+      'toMinute': serializer.toJson<int?>(toMinute),
+      'stackable': serializer.toJson<bool>(stackable),
+      'active': serializer.toJson<bool>(active),
+    };
+  }
+
+  PromotionRow copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    Value<DateTime?> syncedAt = const Value.absent(),
+    String? deviceId,
+    String? name,
+    PromotionKind? kind,
+    String? rule,
+    Value<DateTime?> startsOn = const Value.absent(),
+    Value<DateTime?> endsOn = const Value.absent(),
+    int? days,
+    Value<int?> fromMinute = const Value.absent(),
+    Value<int?> toMinute = const Value.absent(),
+    bool? stackable,
+    bool? active,
+  }) => PromotionRow(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
+    deviceId: deviceId ?? this.deviceId,
+    name: name ?? this.name,
+    kind: kind ?? this.kind,
+    rule: rule ?? this.rule,
+    startsOn: startsOn.present ? startsOn.value : this.startsOn,
+    endsOn: endsOn.present ? endsOn.value : this.endsOn,
+    days: days ?? this.days,
+    fromMinute: fromMinute.present ? fromMinute.value : this.fromMinute,
+    toMinute: toMinute.present ? toMinute.value : this.toMinute,
+    stackable: stackable ?? this.stackable,
+    active: active ?? this.active,
+  );
+  PromotionRow copyWithCompanion(PromotionsCompanion data) {
+    return PromotionRow(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      name: data.name.present ? data.name.value : this.name,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      rule: data.rule.present ? data.rule.value : this.rule,
+      startsOn: data.startsOn.present ? data.startsOn.value : this.startsOn,
+      endsOn: data.endsOn.present ? data.endsOn.value : this.endsOn,
+      days: data.days.present ? data.days.value : this.days,
+      fromMinute: data.fromMinute.present
+          ? data.fromMinute.value
+          : this.fromMinute,
+      toMinute: data.toMinute.present ? data.toMinute.value : this.toMinute,
+      stackable: data.stackable.present ? data.stackable.value : this.stackable,
+      active: data.active.present ? data.active.value : this.active,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PromotionRow(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('name: $name, ')
+          ..write('kind: $kind, ')
+          ..write('rule: $rule, ')
+          ..write('startsOn: $startsOn, ')
+          ..write('endsOn: $endsOn, ')
+          ..write('days: $days, ')
+          ..write('fromMinute: $fromMinute, ')
+          ..write('toMinute: $toMinute, ')
+          ..write('stackable: $stackable, ')
+          ..write('active: $active')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    syncedAt,
+    deviceId,
+    name,
+    kind,
+    rule,
+    startsOn,
+    endsOn,
+    days,
+    fromMinute,
+    toMinute,
+    stackable,
+    active,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PromotionRow &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.syncedAt == this.syncedAt &&
+          other.deviceId == this.deviceId &&
+          other.name == this.name &&
+          other.kind == this.kind &&
+          other.rule == this.rule &&
+          other.startsOn == this.startsOn &&
+          other.endsOn == this.endsOn &&
+          other.days == this.days &&
+          other.fromMinute == this.fromMinute &&
+          other.toMinute == this.toMinute &&
+          other.stackable == this.stackable &&
+          other.active == this.active);
+}
+
+class PromotionsCompanion extends UpdateCompanion<PromotionRow> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<DateTime?> syncedAt;
+  final Value<String> deviceId;
+  final Value<String> name;
+  final Value<PromotionKind> kind;
+  final Value<String> rule;
+  final Value<DateTime?> startsOn;
+  final Value<DateTime?> endsOn;
+  final Value<int> days;
+  final Value<int?> fromMinute;
+  final Value<int?> toMinute;
+  final Value<bool> stackable;
+  final Value<bool> active;
+  final Value<int> rowid;
+  const PromotionsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.rule = const Value.absent(),
+    this.startsOn = const Value.absent(),
+    this.endsOn = const Value.absent(),
+    this.days = const Value.absent(),
+    this.fromMinute = const Value.absent(),
+    this.toMinute = const Value.absent(),
+    this.stackable = const Value.absent(),
+    this.active = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PromotionsCompanion.insert({
+    required String id,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    required String deviceId,
+    required String name,
+    required PromotionKind kind,
+    required String rule,
+    this.startsOn = const Value.absent(),
+    this.endsOn = const Value.absent(),
+    this.days = const Value.absent(),
+    this.fromMinute = const Value.absent(),
+    this.toMinute = const Value.absent(),
+    this.stackable = const Value.absent(),
+    this.active = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       name = Value(name),
+       kind = Value(kind),
+       rule = Value(rule);
+  static Insertable<PromotionRow> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<DateTime>? syncedAt,
+    Expression<String>? deviceId,
+    Expression<String>? name,
+    Expression<String>? kind,
+    Expression<String>? rule,
+    Expression<DateTime>? startsOn,
+    Expression<DateTime>? endsOn,
+    Expression<int>? days,
+    Expression<int>? fromMinute,
+    Expression<int>? toMinute,
+    Expression<bool>? stackable,
+    Expression<bool>? active,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (syncedAt != null) 'synced_at': syncedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (name != null) 'name': name,
+      if (kind != null) 'kind': kind,
+      if (rule != null) 'rule': rule,
+      if (startsOn != null) 'starts_on': startsOn,
+      if (endsOn != null) 'ends_on': endsOn,
+      if (days != null) 'days': days,
+      if (fromMinute != null) 'from_minute': fromMinute,
+      if (toMinute != null) 'to_minute': toMinute,
+      if (stackable != null) 'stackable': stackable,
+      if (active != null) 'active': active,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PromotionsCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<DateTime?>? syncedAt,
+    Value<String>? deviceId,
+    Value<String>? name,
+    Value<PromotionKind>? kind,
+    Value<String>? rule,
+    Value<DateTime?>? startsOn,
+    Value<DateTime?>? endsOn,
+    Value<int>? days,
+    Value<int?>? fromMinute,
+    Value<int?>? toMinute,
+    Value<bool>? stackable,
+    Value<bool>? active,
+    Value<int>? rowid,
+  }) {
+    return PromotionsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      syncedAt: syncedAt ?? this.syncedAt,
+      deviceId: deviceId ?? this.deviceId,
+      name: name ?? this.name,
+      kind: kind ?? this.kind,
+      rule: rule ?? this.rule,
+      startsOn: startsOn ?? this.startsOn,
+      endsOn: endsOn ?? this.endsOn,
+      days: days ?? this.days,
+      fromMinute: fromMinute ?? this.fromMinute,
+      toMinute: toMinute ?? this.toMinute,
+      stackable: stackable ?? this.stackable,
+      active: active ?? this.active,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<DateTime>(syncedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(
+        $PromotionsTable.$converterkind.toSql(kind.value),
+      );
+    }
+    if (rule.present) {
+      map['rule'] = Variable<String>(rule.value);
+    }
+    if (startsOn.present) {
+      map['starts_on'] = Variable<DateTime>(startsOn.value);
+    }
+    if (endsOn.present) {
+      map['ends_on'] = Variable<DateTime>(endsOn.value);
+    }
+    if (days.present) {
+      map['days'] = Variable<int>(days.value);
+    }
+    if (fromMinute.present) {
+      map['from_minute'] = Variable<int>(fromMinute.value);
+    }
+    if (toMinute.present) {
+      map['to_minute'] = Variable<int>(toMinute.value);
+    }
+    if (stackable.present) {
+      map['stackable'] = Variable<bool>(stackable.value);
+    }
+    if (active.present) {
+      map['active'] = Variable<bool>(active.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PromotionsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('name: $name, ')
+          ..write('kind: $kind, ')
+          ..write('rule: $rule, ')
+          ..write('startsOn: $startsOn, ')
+          ..write('endsOn: $endsOn, ')
+          ..write('days: $days, ')
+          ..write('fromMinute: $fromMinute, ')
+          ..write('toMinute: $toMinute, ')
+          ..write('stackable: $stackable, ')
+          ..write('active: $active, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $OwnerMoneyTable extends OwnerMoney
     with TableInfo<$OwnerMoneyTable, OwnerMoneyRow> {
   @override
@@ -38800,6 +39866,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ExpensesTable expenses = $ExpensesTable(this);
   late final $RecurringExpensesTable recurringExpenses =
       $RecurringExpensesTable(this);
+  late final $PromotionsTable promotions = $PromotionsTable(this);
   late final $OwnerMoneyTable ownerMoney = $OwnerMoneyTable(this);
   late final $DiscountsTable discounts = $DiscountsTable(this);
   late final $ReasonsTable reasons = $ReasonsTable(this);
@@ -38856,6 +39923,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     expenseCategories,
     expenses,
     recurringExpenses,
+    promotions,
     ownerMoney,
     discounts,
     reasons,
@@ -41917,6 +42985,7 @@ typedef $$OptionItemsTableCreateCompanionBuilder =
       Value<bool> isDefault,
       Value<bool> active,
       Value<int> sortOrder,
+      Value<String?> variantId,
       Value<int> rowid,
     });
 typedef $$OptionItemsTableUpdateCompanionBuilder =
@@ -41933,6 +43002,7 @@ typedef $$OptionItemsTableUpdateCompanionBuilder =
       Value<bool> isDefault,
       Value<bool> active,
       Value<int> sortOrder,
+      Value<String?> variantId,
       Value<int> rowid,
     });
 
@@ -42037,6 +43107,11 @@ class $$OptionItemsTableFilterComposer
 
   ColumnFilters<int> get sortOrder => $composableBuilder(
     column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get variantId => $composableBuilder(
+    column: $table.variantId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -42153,6 +43228,11 @@ class $$OptionItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get variantId => $composableBuilder(
+    column: $table.variantId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$OptionGroupsTableOrderingComposer get groupId {
     final $$OptionGroupsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -42220,6 +43300,9 @@ class $$OptionItemsTableAnnotationComposer
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get variantId =>
+      $composableBuilder(column: $table.variantId, builder: (column) => column);
 
   $$OptionGroupsTableAnnotationComposer get groupId {
     final $$OptionGroupsTableAnnotationComposer composer = $composerBuilder(
@@ -42310,6 +43393,7 @@ class $$OptionItemsTableTableManager
                 Value<bool> isDefault = const Value.absent(),
                 Value<bool> active = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
+                Value<String?> variantId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => OptionItemsCompanion(
                 id: id,
@@ -42324,6 +43408,7 @@ class $$OptionItemsTableTableManager
                 isDefault: isDefault,
                 active: active,
                 sortOrder: sortOrder,
+                variantId: variantId,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -42340,6 +43425,7 @@ class $$OptionItemsTableTableManager
                 Value<bool> isDefault = const Value.absent(),
                 Value<bool> active = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
+                Value<String?> variantId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => OptionItemsCompanion.insert(
                 id: id,
@@ -42354,6 +43440,7 @@ class $$OptionItemsTableTableManager
                 isDefault: isDefault,
                 active: active,
                 sortOrder: sortOrder,
+                variantId: variantId,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -50472,6 +51559,8 @@ typedef $$SaleLinesTableCreateCompanionBuilder = SaleLinesCompanion Function({
   Value<String?> priceOverriddenBy,
   Value<int> discount,
   Value<int> orderDiscountShare,
+  Value<int> promotion,
+  Value<String?> promotionName,
   Value<String?> discountDetail,
   Value<String?> note,
   Value<String?> stockUsed,
@@ -50500,6 +51589,8 @@ typedef $$SaleLinesTableUpdateCompanionBuilder = SaleLinesCompanion Function({
   Value<String?> priceOverriddenBy,
   Value<int> discount,
   Value<int> orderDiscountShare,
+  Value<int> promotion,
+  Value<String?> promotionName,
   Value<String?> discountDetail,
   Value<String?> note,
   Value<String?> stockUsed,
@@ -50666,6 +51757,16 @@ class $$SaleLinesTableFilterComposer
 
   ColumnFilters<int> get orderDiscountShare => $composableBuilder(
     column: $table.orderDiscountShare,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get promotion => $composableBuilder(
+    column: $table.promotion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get promotionName => $composableBuilder(
+    column: $table.promotionName,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -50858,6 +51959,16 @@ class $$SaleLinesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get promotion => $composableBuilder(
+    column: $table.promotion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get promotionName => $composableBuilder(
+    column: $table.promotionName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get discountDetail => $composableBuilder(
     column: $table.discountDetail,
     builder: (column) => ColumnOrderings(column),
@@ -51017,6 +52128,14 @@ class $$SaleLinesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get promotion =>
+      $composableBuilder(column: $table.promotion, builder: (column) => column);
+
+  GeneratedColumn<String> get promotionName => $composableBuilder(
+    column: $table.promotionName,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get discountDetail => $composableBuilder(
     column: $table.discountDetail,
     builder: (column) => column,
@@ -51148,6 +52267,8 @@ class $$SaleLinesTableTableManager
                 Value<String?> priceOverriddenBy = const Value.absent(),
                 Value<int> discount = const Value.absent(),
                 Value<int> orderDiscountShare = const Value.absent(),
+                Value<int> promotion = const Value.absent(),
+                Value<String?> promotionName = const Value.absent(),
                 Value<String?> discountDetail = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 Value<String?> stockUsed = const Value.absent(),
@@ -51175,6 +52296,8 @@ class $$SaleLinesTableTableManager
                 priceOverriddenBy: priceOverriddenBy,
                 discount: discount,
                 orderDiscountShare: orderDiscountShare,
+                promotion: promotion,
+                promotionName: promotionName,
                 discountDetail: discountDetail,
                 note: note,
                 stockUsed: stockUsed,
@@ -51204,6 +52327,8 @@ class $$SaleLinesTableTableManager
                 Value<String?> priceOverriddenBy = const Value.absent(),
                 Value<int> discount = const Value.absent(),
                 Value<int> orderDiscountShare = const Value.absent(),
+                Value<int> promotion = const Value.absent(),
+                Value<String?> promotionName = const Value.absent(),
                 Value<String?> discountDetail = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 Value<String?> stockUsed = const Value.absent(),
@@ -51231,6 +52356,8 @@ class $$SaleLinesTableTableManager
                 priceOverriddenBy: priceOverriddenBy,
                 discount: discount,
                 orderDiscountShare: orderDiscountShare,
+                promotion: promotion,
+                promotionName: promotionName,
                 discountDetail: discountDetail,
                 note: note,
                 stockUsed: stockUsed,
@@ -58828,6 +59955,425 @@ typedef $$RecurringExpensesTableProcessedTableManager =
       RecurringExpenseRow,
       PrefetchHooks Function({bool categoryId})
     >;
+typedef $$PromotionsTableCreateCompanionBuilder = PromotionsCompanion Function({
+  required String id,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<DateTime?> syncedAt,
+  required String deviceId,
+  required String name,
+  required PromotionKind kind,
+  required String rule,
+  Value<DateTime?> startsOn,
+  Value<DateTime?> endsOn,
+  Value<int> days,
+  Value<int?> fromMinute,
+  Value<int?> toMinute,
+  Value<bool> stackable,
+  Value<bool> active,
+  Value<int> rowid,
+});
+typedef $$PromotionsTableUpdateCompanionBuilder = PromotionsCompanion Function({
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<DateTime?> syncedAt,
+  Value<String> deviceId,
+  Value<String> name,
+  Value<PromotionKind> kind,
+  Value<String> rule,
+  Value<DateTime?> startsOn,
+  Value<DateTime?> endsOn,
+  Value<int> days,
+  Value<int?> fromMinute,
+  Value<int?> toMinute,
+  Value<bool> stackable,
+  Value<bool> active,
+  Value<int> rowid,
+});
+
+class $$PromotionsTableFilterComposer
+    extends Composer<_$AppDatabase, $PromotionsTable> {
+  $$PromotionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<PromotionKind, PromotionKind, String>
+  get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get rule => $composableBuilder(
+    column: $table.rule,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startsOn => $composableBuilder(
+    column: $table.startsOn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get endsOn => $composableBuilder(
+    column: $table.endsOn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get days => $composableBuilder(
+    column: $table.days,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get fromMinute => $composableBuilder(
+    column: $table.fromMinute,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get toMinute => $composableBuilder(
+    column: $table.toMinute,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get stackable => $composableBuilder(
+    column: $table.stackable,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get active => $composableBuilder(
+    column: $table.active,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PromotionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $PromotionsTable> {
+  $$PromotionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get rule => $composableBuilder(
+    column: $table.rule,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startsOn => $composableBuilder(
+    column: $table.startsOn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get endsOn => $composableBuilder(
+    column: $table.endsOn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get days => $composableBuilder(
+    column: $table.days,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get fromMinute => $composableBuilder(
+    column: $table.fromMinute,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get toMinute => $composableBuilder(
+    column: $table.toMinute,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get stackable => $composableBuilder(
+    column: $table.stackable,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get active => $composableBuilder(
+    column: $table.active,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PromotionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PromotionsTable> {
+  $$PromotionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get syncedAt =>
+      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<PromotionKind, String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get rule =>
+      $composableBuilder(column: $table.rule, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startsOn =>
+      $composableBuilder(column: $table.startsOn, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endsOn =>
+      $composableBuilder(column: $table.endsOn, builder: (column) => column);
+
+  GeneratedColumn<int> get days =>
+      $composableBuilder(column: $table.days, builder: (column) => column);
+
+  GeneratedColumn<int> get fromMinute => $composableBuilder(
+    column: $table.fromMinute,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get toMinute =>
+      $composableBuilder(column: $table.toMinute, builder: (column) => column);
+
+  GeneratedColumn<bool> get stackable =>
+      $composableBuilder(column: $table.stackable, builder: (column) => column);
+
+  GeneratedColumn<bool> get active =>
+      $composableBuilder(column: $table.active, builder: (column) => column);
+}
+
+class $$PromotionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PromotionsTable,
+          PromotionRow,
+          $$PromotionsTableFilterComposer,
+          $$PromotionsTableOrderingComposer,
+          $$PromotionsTableAnnotationComposer,
+          $$PromotionsTableCreateCompanionBuilder,
+          $$PromotionsTableUpdateCompanionBuilder,
+          (
+            PromotionRow,
+            BaseReferences<_$AppDatabase, $PromotionsTable, PromotionRow>,
+          ),
+          PromotionRow,
+          PrefetchHooks Function()
+        > {
+  $$PromotionsTableTableManager(_$AppDatabase db, $PromotionsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PromotionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PromotionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PromotionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<DateTime?> syncedAt = const Value.absent(),
+                Value<String> deviceId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<PromotionKind> kind = const Value.absent(),
+                Value<String> rule = const Value.absent(),
+                Value<DateTime?> startsOn = const Value.absent(),
+                Value<DateTime?> endsOn = const Value.absent(),
+                Value<int> days = const Value.absent(),
+                Value<int?> fromMinute = const Value.absent(),
+                Value<int?> toMinute = const Value.absent(),
+                Value<bool> stackable = const Value.absent(),
+                Value<bool> active = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PromotionsCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                syncedAt: syncedAt,
+                deviceId: deviceId,
+                name: name,
+                kind: kind,
+                rule: rule,
+                startsOn: startsOn,
+                endsOn: endsOn,
+                days: days,
+                fromMinute: fromMinute,
+                toMinute: toMinute,
+                stackable: stackable,
+                active: active,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<DateTime?> syncedAt = const Value.absent(),
+                required String deviceId,
+                required String name,
+                required PromotionKind kind,
+                required String rule,
+                Value<DateTime?> startsOn = const Value.absent(),
+                Value<DateTime?> endsOn = const Value.absent(),
+                Value<int> days = const Value.absent(),
+                Value<int?> fromMinute = const Value.absent(),
+                Value<int?> toMinute = const Value.absent(),
+                Value<bool> stackable = const Value.absent(),
+                Value<bool> active = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PromotionsCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                syncedAt: syncedAt,
+                deviceId: deviceId,
+                name: name,
+                kind: kind,
+                rule: rule,
+                startsOn: startsOn,
+                endsOn: endsOn,
+                days: days,
+                fromMinute: fromMinute,
+                toMinute: toMinute,
+                stackable: stackable,
+                active: active,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$PromotionsTable, PromotionRow>(table),
+                  BaseReferences<_$AppDatabase, $PromotionsTable, PromotionRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PromotionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PromotionsTable,
+      PromotionRow,
+      $$PromotionsTableFilterComposer,
+      $$PromotionsTableOrderingComposer,
+      $$PromotionsTableAnnotationComposer,
+      $$PromotionsTableCreateCompanionBuilder,
+      $$PromotionsTableUpdateCompanionBuilder,
+      (
+        PromotionRow,
+        BaseReferences<_$AppDatabase, $PromotionsTable, PromotionRow>,
+      ),
+      PromotionRow,
+      PrefetchHooks Function()
+    >;
 typedef $$OwnerMoneyTableCreateCompanionBuilder = OwnerMoneyCompanion Function({
   required String id,
   required DateTime createdAt,
@@ -64407,6 +65953,8 @@ class $AppDatabaseManager {
       $$ExpensesTableTableManager(_db, _db.expenses);
   $$RecurringExpensesTableTableManager get recurringExpenses =>
       $$RecurringExpensesTableTableManager(_db, _db.recurringExpenses);
+  $$PromotionsTableTableManager get promotions =>
+      $$PromotionsTableTableManager(_db, _db.promotions);
   $$OwnerMoneyTableTableManager get ownerMoney =>
       $$OwnerMoneyTableTableManager(_db, _db.ownerMoney);
   $$DiscountsTableTableManager get discounts =>
