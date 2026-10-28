@@ -9,6 +9,7 @@ import '../../../services/money.dart';
 import '../../../services/settings_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/barcode_scanner.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
 import '../controllers/till_controller.dart';
@@ -180,7 +181,10 @@ class _Menu extends StatelessWidget {
                 hintText: l.tillSearchHint,
                 helperText: qty == null ? null : l.tillQuantityHint(qty),
                 suffixIcon: controller.query.value.isEmpty
-                    ? null
+                    ? cameraScanButton((code) {
+                        controller.search.text = code;
+                        onSubmit();
+                      })
                     : IconButton(
                         tooltip: l.commonClear,
                         icon: const Icon(Icons.close),

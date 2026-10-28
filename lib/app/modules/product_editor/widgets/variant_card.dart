@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/barcode_scanner.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
@@ -170,6 +171,15 @@ class VariantCard extends StatelessWidget {
                 if (code != null) ctl.addBarcode(form, code);
               },
             ),
+            if (canScanWithCamera)
+              ActionChip(
+                avatar: const Icon(Icons.photo_camera_outlined, size: 18),
+                label: Text(l.scanWithCamera),
+                onPressed: () async {
+                  final code = await scanWithCamera();
+                  if (code != null) ctl.addBarcode(form, code);
+                },
+              ),
           ]),
         ]),
       ),

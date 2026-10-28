@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../services/alert_service.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/alert_text.dart';
 import '../../../ui/charts.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/section_page.dart';
@@ -18,15 +18,6 @@ String dashboardCardLabel(AppLocalizations l, DashboardCard c) => switch (c) {
       DashboardCard.topProducts => l.dashTop,
       DashboardCard.shift => l.dashDrawer,
       DashboardCard.alerts => l.dashAlerts,
-    };
-
-String alertText(AppLocalizations l, Alert a) => switch (a.kind) {
-      AlertKind.lowStock => l.alertLowStock(a.count, a.names.join(', ')),
-      AlertKind.creditOverdue => l.alertCredit(a.count, formatMoney(a.amount)),
-      AlertKind.backup => l.alertBackup,
-      AlertKind.dayNotClosed => l.alertDayOpen(a.count),
-      AlertKind.parkedOld => l.closeParkedWarning(a.count),
-      AlertKind.expenseDue => l.alertExpenses(a.names.join(', '), formatMoney(a.amount)),
     };
 
 class DashboardView extends GetView<DashboardController> {

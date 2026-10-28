@@ -1047,6 +1047,37 @@
   "receiptCreditCopies": "Credit sales",
   "receiptOneCopy": "One copy",
   "receiptTwoCopies": "Customer and shop copy",
+  "scanWithCamera": "Scan with the camera",
+  "scanTorch": "Torch",
+  "scanHint": "Hold the barcode or receipt QR code inside the box.",
+  "scanNoPermission": "Aby needs the camera to scan. Allow it in Android settings, then try again.",
+  "scanCameraError": "The camera could not start. Close other apps using it and try again.",
+  "settingsCameraScan": "Scan with the camera",
+  "settingsCameraScanHelp": "Shows a camera button next to search, receipts and barcodes.",
+  "scaleTitle": "Scale",
+  "scaleHelp": "Reads the weight for products sold by the kilo.",
+  "scaleSerialHelp": "Scales with a serial or USB cable show as a COM port once their driver is installed.",
+  "scaleBluetoothHelp": "Pair the scale in Android's Bluetooth settings first.",
+  "scalePort": "Port",
+  "scaleDevice": "Paired scale",
+  "scaleBaud": "Speed (baud)",
+  "scaleRequest": "How to ask for the weight",
+  "scaleRequestHelp": "See the scale's manual. Most send the weight all the time.",
+  "scaleRequestNone": "Nothing: it sends the weight all the time",
+  "scaleRequestEnq": "Send ENQ (05)",
+  "scaleRead": "Read the scale",
+  "scaleNoneFound": "Nothing found. Check the cable or the pairing.",
+  "scaleChooseFirst": "Choose the scale first.",
+  "scaleRemove": "Remove scale",
+  "settingsNotifications": "Notifications",
+  "settingsNotificationsHelp": "Phone or Windows notifications for low stock, late credit, backups and more.",
+  "notifyTitle": "Which notifications",
+  "notifyLowStock": "Low stock",
+  "notifyCredit": "Customers late paying",
+  "notifyBackup": "Backups not up to date",
+  "notifyDayOpen": "A day not closed",
+  "notifyParked": "Old parked orders",
+  "notifyExpenses": "Expenses due",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -2979,6 +3010,30 @@
     "placeholders": {
       "count": {
         "type": "int"
+      }
+    }
+  },
+  "scaleRequestLetter": "Send the letter {letter}",
+  "@scaleRequestLetter": {
+    "placeholders": {
+      "letter": {
+        "type": "String"
+      }
+    }
+  },
+  "scaleReadOk": "The scale says {kg} kg.",
+  "@scaleReadOk": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "notifyHelp": "For {name} on this device.",
+  "@notifyHelp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
       }
     }
   }

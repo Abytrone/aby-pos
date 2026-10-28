@@ -77,7 +77,8 @@ class _PrinterSetupState extends State<_PrinterSetup> {
       if (!mounted) return;
       setState(() {
         _found = found;
-        _message = found.isEmpty ? context.l10n.printerNoneFound : null;
+        // appL10n: this can run inside initState, before context is usable.
+        _message = found.isEmpty ? appL10n().printerNoneFound : null;
         _failed = false;
       });
     } on PrinterException catch (e) {

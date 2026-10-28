@@ -58,6 +58,9 @@ App icons: `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml`.
   preview, a print queue that retries, reprint last, receipts sent by WhatsApp, SMS or PDF, a QR
   code that opens the sale for refunds, X / Z reports and refund slips on paper, and the cash
   drawer.
+- **Scanning, scales and notifications:** a camera Scan button on Android (barcodes and receipt
+  QR codes), a COM-port scale on Windows or a Bluetooth scale on Android that fills in the weight,
+  and alerts as phone or Windows notifications, chosen per person.
 - **Money:** Manage → Money: expenses (with categories, receipts and monthly reminders), a simple
   profit and loss for any period beside the one before, and the owner's drawings and money put
   in. A pay-out on Today can be marked as an expense.
@@ -109,7 +112,8 @@ lib/
                             the only code that touches drift
     services/               auth, permissions, session (auto-lock), settings, status, backup,
                             device, money, ids, PIN hashing, price scheduler, sync (stub),
-                            printing/ (print queue, network, Windows spooler, Bluetooth links)
+                            printing/ (print queue, network, Windows spooler, Bluetooth links),
+                            scale/ (serial port, Bluetooth), notifications, alerts
     models/                 plain Dart domain classes and enums
     modules/                start, setup, sign_in, shell, till, checkout, today, close_day,
                             refund, customers, customer, cash (safe, MoMo check), money,
@@ -133,7 +137,7 @@ lib/
   The older selling screens still have English literals; they move over as they are reworked.
 - Lime is only for the Pay button, the waiting dot and cart counts.
 
-Plug-in points for later work are marked `TODO(sync)`, `TODO(notify)` and `TODO(storage)`.
+Plug-in points for later work are marked `TODO(sync)` and `TODO(storage)`.
 
 ## Changing the database
 

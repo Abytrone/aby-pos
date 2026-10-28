@@ -7,6 +7,7 @@ import '../../../app.dart';
 import '../../../core/settings.dart';
 import '../../../data/repositories/staff_repository.dart';
 import '../../../routes/app_routes.dart';
+import '../../../services/notification_service.dart';
 import '../../../services/backup/backup_service.dart';
 import '../../../services/device_service.dart';
 import '../../../services/price_scheduler.dart';
@@ -36,6 +37,7 @@ class StartController extends GetxController {
     await Get.find<PriceScheduler>().run();
     final hasStaff = await _staff.hasStaff();
     if (hasStaff) unawaited(_dailyBackup());
+    if (hasStaff) unawaited(Get.find<NotificationService>().start());
     await _status.refresh();
     await Get.offAllNamed<void>(hasStaff ? Routes.signIn : Routes.setup);
   }

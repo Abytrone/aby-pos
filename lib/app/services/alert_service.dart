@@ -30,7 +30,7 @@ class Alert {
 
 /// Works out the alerts on this device, with no internet: low stock, credit
 /// overdue, backups, a day left open, old parked orders, expenses due.
-// TODO(notify): show these as phone / Windows notifications too (NTF-01).
+/// NotificationService shows them outside the app too (NTF-01).
 class AlertService extends GetxService {
   AlertService(this._db);
 

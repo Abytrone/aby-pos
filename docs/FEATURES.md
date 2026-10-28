@@ -1281,8 +1281,8 @@ Decisions made on the way:
 Decisions made on the way:
 
 - Reports read this device's database; other tills join with the hub (phase 7).
-- Phone / Windows notifications (outside the app) wait for 5b with the other device features:
-  see TODO(notify).
+- Phone / Windows notifications (outside the app) waited for the other device features: done
+  in 5c.
 - Excel export is CSV (Excel opens it); charts are drawn by Aby, without a chart package.
 - The side rail is a little shorter per item so an owner's eleven places fit an 800-pixel
   tablet.
@@ -1327,8 +1327,35 @@ Decisions made on the way:
   Windows spooler lists printers on a real PC. Still to try on the shop's own printers: see
   open question 4.
 
-**5c next:** camera scanning (`HW-01`), scales (`HW-04`) and phone / Windows notifications
-(`NTF-01`, see TODO(notify)).
+**Status (28 October 2026): 5c built** (camera, scales, notifications). Phase 5 is done.
+Schema unchanged (10). Built:
+
+- `HW-01` / `SEL-03`: a camera button on Android phones and tablets: in the till's search box,
+  next to Today's "Find receipt", and for a product's barcodes. Barcodes and receipt QR codes
+  both work (mobile_scanner). Keyboard-mode USB and Bluetooth scanners already worked. Settings
+  → This device → Scan with the camera turns the button off.
+- `HW-04`: Settings → This device → Scale: a COM port on Windows (serial or USB scales, through
+  Aby's own small Windows code) or a paired Bluetooth scale on Android, with the speed and how
+  to ask for the weight (nothing, W, P or ENQ), and "Read the scale" to check. Selling a product
+  by the kilo reads the scale as the weight box opens, with a button to read again; a moving
+  weight is refused. Price-embedded labels from label scales already worked.
+- `HW-05`: the scale and camera join the printer and drawer as this device's own settings.
+- `NTF-01`: the dashboard's alerts (low stock, late credit, backups, a day not closed, old parked
+  orders, expenses due) as Android or Windows notifications, with no internet: checked every 30
+  minutes, each kind at most once a day unless it grows. Notifications can be turned off per
+  device, and each person chooses their kinds (Settings → Which notifications).
+
+Decisions made on the way:
+
+- The camera is for Android only: Windows tills use a scanner, and the scanning package has no
+  Windows camera support.
+- Scale formats differ by brand; Aby reads the last number with its unit (kg, g, lb, oz) and
+  treats "US" (unstable) as still moving. Toledo-style replies with no unit are kilograms.
+- Expiring stock (no expiry dates yet) and approval requests (need the hub, phase 7) are not
+  notified yet. On Windows, notifications show from an installed (MSIX) build; an unpackaged
+  build may not show them, and the dashboard still lists the alerts.
+- Still to try on the shop's own devices: the scale, the camera and the notifications (open
+  question 4).
 
 ### Phase 6: Beyond standard
 

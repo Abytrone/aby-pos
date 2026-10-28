@@ -26,7 +26,13 @@ class SettingsController extends GetxController {
   final lastLocalBackup = Rxn<DateTime>();
   final lastOffsiteBackup = Rxn<DateTime>();
 
-  static const comfortSettings = {'device.theme', 'device.largeText', 'device.language', 'device.tileSize'};
+  static const comfortSettings = {
+    'device.theme',
+    'device.largeText',
+    'device.language',
+    'device.tileSize',
+    'device.notifications',
+  };
 
   @override
   void onInit() {

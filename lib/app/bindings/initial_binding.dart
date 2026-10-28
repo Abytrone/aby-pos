@@ -34,9 +34,11 @@ import '../services/alert_service.dart';
 import '../services/auth_service.dart';
 import '../services/backup/backup_service.dart';
 import '../services/device_service.dart';
+import '../services/notification_service.dart';
 import '../services/permission_service.dart';
 import '../services/price_scheduler.dart';
 import '../services/printing/print_service.dart';
+import '../services/scale/scale_service.dart';
 import '../services/session_service.dart';
 import '../services/settings_service.dart';
 import '../services/status_service.dart';
@@ -102,7 +104,9 @@ class InitialBinding extends Bindings {
     Get.put(PriceScheduler(Get.find()), permanent: true);
     Get.put(PrintService(settings, ReceiptRepository(db), device), permanent: true);
     Get.put(StatusService(backups, audit, settings, sync), permanent: true);
-    Get.put(AlertService(db), permanent: true);
+    final alerts = Get.put(AlertService(db), permanent: true);
+    Get.put(NotificationService(db, settings, alerts), permanent: true);
+    Get.put(ScaleService(settings), permanent: true);
 
     // Shared by the till and checkout.
     Get.put(CartController(), permanent: true);

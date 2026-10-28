@@ -11,10 +11,10 @@ import io.flutter.plugin.common.MethodChannel
 import java.util.UUID
 import java.util.concurrent.Executors
 
-/// Bluetooth printers for Aby (lib/app/services/printing/bluetooth_link.dart):
-/// lists the paired devices and writes bytes over the serial port profile,
-/// which most cheap thermal printers (and built-in printers that show up as
-/// Bluetooth devices) speak.
+/// Bluetooth printers and scales for Aby (lib/app/services/printing/
+/// bluetooth_link.dart, lib/app/services/scale/): lists the paired devices,
+/// writes bytes and reads replies over the serial port profile, which most
+/// cheap thermal printers and scales speak.
 class MainActivity : FlutterActivity() {
     private val io = Executors.newSingleThreadExecutor()
     private val spp: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
@@ -42,6 +42,16 @@ class MainActivity : FlutterActivity() {
                         write(adapter, address, bytes, result)
                     }
                 }
+                "read" -> {
+                    val address = call.argument<String>("address")
+                    val request = call.argument<ByteArray>("request") ?: ByteArray(0)
+                    val millis = call.argument<Int>("millis") ?: 1500
+                    if (address == null) {
+                        result.error("args", "No scale chosen.", null)
+                    } else {
+                        read(adapter, address, request, millis, result)
+                    }
+                }
                 else -> result.notImplemented()
             }
         }
@@ -67,6 +77,44 @@ class MainActivity : FlutterActivity() {
                 runOnUiThread { result.success(null) }
             } catch (e: Exception) {
                 runOnUiThread { result.error("io", "Cannot reach the Bluetooth printer: ${e.message}", null) }
+            }
+        }
+    }
+
+    /// A Bluetooth scale: sends [request] (if any), then collects what comes
+    /// back for [millis] milliseconds.
+    @SuppressLint("MissingPermission")
+    private fun read(
+        adapter: android.bluetooth.BluetoothAdapter,
+        address: String,
+        request: ByteArray,
+        millis: Int,
+        result: MethodChannel.Result,
+    ) {
+        io.execute {
+            try {
+                adapter.cancelDiscovery()
+                val got = java.io.ByteArrayOutputStream()
+                adapter.getRemoteDevice(address).createRfcommSocketToServiceRecord(spp).use { socket ->
+                    socket.connect()
+                    if (request.isNotEmpty()) {
+                        socket.outputStream.write(request)
+                        socket.outputStream.flush()
+                    }
+                    val input = socket.inputStream
+                    val buffer = ByteArray(256)
+                    val end = System.currentTimeMillis() + millis
+                    while (System.currentTimeMillis() < end) {
+                        if (input.available() > 0) {
+                            got.write(buffer, 0, input.read(buffer))
+                        } else {
+                            Thread.sleep(20)
+                        }
+                    }
+                }
+                runOnUiThread { result.success(got.toByteArray()) }
+            } catch (e: Exception) {
+                runOnUiThread { result.error("io", "Cannot reach the Bluetooth scale: ${e.message}", null) }
             }
         }
     }

@@ -3241,6 +3241,106 @@ class AppLocalizationsEn extends AppLocalizations {
   String get receiptTwoCopies => 'Customer and shop copy';
 
   @override
+  String get scanWithCamera => 'Scan with the camera';
+
+  @override
+  String get scanTorch => 'Torch';
+
+  @override
+  String get scanHint => 'Hold the barcode or receipt QR code inside the box.';
+
+  @override
+  String get scanNoPermission =>
+      'Aby needs the camera to scan. Allow it in Android settings, then try again.';
+
+  @override
+  String get scanCameraError =>
+      'The camera could not start. Close other apps using it and try again.';
+
+  @override
+  String get settingsCameraScan => 'Scan with the camera';
+
+  @override
+  String get settingsCameraScanHelp =>
+      'Shows a camera button next to search, receipts and barcodes.';
+
+  @override
+  String get scaleTitle => 'Scale';
+
+  @override
+  String get scaleHelp => 'Reads the weight for products sold by the kilo.';
+
+  @override
+  String get scaleSerialHelp =>
+      'Scales with a serial or USB cable show as a COM port once their driver is installed.';
+
+  @override
+  String get scaleBluetoothHelp =>
+      'Pair the scale in Android\'s Bluetooth settings first.';
+
+  @override
+  String get scalePort => 'Port';
+
+  @override
+  String get scaleDevice => 'Paired scale';
+
+  @override
+  String get scaleBaud => 'Speed (baud)';
+
+  @override
+  String get scaleRequest => 'How to ask for the weight';
+
+  @override
+  String get scaleRequestHelp =>
+      'See the scale\'s manual. Most send the weight all the time.';
+
+  @override
+  String get scaleRequestNone => 'Nothing: it sends the weight all the time';
+
+  @override
+  String get scaleRequestEnq => 'Send ENQ (05)';
+
+  @override
+  String get scaleRead => 'Read the scale';
+
+  @override
+  String get scaleNoneFound => 'Nothing found. Check the cable or the pairing.';
+
+  @override
+  String get scaleChooseFirst => 'Choose the scale first.';
+
+  @override
+  String get scaleRemove => 'Remove scale';
+
+  @override
+  String get settingsNotifications => 'Notifications';
+
+  @override
+  String get settingsNotificationsHelp =>
+      'Phone or Windows notifications for low stock, late credit, backups and more.';
+
+  @override
+  String get notifyTitle => 'Which notifications';
+
+  @override
+  String get notifyLowStock => 'Low stock';
+
+  @override
+  String get notifyCredit => 'Customers late paying';
+
+  @override
+  String get notifyBackup => 'Backups not up to date';
+
+  @override
+  String get notifyDayOpen => 'A day not closed';
+
+  @override
+  String get notifyParked => 'Old parked orders';
+
+  @override
+  String get notifyExpenses => 'Expenses due';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }
@@ -4547,5 +4647,20 @@ class AppLocalizationsEn extends AppLocalizations {
       one: '1 waiting to print.',
     );
     return '$_temp0';
+  }
+
+  @override
+  String scaleRequestLetter(String letter) {
+    return 'Send the letter $letter';
+  }
+
+  @override
+  String scaleReadOk(String kg) {
+    return 'The scale says $kg kg.';
+  }
+
+  @override
+  String notifyHelp(String name) {
+    return 'For $name on this device.';
   }
 }

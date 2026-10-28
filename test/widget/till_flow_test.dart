@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:aby_pos/app/app.dart';
 import 'package:aby_pos/app/core/permissions.dart';
 import 'package:aby_pos/app/data/database/app_database.dart';
@@ -751,6 +753,27 @@ void main() {
     expect(find.text('192.168.1.50'), findsOneWidget);
     expect(find.text('Print every receipt'), findsOneWidget);
     expect(find.byTooltip('Reprint the last receipt'), findsOneWidget);
+
+    // This device's other hardware: the scale (COM ports on Windows) and
+    // which notifications this person gets.
+    if (Platform.isWindows) {
+      await tester.enterText(find.widgetWithText(TextField, 'Search settings'), 'scale');
+      await _settle(tester);
+      await tester.tap(find.text('Scale'));
+      await _settle(tester);
+      expect(find.text('Read the scale'), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await _settle(tester);
+    }
+    await tester.enterText(find.widgetWithText(TextField, 'Search settings'), 'notifications');
+    await _settle(tester);
+    await tester.tap(find.text('Which notifications'));
+    await _settle(tester);
+    await tester.tap(find.text('Low stock'));
+    await _settle(tester);
+    expect(tester.widget<SwitchListTile>(find.widgetWithText(SwitchListTile, 'Low stock')).value, isFalse);
+    await tester.tap(find.text('Done'));
+    await _settle(tester);
 
     await _dispose(tester);
   });

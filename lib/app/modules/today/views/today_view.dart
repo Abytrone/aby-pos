@@ -6,6 +6,7 @@ import '../../../models/sale.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/barcode_scanner.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
@@ -29,6 +30,7 @@ class TodayView extends GetView<TodayController> {
       title: l.navToday,
       actions: [
         OutlinedButton.icon(onPressed: () => _find(context), icon: const Icon(Icons.search), label: Text(l.todayFind)),
+        ?cameraScanButton((code) => _found(code)),
         Obx(() {
           // Read here: the menu items are built later, outside this Obx.
           final noShift = controller.shift.value == null;
@@ -209,9 +211,14 @@ class TodayView extends GetView<TodayController> {
       confirmLabel: l.todayFindButton,
     );
     if (text == null || text.trim().isEmpty) return;
+    await _found(text);
+  }
+
+  /// A typed number or a scanned receipt QR code.
+  Future<void> _found(String text) async {
     final id = await controller.findSale(text);
     if (id == null) {
-      showMessage(l.todayFindNone(text.trim()));
+      showMessage(appL10n().todayFindNone(text.trim()));
       return;
     }
     await controller.openRefund(id);

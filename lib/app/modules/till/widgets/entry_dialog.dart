@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../core/units.dart';
 import '../../../models/enums.dart';
 import '../../../services/money.dart';
+import '../../../services/scale/scale_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
@@ -31,6 +32,35 @@ class _EntryDialogState extends State<_EntryDialog> {
   );
   final _amount = TextEditingController();
   String? _error;
+
+  /// This device's scale, for products sold by the kilo.
+  late final ScaleService? _scale =
+      product.sellBy == SellBy.kg && Get.isRegistered<ScaleService>() && Get.find<ScaleService>().hasScale
+          ? Get.find<ScaleService>()
+          : null;
+  bool _weighing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_scale != null) _readScale();
+  }
+
+  Future<void> _readScale() async {
+    setState(() {
+      _weighing = true;
+      _error = null;
+    });
+    try {
+      final grams = await _scale!.readGrams();
+      if (!mounted) return;
+      _amount.text = (grams / 1000).toStringAsFixed(3);
+    } on ScaleException catch (e) {
+      if (mounted) _error = e.message;
+    } finally {
+      if (mounted) setState(() => _weighing = false);
+    }
+  }
 
   DisplayUnit get _unit => product.sellBy == SellBy.litre ? DisplayUnit.l : DisplayUnit.kg;
 
@@ -86,6 +116,15 @@ class _EntryDialogState extends State<_EntryDialog> {
               decoration: InputDecoration(
                 labelText: product.sellBy == SellBy.litre ? l.entryVolume : l.entryWeight,
                 suffixText: _unit.symbol,
+                suffixIcon: _scale == null
+                    ? null
+                    : IconButton(
+                        tooltip: l.scaleRead,
+                        onPressed: _weighing ? null : _readScale,
+                        icon: _weighing
+                            ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                            : const Icon(Icons.scale_outlined),
+                      ),
                 helperText: product.openPrice ? null : l.entryPricePer(formatMoney(variant.price), _unit.symbol),
               ),
             ),

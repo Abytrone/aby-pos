@@ -109,6 +109,15 @@ abstract final class AppSettings {
   /// cash refunds, pay-ins and outs, and no-sales.
   static const cashDrawer = Setting<bool>('device.cashDrawer', SettingScope.device, false);
 
+  /// The scale ([ScaleTarget] as JSON; '' = none).
+  static const scale = Setting<String>('device.scale', SettingScope.device, '');
+
+  /// The Scan button opens the camera (phones and tablets).
+  static const cameraScan = Setting<bool>('device.cameraScan', SettingScope.device, true);
+
+  /// Phone / Windows notifications for alerts on this device.
+  static const notifications = Setting<bool>('device.notifications', SettingScope.device, true);
+
   // This device
   static const deviceName = Setting<String>('device.name', SettingScope.device, '');
 
@@ -154,6 +163,9 @@ abstract final class AppSettings {
     paperWidth,
     autoPrint,
     cashDrawer,
+    scale,
+    cameraScan,
+    notifications,
     deviceName,
     themeMode,
     largeText,

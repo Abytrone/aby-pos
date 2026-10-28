@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -5,6 +7,7 @@ import 'package:get/get.dart';
 import '../../../core/settings.dart';
 import '../../../models/enums.dart';
 import '../../../models/receipt.dart';
+import '../../../models/scale.dart';
 import '../../../services/money.dart';
 import '../../../services/printing/print_service.dart';
 import '../../../theme/aby_theme.dart';
@@ -14,6 +17,7 @@ import '../../../ui/l10n.dart';
 import '../../../ui/section_page.dart';
 import '../controllers/backup_controller.dart';
 import '../controllers/settings_controller.dart';
+import '../widgets/device_hardware.dart';
 import '../widgets/local_backups_dialog.dart';
 import '../widgets/pay_methods_dialog.dart';
 import '../widgets/printer_setup.dart';
@@ -115,6 +119,7 @@ class SettingsView extends GetView<SettingsController> {
     final security = l.settingsGroupSecurity;
     final printing = l.settingsGroupPrinting;
     final printer = PrinterTarget.decode(c.value(AppSettings.receiptPrinter));
+    final scale = ScaleTarget.decode(c.value(AppSettings.scale));
     final device = l.settingsGroupDevice;
     final data = l.settingsGroupData;
     final about = l.settingsGroupAbout;
@@ -326,6 +331,31 @@ class SettingsView extends GetView<SettingsController> {
         value: c.value(AppSettings.deviceName).isEmpty ? l.settingsNotSet : c.value(AppSettings.deviceName),
         onTap: () => editText(AppSettings.deviceName, l.settingsDeviceName),
       )),
+      if (scaleKindHere != null)
+        _Entry(device, InfoTile(
+          title: l.scaleTitle,
+          subtitle: l.scaleHelp,
+          value: scale?.name ?? l.settingsNotSet,
+          leading: const Icon(Icons.scale_outlined),
+          onTap: () => showScaleSetup(c),
+        ), keywords: ['scale', 'weight', 'kg', 'serial', 'com', 'bluetooth']),
+      if (Platform.isAndroid)
+        _Entry(device, InfoTile(
+          title: l.settingsCameraScan,
+          subtitle: l.settingsCameraScanHelp,
+          trailing: Switch(value: c.value(AppSettings.cameraScan), onChanged: (v) => c.save(AppSettings.cameraScan, v)),
+        ), keywords: ['camera', 'scan', 'barcode', 'qr']),
+      _Entry(device, InfoTile(
+        title: l.settingsNotifications,
+        subtitle: l.settingsNotificationsHelp,
+        trailing: Switch(value: c.value(AppSettings.notifications), onChanged: (v) => c.save(AppSettings.notifications, v)),
+      ), keywords: ['notifications', 'alerts', 'reminders']),
+      if (c.value(AppSettings.notifications))
+        _Entry(device, InfoTile(
+          title: l.notifyTitle,
+          leading: const Icon(Icons.notifications_outlined),
+          onTap: showNotificationChoices,
+        ), keywords: ['notifications', 'alerts', 'low stock', 'credit']),
       _Entry(device, InfoTile(
         title: l.settingsTheme,
         value: themeLabel(c.value(AppSettings.themeMode)),

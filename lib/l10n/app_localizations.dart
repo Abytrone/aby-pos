@@ -6376,6 +6376,192 @@ abstract class AppLocalizations {
   /// **'Customer and shop copy'**
   String get receiptTwoCopies;
 
+  /// No description provided for @scanWithCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan with the camera'**
+  String get scanWithCamera;
+
+  /// No description provided for @scanTorch.
+  ///
+  /// In en, this message translates to:
+  /// **'Torch'**
+  String get scanTorch;
+
+  /// No description provided for @scanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold the barcode or receipt QR code inside the box.'**
+  String get scanHint;
+
+  /// No description provided for @scanNoPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Aby needs the camera to scan. Allow it in Android settings, then try again.'**
+  String get scanNoPermission;
+
+  /// No description provided for @scanCameraError.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera could not start. Close other apps using it and try again.'**
+  String get scanCameraError;
+
+  /// No description provided for @settingsCameraScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan with the camera'**
+  String get settingsCameraScan;
+
+  /// No description provided for @settingsCameraScanHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows a camera button next to search, receipts and barcodes.'**
+  String get settingsCameraScanHelp;
+
+  /// No description provided for @scaleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scale'**
+  String get scaleTitle;
+
+  /// No description provided for @scaleHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Reads the weight for products sold by the kilo.'**
+  String get scaleHelp;
+
+  /// No description provided for @scaleSerialHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Scales with a serial or USB cable show as a COM port once their driver is installed.'**
+  String get scaleSerialHelp;
+
+  /// No description provided for @scaleBluetoothHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair the scale in Android\'s Bluetooth settings first.'**
+  String get scaleBluetoothHelp;
+
+  /// No description provided for @scalePort.
+  ///
+  /// In en, this message translates to:
+  /// **'Port'**
+  String get scalePort;
+
+  /// No description provided for @scaleDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired scale'**
+  String get scaleDevice;
+
+  /// No description provided for @scaleBaud.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed (baud)'**
+  String get scaleBaud;
+
+  /// No description provided for @scaleRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'How to ask for the weight'**
+  String get scaleRequest;
+
+  /// No description provided for @scaleRequestHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'See the scale\'s manual. Most send the weight all the time.'**
+  String get scaleRequestHelp;
+
+  /// No description provided for @scaleRequestNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing: it sends the weight all the time'**
+  String get scaleRequestNone;
+
+  /// No description provided for @scaleRequestEnq.
+  ///
+  /// In en, this message translates to:
+  /// **'Send ENQ (05)'**
+  String get scaleRequestEnq;
+
+  /// No description provided for @scaleRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the scale'**
+  String get scaleRead;
+
+  /// No description provided for @scaleNoneFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found. Check the cable or the pairing.'**
+  String get scaleNoneFound;
+
+  /// No description provided for @scaleChooseFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the scale first.'**
+  String get scaleChooseFirst;
+
+  /// No description provided for @scaleRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove scale'**
+  String get scaleRemove;
+
+  /// No description provided for @settingsNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotifications;
+
+  /// No description provided for @settingsNotificationsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone or Windows notifications for low stock, late credit, backups and more.'**
+  String get settingsNotificationsHelp;
+
+  /// No description provided for @notifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Which notifications'**
+  String get notifyTitle;
+
+  /// No description provided for @notifyLowStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Low stock'**
+  String get notifyLowStock;
+
+  /// No description provided for @notifyCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers late paying'**
+  String get notifyCredit;
+
+  /// No description provided for @notifyBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Backups not up to date'**
+  String get notifyBackup;
+
+  /// No description provided for @notifyDayOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'A day not closed'**
+  String get notifyDayOpen;
+
+  /// No description provided for @notifyParked.
+  ///
+  /// In en, this message translates to:
+  /// **'Old parked orders'**
+  String get notifyParked;
+
+  /// No description provided for @notifyExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses due'**
+  String get notifyExpenses;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -7719,6 +7905,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 waiting to print.} other{{count} waiting to print.}}'**
   String statusPrintsWaiting(int count);
+
+  /// No description provided for @scaleRequestLetter.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the letter {letter}'**
+  String scaleRequestLetter(String letter);
+
+  /// No description provided for @scaleReadOk.
+  ///
+  /// In en, this message translates to:
+  /// **'The scale says {kg} kg.'**
+  String scaleReadOk(String kg);
+
+  /// No description provided for @notifyHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'For {name} on this device.'**
+  String notifyHelp(String name);
 }
 
 class _AppLocalizationsDelegate
