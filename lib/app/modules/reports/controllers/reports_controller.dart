@@ -1,6 +1,4 @@
 import 'package:get/get.dart';
-
-import '../../../core/csv.dart';
 import '../../../core/period.dart';
 import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
@@ -8,14 +6,18 @@ import '../../../data/database/app_database.dart';
 import '../../../data/repositories/profit_repository.dart';
 import '../../../data/repositories/report_repository.dart';
 import '../../../domain/accountant_pack.dart';
+import '../../../domain/documents/report_docs.dart';
 import '../../../models/expense.dart';
 import '../../../models/report.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/pdf_brand_loader.dart';
 import '../../../services/settings_service.dart';
+import '../../../ui/export_dialog.dart';
 import '../../../ui/files.dart';
 
 /// Manage → Reports: every report for a chosen period, with the previous
-/// period beside it, CSV exports and the accountant's month-end pack.
+/// period beside it, exports (Excel, PDF, CSV) and the accountant's
+/// month-end pack.
 class ReportsController extends GetxController {
   final ReportRepository _reports = Get.find();
   final ProfitRepository _profit = Get.find();
@@ -70,26 +72,33 @@ class ReportsController extends GetxController {
   }
 
   String get _stamp => '${AccountantPack.day(range.value.from)}_${AccountantPack.day(range.value.lastDay)}';
-  String _m(int v) => AccountantPack.money(v);
 
-  /// The products report as a spreadsheet.
-  Future<void> exportProducts() => shareOrSaveText('products_$_stamp.csv', Csv.encode([
-        ['product', 'category', 'sold', 'revenue', if (canSeeCost) ...['cost', 'profit', 'margin %'], 'grade'],
-        for (final p in products)
-          [
-            p.name,
-            p.category,
-            '${p.quantity}',
-            _m(p.revenue),
-            if (canSeeCost) ...[_m(p.cost), _m(p.profit), p.marginPercent?.toString() ?? ''],
-            p.grade,
-          ],
-      ]));
+  /// Everything on the screen, for exports.
+  ReportFigures get figures => ReportFigures(
+    shopName: Get.find<SettingsService>().get(AppSettings.shopName),
+    range: range.value,
+    sales: sales.value,
+    before: before.value,
+    hours: hours.toList(),
+    products: products.toList(),
+    payments: Map.of(payments),
+    rounding: rounding.value,
+    staff: staff.toList(),
+    customers: customers.value,
+    stockTax: stockTax.value,
+    canSeeCost: canSeeCost,
+    commission: commission.mode != CommissionMode.off,
+  );
 
-  Future<void> exportSales() => shareOrSaveText('sales_by_day_$_stamp.csv', Csv.encode([
-        ['day', 'net sales'],
-        for (final (d, v) in sales.value.series) [AccountantPack.day(d), _m(v)],
-      ]));
+  /// The whole report: a workbook with a tab per table, or a PDF.
+  Future<void> exportReport() => exportDocument(ReportDocs.full(figures), fileStem: 'report_$_stamp');
+
+  Future<void> exportProducts() {
+    final f = figures;
+    return exportDocument(ReportDocs.productsDoc(f), fileStem: 'products_$_stamp', csv: ReportDocs.products(f).toCsv());
+  }
+
+  Future<void> exportSales() => exportDocument(ReportDocs.salesDoc(figures), fileStem: 'sales_by_day_$_stamp');
 
   /// The shop's commission rules (STF-07).
   CommissionConfig get commission {
@@ -100,19 +109,9 @@ class ReportsController extends GetxController {
     );
   }
 
-  Future<void> exportStaff() => shareOrSaveText('staff_$_stamp.csv', Csv.encode([
-        [
-          'name', 'sales', 'total', 'average', 'items', 'discounts', 'voids', 'refunds', 'no-sales', 'times short', 'short by',
-          'hours', 'commission',
-        ],
-        for (final s in staff)
-          [
-            s.name, '${s.sales}', _m(s.total), _m(s.average), '${s.items}', _m(s.discounts), '${s.voids}', '${s.refunds}',
-            '${s.noSales}', '${s.shorts}', _m(s.shortTotal), (s.minutesWorked / 60).toStringAsFixed(2), _m(s.commission),
-          ],
-      ]));
+  Future<void> exportStaff() => exportDocument(ReportDocs.staffDoc(figures), fileStem: 'staff_$_stamp');
 
-  /// The month-end pack: CSVs and a PDF summary in one zip.
+  /// The month-end pack: CSVs, a workbook and a PDF summary in one zip.
   Future<void> accountantPack() async {
     final r = range.value;
     ProfitAndLoss? pnl;
@@ -123,6 +122,7 @@ class ReportsController extends GetxController {
       summary: sales.value,
       pnl: pnl,
       stockTax: stockTax.value,
+      brand: await loadPdfBrand(),
     );
     await shareOrSaveBytes('aby_accounts_$_stamp.zip', zip);
   }

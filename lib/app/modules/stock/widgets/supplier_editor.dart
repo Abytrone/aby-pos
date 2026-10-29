@@ -108,8 +108,10 @@ class _SupplierEditorState extends State<_SupplierEditor> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(onPressed: _save, child: Text(l.commonSave)),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(onPressed: _save, child: Text(l.commonSave)),
+        ]),
       ],
     );
   }

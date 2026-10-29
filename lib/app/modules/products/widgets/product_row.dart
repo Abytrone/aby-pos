@@ -2,13 +2,15 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import '../../../domain/category_icons.dart';
 import '../../../models/catalog.dart';
+import '../../../models/enums.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/layout.dart';
-import '../../till/widgets/category_dot.dart';
+import '../../../ui/product_picture.dart';
 import '../controllers/catalogue_controller.dart';
 
 enum _RowAction { duplicate, archive }
@@ -74,19 +76,14 @@ class ProductRow extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: AbySpace.s2),
           child: Row(children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(AbyRadius.sm),
-              child: SizedBox.square(
+              SizedBox.square(
                 dimension: 48,
-                child: photo != null
-                    ? Image.memory(photo!, fit: BoxFit.cover, gaplessPlayback: true)
-                    : ColoredBox(
-                        color: c.surfaceSunken,
-                        child: Center(
-                          child: category == null ? null : CategoryDot(tone: category!.tone),
-                        ),
-                      ),
-              ),
+                child: ProductPicture(
+                  tone: category?.tone ?? CategoryTone.midnight,
+                  icon: category?.picture ?? toneIcon(CategoryTone.midnight),
+                  photo: photo == null ? null : MemoryImage(photo!),
+                  iconSize: 22,
+                ),
             ),
             const SizedBox(width: AbySpace.s3),
             Expanded(

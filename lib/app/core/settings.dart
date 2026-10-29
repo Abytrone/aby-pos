@@ -3,11 +3,15 @@ import '../models/enums.dart';
 /// A typed setting with a default. Values are stored as JSON in the
 /// settings table; a stored value of the wrong type falls back to the default.
 class Setting<T extends Object> {
-  const Setting(this.key, this.scope, this.defaultValue);
+  const Setting(this.key, this.scope, this.defaultValue, {this.audited = true});
 
   final String key;
   final SettingScope scope;
   final T defaultValue;
+
+  /// False for a personal preference anyone may flip (the till's grid or
+  /// list), which would only bury real changes in the activity log.
+  final bool audited;
 
   T decode(Object? json) => json is T ? json : defaultValue;
 }
@@ -192,6 +196,15 @@ abstract final class AppSettings {
 
   /// small | medium | large tiles on the till.
   static const tileSize = Setting<String>('device.tileSize', SettingScope.device, 'medium');
+
+  /// auto | grid | list: how the till shows products. Auto is the grid on
+  /// tablets and tills, the list on phones. A cashier's choice, per device.
+  static const productView = Setting<String>('device.productView', SettingScope.device, 'auto', audited: false);
+
+  /// standard | shuffled | keyboard: how PINs are typed on this device.
+  /// Shuffled moves the digits every time, so no one learns a PIN from
+  /// where a finger lands; keyboard hides the on-screen keypad.
+  static const pinPad = Setting<String>('device.pinPad', SettingScope.device, 'standard');
   static const language = Setting<String>('device.language', SettingScope.device, 'en');
 
   static const List<Setting<Object>> all = [
@@ -258,6 +271,8 @@ abstract final class AppSettings {
     themeMode,
     largeText,
     tileSize,
+    productView,
+    pinPad,
     language,
   ];
 

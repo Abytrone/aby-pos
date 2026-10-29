@@ -141,31 +141,33 @@ Future<void> showTransfer(StockTransfer t) => Get.dialog<void>(Builder(builder: 
           ),
         ),
         actions: [
-          if (waiting && t.fromBranch == here && canSendStock)
-            TextButton(
-              style: TextButton.styleFrom(foregroundColor: c.danger),
-              onPressed: () async {
-                final ok = await confirmDialog(
-                  title: l.transferCallBackTitle,
-                  message: l.transferCallBackBody,
-                  confirmLabel: l.transferCallBack,
-                  danger: true,
-                );
-                if (!ok) return;
-                goBack<void>();
-                await _guard(() => Get.find<TransferRepository>().cancel(t.id, by: Get.find<AuthService>().user));
-              },
-              child: Text(l.transferCallBack),
-            ),
-          if (waiting && t.toBranch == here && canReceiveTransfer)
-            FilledButton(
-              onPressed: () {
-                goBack<void>();
-                unawaited(showReceiveTransfer(t));
-              },
-              child: Text(l.transferReceive),
-            ),
-          OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+          DialogButtons(children: [
+                if (waiting && t.fromBranch == here && canSendStock)
+              TextButton(
+                style: TextButton.styleFrom(foregroundColor: c.danger),
+                onPressed: () async {
+                  final ok = await confirmDialog(
+                    title: l.transferCallBackTitle,
+                    message: l.transferCallBackBody,
+                    confirmLabel: l.transferCallBack,
+                    danger: true,
+                  );
+                  if (!ok) return;
+                  goBack<void>();
+                  await _guard(() => Get.find<TransferRepository>().cancel(t.id, by: Get.find<AuthService>().user));
+                },
+                child: Text(l.transferCallBack),
+              ),
+            if (waiting && t.toBranch == here && canReceiveTransfer)
+              FilledButton(
+                onPressed: () {
+                  goBack<void>();
+                  unawaited(showReceiveTransfer(t));
+                },
+                child: Text(l.transferReceive),
+              ),
+            OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+          ]),
         ],
       );
     }));
@@ -215,19 +217,21 @@ Future<void> showReceiveTransfer(StockTransfer t) async {
           ),
         ),
         actions: [
-          OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-          FilledButton(
-            onPressed: () {
-              final out = <String, int>{};
-              for (final line in t.lines) {
-                final q = parseQuantity(fields[line.id]!.text, DisplayUnit.bulk(line.unit));
-                if (q == null || q < 0) return setState(() => error = l.receiveLineInvalid(line.itemName));
-                out[line.id] = q;
-              }
-              goBack(result: out);
-            },
-            child: Text(l.transferReceive),
-          ),
+          DialogButtons(children: [
+                    OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+            FilledButton(
+              onPressed: () {
+                final out = <String, int>{};
+                for (final line in t.lines) {
+                  final q = parseQuantity(fields[line.id]!.text, DisplayUnit.bulk(line.unit));
+                  if (q == null || q < 0) return setState(() => error = l.receiveLineInvalid(line.itemName));
+                  out[line.id] = q;
+                }
+                goBack(result: out);
+              },
+              child: Text(l.transferReceive),
+                    ),
+          ]),
         ],
       ),
     );
@@ -395,8 +399,10 @@ class _NewTransferState extends State<_NewTransfer> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(onPressed: _saving ? null : _send, child: Text(l.transferSend)),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(onPressed: _saving ? null : _send, child: Text(l.transferSend)),
+        ]),
       ],
     );
   }

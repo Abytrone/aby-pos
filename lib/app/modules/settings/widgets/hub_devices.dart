@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -11,6 +12,7 @@ import '../../../services/settings_service.dart';
 import '../../../services/sync_service.dart';
 import '../../../services/training_service.dart';
 import '../../../theme/aby_colors.dart';
+import '../../../theme/aby_icons.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/barcode_scanner.dart';
 import '../../../ui/dialogs.dart';
@@ -94,32 +96,17 @@ class _HubPageState extends State<_HubPage> {
     if (ok) await _run(_hub.becomeHub);
   }
 
+  /// Type the code (the hub is found on the Wi-Fi), scan its QR code, or
+  /// give its address when the network hides it.
   Future<void> _join() async {
     final l = appL10n();
-    List<String>? urls;
-    String? code, hubId;
-    if (canScanWithCamera) {
-      final scanned = await scanWithCamera();
-      if (scanned == null) return;
-      final offer = PairingOffer.parse(scanned);
-      if (offer == null) {
-        showMessage(l.hubNotACode);
-        return;
-      }
-      (urls, code, hubId) = offer;
-    } else {
-      final address = await textInputDialog(title: l.hubJoin, label: l.hubAddress, helper: l.hubAddressHelp, keyboardType: TextInputType.url);
-      if (address == null || address.trim().isEmpty) return;
-      code = await textInputDialog(title: l.hubJoin, label: l.hubCode, helper: l.hubCodeHelp);
-      if (code == null || code.trim().isEmpty) return;
-      final a = address.trim();
-      urls = [a.startsWith('http') ? a : 'http://$a${a.contains(':') ? '' : ':8787'}'];
-    }
+    final target = await Get.to<JoinTarget>(() => _JoinPage(hub: _hub));
+    if (target == null) return;
     final ok = await confirmDialog(title: l.hubJoinTitle, message: l.hubJoinBody, confirmLabel: l.hubJoin);
     if (!ok) return;
     final name = Get.find<SettingsService>().get(AppSettings.deviceName);
     await _run(() async {
-      await _hub.join(urls!, code!, hubId: hubId, deviceName: name.isEmpty ? null : name);
+      await _hub.join(target.urls, target.code, hubId: target.hubId, deviceName: name.isEmpty ? null : name);
       showMessage(l.hubJoined);
     });
   }
@@ -235,7 +222,7 @@ class _HubPageState extends State<_HubPage> {
                   FilledButton.icon(onPressed: _working ? null : _becomeHub, icon: const Icon(Icons.hub_outlined), label: Text(l.hubBecome)),
                   OutlinedButton.icon(
                     onPressed: _working ? null : _join,
-                    icon: Icon(canScanWithCamera ? Icons.qr_code_scanner : Icons.link),
+                    icon: AbyIcon(AbyIcons.link, size: 20, color: c.ink),
                     label: Text(l.hubJoin),
                   ),
                 ],
@@ -285,11 +272,12 @@ class _HubPageState extends State<_HubPage> {
                 Text(l.hubDuplicatesHelp, style: AbyText.caption.copyWith(color: c.inkMuted)),
                 const SizedBox(height: AbySpace.s2),
                 for (final (kind, name) in _duplicates)
-                  Text('• $name (${switch (kind) {
-                    'product' => l.hubKindProduct,
-                    'customer' => l.hubKindCustomer,
-                    _ => l.hubKindStaff,
-                  }})', style: AbyText.body.copyWith(color: c.ink)),
+                  Text(
+                    '• $name (${switch (kind) {
+                      'product' => l.hubKindProduct,
+                      'customer' => l.hubKindCustomer,
+                      _ => l.hubKindStaff,
+                    }})', style: AbyText.body.copyWith(color: c.ink)),
               ]),
           ],
         );
@@ -328,7 +316,11 @@ class _OfferDialog extends StatelessWidget {
             ),
             const SizedBox(height: AbySpace.s3),
             Text(l.hubCode, style: AbyText.caption.copyWith(color: c.inkMuted)),
-            SelectableText(offer.code, style: AbyText.display.copyWith(color: c.ink, letterSpacing: 4)),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: SelectableText(
+                  PairingOffer.formatCode(offer.code), style: AbyText.display.copyWith(fontFamily: AbyText.mono, fontSize: 44, color: c.ink, letterSpacing: 2),
+                )),
             const SizedBox(height: AbySpace.s2),
             Text(l.hubAddress, style: AbyText.caption.copyWith(color: c.inkMuted)),
             for (final a in addresses) SelectableText(a, style: AbyText.receipt.copyWith(color: c.ink)),
@@ -339,7 +331,305 @@ class _OfferDialog extends StatelessWidget {
           ]);
         }),
       ),
-      actions: [FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone))],
+      actions: [
+        DialogButtons(children: [FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        ]),
+      ],
+    );
+  }
+}
+
+/// Where to join and with which code, from the join page.
+class JoinTarget {
+  const JoinTarget({required this.urls, required this.code, this.hubId});
+
+  final List<String> urls;
+  final String code;
+  final String? hubId;
+}
+
+/// Join a hub by typing its code. While the code is typed, the page
+/// listens for hubs on this Wi-Fi, so most of the time the code is all it
+/// takes. A QR scan or the hub's address cover the rest.
+class _JoinPage extends StatefulWidget {
+  const _JoinPage({required this.hub});
+
+  final HubService hub;
+
+  @override
+  State<_JoinPage> createState() => _JoinPageState();
+}
+
+class _JoinPageState extends State<_JoinPage> {
+  final _code = TextEditingController();
+  final _address = TextEditingController();
+  List<FoundHub> _found = const [];
+  FoundHub? _chosen;
+  bool _looking = true;
+  bool _byAddress = false;
+  bool _closed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _code.addListener(() => setState(() {}));
+    _address.addListener(() => setState(() {}));
+    unawaited(_look());
+  }
+
+  @override
+  void dispose() {
+    _closed = true;
+    _code.dispose();
+    _address.dispose();
+    super.dispose();
+  }
+
+  /// Keeps listening until a hub is heard (a hub may be switched on after
+  /// this page opens), then stops.
+  Future<void> _look() async {
+    setState(() => _looking = true);
+    for (var round = 0; round < 6 && !_closed; round++) {
+      final found = await widget.hub.discover();
+      if (_closed) return;
+      setState(() {
+        _found = found;
+        if (_chosen == null || !found.any((h) => h.id == _chosen!.id)) _chosen = found.length == 1 ? found.single : null;
+      });
+      if (found.isNotEmpty) break;
+    }
+    if (!_closed) setState(() => _looking = false);
+  }
+
+  String get _typed => PairingOffer.normalizeCode(_code.text);
+
+  bool get _codeReady => _typed.length == PairingOffer.codeLength;
+
+  JoinTarget? get _target {
+    if (!_codeReady) return null;
+    if (_byAddress) {
+      final a = _address.text.trim();
+      if (a.isEmpty) return null;
+      return JoinTarget(urls: [a.startsWith('http') ? a : 'http://$a${a.contains(':') ? '' : ':8787'}'], code: _typed);
+    }
+    final hub = _chosen;
+    return hub == null ? null : JoinTarget(urls: [hub.url], code: _typed, hubId: hub.id);
+  }
+
+  /// A pasted QR text carries the address too: join with it straight away.
+  void _onCode(String text) {
+    final offer = PairingOffer.parse(text);
+    if (offer != null) {
+      final (urls, code, hubId) = offer;
+      goBack<JoinTarget>(
+        result: JoinTarget(urls: urls, code: code, hubId: hubId),
+      );
+    }
+  }
+
+  Future<void> _scan() async {
+    final scanned = await scanWithCamera();
+    if (scanned == null) return;
+    final offer = PairingOffer.parse(scanned);
+    if (offer == null) {
+      showMessage(appL10n().hubNotACode);
+      return;
+    }
+    final (urls, code, hubId) = offer;
+    goBack<JoinTarget>(
+      result: JoinTarget(urls: urls, code: code, hubId: hubId),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final c = Theme.of(context).extension<AbyColors>()!;
+    final target = _target;
+    return Scaffold(
+      appBar: AppBar(title: Text(l.hubJoin)),
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 520),
+          child: ListView(
+            padding: const EdgeInsets.all(AbySpace.s4),
+            children: [
+              Text(l.hubJoinSteps, style: AbyText.body.copyWith(color: c.inkMuted)),
+              const SizedBox(height: AbySpace.s4),
+              TextField(
+                controller: _code,
+                autofocus: true,
+                textAlign: TextAlign.center,
+                textCapitalization: TextCapitalization.characters,
+                autocorrect: false,
+                enableSuggestions: false,
+                keyboardType: TextInputType.visiblePassword,
+                style: AbyText.title.copyWith(fontFamily: AbyText.mono, letterSpacing: 4, color: c.ink),
+                inputFormatters: [_PairingCodeFormatter()],
+                onChanged: _onCode,
+                onSubmitted: (_) {
+                  if (target != null) goBack<JoinTarget>(result: target);
+                },
+                decoration: InputDecoration(labelText: l.hubCode, hintText: 'ABCD-EFGH', helperText: l.hubCodeHelp),
+              ),
+              const SizedBox(height: AbySpace.s4),
+              if (!_byAddress)
+                _FoundHubs(
+                  looking: _looking,
+                  found: _found,
+                  chosen: _chosen,
+                  onChoose: (h) => setState(() => _chosen = h),
+                  onLookAgain: _look,
+                ),
+              if (_byAddress)
+                TextField(
+                  controller: _address,
+                  keyboardType: TextInputType.url,
+                  autocorrect: false,
+                  decoration: InputDecoration(labelText: l.hubAddress, helperText: l.hubAddressHelp),
+                ),
+              const SizedBox(height: AbySpace.s2),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: () => setState(() => _byAddress = !_byAddress),
+                  child: Text(_byAddress ? l.hubFindOnWifi : l.hubTypeAddress),
+                ),
+              ),
+              const SizedBox(height: AbySpace.s4),
+              FilledButton(
+                onPressed: target == null ? null : () => goBack<JoinTarget>(result: target),
+                child: Text(l.hubJoinButton),
+              ),
+              if (canScanWithCamera) ...[
+                const SizedBox(height: AbySpace.s3),
+                OutlinedButton.icon(
+                  onPressed: _scan,
+                  icon: AbyIcon(AbyIcons.qrCode, size: 20, color: c.ink),
+                  label: Text(l.hubScanInstead),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// What the page has heard on the Wi-Fi: still listening, one hub (taken),
+/// several (pick one), or none yet.
+class _FoundHubs extends StatelessWidget {
+  const _FoundHubs({required this.looking, required this.found, required this.chosen, required this.onChoose, required this.onLookAgain});
+
+  final bool looking;
+  final List<FoundHub> found;
+  final FoundHub? chosen;
+  final ValueChanged<FoundHub> onChoose;
+  final VoidCallback onLookAgain;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final c = Theme.of(context).extension<AbyColors>()!;
+    Widget line(Widget lead, String text, {Color? color, Widget? trailing}) => Container(
+      padding: const EdgeInsets.symmetric(horizontal: AbySpace.s4, vertical: AbySpace.s3),
+      decoration: BoxDecoration(color: c.surfaceSunken, borderRadius: BorderRadius.circular(AbyRadius.md)),
+      child: Row(
+        children: [
+          lead,
+          const SizedBox(width: AbySpace.s3),
+          Expanded(
+            child: Text(text, style: AbyText.body.copyWith(color: color ?? c.ink)),
+          ),
+          ?trailing,
+        ],
+      ),
+    );
+    if (found.isEmpty) {
+      return looking
+          ? line(const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2)), l.hubLooking, color: c.inkMuted)
+          : line(
+              AbyIcon(AbyIcons.wifi, size: 20, color: c.warning),
+              l.hubNoneHeard,
+              trailing: TextButton(onPressed: onLookAgain, child: Text(l.hubLookAgain)),
+            );
+    }
+    return Semantics(
+      container: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (found.length > 1)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AbySpace.s2),
+              child: Text(l.hubPickOne.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
+            ),
+          for (final h in found)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AbySpace.s2),
+              child: Material(
+                color: h.id == chosen?.id ? c.blueSoft : c.surfaceRaised,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AbyRadius.md),
+                  side: BorderSide(color: h.id == chosen?.id ? c.blue : c.line, width: 1.5),
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(AbyRadius.md),
+                  onTap: () => onChoose(h),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AbySpace.s4, vertical: AbySpace.s3),
+                    child: Row(
+                      children: [
+                        AbyIcon(
+                          h.id == chosen?.id ? AbyIcons.check : AbyIcons.wifi,
+                          size: 20,
+                          color: h.id == chosen?.id ? c.blue : c.success,
+                        ),
+                        const SizedBox(width: AbySpace.s3),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l.hubFound(h.name),
+                                style: AbyText.body.copyWith(color: c.ink, fontWeight: FontWeight.w700),
+                              ),
+                              Text(
+                                h.address,
+                                style: AbyText.caption.copyWith(fontFamily: AbyText.mono, color: c.inkMuted),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Capitals, only the letters codes use, a dash after the first four.
+/// A pasted QR text is let through whole, for the page to read.
+class _PairingCodeFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    if (PairingOffer.parse(newValue.text) != null) return newValue;
+    final raw = PairingOffer.normalizeCode(newValue.text)
+        .split('')
+        .where(PairingOffer.codeChars.contains)
+        .take(PairingOffer.codeLength)
+        .join();
+    final text = PairingOffer.formatCode(raw);
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
     );
   }
 }

@@ -6,6 +6,8 @@ import 'package:aby_pos/app/data/repositories/receiving_repository.dart';
 import 'package:aby_pos/app/data/repositories/stock_count_repository.dart';
 import 'package:aby_pos/app/data/repositories/stock_repository.dart';
 import 'package:aby_pos/app/data/repositories/supplier_repository.dart';
+import 'package:aby_pos/app/domain/audit_details.dart';
+import 'package:aby_pos/app/domain/business_templates.dart';
 import 'package:aby_pos/app/domain/catalogue_io.dart';
 import 'package:aby_pos/app/domain/catalogue_rules.dart';
 import 'package:aby_pos/app/domain/inventory.dart';
@@ -203,6 +205,7 @@ void main() {
       expect(await counts.open(), isNull);
       expect((await counts.find(id))!.status, StockCountStatus.cancelled);
       expect((await stockItem('Wafer cones')).onHand, 200);
+      expect(await r.audit.list(actions: {AuditAction.stockCountCancelled}), hasLength(1));
     });
   });
 
@@ -231,6 +234,7 @@ void main() {
       await r.catalog.cancelScheduledPrice(id, by: owner);
       expect(await r.catalog.scheduledPrices(), isEmpty);
       expect(await r.catalog.applyDuePrices(now: DateTime.now().add(const Duration(days: 5))), 0);
+      expect((await r.audit.list(actions: {AuditAction.priceScheduleCancelled})).single.summary, startsWith('Waffle: GH₵ 14.00'));
       await expectLater(
         r.catalog.schedulePrice(variantId, 1400, DateTime.now().subtract(const Duration(minutes: 1)), by: owner),
         throwsA(isA<CatalogueException>()),
@@ -253,6 +257,12 @@ void main() {
       expect((await product('Waffle')).variants.single.price, 1300);
       final entries = await r.audit.list(actions: {AuditAction.pricesBulkChanged});
       expect(entries.single.summary, contains('2 prices'));
+      // Names are kept with the prices, so the entry reads after a rename.
+      final details = describeAuditDetails(entries.single) as PriceChanges;
+      expect(details.rows.map((p) => (p.label, p.before, p.after)), [
+        ('Vanilla cone, Single scoop', 1500, 1600),
+        ('Waffle', 1200, 1300),
+      ]);
     });
   });
 
@@ -269,6 +279,42 @@ void main() {
       expect(preview.problems, isEmpty);
       expect(preview.drafts, isEmpty);
       expect(preview.unchanged, 6);
+    });
+
+    test('every kind of shop gets a sample that imports as it is', () async {
+      for (final type in BusinessType.values) {
+        final csv = io.sampleProducts(type);
+        expect(Csv.decode(csv).first, CatalogueIo.productColumns, reason: type.name);
+        final preview = await io.previewProducts(csv);
+        expect(preview.problems, isEmpty, reason: type.name);
+        expect(preview.canApply, isTrue, reason: type.name);
+      }
+    });
+
+    test('the provision shop sample makes products with sizes, barcodes and pictured categories', () async {
+      final preview = await io.previewProducts(io.sampleProducts(BusinessType.provision));
+      await io.applyProducts(preview, by: owner);
+      final rice = await product('Rice');
+      expect(rice.variants.map((v) => (v.name, v.price)), [('1 kg', 2500), ('5 kg', 11500)]);
+      expect((await product('Bottled water')).variants.single.barcodes, hasLength(2));
+      expect((await product('Biscuits')).active, isFalse);
+      final catalogue = await r.catalog.load(includeInactive: true);
+      final toiletries = catalogue.categories.firstWhere((c) => c.name == 'Toiletries');
+      expect(toiletries.picture, 'shopping-bag');
+      expect(catalogue.categories.firstWhere((c) => c.name == 'Drinks').picture, 'cup-soda');
+    });
+
+    test('a price list with its own headings imports too', () async {
+      const csv =
+          '\uFEFFName,Selling Price,Cost price,Barcode,Department\n'
+          'Sobolo,5.00,2.00,6001234567890,Drinks\n';
+      final preview = await io.previewProducts(csv);
+      expect(preview.problems, isEmpty);
+      await io.applyProducts(preview, by: owner);
+      final sobolo = await product('Sobolo');
+      expect(sobolo.variants.single.price, 500);
+      expect(sobolo.variants.single.manualCost, 200);
+      expect(sobolo.variants.single.barcodes, ['6001234567890']);
     });
 
     test('import adds and updates, keeps recipes, and creates new categories', () async {

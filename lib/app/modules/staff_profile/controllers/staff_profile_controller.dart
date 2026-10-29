@@ -22,6 +22,7 @@ import '../../../ui/l10n.dart';
 import '../widgets/badge_dialog.dart';
 import '../../../ui/photo_picker.dart';
 import '../../staff/controllers/staff_controller.dart';
+import '../../activity/controllers/audit_names.dart';
 
 /// One person's profile: details, photo, security, figures and recent
 /// activity. Opened with the staff ID as the route argument.
@@ -40,6 +41,9 @@ class StaffProfileController extends GetxController {
   final profile = Rxn<StaffProfile>();
   final stats = const StaffStats().obs;
   final activity = <AuditEntry>[].obs;
+
+  /// Names for ids older entries stored without them.
+  final activityNames = <String, String>{}.obs;
   final roles = <Role>[].obs;
   final message = RxnString();
 
@@ -110,7 +114,10 @@ class StaffProfileController extends GetxController {
     final day = BusinessDay.containing(DateTime.now(),
         startMinutes: _settings.get(AppSettings.businessDayStart));
     stats.value = await _stats.stats(staffId, todayStart: day.start);
-    if (canSeeActivity) activity.assignAll(await _audit.list(actorId: staffId, limit: 25));
+    if (canSeeActivity) {
+      activity.assignAll(await _audit.list(actorId: staffId, limit: 25));
+      activityNames.addAll(await auditNames(activity, known: activityNames.keys.toSet()));
+    }
     if (canManage) roles.assignAll(await _roles.list());
   }
 

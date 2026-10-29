@@ -12,6 +12,7 @@ import '../../../models/enums.dart';
 import '../../../models/sale.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/money.dart';
+import '../../../services/pdf_brand_loader.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../ui/files.dart';
@@ -144,6 +145,8 @@ class CustomerController extends GetxController {
       opening: opening,
       entries: inPeriod,
       aging: aging.value,
+      brand: await loadPdfBrand(),
+      logo: shopLogo(),
     );
     final safe = c.name.replaceAll(RegExp(r'[^A-Za-z0-9]+'), '-');
     await shareOrSaveBytes('Statement-$safe.pdf', pdf, text: appL10n().customerStatementText(c.name));

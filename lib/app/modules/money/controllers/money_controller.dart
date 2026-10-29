@@ -133,7 +133,7 @@ class MoneyController extends GetxController {
   Future<List<RecurringExpense>> allRecurring() => _expenses.recurring(includeInactive: true);
 
   Future<void> setRecurringActive(RecurringExpense r, bool active) async {
-    await _expenses.setRecurringActive(r.id, active: active);
+    await _expenses.setRecurringActive(r.id, active: active, by: _auth.user);
     await load();
   }
 

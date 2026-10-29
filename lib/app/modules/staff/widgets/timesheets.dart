@@ -3,10 +3,13 @@ import 'package:get/get.dart';
 
 import '../../../core/csv.dart';
 import '../../../core/period.dart';
+import '../../../core/settings.dart';
 import '../../../data/repositories/time_repository.dart';
+import '../../../domain/documents/report_docs.dart';
+import '../../../services/settings_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
-import '../../../ui/files.dart';
+import '../../../ui/export_dialog.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/period_bar.dart';
@@ -65,7 +68,10 @@ class _TimesheetsTabState extends State<TimesheetsTab> {
           '${e.earlyMinutes}',
         ],
     ];
-    await shareOrSaveText('timesheet-${_range.from.toIso8601String().substring(0, 10)}.csv', Csv.encode(rows));
+    await exportDocument(
+      ReportDocs.timesheet(_entries, shopName: Get.find<SettingsService>().get(AppSettings.shopName), range: _range, now: now),
+      fileStem: 'timesheet-${_range.from.toIso8601String().substring(0, 10)}',
+      csv: Csv.encode(rows));
   }
 
   @override

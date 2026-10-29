@@ -79,25 +79,27 @@ Future<void> showPurchaseOrder(PurchasingController ctl, PurchaseOrder o) => Get
           ),
         ),
         actions: [
-          if (o.isOpen)
-            TextButton(
-              onPressed: () async {
-                goBack<void>();
-                await ctl.cancelOrder(o);
-              },
-              child: Text(l.poCancel, style: TextStyle(color: c.danger)),
-            ),
-          OutlinedButton.icon(onPressed: () => ctl.shareOrder(o), icon: const Icon(Icons.send_outlined), label: Text(l.poSend)),
-          if (o.isOpen && ctl.canReceive)
-            FilledButton.icon(
-              onPressed: () async {
-                goBack<void>();
-                await ctl.receiveOrder(o);
-              },
-              icon: const Icon(Icons.local_shipping_outlined),
-              label: Text(l.poReceive),
-            ),
-          if (!o.isOpen) FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+          DialogButtons(children: [
+                if (o.isOpen)
+              TextButton(
+                onPressed: () async {
+                  goBack<void>();
+                  await ctl.cancelOrder(o);
+                },
+                child: Text(l.poCancel, style: TextStyle(color: c.danger)),
+              ),
+            OutlinedButton.icon(onPressed: () => ctl.shareOrder(o), icon: const Icon(Icons.send_outlined), label: Text(l.poSend)),
+            if (o.isOpen && ctl.canReceive)
+              FilledButton.icon(
+                onPressed: () async {
+                  goBack<void>();
+                  await ctl.receiveOrder(o);
+                },
+                icon: const Icon(Icons.local_shipping_outlined),
+                label: Text(l.poReceive),
+              ),
+            if (!o.isOpen) FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+          ]),
         ],
       );
     }));
@@ -269,8 +271,10 @@ class _NewOrderState extends State<_NewOrder> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(onPressed: _save, child: Text(l.poCreate)),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(onPressed: _save, child: Text(l.poCreate)),
+        ]),
       ],
     );
   }
@@ -304,7 +308,10 @@ Future<void> showExpiring(List<BatchLeft> batches) => Get.dialog<void>(Builder(b
                     ),
                 ]),
         ),
-        actions: [FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone))],
+        actions: [
+          DialogButtons(children: [FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+          ]),
+        ],
       );
     }));
 

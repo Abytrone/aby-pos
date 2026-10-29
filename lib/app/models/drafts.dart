@@ -129,12 +129,15 @@ class OptionGroupDraft {
 }
 
 class CategoryDraft {
-  const CategoryDraft({this.id, required this.name, required this.tone, this.parentId});
+  const CategoryDraft({this.id, required this.name, required this.tone, this.parentId, this.icon});
 
   final String? id;
   final String name;
   final CategoryTone tone;
   final String? parentId;
+
+  /// A Lucide category icon name; null to work it out from the name.
+  final String? icon;
 }
 
 class TaxRateDraft {

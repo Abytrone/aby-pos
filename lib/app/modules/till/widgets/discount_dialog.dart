@@ -188,10 +188,12 @@ class _DiscountDialogState extends State<_DiscountDialog> {
         ),
       ),
       actions: [
-        if (widget.current != null)
-          TextButton(onPressed: () => goBack(result: const DiscountChoice(null)), child: Text(l.discountRemove)),
-        OutlinedButton(onPressed: () => goBack<DiscountChoice>(), child: Text(l.commonCancel)),
-        FilledButton(onPressed: _apply, child: Text(l.discountApply)),
+        DialogButtons(children: [
+              if (widget.current != null)
+            TextButton(onPressed: () => goBack(result: const DiscountChoice(null)), child: Text(l.discountRemove)),
+          OutlinedButton(onPressed: () => goBack<DiscountChoice>(), child: Text(l.commonCancel)),
+          FilledButton(onPressed: _apply, child: Text(l.discountApply)),
+        ]),
       ],
     );
   }

@@ -95,8 +95,10 @@ class _PayMethodsState extends State<_PayMethods> {
         ]),
       ),
       actions: [
-        OutlinedButton.icon(onPressed: () => _edit(), icon: const Icon(Icons.add), label: Text(l.payMethodNew)),
-        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        DialogButtons(children: [
+              OutlinedButton.icon(onPressed: () => _edit(), icon: const Icon(Icons.add), label: Text(l.payMethodNew)),
+          FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        ]),
       ],
     );
   }
@@ -196,8 +198,10 @@ class _PayMethodEditorState extends State<_PayMethodEditor> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<bool>(), child: Text(l.commonCancel)),
-        FilledButton(onPressed: _save, child: Text(l.commonSave)),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<bool>(), child: Text(l.commonCancel)),
+          FilledButton(onPressed: _save, child: Text(l.commonSave)),
+        ]),
       ],
     );
   }

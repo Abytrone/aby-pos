@@ -219,10 +219,14 @@ class InfoTile extends StatelessWidget {
 }
 
 class EmptyState extends StatelessWidget {
-  const EmptyState({super.key, required this.icon, required this.message});
+  const EmptyState({super.key, required this.icon, required this.message, this.action, this.onAction});
 
   final IconData icon;
   final String message;
+
+  /// At most one thing to do about it.
+  final String? action;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -240,6 +244,7 @@ class EmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: AbyText.body.copyWith(color: c.inkMuted),
             ),
+            if (action != null) ...[const SizedBox(height: AbySpace.s3), OutlinedButton(onPressed: onAction, child: Text(action!))],
           ],
         ),
       ),

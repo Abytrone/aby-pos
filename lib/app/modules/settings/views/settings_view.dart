@@ -11,17 +11,21 @@ import '../../../domain/loyalty.dart';
 import '../../../models/enums.dart';
 import '../../../models/receipt.dart';
 import '../../../models/scale.dart';
+import '../../../services/auth_service.dart';
 import '../../../services/branch_service.dart';
 import '../../../services/hub/hub_service.dart';
 import '../../../services/money.dart';
 import '../../../services/display/display_service.dart';
 import '../../../services/printing/print_service.dart';
 import '../../../services/training_service.dart';
+import '../../../theme/aby_colors.dart';
+import '../../../theme/aby_icons.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/section_page.dart';
+import '../../../ui/setting_labels.dart';
 import '../controllers/backup_controller.dart';
 import '../controllers/settings_controller.dart';
 import '../../setup/views/setup_view.dart' show businessTypeLabel;
@@ -37,17 +41,87 @@ import '../widgets/hub_devices.dart';
 import '../widgets/screens_dialog.dart';
 import '../widgets/selling_lists.dart';
 
+/// A group of rows and the tab it sits on.
+typedef _Group = (String, SettingsTab);
+
 /// One searchable row. [keywords] widen what search finds.
 class _Entry {
-  const _Entry(this.group, this.tile, {this.keywords = const []});
+  const _Entry(this.place, this.tile, {this.keywords = const []});
 
-  final String group;
+  final _Group place;
   final InfoTile tile;
   final List<String> keywords;
+
+  String get group => place.$1;
+  SettingsTab get tab => place.$2;
 
   bool matches(String q) =>
       q.isEmpty ||
       [tile.title, tile.subtitle ?? '', group, ...keywords].any((t) => t.toLowerCase().contains(q));
+}
+
+/// Rows grouped into cards, in the order they come. Search results name
+/// the tab each group lives on, so it can be found again without search.
+class _Groups extends StatelessWidget {
+  const _Groups({required this.entries, this.showTab = false});
+
+  final List<_Entry> entries;
+  final bool showTab;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final groups = <_Group, List<InfoTile>>{};
+    for (final e in entries) {
+      groups.putIfAbsent(e.place, () => []).add(e.tile);
+    }
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 720),
+        child: ListView(
+          padding: const EdgeInsets.all(AbySpace.s4),
+          children: [
+            for (final MapEntry(key: (title, tab), value: tiles) in groups.entries)
+              GroupCard(title: showTab ? '${settingsTabLabel(l, tab)}  ·  $title' : title, children: tiles),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Keeps [tab] in step with the tab on show, whether tapped or swiped.
+class _RememberTab extends StatefulWidget {
+  const _RememberTab({required this.tab, required this.child});
+
+  final RxInt tab;
+  final Widget child;
+
+  @override
+  State<_RememberTab> createState() => _RememberTabState();
+}
+
+class _RememberTabState extends State<_RememberTab> {
+  TabController? _tabs;
+
+  void _save() => widget.tab.value = _tabs!.index;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _tabs?.removeListener(_save);
+    _tabs = DefaultTabController.of(context)..addListener(_save);
+  }
+
+  @override
+  void dispose() {
+    _tabs?.removeListener(_save);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 /// Settings → Items that need prep: products and categories that get a
@@ -74,13 +148,33 @@ Future<void> setTraining(SettingsController c, bool on, {bool reset = false}) as
   if (reset) {
     await training.reset();
   } else if (on) {
-    await training.enter();
+    await training.enter(by: Get.find<AuthService>().currentUser.value);
   } else {
     await training.leave();
   }
 }
 
-/// Manage → Settings, grouped and searchable.
+/// The tabs Settings is split into, in order. Each group of rows sits on
+/// one tab; search looks across all of them.
+enum SettingsTab { shop, selling, receipts, device, data }
+
+String settingsTabLabel(AppLocalizations l, SettingsTab t) => switch (t) {
+  SettingsTab.shop => l.settingsTabShop,
+  SettingsTab.selling => l.settingsTabSelling,
+  SettingsTab.receipts => l.settingsTabReceipts,
+  SettingsTab.device => l.settingsTabDevice,
+  SettingsTab.data => l.settingsTabData,
+};
+
+String _tabIcon(SettingsTab t) => switch (t) {
+  SettingsTab.shop => AbyIcons.store,
+  SettingsTab.selling => AbyIcons.shoppingBasket,
+  SettingsTab.receipts => AbyIcons.receiptText,
+  SettingsTab.device => AbyIcons.tabletSmartphone,
+  SettingsTab.data => AbyIcons.cloudUpload,
+};
+
+/// Manage → Settings, in tabs, grouped and searchable.
 class SettingsView extends GetView<SettingsController> {
   const SettingsView({super.key});
 
@@ -93,87 +187,126 @@ class SettingsView extends GetView<SettingsController> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final c = Theme.of(context).extension<AbyColors>()!;
     final backups = Get.find<BackupController>();
-    return SectionPage(
+    return DefaultTabController(
+      length: SettingsTab.values.length,
+      initialIndex: controller.tab.value,
+      child: _RememberTab(
+        tab: controller.tab,
+        child: SectionPage(
       title: l.navSettings,
-      bottom: Padding(
+      bottom: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
         padding: const EdgeInsets.fromLTRB(AbySpace.s4, 0, AbySpace.s4, AbySpace.s2),
         child: TextField(
-          onChanged: (v) => controller.query.value = v.trim().toLowerCase(),
+                  controller: controller.search,
+                  onChanged: (v) => controller.query.value = v.trim().toLowerCase(),
           decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.search),
+            prefixIcon: Padding(
+                      padding: const EdgeInsets.all(AbySpace.s3),
+                      child: AbyIcon(AbyIcons.search, size: 20, color: c.inkMuted),
+                    ),
+                    suffixIcon: Obx(
+                      () => controller.query.value.isEmpty
+                          ? const SizedBox.shrink()
+                          : IconButton(
+                              tooltip: l.commonClear,
+                              icon: AbyIcon(AbyIcons.x, size: 20, color: c.inkMuted),
+                              onPressed: controller.clearSearch,
+                            ),
+                    ),
             hintText: l.settingsSearch,
             isDense: true,
           ),
         ),
       ),
-      child: Obx(() {
-        final entries = _entries(l, backups).where((e) => e.matches(controller.query.value)).toList();
-        final groups = <String, List<InfoTile>>{};
-        for (final e in entries) {
-          groups.putIfAbsent(e.group, () => []).add(e.tile);
-        }
-        if (groups.isEmpty) return EmptyState(icon: Icons.search_off, message: l.settingsNoMatch);
-        return Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
-            child: ListView(
-              padding: const EdgeInsets.all(AbySpace.s4),
-              children: [
-                for (final g in groups.entries) GroupCard(title: g.key, children: g.value),
-              ],
-            ),
+              // Searching looks across every tab, so the tabs step aside.
+              Obx(
+                () => controller.query.value.isNotEmpty
+                    ? const SizedBox.shrink()
+                    : TabBar(
+                        isScrollable: true,
+                        tabAlignment: TabAlignment.start,
+                        tabs: [
+                          for (final t in SettingsTab.values)
+                            Tab(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  AbyIcon(_tabIcon(t), size: 18, color: c.ink),
+                                  const SizedBox(width: AbySpace.s2),
+                                  Text(settingsTabLabel(l, t)),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+              ),
+            ],
           ),
-        );
-      }),
+          child: Obx(() {
+        final q = controller.query.value;
+            final all = _entries(l, backups);
+            if (q.isNotEmpty) {
+              final found = all.where((e) => e.matches(q)).toList();
+              if (found.isEmpty) return EmptyState(icon: Icons.search_off, message: l.settingsNoMatch);
+        return _Groups(entries: found, showTab: true);
+            }
+            return TabBarView(
+              children: [
+                for (final t in SettingsTab.values)
+                  _Groups(
+                    entries: [
+                      for (final e in all)
+                        if (e.tab == t) e,
+                    ],
+                  ),
+              ],
+            );
+          }),
+        ),
+      ),
     );
   }
 
   List<_Entry> _entries(AppLocalizations l, BackupController backups) {
     final c = controller;
     String minutesLabel(int m) => m == 0 ? l.settingsAutoLockOff : l.settingsMinutes(m);
-    String themeLabel(String t) => switch (t) {
-          'light' => l.settingsThemeLight,
-          'dark' => l.settingsThemeDark,
-          _ => l.settingsThemeSystem,
-        };
-    String tileLabel(String t) => switch (t) {
-          'small' => l.settingsTilesSmall,
-          'large' => l.settingsTilesLarge,
-          _ => l.settingsTilesMedium,
-        };
-    String scaleValueLabel(String v) => v == 'price' ? l.settingsScalePrice : l.settingsScaleWeight;
+    String themeLabel(String t) => settingThemeLabel(l, t);
+    String tileLabel(String t) => settingTileLabel(l, t);
+    String viewLabel(String v) => settingViewLabel(l, v);
+    String pinPadLabel(String v) => settingPinPadLabel(l, v);
+    String scaleValueLabel(String v) => settingScaleValueLabel(l, v);
 
     Future<void> editText(Setting<String> s, String title, {TextInputType? type}) async {
       final v = await textInputDialog(title: title, label: title, initial: c.value(s), keyboardType: type);
       if (v != null) await c.save(s, v.trim());
     }
 
-    final shop = l.settingsGroupShop;
-    final day = l.settingsGroupDay;
-    final selling = l.settingsGroupSelling;
-    final payments = l.settingsGroupPayments;
-    String roundLabel(int p) => switch (p) {
-          10 => l.settingsRound10,
-          50 => l.settingsRound50,
-          _ => l.settingsOff,
-        };
-    final security = l.settingsGroupSecurity;
-    final printing = l.settingsGroupPrinting;
+    final shop = (l.settingsGroupShop, SettingsTab.shop);
+    final day = (l.settingsGroupDay, SettingsTab.shop);
+    final selling = (l.settingsGroupSelling, SettingsTab.selling);
+    final payments = (l.settingsGroupPayments, SettingsTab.selling);
+    String roundLabel(int p) => settingRoundLabel(l, p);
+    final security = (l.settingsGroupSecurity, SettingsTab.device);
+    final printing = (l.settingsGroupPrinting, SettingsTab.receipts);
     final printer = PrinterTarget.decode(c.value(AppSettings.receiptPrinter));
     final scale = ScaleTarget.decode(c.value(AppSettings.scale));
-    final orders = l.settingsGroupOrders;
-    final features = l.settingsGroupFeatures;
+    final orders = (l.settingsGroupOrders, SettingsTab.receipts);
+    final features = (l.settingsGroupFeatures, SettingsTab.shop);
     String commissionLabel(String m) => switch (m) {
           'percent' => l.commissionPercentOfSales(c.value(AppSettings.commissionPercent)),
           'perProduct' => l.commissionPerProduct,
           _ => l.settingsOff,
         };
     final kitchen = PrinterTarget.decode(c.value(AppSettings.kitchenPrinter));
-    final device = l.settingsGroupDevice;
-    final data = l.settingsGroupData;
-    final about = l.settingsGroupAbout;
+    final device = (l.settingsGroupDevice, SettingsTab.device);
+    final screen = (l.settingsGroupScreen, SettingsTab.device);
+    final data = (l.settingsGroupData, SettingsTab.data);
+    final about = (l.settingsGroupAbout, SettingsTab.data);
     final local = c.lastLocalBackup.value;
     final offsite = c.lastOffsiteBackup.value;
 
@@ -485,7 +618,26 @@ class SettingsView extends GetView<SettingsController> {
           if (v != null) await c.save(AppSettings.autoLockMinutes, v);
         },
       ), keywords: ['lock', 'idle', 'timeout']),
-      _Entry(device, InfoTile(
+      _Entry(
+        security,
+        InfoTile(
+          title: l.settingsPinPad,
+          subtitle: l.settingsPinPadHelp,
+          value: pinPadLabel(c.value(AppSettings.pinPad)),
+          onTap: () async {
+            final v = await choiceDialog<String>(
+              title: l.settingsPinPad,
+              options: const ['standard', 'shuffled', 'keyboard'],
+              label: pinPadLabel,
+              selected: c.value(AppSettings.pinPad),
+            );
+            if (v != null) await c.save(AppSettings.pinPad, v);
+          },
+        ),
+        keywords: ['pin', 'keypad', 'keyboard', 'shuffle', 'private', 'secret', 'shoulder', 'password'],
+      ),
+      _Entry(
+        device, InfoTile(
         title: l.settingsDeviceName,
         value: c.value(AppSettings.deviceName).isEmpty ? l.settingsNotSet : c.value(AppSettings.deviceName),
         onTap: () => editText(AppSettings.deviceName, l.settingsDeviceName),
@@ -522,7 +674,8 @@ class SettingsView extends GetView<SettingsController> {
           leading: const Icon(Icons.notifications_outlined),
           onTap: showNotificationChoices,
         ), keywords: ['notifications', 'alerts', 'low stock', 'credit']),
-      _Entry(device, InfoTile(
+      _Entry(
+        screen, InfoTile(
         title: l.settingsTheme,
         value: themeLabel(c.value(AppSettings.themeMode)),
         onTap: () async {
@@ -534,8 +687,28 @@ class SettingsView extends GetView<SettingsController> {
           );
           if (v != null) await c.save(AppSettings.themeMode, v);
         },
-      ), keywords: ['dark', 'light', 'colour']),
-      _Entry(device, InfoTile(
+      ), keywords: ['dark', 'light', 'colour', 'colors', 'theme', 'appearance', 'night'],
+      ),
+      _Entry(
+        screen,
+        InfoTile(
+          title: l.settingsProductView,
+          subtitle: l.settingsProductViewHelp,
+          value: viewLabel(c.value(AppSettings.productView)),
+          onTap: () async {
+            final v = await choiceDialog<String>(
+              title: l.settingsProductView,
+              options: const ['auto', 'grid', 'list'],
+              label: viewLabel,
+              selected: c.value(AppSettings.productView),
+            );
+            if (v != null) await c.save(AppSettings.productView, v);
+          },
+        ),
+        keywords: ['grid', 'list', 'photos', 'till', 'tiles', 'rows'],
+      ),
+      _Entry(
+        screen, InfoTile(
         title: l.settingsTiles,
         value: tileLabel(c.value(AppSettings.tileSize)),
         onTap: () async {
@@ -548,14 +721,16 @@ class SettingsView extends GetView<SettingsController> {
           if (v != null) await c.save(AppSettings.tileSize, v);
         },
       ), keywords: ['till', 'tiles', 'size', 'grid']),
-      _Entry(device, InfoTile(
+      _Entry(
+        screen, InfoTile(
         title: l.settingsLargeText,
         trailing: Switch(
           value: c.value(AppSettings.largeText),
           onChanged: (v) => c.save(AppSettings.largeText, v),
         ),
       ), keywords: ['font', 'size', 'accessibility']),
-      _Entry(device, InfoTile(
+      _Entry(
+        screen, InfoTile(
         title: l.settingsLanguage,
         subtitle: l.settingsLanguageMore,
         value: 'English',

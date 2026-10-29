@@ -53,9 +53,10 @@ Future<Staff?> showApprovalPrompt(ApprovalNeed need, String reason) {
           ),
         ),
         actions: [
-          OutlinedButton(onPressed: () => goBack<Staff>(), child: Text(l10n.commonCancel)),
+          DialogButtons(children: [OutlinedButton(onPressed: () => goBack<Staff>(), child: Text(l10n.commonCancel)),
+          ]),
         ],
-      );
+        );
     }),
   );
 }

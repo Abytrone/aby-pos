@@ -101,8 +101,10 @@ class _SavedDiscountsState extends State<_SavedDiscounts> {
         ]),
       ),
       actions: [
-        OutlinedButton.icon(onPressed: () => _edit(), icon: const Icon(Icons.add), label: Text(l.discountNew)),
-        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        DialogButtons(children: [
+              OutlinedButton.icon(onPressed: () => _edit(), icon: const Icon(Icons.add), label: Text(l.discountNew)),
+          FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        ]),
       ],
     );
   }
@@ -214,8 +216,10 @@ class _DiscountEditorState extends State<_DiscountEditor> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<bool>(), child: Text(l.commonCancel)),
-        FilledButton(onPressed: _save, child: Text(l.commonSave)),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<bool>(), child: Text(l.commonCancel)),
+          FilledButton(onPressed: _save, child: Text(l.commonSave)),
+        ]),
       ],
     );
   }
@@ -288,8 +292,10 @@ class _ReasonsState extends State<_Reasons> {
         ]),
       ),
       actions: [
-        OutlinedButton.icon(onPressed: () => _edit(), icon: const Icon(Icons.add), label: Text(l.reasonNew)),
-        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        DialogButtons(children: [
+              OutlinedButton.icon(onPressed: () => _edit(), icon: const Icon(Icons.add), label: Text(l.reasonNew)),
+          FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        ]),
       ],
     );
   }

@@ -4,57 +4,245 @@ import '../../../models/catalog.dart';
 import '../../../models/enums.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
+import '../../../theme/aby_icons.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/product_picture.dart';
 import 'category_dot.dart';
 
-/// A quick-tap product tile (at least 112px tall).
+/// What a tile or row says about one product, worked out once for both
+/// views so they never disagree.
+class _Facts {
+  _Facts(BuildContext context, Product p, int? left)
+    : out = left != null && left <= 0,
+      stock = left == null ? null : (left <= 0 ? context.l10n.tileOut : context.l10n.tileLeft(left)),
+      price = p.openPrice
+          ? context.l10n.tileOpenPrice
+          : [
+              p.pricesDiffer ? context.l10n.tileFrom(formatMoney(p.fromPrice)) : formatMoney(p.fromPrice),
+              if (p.perUnit != null) '/${p.perUnit}',
+            ].join();
+
+  final bool out;
+  final String? stock;
+  final String price;
+
+  String semantics(Product p, int inCart) => '${p.name}, $price${stock != null ? ', $stock' : ''}${inCart > 0 ? ', $inCart in cart' : ''}';
+}
+
+/// The line under the name: stock when it is low ("3 left" in warning),
+/// else the size.
+class _Detail extends StatelessWidget {
+  const _Detail({required this.product, required this.facts});
+
+  final Product product;
+  final _Facts facts;
+
+  /// Sizes and flavours wrap rather than being cut off.
+  static const maxLines = 3;
+  static TextStyle style(AbyColors c) => AbyText.caption.copyWith(color: c.inkMuted);
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).extension<AbyColors>()!;
+    if (facts.stock != null) {
+      return Text(
+        facts.stock!,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: AbyText.caption.copyWith(fontWeight: FontWeight.w700, color: facts.out ? c.danger : c.warning),
+      );
+    }
+    if (product.sizeLine.isEmpty) return const SizedBox.shrink();
+    return Text(product.sizeLine, maxLines: maxLines, overflow: TextOverflow.ellipsis, style: style(c));
+  }
+}
+
+/// Product names on tiles and rows (the brand's tile style at 16).
+const _nameStyle = TextStyle(fontFamily: AbyText.family, fontSize: 16, height: 21 / 16, fontWeight: FontWeight.w600);
+
+/// Grid view: one tap adds one item. A 4:3 photo (or the category icon on
+/// its tint), the name, the size or stock, and the price. The category dot
+/// sits on the photo's corner; a lime count shows how many are in the cart.
 class ProductTile extends StatelessWidget {
   const ProductTile({
     super.key,
     required this.product,
     required this.tone,
+    required this.icon,
     required this.inCart,
     this.left,
     this.photo,
-    this.large = false,
+    this.detailLines = 1,
     required this.onTap,
     this.onLongPress,
   });
 
   final Product product;
   final CategoryTone tone;
+
+  /// Lines kept for the size line, the same for every tile in the grid
+  /// (see [detailLinesFor]) so photos and prices line up across a row.
+  final int detailLines;
+
+  /// The category's picture, for when there is no photo.
+  final String icon;
   final int inCart;
 
   /// How many can still be made, when the till can tell.
   final int? left;
-
-  /// The product photo; without one the tile shows initials on the
-  /// category colour.
   final ImageProvider? photo;
+  final VoidCallback onTap;
+  final VoidCallback? onLongPress;
 
-  /// Large tiles show a bigger picture.
-  final bool large;
+  /// Height of everything under the photo: padding, two lines of name,
+  /// [detailLines] of size line and the price, at the device's text size.
+  static double textHeight(TextScaler scaler, {int detailLines = 1}) =>
+      AbySpace.s2 * 3 + AbySpace.s1 + scaler.scale(21) * 2 + scaler.scale(18) * detailLines + scaler.scale(22);
+
+  /// The text width under a tile's photo, for a tile [tileWidth] wide.
+  static double textWidth(double tileWidth) => tileWidth - AbySpace.s2 * 2 - AbySpace.s1 * 2 - 3;
+
+  /// How many lines the longest size line among [products] needs at
+  /// [width] (1 to 3), so the grid keeps room for it and no more.
+  static int detailLinesFor(BuildContext context, Iterable<Product> products, double width) {
+    final c = Theme.of(context).extension<AbyColors>()!;
+    final scaler = MediaQuery.textScalerOf(context);
+    var lines = 1;
+    for (final p in products) {
+      if (p.sizeLine.isEmpty) continue;
+      final painter = TextPainter(
+        text: TextSpan(text: p.sizeLine, style: _Detail.style(c)),
+        maxLines: _Detail.maxLines,
+        textDirection: Directionality.of(context),
+        textScaler: scaler,
+      )..layout(maxWidth: width);
+      final n = painter.computeLineMetrics().length;
+      painter.dispose();
+      if (n > lines) lines = n;
+      if (lines == _Detail.maxLines) break;
+    }
+    return lines;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).extension<AbyColors>()!;
+    final f = _Facts(context, product, left);
+    final scaler = MediaQuery.textScalerOf(context);
+    return Semantics(
+      button: true,
+      label: f.semantics(product, inCart),
+      excludeSemantics: true,
+      child: Material(
+        color: c.surfaceRaised,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AbyRadius.md),
+          side: BorderSide(color: inCart > 0 ? c.primary : c.line, width: 1.5),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          onLongPress: onLongPress,
+          child: Padding(
+            padding: const EdgeInsets.all(AbySpace.s2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: ProductPicture(tone: tone, icon: icon, photo: photo, dimmed: f.out, iconSize: 36),
+                      ),
+                      Positioned(
+                        top: AbySpace.s2,
+                        left: AbySpace.s2,
+                        child: _RingedDot(tone: tone),
+                      ),
+                      if (inCart > 0) Positioned(top: 6, right: 6, child: CartCountBadge(count: inCart)),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(AbySpace.s1, AbySpace.s2, AbySpace.s1, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Two lines kept for every name, so prices line up across a row.
+                      ConstrainedBox(
+                        constraints: BoxConstraints(minHeight: scaler.scale(21) * 2),
+                        child: Text(
+                          product.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: _nameStyle.copyWith(color: f.out ? c.inkMuted : c.ink),
+                        ),
+                      ),
+                      SizedBox(
+                        height: scaler.scale(18) * detailLines,
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: _Detail(product: product, facts: f),
+                        ),
+                      ),
+                      const SizedBox(height: AbySpace.s1),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(f.price, maxLines: 1, style: AbyText.price.copyWith(color: f.out ? c.inkMuted : c.ink)),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// List view: the same product as a row, with the same tap behaviour. A
+/// 56 px photo, the name with its category dot, the size or stock, the
+/// price, and the cart count (a plus until it is in the cart).
+class ProductListRow extends StatelessWidget {
+  const ProductListRow({
+    super.key,
+    required this.product,
+    required this.tone,
+    required this.icon,
+    required this.inCart,
+    this.left,
+    this.photo,
+    required this.onTap,
+    this.onLongPress,
+  });
+
+  final Product product;
+  final CategoryTone tone;
+  final String icon;
+  final int inCart;
+  final int? left;
+  final ImageProvider? photo;
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).extension<AbyColors>()!;
-    final pricesDiffer = product.pricesDiffer;
-    final l = context.l10n;
-    final out = left != null && left! <= 0;
+    final f = _Facts(context, product, left);
     return Semantics(
       button: true,
-      label: '${product.name}, ${formatMoney(product.fromPrice)}'
-          '${inCart > 0 ? ', $inCart in cart' : ''}',
+      label: f.semantics(product, inCart),
       excludeSemantics: true,
       child: Material(
-        color: out ? c.surfaceSunken : c.surfaceRaised,
+        color: c.surfaceRaised,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AbyRadius.md),
           side: BorderSide(
-            color: inCart > 0 ? c.lineStrong : c.line,
+            color: inCart > 0 ? c.primary : c.line,
             width: 1.5,
           ),
         ),
@@ -63,61 +251,68 @@ class ProductTile extends StatelessWidget {
           onTap: onTap,
           onLongPress: onLongPress,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: AbySize.tileMin),
+            constraints: const BoxConstraints(minHeight: 72),
             child: Padding(
-              padding: const EdgeInsets.all(AbySpace.s3),
+              padding: const EdgeInsets.fromLTRB(AbySpace.s2, AbySpace.s2, AbySpace.s3, AbySpace.s2),
+              child: Row(
+                children: [
+                  SizedBox.square(
+                    dimension: AbySize.thumbRow,
+                    child: ProductPicture(tone: tone, icon: icon, photo: photo, dimmed: f.out, iconSize: 24),
+                  ),
+                  const SizedBox(width: AbySpace.s3),
+                  Expanded(
+                    flex: 3,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _Picture(name: product.name, tone: tone, photo: photo, size: large ? 56 : 36),
-                      const Spacer(),
-                      if (inCart > 0) _CountBadge(count: inCart),
-                    ],
-                  ),
-                  const SizedBox(height: AbySpace.s2),
-                  Text(
-                    product.name,
-                    style: AbyText.tile.copyWith(color: c.ink),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (product.sizeLine.isNotEmpty)
-                    Text(
-                      product.sizeLine,
-                      style: AbyText.caption.copyWith(color: c.inkMuted),
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            CategoryDot(tone: tone, size: 8),
+                            const SizedBox(width: AbySpace.s2),
+                            Flexible(
+                              child: Text(
+                                product.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
+                                style: _nameStyle.copyWith(color: f.out ? c.inkMuted : c.ink),
+                              ),
+                            ),
+                          ],
+                        ),
+                        _Detail(product: product, facts: f),
+                      ],
                     ),
-                  const Spacer(),
-                  Row(children: [
-                    Expanded(
+                  ),
+                  const SizedBox(width: AbySpace.s3),
+                  // The price gets up to two fifths of the room, and shrinks
+                  // rather than being cut off.
+                  Flexible(
+                    flex: 2,
+                    child: Align(
+                      alignment: Alignment.centerRight,
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          product.openPrice
-                              ? l.tileOpenPrice
-                              : [
-                                  pricesDiffer ? l.tileFrom(formatMoney(product.fromPrice)) : formatMoney(product.fromPrice),
-                                  if (product.perUnit != null) '/${product.perUnit}',
-                                ].join(),
-                          style: AbyText.price.copyWith(color: out ? c.inkMuted : c.ink),
-                          maxLines: 1,
-                        ),
+                        child: Text(f.price, maxLines: 1,
+                          style: AbyText.price.copyWith(color: f.out ? c.inkMuted : c.ink)),
                       ),
                     ),
-                    if (left != null)
-                      Text(
-                        out ? l.tileOut : l.tileLeft(left!),
-                        style: AbyText.caption.copyWith(
-                          color: out ? c.danger : c.inkMuted,
-                          fontWeight: FontWeight.w700,
-                        ),
+                  ),
+                  const SizedBox(width: AbySpace.s3),
+                  if (inCart > 0)
+                    CartCountBadge(count: inCart, size: 32)
+                  else
+                    Container(
+                      width: 32,
+                      height: 32,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: c.lineStrong, width: 1.5),
                       ),
-                  ]),
+                      child: AbyIcon(AbyIcons.plus, size: 20, color: c.inkMuted),
+                    ),
                 ],
               ),
             ),
@@ -128,64 +323,22 @@ class ProductTile extends StatelessWidget {
   }
 }
 
-class _Picture extends StatelessWidget {
-  const _Picture({required this.name, required this.tone, required this.photo, required this.size});
+/// The category dot on a photo, ringed so it reads on any picture.
+class _RingedDot extends StatelessWidget {
+  const _RingedDot({required this.tone});
 
-  final String name;
   final CategoryTone tone;
-  final ImageProvider? photo;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = Theme.of(context).extension<AbyColors>()!;
-    final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
-    final initials = words.take(2).map((w) => w.characters.first.toUpperCase()).join();
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AbyRadius.sm),
-      child: SizedBox.square(
-        dimension: size,
-        child: photo != null
-            ? Image(image: photo!, fit: BoxFit.cover, gaplessPlayback: true)
-            : ColoredBox(
-                color: toneColor(tone, c),
-                child: Center(
-                  child: Text(
-                    initials,
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: size * 0.4),
-                  ),
-                ),
-              ),
-      ),
-    );
-  }
-}
-
-class _CountBadge extends StatelessWidget {
-  const _CountBadge({required this.count});
-
-  final int count;
 
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).extension<AbyColors>()!;
     return Container(
-      constraints: const BoxConstraints(minWidth: 28),
-      height: 28,
-      padding: const EdgeInsets.symmetric(horizontal: AbySpace.s2),
-      alignment: Alignment.center,
+      width: 12,
+      height: 12,
       decoration: BoxDecoration(
-        color: c.lime,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        '$count',
-        style: TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w800,
-          color: c.onLime,
-          fontFeatures: const [FontFeature.tabularFigures()],
-        ),
+        color: toneColor(tone, c),
+        shape: BoxShape.circle,
+        border: Border.all(color: c.surfaceRaised, width: 2),
       ),
     );
   }

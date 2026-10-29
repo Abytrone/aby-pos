@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '../../../core/permissions.dart';
+import '../../../core/settings.dart';
 import '../../../data/repositories/stock_repository.dart';
 import '../../../domain/catalogue_io.dart';
 import '../../../models/drafts.dart';
@@ -11,7 +12,8 @@ import '../../../models/stock.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/permission_service.dart';
-import '../../../ui/files.dart';
+import '../../../services/settings_service.dart';
+import '../../../ui/export_dialog.dart';
 import '../../../ui/l10n.dart';
 
 enum StockFilter { all, low, retired }
@@ -97,8 +99,15 @@ class StockController extends GetxController {
 
   Staff get me => _auth.user;
 
+  /// A workbook or PDF of stock on hand and its value; the CSV is the file
+  /// stock import reads.
   Future<void> exportStock() async {
-    final csv = Get.find<CatalogueIo>().exportStock(items);
-    await shareOrSaveText('stock-${DateTime.now().toIso8601String().substring(0, 10)}.csv', csv);
+    final io = Get.find<CatalogueIo>();
+    await exportDocument(
+      io.stockDoc(items, shopName: Get.find<SettingsService>().get(AppSettings.shopName)),
+      fileStem: 'stock-${DateTime.now().toIso8601String().substring(0, 10)}',
+      csv: io.exportStock(items),
+      csvImports: true,
+    );
   }
 }

@@ -127,6 +127,15 @@ class $CategoriesTable extends Categories
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _iconMeta = const VerificationMeta('icon');
+  @override
+  late final GeneratedColumn<String> icon = GeneratedColumn<String>(
+    'icon',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -140,6 +149,7 @@ class $CategoriesTable extends Categories
     sortOrder,
     parentId,
     active,
+    icon,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -220,6 +230,12 @@ class $CategoriesTable extends Categories
         active.isAcceptableOrUnknown(data['active']!, _activeMeta),
       );
     }
+    if (data.containsKey('icon')) {
+      context.handle(
+        _iconMeta,
+        icon.isAcceptableOrUnknown(data['icon']!, _iconMeta),
+      );
+    }
     return context;
   }
 
@@ -275,6 +291,10 @@ class $CategoriesTable extends Categories
         DriftSqlType.bool,
         data['${effectivePrefix}active'],
       )!,
+      icon: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}icon'],
+      ),
     );
   }
 
@@ -303,6 +323,10 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
   /// A sub-category's parent (two levels at most). v5.
   final String? parentId;
   final bool active;
+
+  /// The picture a product without a photo shows (a Lucide category icon
+  /// name, e.g. "ice-cream-cone"). Null: worked out from the name. v18.
+  final String? icon;
   const CategoryRow({
     required this.id,
     required this.createdAt,
@@ -315,6 +339,7 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
     required this.sortOrder,
     this.parentId,
     required this.active,
+    this.icon,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -340,6 +365,9 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
       map['parent_id'] = Variable<String>(parentId);
     }
     map['active'] = Variable<bool>(active);
+    if (!nullToAbsent || icon != null) {
+      map['icon'] = Variable<String>(icon);
+    }
     return map;
   }
 
@@ -362,6 +390,7 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
           ? const Value.absent()
           : Value(parentId),
       active: Value(active),
+      icon: icon == null && nullToAbsent ? const Value.absent() : Value(icon),
     );
   }
 
@@ -384,6 +413,7 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       parentId: serializer.fromJson<String?>(json['parentId']),
       active: serializer.fromJson<bool>(json['active']),
+      icon: serializer.fromJson<String?>(json['icon']),
     );
   }
   @override
@@ -403,6 +433,7 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
       'sortOrder': serializer.toJson<int>(sortOrder),
       'parentId': serializer.toJson<String?>(parentId),
       'active': serializer.toJson<bool>(active),
+      'icon': serializer.toJson<String?>(icon),
     };
   }
 
@@ -418,6 +449,7 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
     int? sortOrder,
     Value<String?> parentId = const Value.absent(),
     bool? active,
+    Value<String?> icon = const Value.absent(),
   }) => CategoryRow(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -430,6 +462,7 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
     sortOrder: sortOrder ?? this.sortOrder,
     parentId: parentId.present ? parentId.value : this.parentId,
     active: active ?? this.active,
+    icon: icon.present ? icon.value : this.icon,
   );
   CategoryRow copyWithCompanion(CategoriesCompanion data) {
     return CategoryRow(
@@ -444,6 +477,7 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       parentId: data.parentId.present ? data.parentId.value : this.parentId,
       active: data.active.present ? data.active.value : this.active,
+      icon: data.icon.present ? data.icon.value : this.icon,
     );
   }
 
@@ -460,7 +494,8 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
           ..write('tone: $tone, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('parentId: $parentId, ')
-          ..write('active: $active')
+          ..write('active: $active, ')
+          ..write('icon: $icon')
           ..write(')'))
         .toString();
   }
@@ -478,6 +513,7 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
     sortOrder,
     parentId,
     active,
+    icon,
   );
   @override
   bool operator ==(Object other) =>
@@ -493,7 +529,8 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
           other.tone == this.tone &&
           other.sortOrder == this.sortOrder &&
           other.parentId == this.parentId &&
-          other.active == this.active);
+          other.active == this.active &&
+          other.icon == this.icon);
 }
 
 class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
@@ -508,6 +545,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
   final Value<int> sortOrder;
   final Value<String?> parentId;
   final Value<bool> active;
+  final Value<String?> icon;
   final Value<int> rowid;
   const CategoriesCompanion({
     this.id = const Value.absent(),
@@ -521,6 +559,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
     this.sortOrder = const Value.absent(),
     this.parentId = const Value.absent(),
     this.active = const Value.absent(),
+    this.icon = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   CategoriesCompanion.insert({
@@ -535,6 +574,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
     this.sortOrder = const Value.absent(),
     this.parentId = const Value.absent(),
     this.active = const Value.absent(),
+    this.icon = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -554,6 +594,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
     Expression<int>? sortOrder,
     Expression<String>? parentId,
     Expression<bool>? active,
+    Expression<String>? icon,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -568,6 +609,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
       if (sortOrder != null) 'sort_order': sortOrder,
       if (parentId != null) 'parent_id': parentId,
       if (active != null) 'active': active,
+      if (icon != null) 'icon': icon,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -584,6 +626,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
     Value<int>? sortOrder,
     Value<String?>? parentId,
     Value<bool>? active,
+    Value<String?>? icon,
     Value<int>? rowid,
   }) {
     return CategoriesCompanion(
@@ -598,6 +641,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
       sortOrder: sortOrder ?? this.sortOrder,
       parentId: parentId ?? this.parentId,
       active: active ?? this.active,
+      icon: icon ?? this.icon,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -640,6 +684,9 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
     if (active.present) {
       map['active'] = Variable<bool>(active.value);
     }
+    if (icon.present) {
+      map['icon'] = Variable<String>(icon.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -660,6 +707,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
           ..write('sortOrder: $sortOrder, ')
           ..write('parentId: $parentId, ')
           ..write('active: $active, ')
+          ..write('icon: $icon, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -48508,6 +48556,7 @@ typedef $$CategoriesTableCreateCompanionBuilder = CategoriesCompanion Function({
   Value<int> sortOrder,
   Value<String?> parentId,
   Value<bool> active,
+  Value<String?> icon,
   Value<int> rowid,
 });
 typedef $$CategoriesTableUpdateCompanionBuilder = CategoriesCompanion Function({
@@ -48522,6 +48571,7 @@ typedef $$CategoriesTableUpdateCompanionBuilder = CategoriesCompanion Function({
   Value<int> sortOrder,
   Value<String?> parentId,
   Value<bool> active,
+  Value<String?> icon,
   Value<int> rowid,
 });
 
@@ -48610,6 +48660,11 @@ class $$CategoriesTableFilterComposer
 
   ColumnFilters<bool> get active => $composableBuilder(
     column: $table.active,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get icon => $composableBuilder(
+    column: $table.icon,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -48702,6 +48757,11 @@ class $$CategoriesTableOrderingComposer
     column: $table.active,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get icon => $composableBuilder(
+    column: $table.icon,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$CategoriesTableAnnotationComposer
@@ -48745,6 +48805,9 @@ class $$CategoriesTableAnnotationComposer
 
   GeneratedColumn<bool> get active =>
       $composableBuilder(column: $table.active, builder: (column) => column);
+
+  GeneratedColumn<String> get icon =>
+      $composableBuilder(column: $table.icon, builder: (column) => column);
 
   Expression<T> productsRefs<T extends Object>(
     Expression<T> Function($$ProductsTableAnnotationComposer a) f,
@@ -48811,6 +48874,7 @@ class $$CategoriesTableTableManager
                 Value<int> sortOrder = const Value.absent(),
                 Value<String?> parentId = const Value.absent(),
                 Value<bool> active = const Value.absent(),
+                Value<String?> icon = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CategoriesCompanion(
                 id: id,
@@ -48824,6 +48888,7 @@ class $$CategoriesTableTableManager
                 sortOrder: sortOrder,
                 parentId: parentId,
                 active: active,
+                icon: icon,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -48839,6 +48904,7 @@ class $$CategoriesTableTableManager
                 Value<int> sortOrder = const Value.absent(),
                 Value<String?> parentId = const Value.absent(),
                 Value<bool> active = const Value.absent(),
+                Value<String?> icon = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CategoriesCompanion.insert(
                 id: id,
@@ -48852,6 +48918,7 @@ class $$CategoriesTableTableManager
                 sortOrder: sortOrder,
                 parentId: parentId,
                 active: active,
+                icon: icon,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -48870,10 +48937,11 @@ class $$CategoriesTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (productsRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       CategoryRow,
                       $CategoriesTable,
-                      ProductRow
+                      ProductRow,
+                      $ProductsTable
                     >(
                       currentTable: table,
                       referencedTable: $$CategoriesTableReferences
@@ -48884,8 +48952,8 @@ class $$CategoriesTableTableManager
                             table,
                             p0,
                           ).productsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.categoryId == item.id),
+                      currentColumn: 'id',
+                      referencedColumn: 'category_id',
                       typedResults: items,
                     ),
                 ];
@@ -49919,10 +49987,11 @@ class $$ProductsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (productVariantsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           ProductRow,
                           $ProductsTable,
-                          VariantRow
+                          VariantRow,
+                          $ProductVariantsTable
                         >(
                           currentTable: table,
                           referencedTable: $$ProductsTableReferences
@@ -49933,17 +50002,16 @@ class $$ProductsTableTableManager
                                 table,
                                 p0,
                               ).productVariantsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.productId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'product_id',
                           typedResults: items,
                         ),
                       if (productOptionGroupsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           ProductRow,
                           $ProductsTable,
-                          ProductOptionGroupRow
+                          ProductOptionGroupRow,
+                          $ProductOptionGroupsTable
                         >(
                           currentTable: table,
                           referencedTable: $$ProductsTableReferences
@@ -49954,17 +50022,16 @@ class $$ProductsTableTableManager
                                 table,
                                 p0,
                               ).productOptionGroupsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.productId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'product_id',
                           typedResults: items,
                         ),
                       if (productTaxesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           ProductRow,
                           $ProductsTable,
-                          ProductTaxRow
+                          ProductTaxRow,
+                          $ProductTaxesTable
                         >(
                           currentTable: table,
                           referencedTable: $$ProductsTableReferences
@@ -49975,17 +50042,16 @@ class $$ProductsTableTableManager
                                 table,
                                 p0,
                               ).productTaxesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.productId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'product_id',
                           typedResults: items,
                         ),
                       if (productPhotosRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           ProductRow,
                           $ProductsTable,
-                          ProductPhotoRow
+                          ProductPhotoRow,
+                          $ProductPhotosTable
                         >(
                           currentTable: table,
                           referencedTable: $$ProductsTableReferences
@@ -49996,17 +50062,16 @@ class $$ProductsTableTableManager
                                 table,
                                 p0,
                               ).productPhotosRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.productId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'product_id',
                           typedResults: items,
                         ),
                       if (saleLinesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           ProductRow,
                           $ProductsTable,
-                          SaleLineRow
+                          SaleLineRow,
+                          $SaleLinesTable
                         >(
                           currentTable: table,
                           referencedTable: $$ProductsTableReferences
@@ -50017,17 +50082,16 @@ class $$ProductsTableTableManager
                                 table,
                                 p0,
                               ).saleLinesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.productId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'product_id',
                           typedResults: items,
                         ),
                       if (stockMovementsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           ProductRow,
                           $ProductsTable,
-                          StockMovementRow
+                          StockMovementRow,
+                          $StockMovementsTable
                         >(
                           currentTable: table,
                           referencedTable: $$ProductsTableReferences
@@ -50038,10 +50102,8 @@ class $$ProductsTableTableManager
                                 table,
                                 p0,
                               ).stockMovementsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.productId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'product_id',
                           typedResults: items,
                         ),
                     ];
@@ -50871,10 +50933,11 @@ class $$ProductVariantsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (recipeItemsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           VariantRow,
                           $ProductVariantsTable,
-                          RecipeItemRow
+                          RecipeItemRow,
+                          $RecipeItemsTable
                         >(
                           currentTable: table,
                           referencedTable: $$ProductVariantsTableReferences
@@ -50885,17 +50948,16 @@ class $$ProductVariantsTableTableManager
                                 table,
                                 p0,
                               ).recipeItemsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.variantId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'variant_id',
                           typedResults: items,
                         ),
                       if (barcodesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           VariantRow,
                           $ProductVariantsTable,
-                          BarcodeRow
+                          BarcodeRow,
+                          $BarcodesTable
                         >(
                           currentTable: table,
                           referencedTable: $$ProductVariantsTableReferences
@@ -50906,17 +50968,16 @@ class $$ProductVariantsTableTableManager
                                 table,
                                 p0,
                               ).barcodesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.variantId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'variant_id',
                           typedResults: items,
                         ),
                       if (priceChangesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           VariantRow,
                           $ProductVariantsTable,
-                          PriceChangeRow
+                          PriceChangeRow,
+                          $PriceChangesTable
                         >(
                           currentTable: table,
                           referencedTable: $$ProductVariantsTableReferences
@@ -50927,17 +50988,16 @@ class $$ProductVariantsTableTableManager
                                 table,
                                 p0,
                               ).priceChangesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.variantId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'variant_id',
                           typedResults: items,
                         ),
                       if (saleLinesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           VariantRow,
                           $ProductVariantsTable,
-                          SaleLineRow
+                          SaleLineRow,
+                          $SaleLinesTable
                         >(
                           currentTable: table,
                           referencedTable: $$ProductVariantsTableReferences
@@ -50948,17 +51008,16 @@ class $$ProductVariantsTableTableManager
                                 table,
                                 p0,
                               ).saleLinesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.variantId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'variant_id',
                           typedResults: items,
                         ),
                       if (stockMovementsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           VariantRow,
                           $ProductVariantsTable,
-                          StockMovementRow
+                          StockMovementRow,
+                          $StockMovementsTable
                         >(
                           currentTable: table,
                           referencedTable: $$ProductVariantsTableReferences
@@ -50969,10 +51028,8 @@ class $$ProductVariantsTableTableManager
                                 table,
                                 p0,
                               ).stockMovementsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.variantId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'variant_id',
                           typedResults: items,
                         ),
                     ];
@@ -51482,10 +51539,11 @@ class $$OptionGroupsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (optionItemsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           OptionGroupRow,
                           $OptionGroupsTable,
-                          OptionRow
+                          OptionRow,
+                          $OptionItemsTable
                         >(
                           currentTable: table,
                           referencedTable: $$OptionGroupsTableReferences
@@ -51496,17 +51554,16 @@ class $$OptionGroupsTableTableManager
                                 table,
                                 p0,
                               ).optionItemsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.groupId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'group_id',
                           typedResults: items,
                         ),
                       if (productOptionGroupsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           OptionGroupRow,
                           $OptionGroupsTable,
-                          ProductOptionGroupRow
+                          ProductOptionGroupRow,
+                          $ProductOptionGroupsTable
                         >(
                           currentTable: table,
                           referencedTable: $$OptionGroupsTableReferences
@@ -51517,10 +51574,8 @@ class $$OptionGroupsTableTableManager
                                 table,
                                 p0,
                               ).productOptionGroupsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.groupId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'group_id',
                           typedResults: items,
                         ),
                     ];
@@ -52065,10 +52120,11 @@ class $$OptionItemsTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (recipeItemsRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       OptionRow,
                       $OptionItemsTable,
-                      RecipeItemRow
+                      RecipeItemRow,
+                      $RecipeItemsTable
                     >(
                       currentTable: table,
                       referencedTable: $$OptionItemsTableReferences
@@ -52079,8 +52135,8 @@ class $$OptionItemsTableTableManager
                             table,
                             p0,
                           ).recipeItemsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.optionId == item.id),
+                      currentColumn: 'id',
+                      referencedColumn: 'option_id',
                       typedResults: items,
                     ),
                 ];
@@ -53512,10 +53568,11 @@ class $$StockItemsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (recipeItemsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           StockItemRow,
                           $StockItemsTable,
-                          RecipeItemRow
+                          RecipeItemRow,
+                          $RecipeItemsTable
                         >(
                           currentTable: table,
                           referencedTable: $$StockItemsTableReferences
@@ -53526,17 +53583,16 @@ class $$StockItemsTableTableManager
                                 table,
                                 p0,
                               ).recipeItemsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.stockItemId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'stock_item_id',
                           typedResults: items,
                         ),
                       if (stockReceiptLinesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           StockItemRow,
                           $StockItemsTable,
-                          StockReceiptLineRow
+                          StockReceiptLineRow,
+                          $StockReceiptLinesTable
                         >(
                           currentTable: table,
                           referencedTable: $$StockItemsTableReferences
@@ -53547,17 +53603,16 @@ class $$StockItemsTableTableManager
                                 table,
                                 p0,
                               ).stockReceiptLinesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.stockItemId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'stock_item_id',
                           typedResults: items,
                         ),
                       if (stockCountLinesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           StockItemRow,
                           $StockItemsTable,
-                          StockCountLineRow
+                          StockCountLineRow,
+                          $StockCountLinesTable
                         >(
                           currentTable: table,
                           referencedTable: $$StockItemsTableReferences
@@ -53568,17 +53623,16 @@ class $$StockItemsTableTableManager
                                 table,
                                 p0,
                               ).stockCountLinesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.stockItemId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'stock_item_id',
                           typedResults: items,
                         ),
                       if (purchaseOrderLinesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           StockItemRow,
                           $StockItemsTable,
-                          PurchaseOrderLineRow
+                          PurchaseOrderLineRow,
+                          $PurchaseOrderLinesTable
                         >(
                           currentTable: table,
                           referencedTable: $$StockItemsTableReferences
@@ -53589,17 +53643,16 @@ class $$StockItemsTableTableManager
                                 table,
                                 p0,
                               ).purchaseOrderLinesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.stockItemId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'stock_item_id',
                           typedResults: items,
                         ),
                       if (stockBatchesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           StockItemRow,
                           $StockItemsTable,
-                          StockBatchRow
+                          StockBatchRow,
+                          $StockBatchesTable
                         >(
                           currentTable: table,
                           referencedTable: $$StockItemsTableReferences
@@ -53610,17 +53663,16 @@ class $$StockItemsTableTableManager
                                 table,
                                 p0,
                               ).stockBatchesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.stockItemId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'stock_item_id',
                           typedResults: items,
                         ),
                       if (stockMovementsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           StockItemRow,
                           $StockItemsTable,
-                          StockMovementRow
+                          StockMovementRow,
+                          $StockMovementsTable
                         >(
                           currentTable: table,
                           referencedTable: $$StockItemsTableReferences
@@ -53631,17 +53683,16 @@ class $$StockItemsTableTableManager
                                 table,
                                 p0,
                               ).stockMovementsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.stockItemId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'stock_item_id',
                           typedResults: items,
                         ),
                       if (stockTransferLinesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           StockItemRow,
                           $StockItemsTable,
-                          StockTransferLineRow
+                          StockTransferLineRow,
+                          $StockTransferLinesTable
                         >(
                           currentTable: table,
                           referencedTable: $$StockItemsTableReferences
@@ -53652,10 +53703,8 @@ class $$StockItemsTableTableManager
                                 table,
                                 p0,
                               ).stockTransferLinesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.stockItemId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'stock_item_id',
                           typedResults: items,
                         ),
                     ];
@@ -54666,10 +54715,11 @@ class $$TaxRatesTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (productTaxesRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       TaxRateRow,
                       $TaxRatesTable,
-                      ProductTaxRow
+                      ProductTaxRow,
+                      $ProductTaxesTable
                     >(
                       currentTable: table,
                       referencedTable: $$TaxRatesTableReferences
@@ -54679,8 +54729,8 @@ class $$TaxRatesTableTableManager
                         table,
                         p0,
                       ).productTaxesRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.taxRateId == item.id),
+                      currentColumn: 'id',
+                      referencedColumn: 'tax_rate_id',
                       typedResults: items,
                     ),
                 ];
@@ -56831,10 +56881,11 @@ class $$SuppliersTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (supplierLedgerRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           SupplierRow,
                           $SuppliersTable,
-                          SupplierEntryRow
+                          SupplierEntryRow,
+                          $SupplierLedgerTable
                         >(
                           currentTable: table,
                           referencedTable: $$SuppliersTableReferences
@@ -56845,17 +56896,16 @@ class $$SuppliersTableTableManager
                                 table,
                                 p0,
                               ).supplierLedgerRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.supplierId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'supplier_id',
                           typedResults: items,
                         ),
                       if (stockReceiptsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           SupplierRow,
                           $SuppliersTable,
-                          StockReceiptRow
+                          StockReceiptRow,
+                          $StockReceiptsTable
                         >(
                           currentTable: table,
                           referencedTable: $$SuppliersTableReferences
@@ -56866,17 +56916,16 @@ class $$SuppliersTableTableManager
                                 table,
                                 p0,
                               ).stockReceiptsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.supplierId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'supplier_id',
                           typedResults: items,
                         ),
                       if (purchaseOrdersRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           SupplierRow,
                           $SuppliersTable,
-                          PurchaseOrderRow
+                          PurchaseOrderRow,
+                          $PurchaseOrdersTable
                         >(
                           currentTable: table,
                           referencedTable: $$SuppliersTableReferences
@@ -56887,10 +56936,8 @@ class $$SuppliersTableTableManager
                                 table,
                                 p0,
                               ).purchaseOrdersRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.supplierId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'supplier_id',
                           typedResults: items,
                         ),
                     ];
@@ -57991,10 +58038,11 @@ class $$StockReceiptsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (stockReceiptLinesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           StockReceiptRow,
                           $StockReceiptsTable,
-                          StockReceiptLineRow
+                          StockReceiptLineRow,
+                          $StockReceiptLinesTable
                         >(
                           currentTable: table,
                           referencedTable: $$StockReceiptsTableReferences
@@ -58005,10 +58053,8 @@ class $$StockReceiptsTableTableManager
                                 table,
                                 p0,
                               ).stockReceiptLinesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.receiptId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'receipt_id',
                           typedResults: items,
                         ),
                     ];
@@ -59010,10 +59056,11 @@ class $$StockCountsTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (stockCountLinesRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       StockCountRow,
                       $StockCountsTable,
-                      StockCountLineRow
+                      StockCountLineRow,
+                      $StockCountLinesTable
                     >(
                       currentTable: table,
                       referencedTable: $$StockCountsTableReferences
@@ -59024,8 +59071,8 @@ class $$StockCountsTableTableManager
                             table,
                             p0,
                           ).stockCountLinesRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.countId == item.id),
+                      currentColumn: 'id',
+                      referencedColumn: 'count_id',
                       typedResults: items,
                     ),
                 ];
@@ -60526,10 +60573,11 @@ class $$SalesTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (saleLinesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           SaleRow,
                           $SalesTable,
-                          SaleLineRow
+                          SaleLineRow,
+                          $SaleLinesTable
                         >(
                           currentTable: table,
                           referencedTable: $$SalesTableReferences
@@ -60540,17 +60588,16 @@ class $$SalesTableTableManager
                                 table,
                                 p0,
                               ).saleLinesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.saleId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'sale_id',
                           typedResults: items,
                         ),
                       if (saleTaxesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           SaleRow,
                           $SalesTable,
-                          SaleTaxRow
+                          SaleTaxRow,
+                          $SaleTaxesTable
                         >(
                           currentTable: table,
                           referencedTable: $$SalesTableReferences
@@ -60561,17 +60608,16 @@ class $$SalesTableTableManager
                                 table,
                                 p0,
                               ).saleTaxesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.saleId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'sale_id',
                           typedResults: items,
                         ),
                       if (paymentsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           SaleRow,
                           $SalesTable,
-                          PaymentRow
+                          PaymentRow,
+                          $PaymentsTable
                         >(
                           currentTable: table,
                           referencedTable: $$SalesTableReferences
@@ -60582,34 +60628,32 @@ class $$SalesTableTableManager
                                 table,
                                 p0,
                               ).paymentsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.saleId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'sale_id',
                           typedResults: items,
                         ),
                       if (refundsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           SaleRow,
                           $SalesTable,
-                          RefundRow
+                          RefundRow,
+                          $RefundsTable
                         >(
                           currentTable: table,
                           referencedTable: $$SalesTableReferences
                               ._refundsRefsTable(db),
                           managerFromTypedResult: (p0) =>
                               $$SalesTableReferences(db, table, p0).refundsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.saleId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'sale_id',
                           typedResults: items,
                         ),
                       if (stockMovementsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           SaleRow,
                           $SalesTable,
-                          StockMovementRow
+                          StockMovementRow,
+                          $StockMovementsTable
                         >(
                           currentTable: table,
                           referencedTable: $$SalesTableReferences
@@ -60620,10 +60664,8 @@ class $$SalesTableTableManager
                                 table,
                                 p0,
                               ).stockMovementsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.saleId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'sale_id',
                           typedResults: items,
                         ),
                     ];
@@ -63364,10 +63406,11 @@ class $$CustomersTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (customerLedgerRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       CustomerRow,
                       $CustomersTable,
-                      CustomerEntryRow
+                      CustomerEntryRow,
+                      $CustomerLedgerTable
                     >(
                       currentTable: table,
                       referencedTable: $$CustomersTableReferences
@@ -63378,8 +63421,8 @@ class $$CustomersTableTableManager
                             table,
                             p0,
                           ).customerLedgerRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.customerId == item.id),
+                      currentColumn: 'id',
+                      referencedColumn: 'customer_id',
                       typedResults: items,
                     ),
                 ];
@@ -64697,10 +64740,11 @@ class $$RefundsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (refundLinesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           RefundRow,
                           $RefundsTable,
-                          RefundLineRow
+                          RefundLineRow,
+                          $RefundLinesTable
                         >(
                           currentTable: table,
                           referencedTable: $$RefundsTableReferences
@@ -64711,17 +64755,16 @@ class $$RefundsTableTableManager
                                 table,
                                 p0,
                               ).refundLinesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.refundId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'refund_id',
                           typedResults: items,
                         ),
                       if (refundPaymentsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           RefundRow,
                           $RefundsTable,
-                          RefundPaymentRow
+                          RefundPaymentRow,
+                          $RefundPaymentsTable
                         >(
                           currentTable: table,
                           referencedTable: $$RefundsTableReferences
@@ -64732,10 +64775,8 @@ class $$RefundsTableTableManager
                                 table,
                                 p0,
                               ).refundPaymentsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.refundId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'refund_id',
                           typedResults: items,
                         ),
                     ];
@@ -68010,10 +68051,11 @@ class $$ExpenseCategoriesTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (expensesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           ExpenseCategoryRow,
                           $ExpenseCategoriesTable,
-                          ExpenseRow
+                          ExpenseRow,
+                          $ExpensesTable
                         >(
                           currentTable: table,
                           referencedTable: $$ExpenseCategoriesTableReferences
@@ -68024,17 +68066,16 @@ class $$ExpenseCategoriesTableTableManager
                                 table,
                                 p0,
                               ).expensesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.categoryId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'category_id',
                           typedResults: items,
                         ),
                       if (recurringExpensesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           ExpenseCategoryRow,
                           $ExpenseCategoriesTable,
-                          RecurringExpenseRow
+                          RecurringExpenseRow,
+                          $RecurringExpensesTable
                         >(
                           currentTable: table,
                           referencedTable: $$ExpenseCategoriesTableReferences
@@ -68045,10 +68086,8 @@ class $$ExpenseCategoriesTableTableManager
                                 table,
                                 p0,
                               ).recurringExpensesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.categoryId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'category_id',
                           typedResults: items,
                         ),
                     ];
@@ -69890,10 +69929,11 @@ class $$GiftVouchersTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (voucherEntriesRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       GiftVoucherRow,
                       $GiftVouchersTable,
-                      VoucherEntryRow
+                      VoucherEntryRow,
+                      $VoucherEntriesTable
                     >(
                       currentTable: table,
                       referencedTable: $$GiftVouchersTableReferences
@@ -69904,8 +69944,8 @@ class $$GiftVouchersTableTableManager
                             table,
                             p0,
                           ).voucherEntriesRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.voucherId == item.id),
+                      currentColumn: 'id',
+                      referencedColumn: 'voucher_id',
                       typedResults: items,
                     ),
                 ];
@@ -70450,10 +70490,11 @@ class $$PurchaseOrdersTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (purchaseOrderLinesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           PurchaseOrderRow,
                           $PurchaseOrdersTable,
-                          PurchaseOrderLineRow
+                          PurchaseOrderLineRow,
+                          $PurchaseOrderLinesTable
                         >(
                           currentTable: table,
                           referencedTable: $$PurchaseOrdersTableReferences
@@ -70464,10 +70505,8 @@ class $$PurchaseOrdersTableTableManager
                                 table,
                                 p0,
                               ).purchaseOrderLinesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.orderId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'order_id',
                           typedResults: items,
                         ),
                     ];
@@ -75375,7 +75414,12 @@ class $$RolesTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (staffMembersRefs)
-                    await $_getPrefetchedData<RoleRow, $RolesTable, StaffRow>(
+                    await $_getPrefetchedDataByColumns<
+                      RoleRow,
+                      $RolesTable,
+                      StaffRow,
+                      $StaffMembersTable
+                    >(
                       currentTable: table,
                       referencedTable: $$RolesTableReferences
                           ._staffMembersRefsTable(db),
@@ -75384,8 +75428,8 @@ class $$RolesTableTableManager
                         table,
                         p0,
                       ).staffMembersRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.roleId == item.id),
+                      currentColumn: 'id',
+                      referencedColumn: 'role_id',
                       typedResults: items,
                     ),
                 ];
@@ -76121,10 +76165,11 @@ class $$StaffMembersTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (staffPhotosRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       StaffRow,
                       $StaffMembersTable,
-                      StaffPhotoRow
+                      StaffPhotoRow,
+                      $StaffPhotosTable
                     >(
                       currentTable: table,
                       referencedTable: $$StaffMembersTableReferences
@@ -76135,8 +76180,8 @@ class $$StaffMembersTableTableManager
                             table,
                             p0,
                           ).staffPhotosRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.staffId == item.id),
+                      currentColumn: 'id',
+                      referencedColumn: 'staff_id',
                       typedResults: items,
                     ),
                 ];
@@ -79386,10 +79431,11 @@ class $$StockTransfersTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (stockTransferLinesRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       StockTransferRow,
                       $StockTransfersTable,
-                      StockTransferLineRow
+                      StockTransferLineRow,
+                      $StockTransferLinesTable
                     >(
                       currentTable: table,
                       referencedTable: $$StockTransfersTableReferences
@@ -79400,8 +79446,8 @@ class $$StockTransfersTableTableManager
                             table,
                             p0,
                           ).stockTransferLinesRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.transferId == item.id),
+                      currentColumn: 'id',
+                      referencedColumn: 'transfer_id',
                       typedResults: items,
                     ),
                 ];

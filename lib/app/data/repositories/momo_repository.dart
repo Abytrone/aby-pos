@@ -175,8 +175,18 @@ class MomoRepository {
           ),
         );
       } else {
+        if (row.amount == amount && row.note == note) return;
         await _db.updateTracked(_db.momoCharges, row.copyWith(amount: amount, note: Value(note), byName: by.name, updatedAt: now));
       }
+      await _audit.record(
+        action: AuditAction.momoChargesSet,
+        actor: by,
+        entity: 'momo_charges',
+        summary:
+            'MoMo charges for ${d.toIso8601String().substring(0, 10)}: '
+            '${row == null ? formatMoney(amount) : '${formatMoney(row.amount)} to ${formatMoney(amount)}'}',
+        details: {'before': ?row?.amount, 'after': amount},
+      );
     });
   }
 }

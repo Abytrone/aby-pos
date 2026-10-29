@@ -187,8 +187,10 @@ class _CountForm extends GetView<CloseDayController> {
       title: Text(l.closeConfirmTitle),
       content: Text(l.closeConfirmBody),
       actions: [
-        OutlinedButton(onPressed: () => goBack(result: false), child: Text(l.closeNotYet)),
-        FilledButton(onPressed: () => goBack(result: true), child: Text(l.closeDayButton)),
+        DialogButtons(children: [
+                OutlinedButton(onPressed: () => goBack(result: false), child: Text(l.closeNotYet)),
+          FilledButton(onPressed: () => goBack(result: true), child: Text(l.closeDayButton)),
+        ]),
       ],
     ));
     if (ok == true) await controller.closeDay();

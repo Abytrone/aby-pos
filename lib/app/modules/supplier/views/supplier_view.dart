@@ -188,18 +188,20 @@ class _PayDialogState extends State<_PayDialog> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(
-          onPressed: () async {
-            if (await controller.pay(_amount.text, _method, reference: _reference.text)) {
-              goBack<void>();
-            } else if (controller.message.value case final text?) {
-              controller.message.value = null;
-              showMessage(text);
-            }
-          },
-          child: Text(l.supplierPay),
-        ),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(
+            onPressed: () async {
+              if (await controller.pay(_amount.text, _method, reference: _reference.text)) {
+                goBack<void>();
+              } else if (controller.message.value case final text?) {
+                controller.message.value = null;
+                showMessage(text);
+              }
+            },
+            child: Text(l.supplierPay),
+          ),
+        ]),
       ],
     );
   }

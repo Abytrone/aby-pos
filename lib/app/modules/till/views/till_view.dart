@@ -7,11 +7,14 @@ import '../../../models/enums.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/money.dart';
 import '../../../services/settings_service.dart';
+import '../../../domain/category_icons.dart';
 import '../../../theme/aby_colors.dart';
+import '../../../theme/aby_icons.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/barcode_scanner.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/layout.dart';
 import '../controllers/till_controller.dart';
 import '../widgets/cart_panel.dart';
 import '../widgets/category_dot.dart';
@@ -19,18 +22,12 @@ import '../widgets/entry_dialog.dart';
 import '../widgets/product_tile.dart';
 import '../widgets/quick_arrange.dart';
 import '../widgets/variant_sheet.dart';
+import '../widgets/view_toggle.dart';
 
 /// Wide enough to show the cart beside the menu (a 10-inch tablet in
 /// landscape, after the navigation rail).
 const _sideBySideWidth = 760.0;
 const _cartWidth = 380.0;
-
-/// Tile width limit and height for each tile size setting.
-(double, double) _tileExtent(String size) => switch (size) {
-  'small' => (170.0, 124.0),
-  'large' => (300.0, 196.0),
-  _ => (230.0, 156.0),
-};
 
 class TillView extends GetView<TillController> {
   const TillView({super.key});
@@ -177,7 +174,10 @@ class _Menu extends StatelessWidget {
               onSubmitted: (_) => onSubmit(),
               decoration: InputDecoration(
                 isDense: true,
-                prefixIcon: const Icon(Icons.qr_code_scanner),
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.all(AbySpace.s3),
+                  child: AbyIcon(AbyIcons.scanBarcode, size: 20, color: c.inkMuted),
+                ),
                 hintText: l.tillSearchHint,
                 helperText: qty == null ? null : l.tillQuantityHint(qty),
                 suffixIcon: controller.query.value.isEmpty
@@ -187,26 +187,25 @@ class _Menu extends StatelessWidget {
                       })
                     : IconButton(
                         tooltip: l.commonClear,
-                        icon: const Icon(Icons.close),
+                        icon: AbyIcon(AbyIcons.x, size: 20, color: c.inkMuted),
                         onPressed: controller.clearSearch,
                       ),
               ),
             );
           }),
         ),
-        SizedBox(
-          height: AbySize.tapPos + AbySpace.s6,
-          child: Obx(() {
+        _MenuHeader(
+          tabs: Obx(() {
             final selected = controller.tab.value;
             final searching = controller.filterText.isNotEmpty;
             return ListView(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: AbySpace.s4, vertical: AbySpace.s3),
+              padding: const EdgeInsets.fromLTRB(AbySpace.s4, AbySpace.s3, AbySpace.s2, AbySpace.s3),
               children: [
                 if (controller.quickProducts.isNotEmpty || controller.canEditProducts)
                   _CategoryTab(
                     label: l.tillQuick,
-                    icon: Icons.star_rounded,
+                    icon: AbyIcons.star,
                     selected: !searching && selected is QuickTab,
                     onTap: () => controller.selectTab(const QuickTab()),
                   ),
@@ -225,52 +224,115 @@ class _Menu extends StatelessWidget {
                 if (controller.recentProducts.isNotEmpty)
                   _CategoryTab(
                     label: l.tillRecent,
-                    icon: Icons.history,
+                    icon: AbyIcons.history,
                     selected: !searching && selected is RecentTab,
                     onTap: () => controller.selectTab(const RecentTab()),
                   ),
               ],
             );
           }),
+          toggle: Obx(
+            () => ViewToggle(value: _viewFor(context, controller.productView), onChanged: (v) => controller.setProductView(v.name)),
+          ),
+          count: Obx(() => Text(l.tillProductCount(controller.visibleProducts.length), style: AbyText.caption.copyWith(color: c.inkMuted))),
         ),
         Expanded(
           child: Obx(() {
             final products = controller.visibleProducts;
             final onQuick = controller.tab.value is QuickTab && controller.filterText.isEmpty;
-            final (maxWidth, height) = _tileExtent(Get.find<SettingsService>().get(AppSettings.tileSize));
+            final view = _viewFor(context, controller.productView);
+            final target = _tileTarget(Get.find<SettingsService>().get(AppSettings.tileSize));
             // Read eagerly: the grid builds lazily, outside this Obx.
             final inCart = {for (final p in products) p.id: controller.cart.countFor(p.id)};
             final left = {for (final p in products) p.id: controller.leftOf(p)};
             final photos = Map.of(controller.photos);
             if (products.isEmpty) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(AbySpace.s6),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        controller.filterText.isNotEmpty
-                            ? l.tillNoMatch
-                            : onQuick
+              final query = controller.query.value.trim();
+              if (
+                        controller.filterText.isNotEmpty) {
+                return _TillEmpty(
+                  icon: AbyIcons.search,
+                  title: l.tillNoMatchTitle(query),
+                  line: l.tillNoMatch,
+                  action: l.tillClearSearch,
+                  onAction: controller.clearSearch,
+                );
+              }
+              return _TillEmpty(
+                icon: onQuick ? AbyIcons.star : AbyIcons.package,
+                title: onQuick
                             ? l.tillQuickEmpty
                             : l.tillNothingHere,
-                        textAlign: TextAlign.center,
-                        style: AbyText.body.copyWith(color: c.inkMuted),
-                      ),
-                      if (onQuick && controller.canEditProducts) ...[
-                        const SizedBox(height: AbySpace.s3),
-                        OutlinedButton.icon(
-                          onPressed: () => showQuickArrange(controller),
-                          icon: const Icon(Icons.star_outline),
-                          label: Text(l.quickArrange),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
+                action: onQuick && controller.canEditProducts ? l.quickArrange : null,
+                onAction: () => showQuickArrange(controller),
               );
             }
+            Widget item(Product p, {required bool grid, int detailLines = 1}) {
+              final cat = controller.categoryOf(p);
+              final tone = cat?.tone ?? CategoryTone.midnight;
+              final icon = cat?.picture ?? toneIcon(tone);
+              void tap() => onTapResult(controller.tapProduct(p));
+              final longPress = p.hasChoices && !p.needsEntry
+                  ? () {
+                      if (controller.longPressProduct(p)) onTapResult(TapResult.picker);
+                    }
+                  : null;
+              return grid
+                  ? ProductTile(
+                      product: p,
+                      tone: tone,
+                      icon: icon,
+                      inCart: inCart[p.id] ?? 0,
+                      left: left[p.id],
+                      photo: photos[p.id],
+                      detailLines: detailLines,
+                      onTap: tap,
+                      onLongPress: longPress,
+                    )
+                  : ProductListRow(
+                      product: p,
+                      tone: tone,
+                      icon: icon,
+                      inCart: inCart[p.id] ?? 0,
+                      left: left[p.id],
+                      photo: photos[p.id],
+                      onTap: tap,
+                      onLongPress: longPress,
+                    );
+            }
+
+            const pad = EdgeInsets.fromLTRB(AbySpace.s4, 0, AbySpace.s4, AbySpace.s4);
+            final list = switch (view) {
+              ProductView.list => ListView.separated(
+                padding: pad,
+                itemCount: products.length,
+                separatorBuilder: (_, _) => const SizedBox(height: AbySpace.s2),
+                itemBuilder: (_, i) => item(products[i], grid: false),
+              ),
+              ProductView.grid => LayoutBuilder(
+                builder: (context, box) {
+                  final width = box.maxWidth - pad.horizontal;
+                  final (columns, tile) = gridColumns(width: width, target: target);
+                  final detailLines = ProductTile.detailLinesFor(context, products, ProductTile.textWidth(tile));
+                  final (_, extent) = gridShape(
+                    width: width,
+                    target: target,
+                    textHeight: ProductTile.textHeight(MediaQuery.textScalerOf(context), detailLines: detailLines),
+                  );
+                  return GridView.builder(
+                    padding: pad,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: columns,
+                      mainAxisExtent: extent,
+                      crossAxisSpacing: AbySpace.s3,
+                      mainAxisSpacing: AbySpace.s3,
+                    ),
+                    itemCount: products.length,
+                    itemBuilder: (_, i) => item(products[i], grid: true, detailLines: detailLines),
+                  );
+                },
+              ),
+            };
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -281,40 +343,13 @@ class _Menu extends StatelessWidget {
                       alignment: Alignment.centerRight,
                       child: TextButton.icon(
                         onPressed: () => showQuickArrange(controller),
-                        icon: const Icon(Icons.edit_outlined),
+                        icon: AbyIcon(AbyIcons.slidersHorizontal, size: 20, color: c.ink),
                         label: Text(l.quickArrange),
                       ),
                     ),
                   ),
                 Expanded(
-                  child: GridView.builder(
-                    padding: const EdgeInsets.fromLTRB(AbySpace.s4, 0, AbySpace.s4, AbySpace.s4),
-                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: maxWidth,
-                      mainAxisExtent: height,
-                      crossAxisSpacing: AbySpace.s3,
-                      mainAxisSpacing: AbySpace.s3,
-                    ),
-                    itemCount: products.length,
-                    itemBuilder: (_, i) {
-                      final Product p = products[i];
-                      return ProductTile(
-                        product: p,
-                        tone: controller.categoryOf(p)?.tone ?? CategoryTone.midnight,
-                        inCart: inCart[p.id] ?? 0,
-                        left: left[p.id],
-                        photo: photos[p.id],
-                        large: height > 180,
-                        onTap: () => onTapResult(controller.tapProduct(p)),
-                        onLongPress: p.hasChoices && !p.needsEntry
-                            ? () {
-                                if (controller.longPressProduct(p)) onTapResult(TapResult.picker);
-                              }
-                            : null,
-                      );
-                    },
-                  ),
-                ),
+                  child: list),
               ],
             );
           }),
@@ -324,12 +359,140 @@ class _Menu extends StatelessWidget {
   }
 }
 
+/// The category tabs and the grid/list switch. Side by side on tablets;
+/// on phones the tabs get the full width and the switch sits under them,
+/// with how many products are showing.
+class _MenuHeader extends StatelessWidget {
+  const _MenuHeader({required this.tabs, required this.toggle, required this.count});
+
+  final Widget tabs;
+  final Widget toggle;
+  final Widget count;
+
+  @override
+  Widget build(BuildContext context) {
+    final strip = SizedBox(height: AbySize.tapPos + AbySpace.s6, child: tabs);
+    if (context.isNarrow) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          strip,
+          Padding(
+                    padding: const EdgeInsets.fromLTRB(AbySpace.s4, 0, AbySpace.s4, AbySpace.s3),
+            child: Row(
+              children: [
+                Expanded(child: count),
+                toggle,
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+    return Row(
+      children: [
+        Expanded(child: strip),
+        Padding(
+          padding: const EdgeInsets.only(right: AbySpace.s4),
+          child: toggle,
+        ),
+      ],
+    );
+  }
+}
+
+/// The view to show: the cashier's choice, else the grid on tablets and
+/// tills and the list on phones.
+ProductView _viewFor(BuildContext context, String setting) =>
+    ProductView.values.asNameMap()[setting] ?? (context.isNarrow ? ProductView.list : ProductView.grid);
+
+/// About how wide a tile should be, for each tile size setting.
+double _tileTarget(String size) => switch (size) {
+  'small' => 160.0,
+  'large' => 250.0,
+  _ => 200.0,
+};
+
+/// Columns and tile height for a grid [width] wide: tiles near [target]
+/// wide but never under the brand's 140 px, each with a 4:3 photo and
+/// [textHeight] of text under it.
+(int, double) gridShape({required double width, required double target, required double textHeight}) {
+  final (columns, tile) = gridColumns(width: width, target: target);
+  // The tile's own padding (8 each side) and border sit around the photo.
+  final photo = (tile - AbySpace.s2 * 2 - 3) * 3 / 4;
+  return (columns, photo + textHeight + 3);
+}
+
+/// Columns for a grid [width] wide, and each tile's width: near [target]
+/// but never under the brand's 140 px.
+(int, double) gridColumns({required double width, required double target}) {
+  const gap = AbySpace.s3;
+  final fit = ((width + gap) / (AbySize.tileMin + gap)).floor();
+  final columns = ((width + gap) / (target + gap)).round().clamp(1, fit < 1 ? 1 : fit);
+  return (columns, (width - gap * (columns - 1)) / columns);
+}
+
+/// What the product area shows when there is nothing in it: what is
+/// empty, one line on what to do, and at most one action.
+class _TillEmpty extends StatelessWidget {
+  const _TillEmpty({required this.icon, required this.title, this.line, this.action, this.onAction});
+
+  final String icon;
+  final String title;
+  final String? line;
+  final String? action;
+  final VoidCallback? onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).extension<AbyColors>()!;
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(AbySpace.s6),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 360),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(color: c.surfaceSunken, shape: BoxShape.circle),
+                child: AbyIcon(icon, size: 28, color: c.inkMuted),
+              ),
+              const SizedBox(height: AbySpace.s3,
+                    ),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: AbyText.heading.copyWith(color: c.ink),
+              ),
+              if (line != null) ...[
+                const SizedBox(height: AbySpace.s1),
+                Text(
+                  line!,
+                  textAlign: TextAlign.center,
+                  style: AbyText.body.copyWith(color: c.inkMuted),
+                ),
+              ],
+              if (action != null) ...[const SizedBox(height: AbySpace.s3), OutlinedButton(onPressed: onAction, child: Text(action!))],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _CategoryTab extends StatelessWidget {
   const _CategoryTab({required this.label, required this.selected, required this.onTap, this.tone, this.icon});
 
   final String label;
   final CategoryTone? tone;
-  final IconData? icon;
+
+  /// An [AbyIcons] asset.
+  final String? icon;
   final bool selected;
   final VoidCallback onTap;
 
@@ -357,7 +520,7 @@ class _CategoryTab extends StatelessWidget {
                 children: [
                   if (tone != null) ...[CategoryDot(tone: tone!), const SizedBox(width: AbySpace.s2)],
                   if (icon != null) ...[
-                    Icon(icon, size: 20, color: selected ? c.onPrimary : c.ink),
+                    AbyIcon(icon!, size: 18, color: selected ? c.onPrimary : c.ink),
                     const SizedBox(width: AbySpace.s1),
                   ],
                   Text(

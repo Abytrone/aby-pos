@@ -6,6 +6,9 @@ import 'package:sqlite3/sqlite3.dart';
 
 import '../app.dart';
 import '../data/database/app_database.dart';
+import '../data/repositories/audit_repository.dart';
+import '../models/audit.dart';
+import '../models/staff.dart';
 
 /// Training mode (APP-05): the till runs on a copy of the shop's data, so
 /// new cashiers can practise on real products. Sales, refunds and stock
@@ -18,6 +21,7 @@ class TrainingService extends GetxService {
     Future<File> Function()? trainingFile,
     Future<File> Function()? markerFile,
     Future<void> Function()? restart,
+    this._audit,
   })  : _realFile = realFile ?? databaseFile,
         _trainingFile = trainingFile ?? trainingDatabaseFile,
         _markerFile = markerFile ?? trainingMarkerFile,
@@ -28,6 +32,7 @@ class TrainingService extends GetxService {
   final Future<File> Function() _trainingFile;
   final Future<File> Function() _markerFile;
   final Future<void> Function() _restart;
+  final AuditRepository? _audit;
 
   /// Written into the copy, so the open database knows it is for training.
   static const metaKey = 'training_mode';
@@ -56,8 +61,10 @@ class TrainingService extends GetxService {
     }
   }
 
-  /// Copies the real data and restarts on the copy.
-  Future<void> enter() async {
+  /// Copies the real data and restarts on the copy. Noted in the real
+  /// activity log first: what happens in training stays in the copy.
+  Future<void> enter({Staff? by}) async {
+    await _audit?.record(action: AuditAction.trainingStarted, actor: by, summary: 'Started training mode');
     final copy = await _trainingFile();
     await _deleteWithSidecars(copy);
     await _db.customStatement('VACUUM INTO ?', [copy.path]);

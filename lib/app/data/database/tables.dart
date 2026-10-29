@@ -29,6 +29,10 @@ class Categories extends Table with SyncColumns {
   /// A sub-category's parent (two levels at most). v5.
   TextColumn get parentId => text().nullable()();
   BoolColumn get active => boolean().withDefault(const Constant(true))();
+
+  /// The picture a product without a photo shows (a Lucide category icon
+  /// name, e.g. "ice-cream-cone"). Null: worked out from the name. v18.
+  TextColumn get icon => text().nullable()();
 }
 
 @DataClassName('ProductRow')

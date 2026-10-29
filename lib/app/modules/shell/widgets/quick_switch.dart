@@ -61,8 +61,9 @@ Future<void> showQuickSwitch(ShellController controller) async {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+        DialogButtons(children: [OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+        ]),
       ],
-    );
+        );
   }));
 }

@@ -178,9 +178,11 @@ class _ScaleSetupState extends State<_ScaleSetup> {
         ),
       ),
       actions: [
-        if (_current != null) TextButton(onPressed: _remove, child: Text(l.scaleRemove)),
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(onPressed: _save, child: Text(l.commonSave)),
+        DialogButtons(children: [
+              if (_current != null) TextButton(onPressed: _remove, child: Text(l.scaleRemove)),
+          OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(onPressed: _save, child: Text(l.commonSave)),
+        ]),
       ],
     );
   }
@@ -223,7 +225,10 @@ Future<void> showNotificationChoices() async {
             ),
         ]),
       ),
-      actions: [FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone))],
-    );
+      actions: [
+        DialogButtons(children: [FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        ]),
+      ],
+        );
   }));
 }

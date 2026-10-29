@@ -200,18 +200,23 @@ class _BranchDialogState extends State<_BranchDialog> {
         width: 420,
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           TextField(controller: _name, autofocus: true, decoration: InputDecoration(labelText: l.branchName)),
-          TextField(controller: _address, decoration: InputDecoration(labelText: l.branchAddress)),
+            const SizedBox(height: AbySpace.s3),
+            TextField(controller: _address, decoration: InputDecoration(labelText: l.branchAddress),
+            ),
+            const SizedBox(height: AbySpace.s3),
           TextField(controller: _phone, keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: l.branchPhone)),
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(
-          onPressed: () => goBack(
-            result: BranchDraft(id: widget.branch?.id, name: _name.text, address: _address.text, phone: _phone.text),
+        DialogButtons(children: [
+          OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(
+            onPressed: () => goBack(
+              result: BranchDraft(id: widget.branch?.id, name: _name.text, address: _address.text, phone: _phone.text),
+            ),
+            child: Text(l.commonSave),
           ),
-          child: Text(l.commonSave),
-        ),
+        ]),
       ],
     );
   }

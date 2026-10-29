@@ -7,7 +7,6 @@ import '../../../core/settings.dart';
 import '../../../data/repositories/pay_method_repository.dart';
 import '../../../data/repositories/voucher_repository.dart';
 import '../../../domain/receipt/receipt_builder.dart';
-import '../../../domain/receipt/receipt_pdf.dart';
 import '../../../models/enums.dart';
 import '../../../models/sale.dart';
 import '../../../services/money.dart';
@@ -16,7 +15,6 @@ import '../../../services/printing/print_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
-import '../../../ui/files.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/receipt_actions.dart';
@@ -92,8 +90,10 @@ class _VouchersState extends State<_Vouchers> {
         ]),
       ),
       actions: [
-        OutlinedButton.icon(onPressed: _sell, icon: const Icon(Icons.card_giftcard), label: Text(l.voucherSell)),
-        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        DialogButtons(children: [
+              OutlinedButton.icon(onPressed: _sell, icon: const Icon(Icons.card_giftcard), label: Text(l.voucherSell)),
+          FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        ]),
       ],
     );
   }
@@ -227,8 +227,10 @@ class _SellVoucherState extends State<_SellVoucher> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(onPressed: _saving ? null : _save, child: Text(l.voucherSellButton)),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(onPressed: _saving ? null : _save, child: Text(l.voucherSellButton)),
+        ]),
       ],
     );
   }
@@ -265,20 +267,19 @@ class _VoucherCard extends StatelessWidget {
         ]),
       ),
       actions: [
-        OutlinedButton.icon(
-          onPressed: () async {
-            final bytes = await ReceiptPdf.build(doc);
-            await shareOrSaveBytes('Gift-voucher-${voucher.code}.pdf', bytes);
-          },
-          icon: const Icon(Icons.send_outlined),
-          label: Text(l.voucherSend),
-        ),
-        OutlinedButton.icon(
-          onPressed: () => printOnPaper(doc),
-          icon: const Icon(Icons.print_outlined),
-          label: Text(l.receiptPrint),
-        ),
-        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        DialogButtons(children: [
+              OutlinedButton.icon(
+            onPressed: () => shareReceiptPdf(doc),
+            icon: const Icon(Icons.send_outlined),
+            label: Text(l.voucherSend),
+          ),
+          OutlinedButton.icon(
+            onPressed: () => printOnPaper(doc, askPdf: false),
+            icon: const Icon(Icons.print_outlined),
+            label: Text(l.receiptPrint),
+          ),
+          FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        ]),
       ],
     );
   }

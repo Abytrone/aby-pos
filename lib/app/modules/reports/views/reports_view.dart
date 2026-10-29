@@ -46,6 +46,12 @@ class ReportsView extends GetView<ReportsController> {
           BranchPicker(onChanged: controller.load),
           if (controller.canExport)
             OutlinedButton.icon(
+              onPressed: controller.exportReport,
+              icon: const Icon(Icons.ios_share_outlined),
+              label: Text(l.reportExportAll),
+            ),
+          if (controller.canExport)
+            OutlinedButton.icon(
               onPressed: controller.accountantPack,
               icon: const Icon(Icons.folder_zip_outlined),
               label: Text(l.reportAccountant),

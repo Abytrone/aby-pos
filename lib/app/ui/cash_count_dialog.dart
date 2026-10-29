@@ -103,8 +103,10 @@ class _CashCountDialogState extends State<_CashCountDialog> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<CashCount>(), child: Text(l.commonCancel)),
-        FilledButton(onPressed: () => goBack(result: _count), child: Text(l.countCashUse)),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<CashCount>(), child: Text(l.commonCancel)),
+          FilledButton(onPressed: () => goBack(result: _count), child: Text(l.countCashUse)),
+        ]),
       ],
     );
   }

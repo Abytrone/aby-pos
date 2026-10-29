@@ -189,8 +189,12 @@ class AppDatabase extends _$AppDatabase {
 
   final bool seedDemoShop;
 
+  /// Pictures for the demo menu by product name, read when the demo shop
+  /// is first seeded (the app reads them from its assets).
+  Future<Map<String, Uint8List>> Function()? demoPhotos;
+
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -530,7 +534,11 @@ class AppDatabase extends _$AppDatabase {
             }
             await m.addColumn(schema.staff, schema.staff.branchId);
           },
-        ),
+      // v18: a picture for each category, for products without a photo.
+      from17To18: (m, schema) async {
+        await m.addColumn(schema.categories, schema.categories.icon);
+      },
+    ),
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
           final deviceId = await _ensureDeviceId();
@@ -540,7 +548,7 @@ class AppDatabase extends _$AppDatabase {
             await _insertDefaultReasons(deviceId);
             await _insertBuiltInPayMethods(deviceId);
             await _insertExpenseCategories(deviceId);
-            if (seedDemoShop) await seedScoopsTamale(this, deviceId: deviceId);
+            if (seedDemoShop) await seedScoopsTamale(this, deviceId: deviceId, photos: await demoPhotos?.call() ?? const {});
           }
         },
       );

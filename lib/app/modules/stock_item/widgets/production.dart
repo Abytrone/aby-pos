@@ -195,10 +195,12 @@ class _RecipeDialogState extends State<_RecipeDialog> {
         ),
       ),
       actions: [
-        if (_ctl.production.value != null)
-          TextButton(onPressed: () => _save(stop: true), child: Text(l.produceStop, style: TextStyle(color: c.danger))),
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(onPressed: _save, child: Text(l.commonSave)),
+        DialogButtons(children: [
+              if (_ctl.production.value != null)
+            TextButton(onPressed: () => _save(stop: true), child: Text(l.produceStop, style: TextStyle(color: c.danger))),
+          OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(onPressed: _save, child: Text(l.commonSave)),
+        ]),
       ],
     );
   }
@@ -255,15 +257,17 @@ class _ProduceDialogState extends State<_ProduceDialog> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(
-          onPressed: made <= 0
-              ? null
-              : () async {
-                  if (await _ctl.produce(_amount.text, _bulk, note: _note.text)) goBack<void>();
-                },
-          child: Text(l.produceRecord),
-        ),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(
+            onPressed: made <= 0
+                ? null
+                : () async {
+                    if (await _ctl.produce(_amount.text, _bulk, note: _note.text)) goBack<void>();
+                  },
+            child: Text(l.produceRecord),
+              ),
+        ]),
       ],
     );
   }

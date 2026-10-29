@@ -56,6 +56,7 @@ class SettingsRepository {
       } else {
         await _db.updateTracked(_db.settings, existing.copyWith(value: encoded, updatedAt: now));
       }
+      if (!setting.audited) return;
       final before = existing == null ? setting.defaultValue : jsonDecode(existing.value);
       await _audit.record(
         action: AuditAction.settingChanged,

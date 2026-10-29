@@ -282,10 +282,18 @@ class ExpenseRepository {
     });
   }
 
-  Future<void> setRecurringActive(String id, {required bool active}) {
+  Future<void> setRecurringActive(String id, {required bool active, required Staff by}) {
     return _db.transaction(() async {
       final row = await (_db.select(_db.recurringExpenses)..where((r) => r.id.equals(id))).getSingle();
+      if (row.active == active) return;
       await _db.updateTracked(_db.recurringExpenses, row.copyWith(active: active, updatedAt: DateTime.now()));
+      await _audit.record(
+        action: AuditAction.expenseCategorySaved,
+        actor: by,
+        entity: 'recurring_expenses',
+        entityId: id,
+        summary: '${active ? 'Turned on' : 'Turned off'} the reminder "${row.name}"',
+      );
     });
   }
 

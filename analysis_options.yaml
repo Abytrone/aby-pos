@@ -5,7 +5,7 @@ analyzer:
     - build/**
     - android/**
     - windows/**
-    - brand/** # the source brand kit; lib/app/theme/ holds the copy we use
+    - aby-brand-kit/** # the source brand kit; lib/app/theme/ holds the copy we use
     - lib/**/*.g.dart
     - ios/**
     - macos/**

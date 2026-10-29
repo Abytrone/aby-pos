@@ -1,0 +1,483 @@
+{
+  "name": "Aby",
+  "version": 2,
+  "color": {
+    "themes": [
+      {
+        "id": "light",
+        "name": "Light"
+      },
+      {
+        "id": "dark",
+        "name": "Dark"
+      }
+    ],
+    "tokens": [
+      {
+        "name": "surface",
+        "value": {
+          "light": "#f6f7f2",
+          "dark": "#0b0d17"
+        },
+        "usage": "Page and till background: chalk by day, near-black midnight in dark mode."
+      },
+      {
+        "name": "surface-raised",
+        "value": {
+          "light": "#ffffff",
+          "dark": "#161929"
+        },
+        "usage": "Product tiles, cards, the cart panel and sheets."
+      },
+      {
+        "name": "surface-sunken",
+        "value": {
+          "light": "#ecede6",
+          "dark": "#06070e"
+        },
+        "usage": "Wells behind grouped controls, the receipt backdrop, empty states."
+      },
+      {
+        "name": "line",
+        "value": {
+          "light": "#dfe1d8",
+          "dark": "#262a3d"
+        },
+        "usage": "Hairlines, dividers and resting tile borders."
+      },
+      {
+        "name": "line-strong",
+        "value": {
+          "light": "#878a7f",
+          "dark": "#6a6f86"
+        },
+        "usage": "Input and control borders that must hold 3:1 on surface and surface-raised."
+      },
+      {
+        "name": "ink",
+        "value": {
+          "light": "#101322",
+          "dark": "#f1f3ea"
+        },
+        "usage": "Primary text and prices, on surface, surface-raised and surface-sunken."
+      },
+      {
+        "name": "ink-muted",
+        "value": {
+          "light": "#5a5e6b",
+          "dark": "#9ea2b3"
+        },
+        "usage": "Secondary text, units and metadata, on surface, surface-raised and surface-sunken."
+      },
+      {
+        "name": "midnight",
+        "value": {
+          "light": "#101322",
+          "dark": "#101322"
+        },
+        "usage": "The brand's dark: the logo, the app icon ground, the checkout total bar and marketing panels. The same in both themes."
+      },
+      {
+        "name": "on-midnight",
+        "value": {
+          "light": "#f6f7f2",
+          "dark": "#f1f3ea"
+        },
+        "usage": "Text on midnight."
+      },
+      {
+        "name": "lime",
+        "value": {
+          "light": "#c8f560",
+          "dark": "#c8f560"
+        },
+        "usage": "Volt lime, the waiting dot: the Pay button, the cart count, the unsynced dot, highlights. A fill only; never text on light surfaces."
+      },
+      {
+        "name": "on-lime",
+        "value": {
+          "light": "#101322",
+          "dark": "#101322"
+        },
+        "usage": "Text on a lime fill (the Pay button label). Always midnight."
+      },
+      {
+        "name": "lime-soft",
+        "value": {
+          "light": "#ecfbc9",
+          "dark": "#1f2a0a"
+        },
+        "usage": "Tinted fills behind lime-ink text: sale complete, synced, offers."
+      },
+      {
+        "name": "lime-ink",
+        "value": {
+          "light": "#3f5a00",
+          "dark": "#c8f560"
+        },
+        "usage": "Lime as text and icons, on surface, surface-raised and lime-soft."
+      },
+      {
+        "name": "primary",
+        "value": {
+          "light": "#101322",
+          "dark": "#f1f3ea"
+        },
+        "usage": "Primary buttons and the selected tile border: midnight by day, chalk at night."
+      },
+      {
+        "name": "on-primary",
+        "value": {
+          "light": "#f6f7f2",
+          "dark": "#101322"
+        },
+        "usage": "Text on a primary fill."
+      },
+      {
+        "name": "blue",
+        "value": {
+          "light": "#3446e0",
+          "dark": "#9aa5ff"
+        },
+        "usage": "Signal blue: links, the selected payment chip, info. As text, on surface, surface-raised and blue-soft."
+      },
+      {
+        "name": "blue-soft",
+        "value": {
+          "light": "#e6e9ff",
+          "dark": "#1b2152"
+        },
+        "usage": "Selected rows and chips, info notices."
+      },
+      {
+        "name": "success",
+        "value": "{lime-ink}",
+        "usage": "Sale complete, synced, in stock: an alias of lime-ink, on the surfaces and lime-soft. Always with a word or check."
+      },
+      {
+        "name": "success-soft",
+        "value": "{lime-soft}",
+        "usage": "Background of the sale-complete banner and synced badges."
+      },
+      {
+        "name": "warning",
+        "value": {
+          "light": "#8a5300",
+          "dark": "#f5b950"
+        },
+        "usage": "Offline, low stock, waiting to sync. As text, on the surfaces and warning-soft."
+      },
+      {
+        "name": "warning-soft",
+        "value": {
+          "light": "#fdf0d7",
+          "dark": "#3a2a0b"
+        },
+        "usage": "Background of offline and low-stock notices."
+      },
+      {
+        "name": "coral",
+        "value": {
+          "light": "#ff6b4a",
+          "dark": "#ff8a70"
+        },
+        "usage": "Alert coral as a fill: badges and the void button's icon. Not for text on light surfaces."
+      },
+      {
+        "name": "danger",
+        "value": {
+          "light": "#c2361b",
+          "dark": "#ff8a70"
+        },
+        "usage": "Voids, refunds, errors and overdue credit. As text, on the surfaces and danger-soft. Always with a word."
+      },
+      {
+        "name": "danger-soft",
+        "value": {
+          "light": "#ffe6df",
+          "dark": "#3b1510"
+        },
+        "usage": "Background of error notices and the void confirmation."
+      },
+      {
+        "name": "link",
+        "value": "{blue}",
+        "usage": "Links: an alias of blue."
+      },
+      {
+        "name": "receipt-paper",
+        "value": {
+          "light": "#ffffff",
+          "dark": "#f4f4ef"
+        },
+        "usage": "Thermal receipt previews stay paper-white in both themes."
+      },
+      {
+        "name": "receipt-ink",
+        "value": {
+          "light": "#111111",
+          "dark": "#111111"
+        },
+        "usage": "Text on receipt-paper; thermal printers print one ink."
+      }
+    ]
+  },
+  "type": {
+    "fonts": [
+      {
+        "family": "Figtree",
+        "file": "fonts/Figtree-Variable.ttf",
+        "weight": "300 900"
+      },
+      {
+        "family": "JetBrains Mono",
+        "file": "fonts/JetBrainsMono-Variable.ttf",
+        "weight": "100 800"
+      }
+    ],
+    "families": {
+      "display": "\"Figtree\", system-ui, sans-serif",
+      "sans": "\"Figtree\", system-ui, -apple-system, \"Segoe UI\", sans-serif",
+      "mono": "\"JetBrains Mono\", ui-monospace, Menlo, monospace"
+    },
+    "groups": [
+      {
+        "name": "Display",
+        "family": "display",
+        "note": "Figtree at its heaviest, tight. The logo's wordmark is drawn separately and is never typed.",
+        "styles": [
+          {
+            "name": "display",
+            "fontSize": "56px",
+            "lineHeight": "56px",
+            "fontWeight": 900,
+            "letterSpacing": "-0.035em",
+            "sample": "Sell anyway.",
+            "usage": "Marketing headlines and the landing page hero."
+          },
+          {
+            "name": "title",
+            "fontSize": "32px",
+            "lineHeight": "36px",
+            "fontWeight": 800,
+            "letterSpacing": "-0.02em",
+            "sample": "Today's sales",
+            "usage": "Screen titles in the app and back office."
+          },
+          {
+            "name": "total",
+            "fontSize": "44px",
+            "lineHeight": "48px",
+            "fontWeight": 900,
+            "letterSpacing": "-0.03em",
+            "sample": "GH₵ 2,340.00",
+            "usage": "The checkout total and the day's takings: the biggest number on screen."
+          }
+        ]
+      },
+      {
+        "name": "Interface",
+        "family": "sans",
+        "note": "Figtree: open, friendly, very legible at arm's length on a cheap tablet.",
+        "styles": [
+          {
+            "name": "heading",
+            "fontSize": "20px",
+            "lineHeight": "28px",
+            "fontWeight": 700,
+            "sample": "Ice cream",
+            "usage": "Section and category headings, sheet titles."
+          },
+          {
+            "name": "tile",
+            "fontSize": "17px",
+            "lineHeight": "22px",
+            "fontWeight": 600,
+            "sample": "Vanilla cone",
+            "usage": "Product names on quick-tap tiles and cart lines."
+          },
+          {
+            "name": "price",
+            "fontSize": "17px",
+            "lineHeight": "22px",
+            "fontWeight": 800,
+            "sample": "GH₵ 15.00",
+            "usage": "Prices on tiles and cart lines; use tabular figures."
+          },
+          {
+            "name": "body",
+            "fontSize": "16px",
+            "lineHeight": "24px",
+            "fontWeight": 400,
+            "sample": "Add toppings or tap Pay to finish the sale.",
+            "usage": "Everything else."
+          },
+          {
+            "name": "label",
+            "fontSize": "13px",
+            "lineHeight": "16px",
+            "fontWeight": 700,
+            "letterSpacing": "0.05em",
+            "sample": "MOBILE MONEY",
+            "usage": "Small uppercase labels, badges and table headers."
+          },
+          {
+            "name": "caption",
+            "fontSize": "13px",
+            "lineHeight": "18px",
+            "fontWeight": 400,
+            "sample": "Synced 2 minutes ago",
+            "usage": "Metadata, timestamps and helper text."
+          }
+        ]
+      },
+      {
+        "name": "Receipt",
+        "family": "mono",
+        "note": "JetBrains Mono: thermal receipts and anything that must line up in columns.",
+        "styles": [
+          {
+            "name": "receipt",
+            "fontSize": "12px",
+            "lineHeight": "16px",
+            "fontWeight": 400,
+            "sample": "2 x Vanilla cone     30.00",
+            "usage": "Receipt lines, reference numbers, MoMo transaction IDs."
+          },
+          {
+            "name": "receipt-strong",
+            "fontSize": "14px",
+            "lineHeight": "18px",
+            "fontWeight": 700,
+            "sample": "TOTAL GH₵ 45.00",
+            "usage": "The receipt total and shop name."
+          }
+        ]
+      }
+    ]
+  },
+  "spacing": {
+    "note": "4px base. POS screens use the larger steps: fingers, not cursors.",
+    "tokens": [
+      {
+        "name": "space-1",
+        "value": "4px",
+        "usage": "Icon-to-label gap."
+      },
+      {
+        "name": "space-2",
+        "value": "8px",
+        "usage": "Inside badges and chips."
+      },
+      {
+        "name": "space-3",
+        "value": "12px",
+        "usage": "Between tiles in the quick-tap grid; between related rows."
+      },
+      {
+        "name": "space-4",
+        "value": "16px",
+        "usage": "Tile and card padding."
+      },
+      {
+        "name": "space-6",
+        "value": "24px",
+        "usage": "Between sections; screen gutters on tablets."
+      },
+      {
+        "name": "space-8",
+        "value": "32px",
+        "usage": "Large separations on marketing pages."
+      }
+    ]
+  },
+  "radius": {
+    "note": "Round, like the mark: soft rectangles, and true circles for anything that is a dot.",
+    "tokens": [
+      {
+        "name": "radius-sm",
+        "value": "8px",
+        "usage": "Badges, inputs."
+      },
+      {
+        "name": "radius-md",
+        "value": "14px",
+        "usage": "Buttons and product tiles."
+      },
+      {
+        "name": "radius-lg",
+        "value": "24px",
+        "usage": "Sheets, cards, the app icon."
+      },
+      {
+        "name": "radius-full",
+        "value": "9999px",
+        "usage": "Payment chips, pills and dots."
+      }
+    ]
+  },
+  "size": {
+    "note": "Touch sizes for tablets and phones used standing at a counter.",
+    "tokens": [
+      {
+        "name": "tap-min",
+        "value": "48px",
+        "usage": "The smallest thing a finger may hit."
+      },
+      {
+        "name": "tap-pos",
+        "value": "56px",
+        "usage": "Height of POS buttons and payment chips."
+      },
+      {
+        "name": "tile-min",
+        "value": "140px",
+        "usage": "Minimum width of a product tile in the grid view (fits a 4:3 photo, the name and the price)."
+      },
+      {
+        "name": "dot",
+        "value": "10px",
+        "usage": "The waiting dot as a UI signal: unsynced sales, new orders, unread."
+      },
+      {
+        "name": "thumb-row",
+        "value": "56px",
+        "usage": "Product photo size in the list view."
+      },
+      {
+        "name": "icon",
+        "value": "24px",
+        "usage": "Icons in the till; 20px in the back office and inside buttons, 16px inline with small text."
+      }
+    ]
+  },
+  "shadow": {
+    "note": "Mostly flat. One lift for tiles, one for floating sheets.",
+    "tokens": [
+      {
+        "name": "shadow-sm",
+        "value": {
+          "light": "0 1px 2px #1013220f, 0 1px 3px #10132214",
+          "dark": "0 1px 3px #000000b3"
+        },
+        "usage": "Product tiles and cards at rest."
+      },
+      {
+        "name": "shadow-lg",
+        "value": {
+          "light": "0 6px 12px #10132214, 0 16px 32px -4px #10132229",
+          "dark": "0 16px 32px -4px #000000cc"
+        },
+        "usage": "Sheets, the payment dialog, toasts."
+      },
+      {
+        "name": "focus-ring",
+        "value": {
+          "light": "0 0 0 2px #f6f7f2, 0 0 0 4px #3446e0",
+          "dark": "0 0 0 2px #0b0d17, 0 0 0 4px #9aa5ff"
+        },
+        "usage": "Keyboard and scanner focus: a 2px page-colour gap, then 2px of solid blue."
+      }
+    ]
+  }
+}

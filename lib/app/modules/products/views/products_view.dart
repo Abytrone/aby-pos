@@ -10,8 +10,8 @@ import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/layout.dart';
 import '../../../ui/option_chip.dart';
+import '../../../ui/product_picture.dart';
 import '../../../ui/section_page.dart';
-import '../../till/widgets/category_dot.dart';
 import '../../till/widgets/variant_sheet.dart' show groupRule;
 import '../controllers/catalogue_controller.dart';
 import '../widgets/labels_dialog.dart';
@@ -167,8 +167,14 @@ class _Products extends GetView<CatalogueController> {
       Expanded(
         child: Obx(() {
           final products = controller.visibleProducts;
-          if (products.isEmpty) return EmptyState(icon: Icons.sell_outlined, message: l.productsNone);
-          final photos = Map.of(controller.photos);
+          if (products.isEmpty) {
+              final none = controller.catalogue.value?.products.isEmpty ?? false;
+              return EmptyState(icon: Icons.sell_outlined, message: none ? l.productsNoneYet : l.productsNone,
+                action: none && controller.canEdit ? l.productsImportCta : null,
+                onAction: () => runImport(controller),
+              );
+            }
+            final photos = Map.of(controller.photos);
           return ListView.separated(
             padding: const EdgeInsets.fromLTRB(AbySpace.s4, 0, AbySpace.s4, AbySpace.s8),
             itemCount: products.length,
@@ -229,7 +235,16 @@ class _Categories extends GetView<CatalogueController> {
               constraints: const BoxConstraints(minHeight: AbySize.tapPos),
               child: Row(children: [
                 SizedBox(width: child ? AbySpace.s8 : 0),
-                CategoryDot(tone: cat.tone),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: AbySpace.s2),
+                    child: SizedBox.square(
+                      dimension: child ? 32 : 40,
+                      child: Opacity(
+                        opacity: cat.active ? 1 : 0.5,
+                        child: ProductPicture(tone: cat.tone, icon: cat.picture, iconSize: child ? 18 : 22),
+                      ),
+                    ),
+                  ),
                 const SizedBox(width: AbySpace.s3),
                 Expanded(
                   child: Text(cat.name,

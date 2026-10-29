@@ -81,14 +81,16 @@ class _QuickArrangeState extends State<_QuickArrange> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(
-          onPressed: () async {
-            await widget.controller.arrangeQuickTab([for (final p in _chosen) p.id]);
-            goBack<void>();
-          },
-          child: Text(l.commonSave),
-        ),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(
+            onPressed: () async {
+              await widget.controller.arrangeQuickTab([for (final p in _chosen) p.id]);
+              goBack<void>();
+            },
+            child: Text(l.commonSave),
+          ),
+        ]),
       ],
     );
   }

@@ -14,6 +14,7 @@ import '../data/repositories/profit_repository.dart';
 import '../data/repositories/report_repository.dart';
 import '../domain/accountant_pack.dart';
 import '../models/audit.dart';
+import 'pdf_brand_loader.dart';
 import 'settings_service.dart';
 import 'training_service.dart';
 
@@ -154,6 +155,7 @@ class AccountsExportService extends GetxService {
       summary: await _reports.sales(month),
       pnl: await _profit.forPeriod(month.from, month.to),
       stockTax: await _reports.stockAndTax(month),
+      brand: await loadPdfBrand(),
     );
     final file = File(p.join(dir.path, fileName(month)));
     await file.writeAsBytes(zip, flush: true);

@@ -5,13 +5,17 @@ import 'dart:typed_data';
 import 'package:get/get.dart';
 
 import '../../core/settings.dart';
+import '../../data/repositories/audit_repository.dart';
 import '../../data/repositories/receipt_repository.dart';
 import '../../domain/receipt/escpos.dart';
 import '../../domain/receipt/receipt_builder.dart';
 import '../../domain/receipt/receipt_doc.dart';
+import '../../models/audit.dart';
 import '../../models/enums.dart';
 import '../../models/order.dart';
 import '../../models/receipt.dart';
+import '../../models/staff.dart';
+import '../money.dart';
 import '../device_service.dart';
 import '../settings_service.dart';
 import '../training_service.dart';
@@ -46,12 +50,19 @@ class PrintService extends GetxService {
     this._device, {
     PrinterLink Function(PrinterTarget)? links,
     this.retryAfter = const Duration(seconds: 15),
+    this._audit,
+    this._signedIn,
   }) : _links = links ?? linkFor;
 
   final SettingsService _settings;
   final ReceiptRepository _receipts;
   final DeviceInfo _device;
   final PrinterLink Function(PrinterTarget) _links;
+
+  /// Reprints go in the activity log: a second copy of a paid receipt is
+  /// how a sale gets "rung up" twice.
+  final AuditRepository? _audit;
+  final Staff? Function()? _signedIn;
   final Duration retryAfter;
 
   final queue = <PrintJob>[].obs;
@@ -131,6 +142,15 @@ class PrintService extends GetxService {
     final data = await _receipts.sale(saleId);
     if (data == null) return false;
     _enqueueSale(data, kick: false, reprint: reprint);
+    if (reprint) {
+      await _audit?.record(
+        action: AuditAction.receiptReprinted,
+        actor: _signedIn?.call(),
+        entity: 'sales',
+        entityId: saleId,
+        summary: '${data.displayNumber} printed again (${formatMoney(data.total)})',
+      );
+    }
     return true;
   }
 
@@ -163,6 +183,12 @@ class PrintService extends GetxService {
     } else if (kick) {
       _enqueue('Cash drawer', EscPos.kickOnly());
     }
+  }
+
+  /// The refund slip as it would print (for a PDF).
+  Future<ReceiptDoc?> refundDoc(String refundId) async {
+    final data = await _receipts.refund(refundId);
+    return data == null ? null : ReceiptBuilder.refund(data, design());
   }
 
   Future<bool> printRefund(String refundId) async {

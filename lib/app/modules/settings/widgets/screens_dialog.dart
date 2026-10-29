@@ -95,16 +95,18 @@ class _ScreenLinksState extends State<_ScreenLinks> {
         ),
       ),
       actions: [
-        if (d.running)
-          TextButton(
-            onPressed: () async {
-              await d.newToken();
-              setState(() {});
-              showMessage(l.screensNewLinksDone);
-            },
-            child: Text(l.screensNewLinks),
-          ),
-        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        DialogButtons(children: [
+              if (d.running)
+            TextButton(
+              onPressed: () async {
+                await d.newToken();
+                setState(() {});
+                showMessage(l.screensNewLinksDone);
+              },
+              child: Text(l.screensNewLinks),
+            ),
+          FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        ]),
       ],
     );
   }

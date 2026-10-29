@@ -57,6 +57,7 @@ import '../services/settings_service.dart';
 import '../services/status_service.dart';
 import '../services/staff_photo_service.dart';
 import '../services/hub/hub_service.dart';
+import '../services/demo_photos.dart';
 import '../services/sync_service.dart';
 import '../services/training_service.dart';
 import '../ui/approval_prompt.dart';
@@ -71,7 +72,7 @@ class InitialBinding extends Bindings {
 
   @override
   void dependencies() {
-    final db = Get.put(database ?? AppDatabase(), permanent: true);
+    final db = Get.put(database ?? (AppDatabase()..demoPhotos = loadDemoPhotos), permanent: true);
     final device = Get.put(DeviceService(db), permanent: true);
 
     final audit = Get.put(AuditRepository(db, device), permanent: true);
@@ -141,11 +142,11 @@ class InitialBinding extends Bindings {
     Get.put(ClockService(times, auth, settings), permanent: true);
     final sync = Get.put(SyncService(Get.find()), permanent: true);
     Get.put(HubService(db, device, sync: sync), permanent: true);
-    Get.put(TrainingService(db), permanent: true);
+    Get.put(TrainingService(db, audit: audit), permanent: true);
     final backups = Get.put(BackupService(db, audit, settings), permanent: true);
     Get.lazyPut(() => BranchMerge(db, audit, backups), fenix: true);
     Get.put(PriceScheduler(Get.find()), permanent: true);
-    Get.put(PrintService(settings, ReceiptRepository(db), device), permanent: true);
+    Get.put(PrintService(settings, ReceiptRepository(db), device, audit: audit, signedIn: () => auth.currentUser.value), permanent: true);
     // Every branch, whichever one Reports is looking at.
     Get.put(
       AccountsExportService(

@@ -3,16 +3,18 @@ import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../documents/pdf_brand.dart';
 import 'receipt_doc.dart';
 
 /// A receipt as a PDF on an 80 mm roll, for sending by WhatsApp or the share
-/// sheet. The built-in Courier font matches the printed layout.
+/// sheet. A fixed-width font matches the printed layout: JetBrains Mono from
+/// [brand], or the built-in Courier (both are 0.6 em wide).
 abstract final class ReceiptPdf {
-  static Future<Uint8List> build(ReceiptDoc doc, {String author = 'Aby'}) async {
+  static Future<Uint8List> build(ReceiptDoc doc, {String author = 'Aby', PdfBrand? brand}) async {
     const paper = Paper.mm80;
-    final pdf = pw.Document(title: doc.title, author: author);
-    final regular = pw.Font.courier();
-    final bold = pw.Font.courierBold();
+    final pdf = pw.Document(title: doc.title, author: author, creator: 'Aby');
+    final regular = brand?.mono ?? pw.Font.courier();
+    final bold = brand?.monoBold ?? pw.Font.courierBold();
     // 48 characters across the 72 mm printable width.
     const size = 72 * PdfPageFormat.mm / 48 / 0.6;
     pw.Widget text(String line, {bool strong = false, bool big = false}) => pw.Text(

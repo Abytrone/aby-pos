@@ -126,6 +126,12 @@ void main() {
       expect(await r.audit.list(), hasLength(1));
     });
 
+    test("the till's grid or list is saved but kept out of the activity log", () async {
+      await settings.set(AppSettings.productView, 'list', by: cashier);
+      expect(settings.get(AppSettings.productView), 'list');
+      expect(await r.audit.list(actions: {AuditAction.settingChanged}), isEmpty);
+    });
+
     test('device settings stay on their device; shop settings are shared', () async {
       await settings.set(AppSettings.deviceName, 'Front counter', by: owner);
       await settings.set(AppSettings.shopPhone, '0244000000', by: owner);

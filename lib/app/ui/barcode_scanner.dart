@@ -6,6 +6,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../core/settings.dart';
 import '../services/settings_service.dart';
+import '../theme/aby_icons.dart';
 import '../theme/aby_theme.dart';
 import 'l10n.dart';
 
@@ -24,7 +25,7 @@ Widget? cameraScanButton(void Function(String code) onCode) {
   return Builder(
     builder: (context) => IconButton(
       tooltip: context.l10n.scanWithCamera,
-      icon: const Icon(Icons.photo_camera_outlined),
+      icon: const AbyIcon(AbyIcons.camera, size: 20),
       onPressed: () async {
         final code = await scanWithCamera();
         if (code != null && code.trim().isNotEmpty) onCode(code.trim());

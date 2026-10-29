@@ -146,18 +146,20 @@ class _DepositDialogState extends State<_DepositDialog> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(
-          onPressed: () async {
-            final error = await widget.controller.deposit(_amount.text, bank: _bank.text, reference: _reference.text, slip: _slip);
-            if (error == null) {
-              goBack<void>();
-            } else {
-              setState(() => _error = error);
-            }
-          },
-          child: Text(l.commonSave),
-        ),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(
+            onPressed: () async {
+              final error = await widget.controller.deposit(_amount.text, bank: _bank.text, reference: _reference.text, slip: _slip);
+              if (error == null) {
+                goBack<void>();
+              } else {
+                setState(() => _error = error);
+              }
+            },
+            child: Text(l.commonSave),
+          ),
+        ]),
       ],
     );
   }

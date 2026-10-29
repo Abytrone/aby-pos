@@ -81,17 +81,19 @@ class StaffProfileView extends GetView<StaffProfileController> {
         title: Text(l.profileEdit),
         content: const DetailsForm(),
         actions: [
-          OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-          Obx(() => FilledButton(
-                onPressed: controller.saving.value
-                    ? null
-                    : () async {
-                        if (await controller.saveDetails()) goBack<void>();
-                      },
-                child: Text(l.commonSave),
-              )),
+          DialogButtons(children: [
+                    OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+            Obx(() => FilledButton(
+                  onPressed: controller.saving.value
+                      ? null
+                      : () async {
+                          if (await controller.saveDetails()) goBack<void>();
+                        },
+                  child: Text(l.commonSave),
+                )),
+          ]),
         ],
-      );
+          );
     }));
     _flush();
   }
@@ -104,13 +106,15 @@ class StaffProfileView extends GetView<StaffProfileController> {
         title: Text(l.staffChangePin),
         content: const PinForm(),
         actions: [
-          OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-          FilledButton(
-            onPressed: () async {
-              if (await controller.savePin()) goBack<void>();
-            },
-            child: Text(l.commonSave),
-          ),
+          DialogButtons(children: [
+                    OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+            FilledButton(
+              onPressed: () async {
+                if (await controller.savePin()) goBack<void>();
+              },
+              child: Text(l.commonSave),
+                    ),
+          ]),
         ],
       );
     }));
@@ -318,11 +322,12 @@ class _Details extends GetView<StaffProfileController> {
       if (controller.canSeeActivity)
         Obx(() {
           final entries = controller.activity.toList();
-          return GroupCard(
+            final names = Map<String, String>.of(controller.activityNames);
+            return GroupCard(
             title: l.profileRecentActivity,
             children: entries.isEmpty
                 ? [InfoTile(title: l.activityEmpty)]
-                : [for (final e in entries) ActivityRow(entry: e)],
+                : [for (final e in entries) ActivityRow(entry: e, names: names)],
           );
         }),
     ]);

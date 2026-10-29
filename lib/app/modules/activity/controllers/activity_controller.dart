@@ -5,6 +5,7 @@ import '../../../data/repositories/staff_repository.dart';
 import '../../../models/audit.dart';
 import '../../../models/staff.dart';
 import '../../../services/status_service.dart';
+import 'audit_names.dart';
 
 enum ActivityFilter {
   all,
@@ -48,11 +49,13 @@ enum ActivityFilter {
             AuditAction.bankDeposit,
             AuditAction.shiftOpened,
             AuditAction.momoChecked,
-            AuditAction.expenseAdded,
+            AuditAction.momoChargesSet,
+      AuditAction.expenseAdded,
             AuditAction.expenseCategorySaved,
             AuditAction.ownerDrawing,
             AuditAction.ownerCapital,
-          },
+      AuditAction.receiptReprinted,
+    },
         ActivityFilter.staff => {
             AuditAction.staffAdded,
             AuditAction.staffPinChanged,
@@ -86,7 +89,12 @@ enum ActivityFilter {
             AuditAction.pricesBulkChanged,
             AuditAction.barcodesGenerated,
             AuditAction.catalogueImported,
-          },
+      AuditAction.priceScheduleCancelled,
+      AuditAction.stockCountCancelled,
+      AuditAction.stockTransferSent,
+      AuditAction.stockTransferReceived,
+      AuditAction.stockTransferCancelled,
+    },
         ActivityFilter.settingsAndData => {
             AuditAction.settingChanged,
             AuditAction.discountSaved,
@@ -97,7 +105,11 @@ enum ActivityFilter {
             AuditAction.backupExported,
             AuditAction.backupRestored,
             AuditAction.accountsExported,
-          },
+      AuditAction.branchSaved,
+      AuditAction.deviceBranchChanged,
+      AuditAction.branchDataMerged,
+      AuditAction.trainingStarted,
+    },
       };
 }
 
@@ -110,6 +122,9 @@ class ActivityController extends GetxController {
   final StatusService _status = Get.find();
 
   final entries = <AuditEntry>[].obs;
+
+  /// Names for ids that older entries stored without them.
+  final names = <String, String>{}.obs;
   final people = <Staff>[].obs;
   final filter = ActivityFilter.all.obs;
   final range = ActivityRange.week.obs;
@@ -146,8 +161,11 @@ class ActivityController extends GetxController {
       from: from,
       limit: 500,
     ));
+    await _resolveNames();
     loading.value = false;
   }
+
+  Future<void> _resolveNames() async => names.addAll(await auditNames(entries, known: names.keys.toSet()));
 
   /// Re-check the chain and reload.
   Future<void> refreshAll() async {

@@ -137,6 +137,20 @@ void main() {
     expect(printing.problem, isNull);
   });
 
+  test('a reprint is noted in the activity log; the first print is not', () async {
+    printing.onClose();
+    printing = PrintService(settings, ReceiptRepository(db), r.device,
+        links: (_) => link, retryAfter: const Duration(hours: 1), audit: r.audit, signedIn: () => cashier);
+    await setUpPrinter(auto: false);
+    final sale = await r.sales.completeSale(lines: [CartLine(product: named('Waffle'))], payments: [const PaymentInput.cash(tendered: 2000)], cashier: cashier);
+    await printing.printSale(sale.saleId, reprint: false);
+    expect(await r.audit.list(actions: {AuditAction.receiptReprinted}), isEmpty);
+    await printing.printSale(sale.saleId);
+    final logged = (await r.audit.list(actions: {AuditAction.receiptReprinted})).single;
+    expect(logged.actorName, cashier.name);
+    expect(logged.summary, contains('printed again (GH₵ 12.00)'));
+  });
+
   test('refund slips, and the receipt QR code finds the sale', () async {
     await setUpPrinter(drawer: true);
     final sale = await r.sales.completeSale(lines: [CartLine(product: named('Waffle'))], payments: [const PaymentInput.cash(tendered: 2000)], cashier: cashier);

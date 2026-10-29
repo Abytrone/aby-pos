@@ -150,7 +150,12 @@ void main() {
 
       await r.momo.setCharges(today, 64, by: owner);
       await r.momo.setCharges(today, 70, by: owner);
+      await r.momo.setCharges(today, 70, by: owner);
       expect(await r.momo.charges(today), 70);
+      final charges = await r.audit.list(actions: {AuditAction.momoChargesSet});
+      expect(charges, hasLength(2), reason: 'saving the same amount again is no change');
+      expect(charges.first.summary, endsWith('GH₵ 0.64 to GH₵ 0.70'));
+      expect(charges.first.details, {'before': 64, 'after': 70});
     });
   });
 }

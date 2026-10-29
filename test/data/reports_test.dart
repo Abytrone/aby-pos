@@ -136,7 +136,7 @@ void main() {
     expect(st.taxes, isEmpty);
   });
 
-  test("the accountant's pack is a zip of CSVs and a PDF", () async {
+  test("the accountant's pack is a zip of CSVs, a workbook and a PDF", () async {
     await sell([CartLine(product: named('Waffle'))]);
     final zip = await AccountantPack(db).build(
       shopName: 'Scoops Tamale',
@@ -147,7 +147,7 @@ void main() {
     );
     final archive = ZipDecoder().decodeBytes(zip);
     expect(archive.files.map((f) => f.name),
-        containsAll(['sales.csv', 'payments.csv', 'refunds.csv', 'expenses.csv', 'purchases.csv', 'tax.csv', 'stock_valuation.csv', 'summary.pdf']));
+        containsAll(['sales.csv', 'payments.csv', 'refunds.csv', 'expenses.csv', 'purchases.csv', 'tax.csv', 'stock_valuation.csv', 'summary.pdf', 'accounts.xlsx']));
     final sales = String.fromCharCodes(archive.files.firstWhere((f) => f.name == 'sales.csv').content);
     expect(sales, contains('12.00'));
   });

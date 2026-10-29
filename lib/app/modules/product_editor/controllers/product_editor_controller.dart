@@ -17,7 +17,8 @@ import '../../../services/auth_service.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
-import '../../../services/staff_photo_service.dart' show shrinkImage;
+import '../../../services/product_photo.dart';
+import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/photo_picker.dart';
 import '../../products/controllers/catalogue_controller.dart';
@@ -256,7 +257,12 @@ class ProductEditorController extends GetxController {
   Future<void> pickPhoto(ImageSource source) async {
     final bytes = await pickPhotoBytes(source);
     if (bytes == null) return;
-    photo = await shrinkImage(bytes);
+    final square = await squareProductPhoto(bytes);
+    if (square == null) {
+      showMessage(appL10n().editorPhotoNotPicture);
+      return;
+    }
+    photo = square;
     photoChanged = true;
     update();
   }

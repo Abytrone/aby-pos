@@ -5,32 +5,72 @@ import 'package:url_launcher/url_launcher.dart';
 import '../core/validators.dart';
 import '../data/repositories/receipt_repository.dart';
 import '../domain/customer_documents.dart';
+import '../domain/documents/table_doc.dart';
 import '../domain/receipt/receipt_doc.dart';
 import '../domain/receipt/receipt_pdf.dart';
+import '../services/pdf_brand_loader.dart';
 import '../services/printing/print_service.dart';
 import '../theme/aby_theme.dart';
 import 'dialogs.dart';
 import 'files.dart';
 import 'l10n.dart';
 
-/// "Print receipt": queues it, or says there is no printer.
+/// "Print receipt": queues it. Without a printer, offers to send it
+/// instead (WhatsApp, SMS or PDF).
 Future<void> printSaleReceipt(String saleId, {bool reprint = true}) async {
-  final l = appL10n();
-  final ok = await Get.find<PrintService>().printSale(saleId, reprint: reprint);
-  showMessage(ok ? l.printSent : l.printNoPrinter);
+  final print = Get.find<PrintService>();
+  if (!print.hasPrinter) {
+    showMessage(appL10n().printNoPrinter);
+    return sendSaleReceipt(saleId);
+  }
+  final ok = await print.printSale(saleId, reprint: reprint);
+  showMessage(ok ? appL10n().printSent : appL10n().printNoPrinter);
 }
 
+/// The refund slip on the printer, or as a PDF when there is none.
 Future<void> printRefundSlip(String refundId) async {
-  final l = appL10n();
-  final ok = await Get.find<PrintService>().printRefund(refundId);
-  showMessage(ok ? l.printSent : l.printNoPrinter);
+  final print = Get.find<PrintService>();
+  if (!print.hasPrinter) {
+    final doc = await print.refundDoc(refundId);
+    if (doc != null) await shareReceiptPdf(doc, title: appL10n().printNoPrinterPdf);
+    return;
+  }
+  final ok = await print.printRefund(refundId);
+  showMessage(ok ? appL10n().printSent : appL10n().printNoPrinter);
 }
 
-/// A report or statement on the receipt printer.
-void printOnPaper(ReceiptDoc doc) {
+enum _PaperWay { printer, pdf }
+
+/// A report, statement, voucher or badge on the receipt printer, or as a
+/// PDF to share or save. With a printer it asks which (it just prints when
+/// [askPdf] is false, for screens with their own PDF button); without one
+/// it goes straight to the PDF.
+Future<void> printOnPaper(ReceiptDoc doc, {bool askPdf = true}) async {
   final l = appL10n();
-  showMessage(Get.find<PrintService>().printDoc(doc) ? l.printSent : l.printNoPrinter);
+  final print = Get.find<PrintService>();
+  if (!print.hasPrinter) {
+    await shareReceiptPdf(doc, title: l.printNoPrinterPdf);
+    return;
+  }
+  final way = askPdf
+      ? await choiceDialog<_PaperWay>(
+          title: l.printHow,
+          options: _PaperWay.values,
+          label: (w) => w == _PaperWay.printer ? l.printOnPrinter : l.printAsPdf,
+        )
+      : _PaperWay.printer;
+  if (way == _PaperWay.printer) showMessage(print.printDoc(doc) ? l.printSent : l.printNoPrinter);
+  if (way == _PaperWay.pdf) await shareReceiptPdf(doc);
 }
+
+/// [doc] as a PDF on a receipt roll, shared or saved. True when it went
+/// somewhere.
+Future<bool> shareReceiptPdf(ReceiptDoc doc, {String? title, String? text}) async => shareOrSaveBytes(
+  '${docFileStem(doc.title)}.pdf',
+  await ReceiptPdf.build(doc, brand: await loadPdfBrand()),
+  title: title,
+  text: text,
+);
 
 /// "Send receipt": WhatsApp or SMS with the receipt as text, or a PDF
 /// through the share sheet. Works offline: the message goes when the phone
@@ -83,9 +123,7 @@ class _SendReceiptState extends State<_SendReceipt> {
   }
 
   Future<void> _pdf() async {
-    final bytes = await ReceiptPdf.build(widget.doc);
-    final name = '${widget.doc.title.replaceAll(RegExp(r'[^A-Za-z0-9]+'), '_')}.pdf';
-    if (await shareOrSaveBytes(name, bytes)) goBack<void>();
+    if (await shareReceiptPdf(widget.doc)) goBack<void>();
   }
 
   @override
@@ -109,7 +147,10 @@ class _SendReceiptState extends State<_SendReceipt> {
           ]),
         ]),
       ),
-      actions: [OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel))],
+      actions: [
+        DialogButtons(children: [OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+        ]),
+      ],
     );
   }
 }

@@ -13,8 +13,10 @@ abstract final class AbyRadius {
 abstract final class AbySize {
   static const tapMin = 48.0; // smallest tappable thing
   static const tapPos = 56.0; // POS buttons and payment chips
-  static const tileMin = 112.0; // quick-tap product tiles
+  static const tileMin = 140.0; // product tiles in the grid view (fits a 4:3 photo)
+  static const thumbRow = 56.0; // product photo in the list view
   static const dot = 10.0; // the waiting dot as a status signal
+  static const icon = 24.0; // icons in the till; 20 in the back office and in buttons, 16 inline
 }
 
 /// Text styles from the brand's type scale. Height = line height / font size.

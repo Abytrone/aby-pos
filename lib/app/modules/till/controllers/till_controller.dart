@@ -286,6 +286,15 @@ class TillController extends GetxController {
     };
   }
 
+  /// grid | list | auto (by screen width) on this device.
+  String get productView => _settings.get(AppSettings.productView);
+
+  /// The cashier's own choice; no approval, it changes nothing about a sale.
+  Future<void> setProductView(String view) async {
+    final by = _auth.currentUser.value;
+    if (by != null) await _settings.set(AppSettings.productView, view, by: by);
+  }
+
   Category? categoryOf(Product product) => categories.firstWhereOrNull((c) => c.id == product.categoryId);
 
   /// How many can still be made, when one stock item limits it (a tub, a

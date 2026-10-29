@@ -125,8 +125,10 @@ class _MoneyDialogState extends State<_MoneyDialog> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(onPressed: _saving ? null : _save, child: Text(l.commonSave)),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(onPressed: _saving ? null : _save, child: Text(l.commonSave)),
+        ]),
       ],
     );
   }

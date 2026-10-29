@@ -25,11 +25,11 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  for (final from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]) {
-    test('v$from to v17 gives exactly the v17 schema', () async {
+  for (final from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]) {
+    test('v$from to v18 gives exactly the v18 schema', () async {
       final schema = await verifier.schemaAt(from);
       final db = AppDatabase(schema.newConnection(), false);
-      await verifier.migrateAndValidate(db, 17);
+      await verifier.migrateAndValidate(db, 18);
       await db.close();
     });
   }
@@ -296,6 +296,19 @@ void main() {
     final r = await Repos.open(db);
     expect((await r.payMethods.list(includeInactive: true)).where((m) => m.kind == PaymentMethod.voucher), hasLength(1));
     expect(await r.vouchers.list(), isEmpty);
+    await db.close();
+  });
+
+  test('v17 to v18 keeps categories, with no icon picked yet', () async {
+    final schema = await verifier.schemaAt(17);
+    final raw = schema.rawDatabase;
+    const t = 1761000000;
+    raw.execute("INSERT INTO meta (key, value) VALUES ('device_id', 'dev-1')");
+    raw.execute('INSERT INTO categories (id, created_at, updated_at, device_id, name, tone) '
+        "VALUES ('c1', $t, $t, 'dev-1', 'Drinks', 'blue')");
+    final db = AppDatabase(schema.newConnection(), false);
+    final row = await (db.select(db.categories)..where((c) => c.id.equals('c1'))).getSingle();
+    expect((row.name, row.icon), ('Drinks', null));
     await db.close();
   });
 }

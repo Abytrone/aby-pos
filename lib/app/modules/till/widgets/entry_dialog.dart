@@ -157,8 +157,10 @@ class _EntryDialogState extends State<_EntryDialog> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(onPressed: _confirm, child: Text(l.entryAdd)),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(onPressed: _confirm, child: Text(l.entryAdd)),
+        ]),
       ],
     );
   }

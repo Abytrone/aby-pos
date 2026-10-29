@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
@@ -28,6 +29,10 @@ class SettingsController extends GetxController {
   final AccountsExportService _accounts = Get.find();
 
   final query = ''.obs;
+  final search = TextEditingController();
+
+  /// The open tab, kept while the app runs so Settings opens where it was.
+  final tab = 0.obs;
   final lastLocalBackup = Rxn<DateTime>();
   final lastOffsiteBackup = Rxn<DateTime>();
   final lastAccountsPack = Rxn<DateTime>();
@@ -38,6 +43,7 @@ class SettingsController extends GetxController {
     'device.largeText',
     'device.language',
     'device.tileSize',
+    'device.productView',
     'device.notifications',
   };
 
@@ -45,6 +51,17 @@ class SettingsController extends GetxController {
   void onInit() {
     super.onInit();
     refreshBackupTimes();
+  }
+
+  @override
+  void onClose() {
+    search.dispose();
+    super.onClose();
+  }
+
+  void clearSearch() {
+    search.clear();
+    query.value = '';
   }
 
   Future<void> refreshBackupTimes() async {

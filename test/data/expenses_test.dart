@@ -78,6 +78,12 @@ void main() {
       due = await r.expenses.due(now: monthAfter);
       await r.expenses.skip(due.single, now: monthAfter);
       expect(await r.expenses.due(now: monthAfter), isEmpty);
+
+      await r.expenses.setRecurringActive(id, active: false, by: owner);
+      await r.expenses.setRecurringActive(id, active: false, by: owner);
+      final paused = await r.audit.list(actions: {AuditAction.expenseCategorySaved});
+      expect(paused.where((e) => e.summary == 'Turned off the reminder "Shop rent"'), hasLength(1));
+      expect(paused.first.actorName, owner.name);
     });
   });
 

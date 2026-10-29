@@ -3,14 +3,17 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/settings.dart';
+import '../../../domain/category_icons.dart';
 import '../../../models/enums.dart';
 import '../../../services/money.dart';
 import '../../../services/settings_service.dart';
 import '../../../theme/aby_colors.dart';
+import '../../../theme/aby_icons.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/layout.dart';
+import '../../../ui/product_picture.dart';
 import '../../../ui/section_page.dart';
 import '../../till/widgets/category_dot.dart';
 import '../../till/widgets/variant_sheet.dart' show groupRule;
@@ -89,41 +92,60 @@ class _Basics extends StatelessWidget {
     final c = Theme.of(context).extension<AbyColors>()!;
     final l = context.l10n;
     final categories = ctl.catalogue!.categories;
-    final photo = Column(children: [
-      ClipRRect(
-        borderRadius: BorderRadius.circular(AbyRadius.md),
-        child: SizedBox.square(
+    final category = categories.firstWhereOrNull((x) => x.id == ctl.categoryId);
+    final tone = category?.tone ?? CategoryTone.midnight;
+    // What the till will show: the photo, else the category's icon.
+    final photo = SizedBox(
+      width: 140,
+      child: Column(
+        children: [
+          SizedBox.square(
           dimension: 120,
-          child: ctl.photo != null
-              ? Image.memory(ctl.photo!, fit: BoxFit.cover)
-              : ColoredBox(color: c.surfaceSunken, child: Icon(Icons.image_outlined, size: 40, color: c.lineStrong)),
-        ),
-      ),
-      const SizedBox(height: AbySpace.s2),
-      Wrap(spacing: AbySpace.s1, children: [
+          child: ProductPicture(
+              tone: tone,
+              icon: category?.picture ?? toneIcon(tone),
+              photo: ctl.photo == null ? null : MemoryImage(ctl.photo!),
+              iconSize: 44,
+              radius: AbyRadius.md,
+            ),
+          ),
+          if (ctl.photo == null) ...[
+            const SizedBox(height: AbySpace.s1),
+            Text(
+              l.editorPhotoNone,
+              textAlign: TextAlign.center,
+              style: AbyText.caption.copyWith(color: c.inkMuted),
+            ),
+          ],
+      const SizedBox(height: AbySpace.s1),
+      Wrap(spacing: AbySpace.s1,
+            alignment: WrapAlignment.center, children: [
         FutureBuilder<bool>(
           future: ctl.cameraAvailable,
           builder: (_, snap) => snap.data == true
               ? IconButton(
                   tooltip: l.profileTakePhoto,
                   onPressed: () => ctl.pickPhoto(ImageSource.camera),
-                  icon: const Icon(Icons.photo_camera_outlined),
+                  icon: AbyIcon(AbyIcons.camera, size: 20, color: c.ink),
                 )
               : const SizedBox.shrink(),
         ),
         IconButton(
           tooltip: l.profileChoosePhoto,
           onPressed: () => ctl.pickPhoto(ImageSource.gallery),
-          icon: const Icon(Icons.photo_library_outlined),
+          icon: AbyIcon(AbyIcons.image, size: 20, color: c.ink),
         ),
         if (ctl.photo != null)
           IconButton(
             tooltip: l.profileRemovePhoto,
             onPressed: ctl.removePhoto,
-            icon: const Icon(Icons.delete_outline),
+            icon: AbyIcon(AbyIcons.trash, size: 20, color: c.danger),
+                ),
+            ],
           ),
-      ]),
-    ]);
+        ],
+      ),
+    );
     final fields = Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       TextField(
         controller: ctl.name,

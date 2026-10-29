@@ -15,7 +15,9 @@ import 'app_database.dart';
 /// Seed rows are not written to the outbox and have no `syncedAt`.
 /// TODO(sync): once the server owns the catalogue, this becomes a
 /// first-sync download instead.
-Future<void> seedScoopsTamale(AppDatabase db, {required String deviceId}) async {
+/// [photos] are pictures by product name (the brand kit's drawn samples):
+/// demo data only, for the shop to replace with its own.
+Future<void> seedScoopsTamale(AppDatabase db, {required String deviceId, Map<String, Uint8List> photos = const {}}) async {
   final now = DateTime.now();
   var order = 0;
 
@@ -164,6 +166,10 @@ Future<void> seedScoopsTamale(AppDatabase db, {required String deviceId}) async 
             detail: Value(detail),
             sortOrder: Value(order++),
           ));
+      final photo = photos[name];
+      if (photo != null) {
+        await db.into(db.productPhotos).insert(ProductPhotosCompanion.insert(productId: id, image: photo, updatedAt: now));
+      }
       for (final (i, (variantName, price, items)) in variants.indexed) {
         final variantId = newId();
         await db.into(db.productVariants).insert(ProductVariantsCompanion.insert(

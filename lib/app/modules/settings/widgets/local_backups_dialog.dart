@@ -50,7 +50,10 @@ Future<void> showLocalBackups(BackupController backups) async {
           );
         }),
       ),
-      actions: [FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone))],
-    );
+      actions: [
+        DialogButtons(children: [FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        ]),
+      ],
+        );
   }));
 }

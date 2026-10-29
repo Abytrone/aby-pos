@@ -207,13 +207,15 @@ class _LineEditorState extends State<_LineEditor> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: _remove,
-          style: TextButton.styleFrom(foregroundColor: c.danger),
-          child: Text(l.lineRemove),
-        ),
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(onPressed: _done, child: Text(l.commonDone)),
+        DialogButtons(children: [
+              TextButton(
+            onPressed: _remove,
+            style: TextButton.styleFrom(foregroundColor: c.danger),
+            child: Text(l.lineRemove),
+          ),
+          OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(onPressed: _done, child: Text(l.commonDone)),
+        ]),
       ],
     );
   }

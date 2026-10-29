@@ -70,7 +70,7 @@ class CatalogRepository {
     if (!includeInactive) query.where((c) => c.active.equals(true));
     return [
       for (final r in await query.get())
-        Category(id: r.id, name: r.name, tone: r.tone, parentId: r.parentId, active: r.active, sortOrder: r.sortOrder),
+        Category(id: r.id, name: r.name, tone: r.tone, parentId: r.parentId, active: r.active, sortOrder: r.sortOrder, icon: r.icon),
     ];
   }
 
@@ -624,6 +624,7 @@ class CatalogRepository {
             name: d.name.trim(),
             tone: d.tone,
             parentId: Value(d.parentId),
+            icon: Value(d.icon),
             sortOrder: const Value(1000),
           ),
         );
@@ -631,7 +632,7 @@ class CatalogRepository {
         final row = await (_db.select(_db.categories)..where((c) => c.id.equals(id))).getSingle();
         await _db.updateTracked(
           _db.categories,
-          row.copyWith(name: d.name.trim(), tone: d.tone, parentId: Value(d.parentId), updatedAt: now),
+          row.copyWith(name: d.name.trim(), tone: d.tone, parentId: Value(d.parentId), icon: Value(d.icon), updatedAt: now),
         );
       }
       await _audit.record(
@@ -808,13 +809,24 @@ class CatalogRepository {
     });
   }
 
-  Future<void> cancelScheduledPrice(String id, {required Staff by}) async {
+  Future<void> cancelScheduledPrice(String id, {required Staff by}) {
+    return _db.transaction(() async {
     final row = await (_db.select(_db.priceChanges)..where((c) => c.id.equals(id))).getSingle();
     if (row.appliedAt != null || row.cancelledAt != null) return;
     await _db.updateTracked(
       _db.priceChanges,
-      row.copyWith(cancelledAt: Value(DateTime.now()), updatedAt: DateTime.now()),
-    );
+      row.copyWith(cancelledAt: Value(DateTime.now()), updatedAt: DateTime.now()));
+      final label = (await variantLabels([row.variantId]))[row.variantId];
+      await _audit.record(
+        action: AuditAction.priceScheduleCancelled,
+        actor: by,
+        entity: 'product_variants',
+        entityId: row.variantId,
+        summary:
+            '${label ?? 'A product'}: ${formatMoney(row.newPrice)} from '
+            '${row.effectiveOn.toIso8601String().substring(0, 10)} called off',
+      );
+    });
   }
 
   /// Waiting to apply, soonest first.
@@ -872,15 +884,39 @@ class CatalogRepository {
     });
   }
 
+  /// "Product, variant" for each id still on file (archived too).
+  Future<Map<String, String>> variantLabels(Iterable<String> variantIds) async {
+    final ids = variantIds.toSet();
+    if (ids.isEmpty) return {};
+    final rows = await (_db.select(_db.productVariants).join([
+      innerJoin(_db.products, _db.products.id.equalsExp(_db.productVariants.productId)),
+    ])..where(_db.productVariants.id.isIn(ids))).get();
+    return {
+      for (final r in rows)
+        r.readTable(_db.productVariants).id: [r.readTable(_db.products).name, ?r.readTable(_db.productVariants).name].join(', '),
+    };
+  }
+
+  /// Product and category names by id (archived too), for settings that
+  /// pick items.
+  Future<Map<String, String>> itemNames(Iterable<String> ids) async {
+    final wanted = ids.toSet();
+    if (wanted.isEmpty) return {};
+    final products = await (_db.select(_db.products)..where((p) => p.id.isIn(wanted))).get();
+    final categories = await (_db.select(_db.categories)..where((c) => c.id.isIn(wanted))).get();
+    return {for (final c in categories) c.id: c.name, for (final p in products) p.id: p.name};
+  }
+
   /// Many prices at once (one audit entry listing them all).
   Future<void> bulkSetPrices(Map<String, int> newPrices, {required String description, required Staff by}) {
     return _db.transaction(() async {
       final now = DateTime.now();
-      final changes = <String, Object>{};
+      final labels = await variantLabels(newPrices.keys);
+      final changes = <Map<String, Object?>>[];
       for (final MapEntry(key: variantId, value: price) in newPrices.entries) {
         final v = await (_db.select(_db.productVariants)..where((x) => x.id.equals(variantId))).getSingle();
         if (v.price == price) continue;
-        changes[variantId] = {'before': v.price, 'after': price};
+        changes.add({'id': variantId, 'name': labels[variantId], 'before': v.price, 'after': price});
         await _db.updateTracked(_db.productVariants, v.copyWith(price: price, updatedAt: now));
       }
       if (changes.isEmpty) return;
@@ -889,7 +925,7 @@ class CatalogRepository {
         actor: by,
         entity: 'product_variants',
         summary: '${changes.length} prices: $description',
-        details: changes,
+        details: {'items': changes},
       );
     });
   }

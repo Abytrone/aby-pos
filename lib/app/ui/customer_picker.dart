@@ -138,11 +138,13 @@ class _CustomerPickerState extends State<_CustomerPicker> {
               ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<Customer>(), child: Text(l.commonCancel)),
-        if (_adding)
-          FilledButton(onPressed: _add, child: Text(l.commonSave))
-        else if (canAdd)
-          FilledButton.icon(onPressed: _startAdding, icon: const Icon(Icons.person_add_alt), label: Text(l.customerNew)),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<Customer>(), child: Text(l.commonCancel)),
+          if (_adding)
+            FilledButton(onPressed: _add, child: Text(l.commonSave))
+          else if (canAdd)
+            FilledButton.icon(onPressed: _startAdding, icon: const Icon(Icons.person_add_alt), label: Text(l.customerNew)),
+        ]),
       ],
     );
   }

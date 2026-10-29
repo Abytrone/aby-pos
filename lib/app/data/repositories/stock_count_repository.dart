@@ -206,12 +206,21 @@ class StockCountRepository {
     });
   }
 
-  Future<void> cancel(String countId, {required Staff by}) async {
+  Future<void> cancel(String countId, {required Staff by}) {
+    return _db.transaction(() async {
     final row = await (_db.select(_db.stockCounts)..where((c) => c.id.equals(countId))).getSingle();
     if (row.status != StockCountStatus.open) return;
     await _db.updateTracked(
       _db.stockCounts,
       row.copyWith(status: StockCountStatus.cancelled, updatedAt: DateTime.now()),
     );
+      await _audit.record(
+        action: AuditAction.stockCountCancelled,
+        actor: by,
+        entity: 'stock_counts',
+        entityId: countId,
+        summary: 'Stock count from ${row.createdAt.toIso8601String().substring(0, 10)} cancelled before posting',
+      );
+    });
   }
 }

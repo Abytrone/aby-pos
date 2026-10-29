@@ -9,7 +9,9 @@ import '../models/staff.dart';
 import '../models/stock.dart';
 import '../data/repositories/audit_repository.dart';
 import '../services/money.dart';
+import 'business_templates.dart';
 import 'catalogue_rules.dart';
+import 'documents/table_doc.dart';
 
 /// One problem in an import file. [row] counts from 1 for the header.
 class ImportProblem {
@@ -52,6 +54,116 @@ class CatalogueIo {
 
   static const productColumns = ['category', 'product', 'variant', 'price', 'cost', 'barcodes', 'tile_line', 'on_till'];
 
+  /// The columns an import must have.
+  static const requiredColumns = {'product', 'price'};
+
+  /// Other names spreadsheets use for the same columns, so a shop's own
+  /// price list imports without renaming its headings.
+  static const _aliases = {
+    'name': 'product',
+    'item': 'product',
+    'product_name': 'product',
+    'item_name': 'product',
+    'selling_price': 'price',
+    'sell_price': 'price',
+    'sale_price': 'price',
+    'unit_price': 'price',
+    'retail_price': 'price',
+    'cost_price': 'cost',
+    'buying_price': 'cost',
+    'purchase_price': 'cost',
+    'unit_cost': 'cost',
+    'barcode': 'barcodes',
+    'ean': 'barcodes',
+    'upc': 'barcodes',
+    'size': 'variant',
+    'variant_name': 'variant',
+    'group': 'category',
+    'department': 'category',
+    'category_name': 'category',
+    'detail': 'tile_line',
+    'tile': 'tile_line',
+    'on_sale': 'on_till',
+    'active': 'on_till',
+  };
+
+  /// A heading as the importer reads it: "Selling price" is "price".
+  static String columnFor(String heading) {
+    final h = heading.trim().toLowerCase().replaceAll(RegExp(r'[\s\-]+'), '_').replaceAll(RegExp(r'[^a-z_]'), '');
+    return _aliases[h] ?? h;
+  }
+
+  /// A filled-in example for [type] of shop, to download, edit in a
+  /// spreadsheet and import: every column, a product with sizes, barcodes
+  /// (several split by "|") and one product kept off the till.
+  String sampleProducts(BusinessType type) => Csv.encode([productColumns, ..._samples(type)]);
+
+  static List<List<String>> _samples(BusinessType type) => switch (type) {
+    BusinessType.iceCream => const [
+      ['Cones', 'Vanilla cone', 'Single scoop', '15.00', '6.50', '', '', 'yes'],
+      ['Cones', 'Vanilla cone', 'Double scoop', '22.00', '11.00', '', '', 'yes'],
+      ['Cups', 'Strawberry cup', 'Small', '20.00', '8.00', '', '', 'yes'],
+      ['Cups', 'Strawberry cup', 'Large', '32.00', '13.00', '', '', 'yes'],
+      ['Drinks', 'Milkshake', '', '20.00', '9.00', '', '350 ml', 'yes'],
+      ['Snacks', 'Waffle', '', '12.00', '', '', '', 'no'],
+    ],
+    BusinessType.chopBar => const [
+      ['Food', 'Jollof rice', 'Small', '30.00', '14.00', '', '', 'yes'],
+      ['Food', 'Jollof rice', 'Large', '45.00', '20.00', '', '', 'yes'],
+      ['Soups', 'Light soup and fufu', '', '40.00', '18.00', '', '', 'yes'],
+      ['Drinks', 'Sobolo', '', '8.00', '3.00', '', '500 ml', 'yes'],
+      ['Extras', 'Fried egg', '', '5.00', '2.50', '', '', 'yes'],
+      ['Extras', 'Extra meat', '', '15.00', '', '', '', 'no'],
+    ],
+    BusinessType.pharmacy => const [
+      ['Medicines', 'Paracetamol 500 mg', 'Strip', '5.00', '2.80', '6001234500011', '10 tablets', 'yes'],
+      ['Medicines', 'Paracetamol 500 mg', 'Box', '45.00', '26.00', '6001234500028', '100 tablets', 'yes'],
+      ['Personal care', 'Hand sanitiser', '', '18.00', '11.00', '6001234500035', '250 ml', 'yes'],
+      ['Baby', 'Diapers', 'Size 3', '95.00', '72.00', '', '', 'yes'],
+      ['First aid', 'Plasters', '', '10.00', '5.50', '', '20 pack', 'yes'],
+      ['First aid', 'Bandage', '', '12.00', '', '', '', 'no'],
+    ],
+    BusinessType.salon => const [
+      ['Services', 'Hair wash', '', '30.00', '', '', '', 'yes'],
+      ['Services', 'Braids', 'Medium', '250.00', '', '', '', 'yes'],
+      ['Services', 'Braids', 'Long', '350.00', '', '', '', 'yes'],
+      ['Products', 'Hair cream', '', '45.00', '28.00', '6001234500042', '', 'yes'],
+      ['Products', 'Hair net', '', '10.00', '', '', '', 'no'],
+    ],
+    BusinessType.phones => const [
+      ['Phones', 'Smartphone A15', '64 GB', '1500.00', '1250.00', '', '', 'yes'],
+      ['Phones', 'Smartphone A15', '128 GB', '1800.00', '1500.00', '', '', 'yes'],
+      ['Accessories', 'Phone charger', '', '60.00', '35.00', '6001234500059|6001234500066', '', 'yes'],
+      ['Repairs', 'Screen repair', '', '250.00', '', '', '', 'yes'],
+      ['Airtime and data', 'Airtime', '', '10.00', '9.70', '', '', 'yes'],
+      ['Accessories', 'Earphones', '', '40.00', '', '', '', 'no'],
+    ],
+    BusinessType.boutique => const [
+      ['Women', 'Kente dress', 'S', '350.00', '210.00', '', '', 'yes'],
+      ['Women', 'Kente dress', 'M', '350.00', '210.00', '', '', 'yes'],
+      ['Men', 'Polo shirt', 'M', '120.00', '70.00', '', '', 'yes'],
+      ['Men', 'Polo shirt', 'L', '120.00', '70.00', '', '', 'yes'],
+      ['Shoes and bags', 'Sandals', '', '90.00', '55.00', '6001234500073', '', 'yes'],
+      ['Children', 'School socks', '', '15.00', '', '', '', 'no'],
+    ],
+    BusinessType.building => const [
+      ['Cement and blocks', 'Cement', '', '95.00', '82.00', '', '50 kg bag', 'yes'],
+      ['Roofing', 'Roofing sheet', '', '85.00', '68.00', '', '', 'yes'],
+      ['Plumbing', 'PVC pipe', '1/2 inch', '25.00', '15.00', '', '', 'yes'],
+      ['Plumbing', 'PVC pipe', '1 inch', '40.00', '26.00', '', '', 'yes'],
+      ['Electrical', 'Light bulb', '', '15.00', '8.00', '6001234500080', 'LED 9 W', 'yes'],
+      ['Paint and tools', 'Paint brush', '', '20.00', '', '', '', 'no'],
+    ],
+    BusinessType.provision || BusinessType.other => const [
+      ['Drinks', 'Malt drink', '', '8.00', '5.50', '6001234500097', '330 ml', 'yes'],
+      ['Drinks', 'Bottled water', '', '3.00', '1.80', '6001234500103|6001234500110', '500 ml', 'yes'],
+      ['Provisions', 'Rice', '1 kg', '25.00', '19.00', '6001234500127', '', 'yes'],
+      ['Provisions', 'Rice', '5 kg', '115.00', '92.00', '6001234500134', '', 'yes'],
+      ['Toiletries', 'Bathing soap', '', '6.50', '4.20', '6001234500141', '', 'yes'],
+      ['Snacks', 'Biscuits', '', '4.00', '', '', '', 'no'],
+    ],
+  };
+
   static String _money(int? p) => p == null ? '' : '${p ~/ 100}.${(p % 100).toString().padLeft(2, '0')}';
 
   /// One row per variant.
@@ -93,6 +205,64 @@ class CatalogueIo {
     return Csv.encode(rows);
   }
 
+  /// The menu as a price list, grouped by category: a PDF to print or send
+  /// to customers, or a workbook. Hidden and archived products are left out.
+  TableDoc priceList(Catalogue c, {required String shopName}) {
+    final order = {for (final (i, cat) in c.categories.indexed) cat.id: i};
+    final products = c.products.where((p) => !p.archived && p.active).toList()
+      ..sort((a, b) => (order[a.categoryId] ?? 1 << 30).compareTo(order[b.categoryId] ?? 1 << 30));
+    return TableDoc(
+      title: 'Price list',
+      shopName: shopName,
+      period: docDay(DateTime.now()),
+      sheets: [
+        DocSheet(
+          name: 'Price list',
+          columns: const [DocColumn('Category'), DocColumn('Product'), DocColumn('Price (GH₵)', DocKind.money), DocColumn('Barcode')],
+          rows: [
+            for (final p in products)
+              for (final v in p.variants)
+                [c.category(p.categoryId)?.name ?? '', v.name == null ? p.name : '${p.name}, ${v.name}', v.price, v.barcodes.firstOrNull],
+          ],
+          groupBy: 0,
+        ),
+      ],
+    );
+  }
+
+  /// Stock on hand and what it is worth at cost.
+  TableDoc stockDoc(List<StockItem> items, {required String shopName}) => TableDoc(
+    title: 'Stock',
+    shopName: shopName,
+    period: docTime(DateTime.now()),
+    sheets: [
+      DocSheet(
+        name: 'Stock',
+        columns: const [
+          DocColumn('Item'),
+          DocColumn('On hand', DocKind.count),
+          DocColumn('Low below', DocKind.count),
+          DocColumn('Cost (GH₵)', DocKind.money),
+          DocColumn('Per'),
+          DocColumn.bars('Value at cost (GH₵)'),
+          DocColumn('Status'),
+        ],
+        rows: [
+          for (final i in items.where((i) => i.active))
+            [
+              i.name,
+              i.onHandText,
+              i.reorderPoint == null ? null : formatQuantity(i.reorderPoint!, i.unit),
+              i.bulkPrice,
+              DisplayUnit.bulk(i.unit).symbol,
+              i.value,
+              i.isLow ? 'Low' : (i.onHand <= 0 ? 'Out' : ''),
+            ],
+        ],
+      ),
+    ],
+  );
+
   /// Reads a CSV and works out what would change. Nothing is saved.
   Future<ImportPreview> previewProducts(String csv) async {
     final rows = Csv.decode(csv);
@@ -100,7 +270,7 @@ class CatalogueIo {
     if (rows.isEmpty) {
       return const ImportPreview(drafts: [], newProducts: 0, updatedProducts: 0, unchanged: 0, newCategories: [], problems: [ImportProblem(1, 'The file is empty.')]);
     }
-    final header = [for (final h in rows.first) h.trim().toLowerCase().replaceAll(' ', '_')];
+    final header = [for (final h in rows.first) columnFor(h)];
     int col(String name) => header.indexOf(name);
     if (col('product') < 0 || col('price') < 0) {
       return ImportPreview(

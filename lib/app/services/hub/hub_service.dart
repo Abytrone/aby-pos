@@ -28,6 +28,20 @@ class PairingOffer {
 
   String get qr => '$_prefix${jsonEncode({'u': urls, 'c': code, 'h': hubId})}';
 
+  /// The letters pairing codes are made of: no 0/O or 1/I/L to mix up.
+  static const codeChars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  static const codeLength = 8;
+
+  /// A typed code as the hub made it: capitals, without the dash or
+  /// spaces people type ("abcd-efgh" is "ABCDEFGH").
+  static String normalizeCode(String typed) => typed.toUpperCase().replaceAll(RegExp('[^A-Z0-9]'), '');
+
+  /// "ABCD-EFGH": easier to read out across a counter.
+  static String formatCode(String code) {
+    final c = normalizeCode(code);
+    return c.length <= 4 ? c : '${c.substring(0, 4)}-${c.substring(4)}';
+  }
+
   /// (addresses, code, hub ID) from a scanned QR code, or null.
   static (List<String>, String, String)? parse(String text) {
     final t = text.trim();
@@ -39,6 +53,18 @@ class PairingOffer {
       return null;
     }
   }
+}
+
+/// A hub heard on this Wi-Fi: where it is, and the shop it belongs to.
+class FoundHub {
+  const FoundHub({required this.id, required this.url, required this.name});
+
+  final String id;
+  final String url;
+  final String name;
+
+  /// "192.168.1.20:8787"
+  String get address => url.replaceFirst('http://', '');
 }
 
 /// What went wrong between a device and its hub; shown in the device's
@@ -226,9 +252,9 @@ class HubService extends GetxService {
 
   /// A one-time code for a new device, good for 10 minutes.
   Future<PairingOffer> offerPairing() async {
-    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    const chars = PairingOffer.codeChars;
     final r = Random.secure();
-    final code = List.generate(8, (_) => chars[r.nextInt(chars.length)]).join();
+    final code = List.generate(PairingOffer.codeLength, (_) => chars[r.nextInt(chars.length)]).join();
     final p = boundPort ?? port;
     final urls = [for (final a in await addresses()) 'http://$a:$p'];
     _pairTries = 0;
@@ -380,7 +406,7 @@ class HubService extends GetxService {
         }
       }
       if (url == null || id == null) throw const HubException(HubError.unreachable);
-      final key = await SealedBox.keyFromCode(code.trim(), id);
+      final key = await SealedBox.keyFromCode(PairingOffer.normalizeCode(code), id);
       final body = await SealedBox.seal({'d': _device.deviceId, 'n': deviceName ?? '', 'v': appVersion}, key);
       final (status, text) = await _post(client, '$url/pair', body, deviceId: _device.deviceId);
       if (status != 200) throw HubException.from(text);
@@ -449,6 +475,58 @@ class HubService extends GetxService {
     } finally {
       client.close(force: true);
       _busy = false;
+    }
+  }
+
+  /// Hubs announcing themselves on this Wi-Fi, heard for up to [listen]
+  /// (a hub calls out every few seconds). Each is checked by asking it to
+  /// say hello, so only a hub that answers is offered. Empty when none is
+  /// heard, or when this network blocks broadcasts.
+  Future<List<FoundHub>> discover({Duration listen = const Duration(seconds: 4)}) async {
+    final heard = <String, String>{};
+    RawDatagramSocket? s;
+    try {
+      s = await RawDatagramSocket.bind(InternetAddress.anyIPv4, beaconPort, reuseAddress: true);
+      final socket = s;
+      final done = Completer<void>();
+      final timer = Timer(listen, () => done.isCompleted ? null : done.complete());
+      socket.listen((e) {
+        if (e != RawSocketEvent.read) return;
+        final d = socket.receive();
+        if (d == null) return;
+        try {
+          final m = jsonDecode(utf8.decode(d.data)) as Map<String, dynamic>;
+          final id = m['h'];
+          if (m['aby'] == 'hub' && id is String && id != _device.deviceId) {
+            heard[id] = 'http://${d.address.address}:${m['p']}';
+          }
+        } on Object {
+          // Not a hub.
+        }
+      });
+      await done.future;
+      timer.cancel();
+    } on Object {
+      // Cannot listen on this device or network.
+    } finally {
+      s?.close();
+    }
+    final client = HttpClient()..connectionTimeout = const Duration(seconds: 3);
+    try {
+      final found = <FoundHub>[];
+      for (final MapEntry(key: id, value: url) in heard.entries) {
+        try {
+          final hello = jsonDecode(await _get(client, '$url/hello')) as Map<String, dynamic>;
+          if (hello['aby'] == 'hub' && hello['h'] == id) {
+            found.add(FoundHub(id: id, url: url, name: hello['name'] as String? ?? 'Aby'));
+          }
+        } on Object {
+          continue;
+        }
+      }
+      return found;
+    } finally {
+      client.close(force: true);
     }
   }
 

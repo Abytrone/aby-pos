@@ -127,4 +127,9 @@ String auditActionLabel(AppLocalizations l, AuditAction a) => switch (a) {
       AuditAction.stockTransferReceived => l.auditTransferReceived,
       AuditAction.stockTransferCancelled => l.auditTransferCancelled,
       AuditAction.branchDataMerged => l.auditBranchDataMerged,
-    };
+  AuditAction.priceScheduleCancelled => l.auditPriceScheduleCancelled,
+  AuditAction.stockCountCancelled => l.auditStockCountCancelled,
+  AuditAction.receiptReprinted => l.auditReceiptReprinted,
+  AuditAction.trainingStarted => l.auditTrainingStarted,
+  AuditAction.momoChargesSet => l.auditMomoChargesSet,
+};

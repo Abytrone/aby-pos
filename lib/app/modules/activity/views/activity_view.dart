@@ -29,6 +29,7 @@ class ActivityView extends GetView<ActivityController> {
       bottom: const _Filters(),
       child: Obx(() {
         final entries = controller.entries.toList();
+        final names = Map<String, String>.of(controller.names);
         final chain = controller.chain.value;
         return CustomScrollView(slivers: [
           if (chain != null)
@@ -43,7 +44,7 @@ class ActivityView extends GetView<ActivityController> {
             SliverList.separated(
               itemCount: entries.length,
               separatorBuilder: (_, _) => const Divider(height: 1),
-              itemBuilder: (_, i) => ActivityRow(entry: entries[i]),
+              itemBuilder: (_, i) => ActivityRow(entry: entries[i], names: names),
             ),
           const SliverToBoxAdapter(child: SizedBox(height: AbySpace.s8)),
         ]);

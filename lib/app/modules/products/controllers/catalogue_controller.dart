@@ -8,6 +8,7 @@ import '../../../core/settings.dart';
 import '../../../core/tax.dart';
 import '../../../data/repositories/catalog_repository.dart';
 import '../../../data/repositories/stock_repository.dart';
+import '../../../domain/business_templates.dart';
 import '../../../domain/catalogue_io.dart';
 import '../../../domain/catalogue_rules.dart';
 import '../../../models/catalog.dart';
@@ -20,6 +21,7 @@ import '../../../services/auth_service.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
+import '../../../ui/export_dialog.dart';
 import '../../../ui/files.dart';
 import '../../../ui/l10n.dart';
 
@@ -155,14 +157,25 @@ class CatalogueController extends GetxController {
         message.value = appL10n().bulkDone(changes.length);
       });
 
+  /// The menu as a branded price list (Excel or PDF), or the CSV that
+  /// product import reads back.
   Future<void> exportProducts() async {
     final c = catalogue.value;
     if (c == null) return;
-    await shareOrSaveText(
-      'products-${DateTime.now().toIso8601String().substring(0, 10)}.csv',
-      Get.find<CatalogueIo>().exportProducts(c),
+    final io = Get.find<CatalogueIo>();
+    await exportDocument(
+      io.priceList(c, shopName: _settings.get(AppSettings.shopName)),
+      fileStem: 'products-${DateTime.now().toIso8601String().substring(0, 10)}',
+      csv: io.exportProducts(c),
+      csvImports: true,
     );
   }
+
+  /// A filled-in example file for this kind of shop, to edit and import.
+  Future<void> downloadSample() => shareOrSaveText(
+    'aby-products-sample.csv',
+      Get.find<CatalogueIo>().sampleProducts(BusinessType.values.asNameMap()[_settings.get(AppSettings.shopType)] ?? BusinessType.other),
+  );
 
   /// Reads a CSV and returns what it would do (nothing saved yet).
   Future<ImportPreview?> previewImport() async {

@@ -9,25 +9,36 @@ import 'package:share_plus/share_plus.dart';
 import 'dialogs.dart';
 import 'l10n.dart';
 
-enum _Where { share, folder }
+/// Where a made file goes.
+enum FileDestination { share, folder }
 
 /// Offers "Share" or "Save to a folder" for a text file (CSV exports).
 /// Returns true when it went somewhere.
-Future<bool> shareOrSaveText(String fileName, String content) =>
-    // A byte-order mark so Excel reads GH₵ and accents correctly.
-    shareOrSaveBytes(fileName, Uint8List.fromList([0xEF, 0xBB, 0xBF, ...utf8.encode(content)]));
+Future<bool> shareOrSaveText(String fileName, String content) => shareOrSaveBytes(fileName, csvBytes(content));
+
+/// CSV text as UTF-8 with a byte-order mark, so Excel reads GH₵ and accents
+/// correctly.
+Uint8List csvBytes(String content) => Uint8List.fromList([0xEF, 0xBB, 0xBF, ...utf8.encode(content)]);
 
 /// Offers "Share" (WhatsApp, email...) or "Save to a folder" for a file
-/// (PDF statements, CSV exports). Returns true when it went somewhere.
-Future<bool> shareOrSaveBytes(String fileName, Uint8List bytes, {String? text}) async {
+/// (PDF statements, CSV exports). [title] replaces "Where should the file
+/// go?". Returns true when it went somewhere.
+Future<bool> shareOrSaveBytes(String fileName, Uint8List bytes, {String? text, String? title}) async {
   final l = appL10n();
-  final where = await choiceDialog<_Where>(
-    title: l.exportWhere,
-    options: _Where.values,
-    label: (w) => w == _Where.share ? l.backupShare : l.backupSaveToFolder,
+  final where = await choiceDialog<FileDestination>(
+    title: title ?? l.exportWhere,
+    options: FileDestination.values,
+    label: (w) => w == FileDestination.share ? l.backupShare : l.backupSaveToFolder,
   );
   if (where == null) return false;
-  if (where == _Where.folder) {
+  return sendBytes(fileName, bytes, where, text: text);
+}
+
+/// Sends [bytes] to the share sheet or a folder the user picks. Returns
+/// true when it went somewhere.
+Future<bool> sendBytes(String fileName, Uint8List bytes, FileDestination where, {String? text}) async {
+  final l = appL10n();
+  if (where == FileDestination.folder) {
     return await FilePicker.saveFile(dialogTitle: l.backupSaveToFolder, fileName: fileName, bytes: bytes) != null;
   }
   final dir = await getTemporaryDirectory();

@@ -1,26 +1,15 @@
 import 'dart:typed_data';
-
-import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../core/validators.dart';
 import '../models/customer.dart';
 import '../models/enums.dart';
 import '../models/sale.dart';
+import 'documents/pdf_brand.dart';
+import 'documents/table_doc.dart';
 
 /// Statements and reminders for a customer's credit account.
 abstract final class CustomerDocuments {
-  /// "GHS 12.50": the PDF's built-in font has no cedi sign.
-  static String _money(int pesewas) {
-    final neg = pesewas < 0;
-    final v = pesewas.abs();
-    final whole = (v ~/ 100).toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
-    return '${neg ? '-' : ''}GHS $whole.${(v % 100).toString().padLeft(2, '0')}';
-  }
-
-  static String _date(DateTime d) =>
-      '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
-
   static String entryLabel(CustomerEntry e) => switch (e.kind) {
         CustomerEntryKind.creditSale => 'Sale ${e.saleNumber == null ? '' : formatSaleNumber(e.saleNumber!)}'.trim(),
         CustomerEntryKind.repayment => 'Payment${e.methodName == null ? '' : ' (${e.methodName})'}',
@@ -49,53 +38,64 @@ abstract final class CustomerDocuments {
     required int opening,
     required List<CustomerEntry> entries,
     required CreditAging aging,
+    PdfBrand? brand,
+    Uint8List? logo,
   }) async {
-    final doc = pw.Document(title: 'Statement for ${customer.name}', author: shopName);
+    final b = brand ?? PdfBrand.plain();
+    final made = DateTime.now();
+    final doc = pw.Document(title: 'Statement for ${customer.name}', author: shopName, creator: 'Aby');
     var running = opening;
-    final rows = <List<String>>[
-      [_date(from), 'Balance brought forward', '', '', _money(opening)],
+    final sheet = DocSheet(
+      name: 'Statement',
+      columns: [
+        const DocColumn('Date', DocKind.date),
+        const DocColumn('Details'),
+        DocColumn('Owed (${b.currency})', DocKind.money),
+        DocColumn('Paid (${b.currency})', DocKind.money),
+        DocColumn('Balance (${b.currency})', DocKind.money),
+      ],
+      rows: [
+        [from, 'Balance brought forward', null, null, opening],
       for (final e in entries)
         () {
           running += e.amount;
-          return [
-            _date(e.at),
+          return [e.at,
             entryLabel(e),
-            e.amount > 0 ? _money(e.amount) : '',
-            e.amount < 0 ? _money(-e.amount) : '',
-            _money(running),
-          ];
+            e.amount > 0 ? e.amount : null,
+            e.amount < 0 ? -e.amount : null, running];
         }(),
-    ];
+    ],
+    );
+    final period = docPeriod(from, to);
     doc.addPage(pw.MultiPage(
-      pageFormat: PdfPageFormat.a4,
-      margin: const pw.EdgeInsets.all(36),
+        pageTheme: b.page(),
+        header: (context) => b.runningHeader(context, 'Statement for ${customer.name}', period),
+        footer: (context) => b.footer(context, made),
       build: (_) => [
-        pw.Text(shopName, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
-        if (shopPhone != null && shopPhone.isNotEmpty) pw.Text(shopPhone),
-        pw.SizedBox(height: 16),
-        pw.Text('Statement of account', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
-        pw.Text('${customer.name}${customer.phone == null ? '' : '  ·  ${Validators.formatPhone(customer.phone!)}'}'),
-        pw.Text('${_date(from)} to ${_date(to)}'),
-        pw.SizedBox(height: 12),
-        pw.TableHelper.fromTextArray(
-          headers: ['Date', 'Details', 'Owed', 'Paid', 'Balance'],
-          data: rows,
-          headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-          cellAlignments: {2: pw.Alignment.centerRight, 3: pw.Alignment.centerRight, 4: pw.Alignment.centerRight},
-          border: const pw.TableBorder(horizontalInside: pw.BorderSide(color: PdfColors.grey300, width: 0.5)),
-        ),
-        pw.SizedBox(height: 12),
-        pw.Align(
-          alignment: pw.Alignment.centerRight,
-          child: pw.Text('Balance owed: ${_money(running)}', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
-        ),
+          b.band(
+            eyebrow: 'Statement of account',
+            title: customer.name,
+            subtitle: [period, if (customer.phone != null) Validators.formatPhone(customer.phone!)].join('  ·  '),
+            shopName: shopName,
+            lines: [if (shopPhone != null && shopPhone.isNotEmpty) shopPhone],
+            logo: logo,
+          ),
+          b.facts([
+            DocFact('Balance owed', running),
+            DocFact('Brought forward', opening),
+            if (aging.overdue > 0) DocFact('Overdue', aging.overdue),
+          ]),
+        pw.SizedBox(height: 14),
+          ...b.table(sheet),
         if (aging.overdue > 0) ...[
-          pw.SizedBox(height: 8),
-          pw.Text('Overdue: 1-30 days ${_money(aging.days1to30)}, 31-60 days ${_money(aging.days31to60)}, '
-              'over 60 days ${_money(aging.over60)}'),
+          pw.SizedBox(height: 10),
+          pw.Text(
+              'Overdue: 1-30 days ${b.money(aging.days1to30)}, 31-60 days ${b.money(aging.days31to60)}, over 60 days ${b.money(aging.over60)}',
+              style: b.text(size: 8.5, color: PdfBrand.danger),
+            ),
         ],
-        pw.SizedBox(height: 24),
-        pw.Text('Thank you for your business.', style: const pw.TextStyle(color: PdfColors.grey700)),
+        pw.SizedBox(height: 20),
+        pw.Text('Thank you for your business.', style: b.text(color: PdfBrand.muted)),
       ],
     ));
     return doc.save();

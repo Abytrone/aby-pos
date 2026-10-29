@@ -525,7 +525,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsDeviceName => 'Device name';
 
   @override
-  String get settingsTheme => 'Colours';
+  String get settingsTheme => 'Theme';
 
   @override
   String get settingsThemeSystem => 'Same as the device';
@@ -1359,6 +1359,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exportWhere => 'Where should the file go?';
 
   @override
+  String exportTitle(String what) {
+    return 'Export $what';
+  }
+
+  @override
+  String get exportExcel => 'Excel workbook';
+
+  @override
+  String get exportExcelHelp =>
+      'In Aby colours, with totals and filters. Opens in Excel, Google Sheets and Numbers.';
+
+  @override
+  String get exportPdfHelp =>
+      'Ready to print, or to send on WhatsApp or by email.';
+
+  @override
+  String get exportCsvHelp => 'Plain data for other software.';
+
+  @override
+  String get exportCsvImportHelp =>
+      'Plain data. Edit it and import it back into Aby.';
+
+  @override
+  String get exportShare => 'Share';
+
+  @override
+  String get exportSave => 'Save to a folder';
+
+  @override
+  String get exportMaking => 'Making the file...';
+
+  @override
+  String get printHow => 'Print or share?';
+
+  @override
+  String get printOnPrinter => 'On the receipt printer';
+
+  @override
+  String get printAsPdf => 'As a PDF (share or save)';
+
+  @override
+  String get printNoPrinterPdf =>
+      'No receipt printer here. Share or save it as a PDF instead:';
+
+  @override
+  String get reportExportAll => 'Export the report';
+
+  @override
   String get importPick => 'Pick the CSV file';
 
   @override
@@ -1947,7 +1995,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tillNoMatch =>
-      'Nothing matches. Press Enter to look it up as a code.';
+      'Check the spelling, or press Enter to look it up as a code.';
 
   @override
   String get tillNothingHere => 'Nothing here yet.';
@@ -4255,7 +4303,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hubCode => 'Pairing code';
 
   @override
-  String get hubCodeHelp => 'The 8 letters shown on the hub';
+  String get hubCodeHelp => 'The 8 letters the hub shows under Add a device';
 
   @override
   String get hubNotACode =>
@@ -4266,7 +4314,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hubAddHelp =>
-      'On the new device open Settings, Devices and hub, Join a hub, then scan this code or type the address and code.';
+      'On the new device open Settings, This device, Devices and hub, then Join a hub and type this code. It finds this hub on the Wi-Fi by itself.';
 
   @override
   String get hubPaired => 'Device added. It is syncing now.';
@@ -5157,11 +5205,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String importRow(int row, String message) {
     return 'Row $row: $message';
-  }
-
-  @override
-  String importHelp(String columns) {
-    return 'Columns: $columns. Import adds products and updates prices, costs and barcodes. It never removes anything.';
   }
 
   @override
@@ -6367,5 +6410,442 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statusAccountsFailed =>
-      'The last pack could not be saved. Check the folder in Settings, Data.';
+      'The last pack could not be saved. Check the folder in Settings, Backup.';
+
+  @override
+  String get tillViewGrid => 'Grid view';
+
+  @override
+  String get tillViewList => 'List view';
+
+  @override
+  String tillNoMatchTitle(String query) {
+    return 'No match for “$query”';
+  }
+
+  @override
+  String get tillClearSearch => 'Clear search';
+
+  @override
+  String get editorPhotoNotPicture =>
+      'That file is not a picture. Pick a JPG or PNG photo.';
+
+  @override
+  String get editorPhotoNone =>
+      'No photo yet: the till shows the category picture.';
+
+  @override
+  String get categoriesPicture => 'Picture';
+
+  @override
+  String get categoriesPictureAuto => 'Picked from the name';
+
+  @override
+  String get settingsTabShop => 'Shop';
+
+  @override
+  String get settingsTabSelling => 'Selling';
+
+  @override
+  String get settingsTabReceipts => 'Receipts and orders';
+
+  @override
+  String get settingsTabDevice => 'This device';
+
+  @override
+  String get settingsTabData => 'Backup';
+
+  @override
+  String get settingsGroupScreen => 'Screen';
+
+  @override
+  String get settingsProductView => 'Products on the till';
+
+  @override
+  String get settingsProductViewHelp =>
+      'The grid shows photos; the list fits more on a phone. Cashiers can switch on the till.';
+
+  @override
+  String get settingsViewAuto => 'Grid on tablets, list on phones';
+
+  @override
+  String get settingsViewGrid => 'Grid';
+
+  @override
+  String get settingsViewList => 'List';
+
+  @override
+  String get settingsPinPad => 'PIN keypad';
+
+  @override
+  String get settingsPinPadHelp =>
+      'How staff type their PIN on this device, so no one learns it by watching.';
+
+  @override
+  String get settingsPinPadStandard => 'Standard';
+
+  @override
+  String get settingsPinPadShuffled => 'Shuffled: the digits move every time';
+
+  @override
+  String get settingsPinPadKeyboard => 'Keyboard only: no keypad on screen';
+
+  @override
+  String pinDigitsEntered(int count, int total) {
+    return '$count of $total digits entered';
+  }
+
+  @override
+  String get pinTypeOnKeyboard => 'Type your PIN on the keyboard';
+
+  @override
+  String get pinKeyboardWorks => 'You can also type your PIN on the keyboard';
+
+  @override
+  String get pinClear => 'Clear';
+
+  @override
+  String get pinDelete => 'Delete';
+
+  @override
+  String get pinShowKeypad => 'Show the keypad';
+
+  @override
+  String get hubJoinSteps =>
+      'On the hub, open Settings, This device, Devices and hub, and tap Add a device. Type the code it shows.';
+
+  @override
+  String get hubJoinButton => 'Join';
+
+  @override
+  String get hubScanInstead => 'Scan the QR code instead';
+
+  @override
+  String get hubLooking => 'Looking for the hub on this Wi-Fi…';
+
+  @override
+  String get hubNoneHeard =>
+      'No hub heard on this Wi-Fi yet. Check the hub is on, and on the same Wi-Fi.';
+
+  @override
+  String get hubLookAgain => 'Look again';
+
+  @override
+  String get hubPickOne => 'Pick your shop\'s hub';
+
+  @override
+  String hubFound(String name) {
+    return 'Hub: $name';
+  }
+
+  @override
+  String get hubTypeAddress => 'Type the hub\'s address instead';
+
+  @override
+  String get hubFindOnWifi => 'Find the hub on the Wi-Fi instead';
+
+  @override
+  String get importIntro =>
+      'Add or update many products at once from a spreadsheet: one row per product, or one per size when it has several prices.';
+
+  @override
+  String get importStep1 =>
+      'Download the sample. It is filled in for your kind of shop.';
+
+  @override
+  String get importStep2 =>
+      'Replace the examples with your products, in Excel or Google Sheets.';
+
+  @override
+  String get importStep3 =>
+      'Save it as CSV and pick it here. You see what changes before anything is saved.';
+
+  @override
+  String get importDownloadSample => 'Download sample';
+
+  @override
+  String get importStartFromMine => 'Start from my products instead';
+
+  @override
+  String get importColumns => 'Columns';
+
+  @override
+  String get importColCategory =>
+      'The category. A new name becomes a new category.';
+
+  @override
+  String get importColProduct =>
+      'Needed. Rows with the same name are one product.';
+
+  @override
+  String get importColVariant =>
+      'Size or flavour, when the product has several prices.';
+
+  @override
+  String get importColPrice => 'Needed. In cedis, for example 15.00.';
+
+  @override
+  String get importColCost =>
+      'What you pay, for profit. Leave it empty if you are not sure.';
+
+  @override
+  String get importColBarcodes => 'One or more, split with |.';
+
+  @override
+  String get importColTileLine =>
+      'A short line on the till tile, for example 500 ml.';
+
+  @override
+  String get importColOnTill => 'yes or no. No keeps it off the till for now.';
+
+  @override
+  String get importNeverRemoves =>
+      'Importing adds products and updates prices, costs and barcodes. It never removes anything.';
+
+  @override
+  String get importFixHint =>
+      'Fix these rows in the file and pick it again. Headings like Name, Selling price and Barcode work too.';
+
+  @override
+  String get productsNoneYet =>
+      'No products yet. Add them one by one, or bring in a whole price list at once.';
+
+  @override
+  String get productsImportCta => 'Import from a spreadsheet';
+
+  @override
+  String get auditPriceScheduleCancelled => 'Price change called off';
+
+  @override
+  String get auditStockCountCancelled => 'Stock count cancelled';
+
+  @override
+  String get auditReceiptReprinted => 'Receipt printed again';
+
+  @override
+  String get auditTrainingStarted => 'Training mode started';
+
+  @override
+  String get activityYes => 'Yes';
+
+  @override
+  String get activityNo => 'No';
+
+  @override
+  String get activityNotSet => 'Not set';
+
+  @override
+  String get activityPrice => 'Price';
+
+  @override
+  String get activityValue => 'Value';
+
+  @override
+  String get activityProductGone => 'A product no longer on file';
+
+  @override
+  String activityPricesUp(int count) {
+    return '$count up';
+  }
+
+  @override
+  String activityPricesDown(int count) {
+    return '$count down';
+  }
+
+  @override
+  String activityShowAll(int count) {
+    return 'Show all $count';
+  }
+
+  @override
+  String get activityShowFewer => 'Show fewer';
+
+  @override
+  String get activityCanNow => 'Can now';
+
+  @override
+  String get activityCanNoLonger => 'Can no longer';
+
+  @override
+  String activityEntryNumber(int seq) {
+    return 'Entry $seq in this device\'s log';
+  }
+
+  @override
+  String get activityFieldName => 'Name';
+
+  @override
+  String get activityFieldPhone => 'Phone';
+
+  @override
+  String get activityFieldEmail => 'Email';
+
+  @override
+  String get activityFieldAddress => 'Address';
+
+  @override
+  String get activityFieldEmergencyName => 'Emergency contact';
+
+  @override
+  String get activityFieldEmergencyPhone => 'Emergency phone';
+
+  @override
+  String get activityFieldIdNumber => 'ID number';
+
+  @override
+  String get activityFieldDateOfBirth => 'Date of birth';
+
+  @override
+  String get activityFieldStartedOn => 'Started on';
+
+  @override
+  String get activityFieldNotes => 'Notes';
+
+  @override
+  String get activityFieldRate => 'Rate';
+
+  @override
+  String get activityFieldCompound => 'Tax on tax';
+
+  @override
+  String get activityFieldKind => 'Type';
+
+  @override
+  String get activityFieldScope => 'Used on';
+
+  @override
+  String get activityFieldReason => 'Reason';
+
+  @override
+  String get activityFieldCounted => 'Items counted';
+
+  @override
+  String get activityFieldChanged => 'Items different';
+
+  @override
+  String get activityFieldStockValue => 'Stock value';
+
+  @override
+  String get activityFieldTotal => 'Total';
+
+  @override
+  String get activityFieldSubtotal => 'Before discounts';
+
+  @override
+  String get activityFieldDiscountTotal => 'Discounts';
+
+  @override
+  String get activityFieldWithoutReceipt => 'Without a receipt';
+
+  @override
+  String get activityFieldAmount => 'Amount';
+
+  @override
+  String get activityFieldCost => 'Cost';
+
+  @override
+  String get activityFieldOwedBefore => 'Owed before';
+
+  @override
+  String get activityFieldMaxDiscount => 'Biggest discount allowed';
+
+  @override
+  String get toneMidnight => 'Midnight';
+
+  @override
+  String get toneLime => 'Lime';
+
+  @override
+  String get toneBlue => 'Blue';
+
+  @override
+  String get toneCoral => 'Coral';
+
+  @override
+  String get toneAmber => 'Amber';
+
+  @override
+  String get toneTeal => 'Teal';
+
+  @override
+  String get toneViolet => 'Violet';
+
+  @override
+  String get toneRose => 'Rose';
+
+  @override
+  String get categoriesIconsFood => 'Food and drink';
+
+  @override
+  String get categoriesIconsShop => 'Other shops';
+
+  @override
+  String tillProductCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count products',
+      one: '1 product',
+      zero: 'No products',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get auditMomoChargesSet => 'MoMo charges entered';
+
+  @override
+  String get settingKindOfShop => 'Kind of shop';
+
+  @override
+  String get settingTargetMargin => 'Target margin';
+
+  @override
+  String get settingVoucherMonths => 'Gift vouchers can be spent for';
+
+  @override
+  String get settingCommissionRate => 'Commission rate';
+
+  @override
+  String settingReceiptPart(String part) {
+    return 'Receipt: $part';
+  }
+
+  @override
+  String get settingLogo => 'Logo';
+
+  @override
+  String get settingLogoAdded => 'A logo';
+
+  @override
+  String get settingReceiptCopies => 'Receipt copies for credit sales';
+
+  @override
+  String get settingScreensPort => 'Screens port';
+
+  @override
+  String get settingNone => 'None';
+
+  @override
+  String get settingOn => 'On';
+
+  @override
+  String get settingOff => 'Off';
+
+  @override
+  String get settingRemovedItem => 'an item no longer on file';
+
+  @override
+  String get settingChanged => 'Changed';
+
+  @override
+  String activitySettingChanged(String setting) {
+    return 'Changed $setting';
+  }
+
+  @override
+  String activitySettingChangedTo(String setting, String before, String after) {
+    return '$setting: $before to $after';
+  }
 }

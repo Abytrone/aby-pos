@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/permissions.dart';
+import '../../../core/settings.dart';
 import '../../../data/repositories/catalog_repository.dart';
 import '../../../domain/labels.dart';
 import '../../../services/money.dart';
+import '../../../services/pdf_brand_loader.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/printing/print_service.dart';
+import '../../../services/settings_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
@@ -95,16 +98,22 @@ class _LabelsState extends State<_Labels> {
     if (items.isEmpty) return;
     setState(() => _busy = true);
     try {
-      if (_format == LabelFormat.printer) {
-        final print = printService;
-        if (print == null || !print.hasPrinter) return showMessage(context.l10n.printNoPrinter);
+      final print = printService;
+      if (_format == LabelFormat.printer && print != null && print.hasPrinter) {
         for (final doc in Labels.paper(items)) {
           print.printDoc(doc);
         }
         showMessage(context.l10n.printSent);
       } else {
-        final bytes = await Labels.pdf(items, _format);
-        await shareOrSaveBytes('labels.pdf', bytes);
+        // No receipt printer: the same stickers, one per page, for a label
+        // printer or the share sheet.
+        final noPrinter = _format == LabelFormat.printer;
+        final bytes = await Labels.pdf(items,
+          noPrinter ? LabelFormat.roll : _format,
+          brand: await loadPdfBrand(),
+          shopName: Get.find<SettingsService>().get(AppSettings.shopName),
+        );
+        await shareOrSaveBytes('labels.pdf', bytes, title: noPrinter ? appL10n().printNoPrinterPdf : null);
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -168,12 +177,14 @@ class _LabelsState extends State<_Labels> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton.icon(
-          onPressed: total == 0 || _busy ? null : _print,
-          icon: const Icon(Icons.print_outlined),
-          label: Text(l.labelsPrint(total)),
-        ),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton.icon(
+            onPressed: total == 0 || _busy ? null : _print,
+            icon: const Icon(Icons.print_outlined),
+            label: Text(l.labelsPrint(total)),
+          ),
+        ]),
       ],
     );
   }

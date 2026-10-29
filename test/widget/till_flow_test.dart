@@ -724,6 +724,10 @@ void main() {
     await tester.tap(find.text('Print receipt'));
     await _settle(tester);
     expect(find.textContaining('No receipt printer on this device'), findsOneWidget);
+    // No printer: it offers to send the receipt instead (WhatsApp, SMS, PDF).
+    expect(find.text('WhatsApp'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await _settle(tester);
     // Let the message go: it covers the buttons.
     await tester.pump(const Duration(seconds: 6));
     await _settle(tester);
@@ -1111,6 +1115,9 @@ void main() {
 
     // Phones get a bottom bar instead of the rail.
     expect(find.byType(NavigationBar), findsOneWidget);
+    // Phones show the list view; Waffle is further down it.
+    await tester.scrollUntilVisible(find.text('Waffle'), 200,
+        scrollable: find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down).first);
     await tester.tap(find.text('Waffle'));
     await _settle(tester);
     expect(find.text('Cart (1)'), findsOneWidget);

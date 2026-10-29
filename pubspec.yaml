@@ -48,9 +48,14 @@ flutter:
   uses-material-design: true
   generate: true
 
-  # Brand kit (brand/flutter/pubspec_snippet.yaml).
+  # Brand kit (aby-brand-kit/flutter/pubspec_snippet.yaml).
   assets:
     - assets/brand/
+    - assets/icons/ui/
+    - assets/samples/
+    # Cedi sign and Ghanaian letters for PDFs (fonts/OFL-AbyExtra.txt).
+    - fonts/AbyExtra-Regular.ttf
+    - fonts/AbyExtra-Bold.ttf
   fonts:
     - family: Figtree
       fonts:

@@ -174,14 +174,16 @@ class _ArrangeState extends State<_Arrange> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(
-          onPressed: () async {
-            await widget.ctl.setLayout([for (final c in _order) if (_shown.contains(c)) c]);
-            goBack<void>();
-          },
-          child: Text(l.commonSave),
-        ),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(
+            onPressed: () async {
+              await widget.ctl.setLayout([for (final c in _order) if (_shown.contains(c)) c]);
+              goBack<void>();
+            },
+            child: Text(l.commonSave),
+          ),
+        ]),
       ],
     );
   }

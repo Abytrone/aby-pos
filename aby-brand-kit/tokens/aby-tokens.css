@@ -1,0 +1,109 @@
+/* Aby brand tokens — light theme by default; set data-theme="dark" on <html> (or add class .dark) for dark. */
+:root, [data-theme="light"] {
+  --surface: #f6f7f2;
+  --surface-raised: #ffffff;
+  --surface-sunken: #ecede6;
+  --line: #dfe1d8;
+  --line-strong: #878a7f;
+  --ink: #101322;
+  --ink-muted: #5a5e6b;
+  --midnight: #101322;
+  --on-midnight: #f6f7f2;
+  --lime: #c8f560;
+  --on-lime: #101322;
+  --lime-soft: #ecfbc9;
+  --lime-ink: #3f5a00;
+  --primary: #101322;
+  --on-primary: #f6f7f2;
+  --blue: #3446e0;
+  --blue-soft: #e6e9ff;
+  --success: var(--lime-ink);
+  --success-soft: var(--lime-soft);
+  --warning: #8a5300;
+  --warning-soft: #fdf0d7;
+  --coral: #ff6b4a;
+  --danger: #c2361b;
+  --danger-soft: #ffe6df;
+  --link: var(--blue);
+  --receipt-paper: #ffffff;
+  --receipt-ink: #111111;
+  --shadow-sm: 0 1px 2px #1013220f, 0 1px 3px #10132214;
+  --shadow-lg: 0 6px 12px #10132214, 0 16px 32px -4px #10132229;
+  --focus-ring: 0 0 0 2px #f6f7f2, 0 0 0 4px #3446e0;
+}
+[data-theme="dark"], .dark {
+  --surface: #0b0d17;
+  --surface-raised: #161929;
+  --surface-sunken: #06070e;
+  --line: #262a3d;
+  --line-strong: #6a6f86;
+  --ink: #f1f3ea;
+  --ink-muted: #9ea2b3;
+  --midnight: #101322;
+  --on-midnight: #f1f3ea;
+  --lime: #c8f560;
+  --on-lime: #101322;
+  --lime-soft: #1f2a0a;
+  --lime-ink: #c8f560;
+  --primary: #f1f3ea;
+  --on-primary: #101322;
+  --blue: #9aa5ff;
+  --blue-soft: #1b2152;
+  --success: var(--lime-ink);
+  --success-soft: var(--lime-soft);
+  --warning: #f5b950;
+  --warning-soft: #3a2a0b;
+  --coral: #ff8a70;
+  --danger: #ff8a70;
+  --danger-soft: #3b1510;
+  --link: var(--blue);
+  --receipt-paper: #f4f4ef;
+  --receipt-ink: #111111;
+  --shadow-sm: 0 1px 3px #000000b3;
+  --shadow-lg: 0 16px 32px -4px #000000cc;
+  --focus-ring: 0 0 0 2px #0b0d17, 0 0 0 4px #9aa5ff;
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+  --tap-min: 48px;
+  --tap-pos: 56px;
+  --tile-min: 140px;
+  --dot: 10px;
+  --thumb-row: 56px;
+  --icon: 24px;
+  --font-display: "Figtree", system-ui, sans-serif;
+  --font-sans: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+
+/* Type styles */
+.aby-display { font-family: var(--font-display); font-size: 56px; line-height: 56px; font-weight: 900; letter-spacing: -0.035em; }
+.aby-title { font-family: var(--font-display); font-size: 32px; line-height: 36px; font-weight: 800; letter-spacing: -0.02em; }
+.aby-total { font-family: var(--font-display); font-size: 44px; line-height: 48px; font-weight: 900; letter-spacing: -0.03em; }
+.aby-heading { font-family: var(--font-sans); font-size: 20px; line-height: 28px; font-weight: 700; }
+.aby-tile { font-family: var(--font-sans); font-size: 17px; line-height: 22px; font-weight: 600; }
+.aby-price { font-family: var(--font-sans); font-size: 17px; line-height: 22px; font-weight: 800; }
+.aby-body { font-family: var(--font-sans); font-size: 16px; line-height: 24px; font-weight: 400; }
+.aby-label { font-family: var(--font-sans); font-size: 13px; line-height: 16px; font-weight: 700; letter-spacing: 0.05em; }
+.aby-caption { font-family: var(--font-sans); font-size: 13px; line-height: 18px; font-weight: 400; }
+.aby-receipt { font-family: var(--font-mono); font-size: 12px; line-height: 16px; font-weight: 400; }
+.aby-receipt-strong { font-family: var(--font-mono); font-size: 14px; line-height: 18px; font-weight: 700; }
+
+/* Fonts: keep aby-brand-kit/fonts next to this folder (../fonts), or change the paths. */
+@font-face { font-family: "Figtree"; src: url("../fonts/Figtree-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Figtree"; src: url("../fonts/Figtree-Medium.ttf") format("truetype"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Figtree"; src: url("../fonts/Figtree-SemiBold.ttf") format("truetype"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Figtree"; src: url("../fonts/Figtree-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Figtree"; src: url("../fonts/Figtree-ExtraBold.ttf") format("truetype"); font-weight: 800; font-style: normal; font-display: swap; }
+@font-face { font-family: "Figtree"; src: url("../fonts/Figtree-Black.ttf") format("truetype"); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url("../fonts/JetBrainsMono-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url("../fonts/JetBrainsMono-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal; font-display: swap; }

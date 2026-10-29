@@ -53,7 +53,8 @@ Future<void> showStatusCentre() {
             )),
       ),
       actions: [
-        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        DialogButtons(children: [FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        ]),
       ],
     );
   }));

@@ -1,7 +1,8 @@
 // Enums shared by the drift tables and the UI. Stored by name, so never
 // rename a value without a migration.
 
-enum CategoryTone { midnight, lime, blue, coral }
+/// A category's colour. Stored by name, so new colours go on the end.
+enum CategoryTone { midnight, lime, blue, coral, amber, teal, violet, rose }
 
 enum SaleStatus { completed, voided }
 

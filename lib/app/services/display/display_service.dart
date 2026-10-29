@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/services.dart';
+
 import 'package:get/get.dart';
 import 'package:qr/qr.dart';
 
@@ -41,6 +43,7 @@ class DisplayService extends GetxService {
   int _change = 0;
   String? _order;
   Timer? _backToIdle;
+  final _fonts = <String, Uint8List>{};
 
   /// Promotion names for the idle slideshow, kept by the cart.
   List<String> Function() promotions = () => const [];
@@ -182,6 +185,14 @@ class DisplayService extends GetxService {
     final res = r.response;
     try {
       final parts = r.uri.pathSegments;
+      // /f/<font>: the brand fonts, so the pages need no internet. Not secret.
+      if (parts.length == 2 && parts[0] == 'f' && displayFonts.containsKey(parts[1])) {
+        final bytes = _fonts[parts[1]] ??= (await rootBundle.load(displayFonts[parts[1]]!)).buffer.asUint8List();
+        res.headers.contentType = ContentType('font', 'ttf');
+        res.headers.set('Cache-Control', 'max-age=604800');
+        res.add(bytes);
+        return;
+      }
       // /c/<token>, /k/<token>, /s/<token>, plus /state, /orders, /orders/<id>/<status>
       if (parts.length < 2 || parts[1] != token) {
         res.statusCode = HttpStatus.notFound;
@@ -202,7 +213,7 @@ class DisplayService extends GetxService {
           return;
         }
         res.headers.contentType = ContentType.html;
-        res.write(html);
+        res.write(html.replaceAll('{{shop}}', const HtmlEscape().convert(_settings.get(AppSettings.shopName))));
         return;
       }
       res.headers.contentType = ContentType.json;

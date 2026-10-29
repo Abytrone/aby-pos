@@ -146,8 +146,10 @@ class _PromotionsState extends State<_Promotions> {
         ]),
       ),
       actions: [
-        OutlinedButton.icon(onPressed: () => _edit(), icon: const Icon(Icons.add), label: Text(l.promoNew)),
-        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        DialogButtons(children: [
+              OutlinedButton.icon(onPressed: () => _edit(), icon: const Icon(Icons.add), label: Text(l.promoNew)),
+          FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+        ]),
       ],
     );
   }
@@ -239,12 +241,14 @@ class _TargetPickerState extends State<_TargetPicker> {
         ]),
       ),
       actions: [
-        TextButton(onPressed: () => goBack(result: const PromoTarget()), child: Text(l.promoEverything)),
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(
-          onPressed: () => goBack(result: PromoTarget(products: _products, categories: _categories)),
-          child: Text(l.commonDone),
-        ),
+        DialogButtons(children: [
+              TextButton(onPressed: () => goBack(result: const PromoTarget()), child: Text(l.promoEverything)),
+          OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(
+            onPressed: () => goBack(result: PromoTarget(products: _products, categories: _categories)),
+            child: Text(l.commonDone),
+              ),
+        ]),
       ],
     );
   }
@@ -592,9 +596,11 @@ class _PromotionEditorState extends State<_PromotionEditor> {
         ),
       ),
       actions: [
-        if (_p != null) TextButton(onPressed: _delete, child: Text(l.commonDelete, style: TextStyle(color: c.danger))),
-        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-        FilledButton(onPressed: _save, child: Text(l.commonSave)),
+        DialogButtons(children: [
+              if (_p != null) TextButton(onPressed: _delete, child: Text(l.commonDelete, style: TextStyle(color: c.danger))),
+          OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+          FilledButton(onPressed: _save, child: Text(l.commonSave)),
+        ]),
       ],
     );
   }

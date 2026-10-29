@@ -168,7 +168,7 @@
   "settingsAutoLockHelp": "When nobody touches it. The cart is kept.",
   "settingsAutoLockOff": "Never",
   "settingsDeviceName": "Device name",
-  "settingsTheme": "Colours",
+  "settingsTheme": "Theme",
   "settingsThemeSystem": "Same as the device",
   "settingsThemeLight": "Light",
   "settingsThemeDark": "Dark",
@@ -441,6 +441,21 @@
   "suppliersTab": "Suppliers",
   "exportButton": "Export",
   "exportWhere": "Where should the file go?",
+  "exportTitle": "Export {what}",
+  "@exportTitle": {"placeholders": {"what": {"type": "String"}}},
+  "exportExcel": "Excel workbook",
+  "exportExcelHelp": "In Aby colours, with totals and filters. Opens in Excel, Google Sheets and Numbers.",
+  "exportPdfHelp": "Ready to print, or to send on WhatsApp or by email.",
+  "exportCsvHelp": "Plain data for other software.",
+  "exportCsvImportHelp": "Plain data. Edit it and import it back into Aby.",
+  "exportShare": "Share",
+  "exportSave": "Save to a folder",
+  "exportMaking": "Making the file...",
+  "printHow": "Print or share?",
+  "printOnPrinter": "On the receipt printer",
+  "printAsPdf": "As a PDF (share or save)",
+  "printNoPrinterPdf": "No receipt printer here. Share or save it as a PDF instead:",
+  "reportExportAll": "Export the report",
   "importPick": "Pick the CSV file",
   "productsTools": "Tools",
   "receiveNew": "Receive delivery",
@@ -631,7 +646,7 @@
   "tillAll": "All",
   "tillRecent": "Recent",
   "tillSearchHint": "Search, scan, or type a code",
-  "tillNoMatch": "Nothing matches. Press Enter to look it up as a code.",
+  "tillNoMatch": "Check the spelling, or press Enter to look it up as a code.",
   "tillNothingHere": "Nothing here yet.",
   "tillQuickEmpty": "Nothing on the Quick tab yet.",
   "tillCodeUnknownBody": "Add a new product with this barcode?",
@@ -1366,10 +1381,10 @@
   "hubAddress": "Hub address",
   "hubAddressHelp": "Shown on the hub under Add a device, for example 192.168.1.20:8787",
   "hubCode": "Pairing code",
-  "hubCodeHelp": "The 8 letters shown on the hub",
+  "hubCodeHelp": "The 8 letters the hub shows under Add a device",
   "hubNotACode": "That is not an Aby pairing code. Scan the code on the hub under Add a device.",
   "hubAddDevice": "Add a device",
-  "hubAddHelp": "On the new device open Settings, Devices and hub, Join a hub, then scan this code or type the address and code.",
+  "hubAddHelp": "On the new device open Settings, This device, Devices and hub, then Join a hub and type this code. It finds this hub on the Wi-Fi by itself.",
   "hubPaired": "Device added. It is syncing now.",
   "hubSyncNow": "Sync now",
   "hubNeverSynced": "Not synced yet",
@@ -2303,14 +2318,6 @@
         "type": "int"
       },
       "message": {
-        "type": "String"
-      }
-    }
-  },
-  "importHelp": "Columns: {columns}. Import adds products and updates prices, costs and barcodes. It never removes anything.",
-  "@importHelp": {
-    "placeholders": {
-      "columns": {
         "type": "String"
       }
     }
@@ -4090,5 +4097,197 @@
     }
   },
   "statusAccounts": "Accountant pack",
-  "statusAccountsFailed": "The last pack could not be saved. Check the folder in Settings, Data."
+  "statusAccountsFailed": "The last pack could not be saved. Check the folder in Settings, Backup.",
+  "tillViewGrid": "Grid view",
+  "tillViewList": "List view",
+  "tillNoMatchTitle": "No match for “{query}”",
+  "@tillNoMatchTitle": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "tillClearSearch": "Clear search",
+  "editorPhotoNotPicture": "That file is not a picture. Pick a JPG or PNG photo.",
+  "editorPhotoNone": "No photo yet: the till shows the category picture.",
+  "categoriesPicture": "Picture",
+  "categoriesPictureAuto": "Picked from the name",
+  "settingsTabShop": "Shop",
+  "settingsTabSelling": "Selling",
+  "settingsTabReceipts": "Receipts and orders",
+  "settingsTabDevice": "This device",
+  "settingsTabData": "Backup",
+  "settingsGroupScreen": "Screen",
+  "settingsProductView": "Products on the till",
+  "settingsProductViewHelp": "The grid shows photos; the list fits more on a phone. Cashiers can switch on the till.",
+  "settingsViewAuto": "Grid on tablets, list on phones",
+  "settingsViewGrid": "Grid",
+  "settingsViewList": "List",
+  "settingsPinPad": "PIN keypad",
+  "settingsPinPadHelp": "How staff type their PIN on this device, so no one learns it by watching.",
+  "settingsPinPadStandard": "Standard",
+  "settingsPinPadShuffled": "Shuffled: the digits move every time",
+  "settingsPinPadKeyboard": "Keyboard only: no keypad on screen",
+  "pinDigitsEntered": "{count} of {total} digits entered",
+  "@pinDigitsEntered": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "pinTypeOnKeyboard": "Type your PIN on the keyboard",
+  "pinKeyboardWorks": "You can also type your PIN on the keyboard",
+  "pinClear": "Clear",
+  "pinDelete": "Delete",
+  "pinShowKeypad": "Show the keypad",
+  "hubJoinSteps": "On the hub, open Settings, This device, Devices and hub, and tap Add a device. Type the code it shows.",
+  "hubJoinButton": "Join",
+  "hubScanInstead": "Scan the QR code instead",
+  "hubLooking": "Looking for the hub on this Wi-Fi…",
+  "hubNoneHeard": "No hub heard on this Wi-Fi yet. Check the hub is on, and on the same Wi-Fi.",
+  "hubLookAgain": "Look again",
+  "hubPickOne": "Pick your shop's hub",
+  "hubFound": "Hub: {name}",
+  "@hubFound": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "hubTypeAddress": "Type the hub's address instead",
+  "hubFindOnWifi": "Find the hub on the Wi-Fi instead",
+  "importIntro": "Add or update many products at once from a spreadsheet: one row per product, or one per size when it has several prices.",
+  "importStep1": "Download the sample. It is filled in for your kind of shop.",
+  "importStep2": "Replace the examples with your products, in Excel or Google Sheets.",
+  "importStep3": "Save it as CSV and pick it here. You see what changes before anything is saved.",
+  "importDownloadSample": "Download sample",
+  "importStartFromMine": "Start from my products instead",
+  "importColumns": "Columns",
+  "importColCategory": "The category. A new name becomes a new category.",
+  "importColProduct": "Needed. Rows with the same name are one product.",
+  "importColVariant": "Size or flavour, when the product has several prices.",
+  "importColPrice": "Needed. In cedis, for example 15.00.",
+  "importColCost": "What you pay, for profit. Leave it empty if you are not sure.",
+  "importColBarcodes": "One or more, split with |.",
+  "importColTileLine": "A short line on the till tile, for example 500 ml.",
+  "importColOnTill": "yes or no. No keeps it off the till for now.",
+  "importNeverRemoves": "Importing adds products and updates prices, costs and barcodes. It never removes anything.",
+  "importFixHint": "Fix these rows in the file and pick it again. Headings like Name, Selling price and Barcode work too.",
+  "productsNoneYet": "No products yet. Add them one by one, or bring in a whole price list at once.",
+  "productsImportCta": "Import from a spreadsheet",
+  "auditPriceScheduleCancelled": "Price change called off",
+  "auditStockCountCancelled": "Stock count cancelled",
+  "auditReceiptReprinted": "Receipt printed again",
+  "auditTrainingStarted": "Training mode started",
+  "activityYes": "Yes",
+  "activityNo": "No",
+  "activityNotSet": "Not set",
+  "activityPrice": "Price",
+  "activityValue": "Value",
+  "activityProductGone": "A product no longer on file",
+  "activityPricesUp": "{count} up",
+  "@activityPricesUp": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "activityPricesDown": "{count} down",
+  "@activityPricesDown": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "activityShowAll": "Show all {count}",
+  "@activityShowAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "activityShowFewer": "Show fewer",
+  "activityCanNow": "Can now",
+  "activityCanNoLonger": "Can no longer",
+  "activityEntryNumber": "Entry {seq} in this device's log",
+  "@activityEntryNumber": {
+    "placeholders": {
+      "seq": {
+        "type": "int"
+      }
+    }
+  },
+  "activityFieldName": "Name",
+  "activityFieldPhone": "Phone",
+  "activityFieldEmail": "Email",
+  "activityFieldAddress": "Address",
+  "activityFieldEmergencyName": "Emergency contact",
+  "activityFieldEmergencyPhone": "Emergency phone",
+  "activityFieldIdNumber": "ID number",
+  "activityFieldDateOfBirth": "Date of birth",
+  "activityFieldStartedOn": "Started on",
+  "activityFieldNotes": "Notes",
+  "activityFieldRate": "Rate",
+  "activityFieldCompound": "Tax on tax",
+  "activityFieldKind": "Type",
+  "activityFieldScope": "Used on",
+  "activityFieldReason": "Reason",
+  "activityFieldCounted": "Items counted",
+  "activityFieldChanged": "Items different",
+  "activityFieldStockValue": "Stock value",
+  "activityFieldTotal": "Total",
+  "activityFieldSubtotal": "Before discounts",
+  "activityFieldDiscountTotal": "Discounts",
+  "activityFieldWithoutReceipt": "Without a receipt",
+  "activityFieldAmount": "Amount",
+  "activityFieldCost": "Cost",
+  "activityFieldOwedBefore": "Owed before",
+  "activityFieldMaxDiscount": "Biggest discount allowed",
+  "toneMidnight": "Midnight",
+  "toneLime": "Lime",
+  "toneBlue": "Blue",
+  "toneCoral": "Coral",
+  "toneAmber": "Amber",
+  "toneTeal": "Teal",
+  "toneViolet": "Violet",
+  "toneRose": "Rose",
+  "categoriesIconsFood": "Food and drink",
+  "categoriesIconsShop": "Other shops",
+  "tillProductCount": "{count, plural, =0{No products} =1{1 product} other{{count} products}}",
+  "@tillProductCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "auditMomoChargesSet": "MoMo charges entered",
+  "settingKindOfShop": "Kind of shop",
+  "settingTargetMargin": "Target margin",
+  "settingVoucherMonths": "Gift vouchers can be spent for",
+  "settingCommissionRate": "Commission rate",
+  "settingReceiptPart": "Receipt: {part}",
+  "@settingReceiptPart": {"placeholders": {"part": {"type": "String"}}},
+  "settingLogo": "Logo",
+  "settingLogoAdded": "A logo",
+  "settingReceiptCopies": "Receipt copies for credit sales",
+  "settingScreensPort": "Screens port",
+  "settingNone": "None",
+  "settingOn": "On",
+  "settingOff": "Off",
+  "settingRemovedItem": "an item no longer on file",
+  "settingChanged": "Changed",
+  "activitySettingChanged": "Changed {setting}",
+  "@activitySettingChanged": {"placeholders": {"setting": {"type": "String"}}},
+  "activitySettingChangedTo": "{setting}: {before} to {after}",
+  "@activitySettingChangedTo": {"placeholders": {"setting": {"type": "String"}, "before": {"type": "String"}, "after": {"type": "String"}}}
 }

@@ -112,7 +112,10 @@ void main() {
 
       await page('variants', ShellSection.sell, () => tap(find.text('Vanilla cone')));
       await page('checkout', ShellSection.sell, () async {
-        await tap(find.text('Waffle'));
+        // On a small phone the list view shows the first few products.
+        await tester.scrollUntilVisible(find.text('Ice cream tub'), 200,
+            scrollable: find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down).first);
+        await tap(find.text('Ice cream tub'));
         await tap(find.textContaining('Pay GH'));
       });
       await page('product editor', ShellSection.products, () => tap(find.text('Vanilla cone')));

@@ -1105,7 +1105,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsTheme.
   ///
   /// In en, this message translates to:
-  /// **'Colours'**
+  /// **'Theme'**
   String get settingsTheme;
 
   /// No description provided for @settingsThemeSystem.
@@ -2740,6 +2740,90 @@ abstract class AppLocalizations {
   /// **'Where should the file go?'**
   String get exportWhere;
 
+  /// No description provided for @exportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Export {what}'**
+  String exportTitle(String what);
+
+  /// No description provided for @exportExcel.
+  ///
+  /// In en, this message translates to:
+  /// **'Excel workbook'**
+  String get exportExcel;
+
+  /// No description provided for @exportExcelHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'In Aby colours, with totals and filters. Opens in Excel, Google Sheets and Numbers.'**
+  String get exportExcelHelp;
+
+  /// No description provided for @exportPdfHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to print, or to send on WhatsApp or by email.'**
+  String get exportPdfHelp;
+
+  /// No description provided for @exportCsvHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain data for other software.'**
+  String get exportCsvHelp;
+
+  /// No description provided for @exportCsvImportHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain data. Edit it and import it back into Aby.'**
+  String get exportCsvImportHelp;
+
+  /// No description provided for @exportShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get exportShare;
+
+  /// No description provided for @exportSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to a folder'**
+  String get exportSave;
+
+  /// No description provided for @exportMaking.
+  ///
+  /// In en, this message translates to:
+  /// **'Making the file...'**
+  String get exportMaking;
+
+  /// No description provided for @printHow.
+  ///
+  /// In en, this message translates to:
+  /// **'Print or share?'**
+  String get printHow;
+
+  /// No description provided for @printOnPrinter.
+  ///
+  /// In en, this message translates to:
+  /// **'On the receipt printer'**
+  String get printOnPrinter;
+
+  /// No description provided for @printAsPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'As a PDF (share or save)'**
+  String get printAsPdf;
+
+  /// No description provided for @printNoPrinterPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'No receipt printer here. Share or save it as a PDF instead:'**
+  String get printNoPrinterPdf;
+
+  /// No description provided for @reportExportAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Export the report'**
+  String get reportExportAll;
+
   /// No description provided for @importPick.
   ///
   /// In en, this message translates to:
@@ -3883,7 +3967,7 @@ abstract class AppLocalizations {
   /// No description provided for @tillNoMatch.
   ///
   /// In en, this message translates to:
-  /// **'Nothing matches. Press Enter to look it up as a code.'**
+  /// **'Check the spelling, or press Enter to look it up as a code.'**
   String get tillNoMatch;
 
   /// No description provided for @tillNothingHere.
@@ -8293,7 +8377,7 @@ abstract class AppLocalizations {
   /// No description provided for @hubCodeHelp.
   ///
   /// In en, this message translates to:
-  /// **'The 8 letters shown on the hub'**
+  /// **'The 8 letters the hub shows under Add a device'**
   String get hubCodeHelp;
 
   /// No description provided for @hubNotACode.
@@ -8311,7 +8395,7 @@ abstract class AppLocalizations {
   /// No description provided for @hubAddHelp.
   ///
   /// In en, this message translates to:
-  /// **'On the new device open Settings, Devices and hub, Join a hub, then scan this code or type the address and code.'**
+  /// **'On the new device open Settings, This device, Devices and hub, then Join a hub and type this code. It finds this hub on the Wi-Fi by itself.'**
   String get hubAddHelp;
 
   /// No description provided for @hubPaired.
@@ -9459,12 +9543,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Row {row}: {message}'**
   String importRow(int row, String message);
-
-  /// No description provided for @importHelp.
-  ///
-  /// In en, this message translates to:
-  /// **'Columns: {columns}. Import adds products and updates prices, costs and barcodes. It never removes anything.'**
-  String importHelp(String columns);
 
   /// No description provided for @importDone.
   ///
@@ -10717,8 +10795,788 @@ abstract class AppLocalizations {
   /// No description provided for @statusAccountsFailed.
   ///
   /// In en, this message translates to:
-  /// **'The last pack could not be saved. Check the folder in Settings, Data.'**
+  /// **'The last pack could not be saved. Check the folder in Settings, Backup.'**
   String get statusAccountsFailed;
+
+  /// No description provided for @tillViewGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid view'**
+  String get tillViewGrid;
+
+  /// No description provided for @tillViewList.
+  ///
+  /// In en, this message translates to:
+  /// **'List view'**
+  String get tillViewList;
+
+  /// No description provided for @tillNoMatchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No match for “{query}”'**
+  String tillNoMatchTitle(String query);
+
+  /// No description provided for @tillClearSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get tillClearSearch;
+
+  /// No description provided for @editorPhotoNotPicture.
+  ///
+  /// In en, this message translates to:
+  /// **'That file is not a picture. Pick a JPG or PNG photo.'**
+  String get editorPhotoNotPicture;
+
+  /// No description provided for @editorPhotoNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No photo yet: the till shows the category picture.'**
+  String get editorPhotoNone;
+
+  /// No description provided for @categoriesPicture.
+  ///
+  /// In en, this message translates to:
+  /// **'Picture'**
+  String get categoriesPicture;
+
+  /// No description provided for @categoriesPictureAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked from the name'**
+  String get categoriesPictureAuto;
+
+  /// No description provided for @settingsTabShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop'**
+  String get settingsTabShop;
+
+  /// No description provided for @settingsTabSelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Selling'**
+  String get settingsTabSelling;
+
+  /// No description provided for @settingsTabReceipts.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts and orders'**
+  String get settingsTabReceipts;
+
+  /// No description provided for @settingsTabDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get settingsTabDevice;
+
+  /// No description provided for @settingsTabData.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get settingsTabData;
+
+  /// No description provided for @settingsGroupScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen'**
+  String get settingsGroupScreen;
+
+  /// No description provided for @settingsProductView.
+  ///
+  /// In en, this message translates to:
+  /// **'Products on the till'**
+  String get settingsProductView;
+
+  /// No description provided for @settingsProductViewHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The grid shows photos; the list fits more on a phone. Cashiers can switch on the till.'**
+  String get settingsProductViewHelp;
+
+  /// No description provided for @settingsViewAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid on tablets, list on phones'**
+  String get settingsViewAuto;
+
+  /// No description provided for @settingsViewGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid'**
+  String get settingsViewGrid;
+
+  /// No description provided for @settingsViewList.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get settingsViewList;
+
+  /// No description provided for @settingsPinPad.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN keypad'**
+  String get settingsPinPad;
+
+  /// No description provided for @settingsPinPadHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'How staff type their PIN on this device, so no one learns it by watching.'**
+  String get settingsPinPadHelp;
+
+  /// No description provided for @settingsPinPadStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get settingsPinPadStandard;
+
+  /// No description provided for @settingsPinPadShuffled.
+  ///
+  /// In en, this message translates to:
+  /// **'Shuffled: the digits move every time'**
+  String get settingsPinPadShuffled;
+
+  /// No description provided for @settingsPinPadKeyboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Keyboard only: no keypad on screen'**
+  String get settingsPinPadKeyboard;
+
+  /// No description provided for @pinDigitsEntered.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total} digits entered'**
+  String pinDigitsEntered(int count, int total);
+
+  /// No description provided for @pinTypeOnKeyboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your PIN on the keyboard'**
+  String get pinTypeOnKeyboard;
+
+  /// No description provided for @pinKeyboardWorks.
+  ///
+  /// In en, this message translates to:
+  /// **'You can also type your PIN on the keyboard'**
+  String get pinKeyboardWorks;
+
+  /// No description provided for @pinClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get pinClear;
+
+  /// No description provided for @pinDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get pinDelete;
+
+  /// No description provided for @pinShowKeypad.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the keypad'**
+  String get pinShowKeypad;
+
+  /// No description provided for @hubJoinSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'On the hub, open Settings, This device, Devices and hub, and tap Add a device. Type the code it shows.'**
+  String get hubJoinSteps;
+
+  /// No description provided for @hubJoinButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get hubJoinButton;
+
+  /// No description provided for @hubScanInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the QR code instead'**
+  String get hubScanInstead;
+
+  /// No description provided for @hubLooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for the hub on this Wi-Fi…'**
+  String get hubLooking;
+
+  /// No description provided for @hubNoneHeard.
+  ///
+  /// In en, this message translates to:
+  /// **'No hub heard on this Wi-Fi yet. Check the hub is on, and on the same Wi-Fi.'**
+  String get hubNoneHeard;
+
+  /// No description provided for @hubLookAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Look again'**
+  String get hubLookAgain;
+
+  /// No description provided for @hubPickOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your shop\'s hub'**
+  String get hubPickOne;
+
+  /// No description provided for @hubFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Hub: {name}'**
+  String hubFound(String name);
+
+  /// No description provided for @hubTypeAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the hub\'s address instead'**
+  String get hubTypeAddress;
+
+  /// No description provided for @hubFindOnWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'Find the hub on the Wi-Fi instead'**
+  String get hubFindOnWifi;
+
+  /// No description provided for @importIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Add or update many products at once from a spreadsheet: one row per product, or one per size when it has several prices.'**
+  String get importIntro;
+
+  /// No description provided for @importStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Download the sample. It is filled in for your kind of shop.'**
+  String get importStep1;
+
+  /// No description provided for @importStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace the examples with your products, in Excel or Google Sheets.'**
+  String get importStep2;
+
+  /// No description provided for @importStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Save it as CSV and pick it here. You see what changes before anything is saved.'**
+  String get importStep3;
+
+  /// No description provided for @importDownloadSample.
+  ///
+  /// In en, this message translates to:
+  /// **'Download sample'**
+  String get importDownloadSample;
+
+  /// No description provided for @importStartFromMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from my products instead'**
+  String get importStartFromMine;
+
+  /// No description provided for @importColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'Columns'**
+  String get importColumns;
+
+  /// No description provided for @importColCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'The category. A new name becomes a new category.'**
+  String get importColCategory;
+
+  /// No description provided for @importColProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed. Rows with the same name are one product.'**
+  String get importColProduct;
+
+  /// No description provided for @importColVariant.
+  ///
+  /// In en, this message translates to:
+  /// **'Size or flavour, when the product has several prices.'**
+  String get importColVariant;
+
+  /// No description provided for @importColPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed. In cedis, for example 15.00.'**
+  String get importColPrice;
+
+  /// No description provided for @importColCost.
+  ///
+  /// In en, this message translates to:
+  /// **'What you pay, for profit. Leave it empty if you are not sure.'**
+  String get importColCost;
+
+  /// No description provided for @importColBarcodes.
+  ///
+  /// In en, this message translates to:
+  /// **'One or more, split with |.'**
+  String get importColBarcodes;
+
+  /// No description provided for @importColTileLine.
+  ///
+  /// In en, this message translates to:
+  /// **'A short line on the till tile, for example 500 ml.'**
+  String get importColTileLine;
+
+  /// No description provided for @importColOnTill.
+  ///
+  /// In en, this message translates to:
+  /// **'yes or no. No keeps it off the till for now.'**
+  String get importColOnTill;
+
+  /// No description provided for @importNeverRemoves.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing adds products and updates prices, costs and barcodes. It never removes anything.'**
+  String get importNeverRemoves;
+
+  /// No description provided for @importFixHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix these rows in the file and pick it again. Headings like Name, Selling price and Barcode work too.'**
+  String get importFixHint;
+
+  /// No description provided for @productsNoneYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No products yet. Add them one by one, or bring in a whole price list at once.'**
+  String get productsNoneYet;
+
+  /// No description provided for @productsImportCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from a spreadsheet'**
+  String get productsImportCta;
+
+  /// No description provided for @auditPriceScheduleCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Price change called off'**
+  String get auditPriceScheduleCancelled;
+
+  /// No description provided for @auditStockCountCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock count cancelled'**
+  String get auditStockCountCancelled;
+
+  /// No description provided for @auditReceiptReprinted.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt printed again'**
+  String get auditReceiptReprinted;
+
+  /// No description provided for @auditTrainingStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Training mode started'**
+  String get auditTrainingStarted;
+
+  /// No description provided for @activityYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get activityYes;
+
+  /// No description provided for @activityNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get activityNo;
+
+  /// No description provided for @activityNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get activityNotSet;
+
+  /// No description provided for @activityPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get activityPrice;
+
+  /// No description provided for @activityValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get activityValue;
+
+  /// No description provided for @activityProductGone.
+  ///
+  /// In en, this message translates to:
+  /// **'A product no longer on file'**
+  String get activityProductGone;
+
+  /// No description provided for @activityPricesUp.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} up'**
+  String activityPricesUp(int count);
+
+  /// No description provided for @activityPricesDown.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} down'**
+  String activityPricesDown(int count);
+
+  /// No description provided for @activityShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all {count}'**
+  String activityShowAll(int count);
+
+  /// No description provided for @activityShowFewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show fewer'**
+  String get activityShowFewer;
+
+  /// No description provided for @activityCanNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Can now'**
+  String get activityCanNow;
+
+  /// No description provided for @activityCanNoLonger.
+  ///
+  /// In en, this message translates to:
+  /// **'Can no longer'**
+  String get activityCanNoLonger;
+
+  /// No description provided for @activityEntryNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry {seq} in this device\'s log'**
+  String activityEntryNumber(int seq);
+
+  /// No description provided for @activityFieldName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get activityFieldName;
+
+  /// No description provided for @activityFieldPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get activityFieldPhone;
+
+  /// No description provided for @activityFieldEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get activityFieldEmail;
+
+  /// No description provided for @activityFieldAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get activityFieldAddress;
+
+  /// No description provided for @activityFieldEmergencyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency contact'**
+  String get activityFieldEmergencyName;
+
+  /// No description provided for @activityFieldEmergencyPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency phone'**
+  String get activityFieldEmergencyPhone;
+
+  /// No description provided for @activityFieldIdNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'ID number'**
+  String get activityFieldIdNumber;
+
+  /// No description provided for @activityFieldDateOfBirth.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of birth'**
+  String get activityFieldDateOfBirth;
+
+  /// No description provided for @activityFieldStartedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Started on'**
+  String get activityFieldStartedOn;
+
+  /// No description provided for @activityFieldNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get activityFieldNotes;
+
+  /// No description provided for @activityFieldRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate'**
+  String get activityFieldRate;
+
+  /// No description provided for @activityFieldCompound.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax on tax'**
+  String get activityFieldCompound;
+
+  /// No description provided for @activityFieldKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get activityFieldKind;
+
+  /// No description provided for @activityFieldScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Used on'**
+  String get activityFieldScope;
+
+  /// No description provided for @activityFieldReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get activityFieldReason;
+
+  /// No description provided for @activityFieldCounted.
+  ///
+  /// In en, this message translates to:
+  /// **'Items counted'**
+  String get activityFieldCounted;
+
+  /// No description provided for @activityFieldChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Items different'**
+  String get activityFieldChanged;
+
+  /// No description provided for @activityFieldStockValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock value'**
+  String get activityFieldStockValue;
+
+  /// No description provided for @activityFieldTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get activityFieldTotal;
+
+  /// No description provided for @activityFieldSubtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Before discounts'**
+  String get activityFieldSubtotal;
+
+  /// No description provided for @activityFieldDiscountTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Discounts'**
+  String get activityFieldDiscountTotal;
+
+  /// No description provided for @activityFieldWithoutReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Without a receipt'**
+  String get activityFieldWithoutReceipt;
+
+  /// No description provided for @activityFieldAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get activityFieldAmount;
+
+  /// No description provided for @activityFieldCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost'**
+  String get activityFieldCost;
+
+  /// No description provided for @activityFieldOwedBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed before'**
+  String get activityFieldOwedBefore;
+
+  /// No description provided for @activityFieldMaxDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Biggest discount allowed'**
+  String get activityFieldMaxDiscount;
+
+  /// No description provided for @toneMidnight.
+  ///
+  /// In en, this message translates to:
+  /// **'Midnight'**
+  String get toneMidnight;
+
+  /// No description provided for @toneLime.
+  ///
+  /// In en, this message translates to:
+  /// **'Lime'**
+  String get toneLime;
+
+  /// No description provided for @toneBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get toneBlue;
+
+  /// No description provided for @toneCoral.
+  ///
+  /// In en, this message translates to:
+  /// **'Coral'**
+  String get toneCoral;
+
+  /// No description provided for @toneAmber.
+  ///
+  /// In en, this message translates to:
+  /// **'Amber'**
+  String get toneAmber;
+
+  /// No description provided for @toneTeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Teal'**
+  String get toneTeal;
+
+  /// No description provided for @toneViolet.
+  ///
+  /// In en, this message translates to:
+  /// **'Violet'**
+  String get toneViolet;
+
+  /// No description provided for @toneRose.
+  ///
+  /// In en, this message translates to:
+  /// **'Rose'**
+  String get toneRose;
+
+  /// No description provided for @categoriesIconsFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Food and drink'**
+  String get categoriesIconsFood;
+
+  /// No description provided for @categoriesIconsShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Other shops'**
+  String get categoriesIconsShop;
+
+  /// No description provided for @tillProductCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No products} =1{1 product} other{{count} products}}'**
+  String tillProductCount(int count);
+
+  /// No description provided for @auditMomoChargesSet.
+  ///
+  /// In en, this message translates to:
+  /// **'MoMo charges entered'**
+  String get auditMomoChargesSet;
+
+  /// No description provided for @settingKindOfShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Kind of shop'**
+  String get settingKindOfShop;
+
+  /// No description provided for @settingTargetMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Target margin'**
+  String get settingTargetMargin;
+
+  /// No description provided for @settingVoucherMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift vouchers can be spent for'**
+  String get settingVoucherMonths;
+
+  /// No description provided for @settingCommissionRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Commission rate'**
+  String get settingCommissionRate;
+
+  /// No description provided for @settingReceiptPart.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt: {part}'**
+  String settingReceiptPart(String part);
+
+  /// No description provided for @settingLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo'**
+  String get settingLogo;
+
+  /// No description provided for @settingLogoAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'A logo'**
+  String get settingLogoAdded;
+
+  /// No description provided for @settingReceiptCopies.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt copies for credit sales'**
+  String get settingReceiptCopies;
+
+  /// No description provided for @settingScreensPort.
+  ///
+  /// In en, this message translates to:
+  /// **'Screens port'**
+  String get settingScreensPort;
+
+  /// No description provided for @settingNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get settingNone;
+
+  /// No description provided for @settingOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get settingOn;
+
+  /// No description provided for @settingOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get settingOff;
+
+  /// No description provided for @settingRemovedItem.
+  ///
+  /// In en, this message translates to:
+  /// **'an item no longer on file'**
+  String get settingRemovedItem;
+
+  /// No description provided for @settingChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed'**
+  String get settingChanged;
+
+  /// No description provided for @activitySettingChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed {setting}'**
+  String activitySettingChanged(String setting);
+
+  /// No description provided for @activitySettingChangedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'{setting}: {before} to {after}'**
+  String activitySettingChangedTo(String setting, String before, String after);
 }
 
 class _AppLocalizationsDelegate

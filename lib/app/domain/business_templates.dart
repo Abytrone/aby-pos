@@ -77,7 +77,7 @@ class BusinessTemplate {
               ('Roofing', CategoryTone.coral),
               ('Plumbing', CategoryTone.blue),
               ('Electrical', CategoryTone.lime),
-              ('Paint and tools', CategoryTone.coral),
+              ('Paint and tools', CategoryTone.amber),
             ],
           ),
         BusinessType.other => const BusinessTemplate(categories: [('General', CategoryTone.blue)]),

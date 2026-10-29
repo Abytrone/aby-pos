@@ -1,5 +1,6 @@
 import '../core/tax.dart';
 import '../core/units.dart';
+import '../domain/category_icons.dart';
 import 'enums.dart';
 
 class Category {
@@ -10,11 +11,18 @@ class Category {
     this.parentId,
     this.active = true,
     this.sortOrder = 0,
+    this.icon,
   });
 
   final String id;
   final String name;
   final CategoryTone tone;
+
+  /// The picture the owner picked for products without a photo, if any.
+  final String? icon;
+
+  /// The picture to draw: the one picked, else a guess from the name.
+  String get picture => categoryIconFor(name: name, tone: tone, picked: icon);
 
   /// Set for a sub-category.
   final String? parentId;

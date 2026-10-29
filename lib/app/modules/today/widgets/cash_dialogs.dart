@@ -89,15 +89,17 @@ class _OpenShiftState extends State<_OpenShift> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<(int, CashCount?)>(), child: Text(l.commonCancel)),
-        FilledButton(
-          onPressed: () {
-            final v = _float.text.trim().isEmpty ? 0 : parseMoney(_float.text);
-            if (v == null) return setState(() => _error = l.customerAmountInvalid);
-            goBack(result: (v, _count));
-          },
-          child: Text(l.shiftOpen),
-        ),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<(int, CashCount?)>(), child: Text(l.commonCancel)),
+          FilledButton(
+            onPressed: () {
+              final v = _float.text.trim().isEmpty ? 0 : parseMoney(_float.text);
+              if (v == null) return setState(() => _error = l.customerAmountInvalid);
+              goBack(result: (v, _count));
+            },
+            child: Text(l.shiftOpen),
+          ),
+        ]),
       ],
     );
   }
@@ -114,19 +116,21 @@ Future<void> showXReport(OpenPeriod period) => Get.dialog<void>(Builder(builder:
           child: SingleChildScrollView(child: PeriodSummary(period: period, openingFloat: float)),
         ),
         actions: [
-          OutlinedButton.icon(
-            onPressed: () => printOnPaper(ReceiptBuilder.period(
-              period,
-              title: 'X report',
-              shopName: Get.find<SettingsService>().get(AppSettings.shopName),
-              at: DateTime.now(),
-              byName: Get.find<AuthService>().user.name,
-              openingFloat: float,
-            )),
-            icon: const Icon(Icons.print_outlined),
-            label: Text(l.receiptPrint),
-          ),
-          FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+          DialogButtons(children: [
+            OutlinedButton.icon(
+              onPressed: () => printOnPaper(ReceiptBuilder.period(
+                period,
+                title: 'X report',
+                shopName: Get.find<SettingsService>().get(AppSettings.shopName),
+                at: DateTime.now(),
+                byName: Get.find<AuthService>().user.name,
+                openingFloat: float,
+              )),
+              icon: const Icon(Icons.print_outlined),
+              label: Text(l.receiptPrint),
+            ),
+            FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+          ]),
         ],
       );
     }));
@@ -235,16 +239,18 @@ class _PayInOutState extends State<_PayInOut> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => goBack<CashMove>(), child: Text(l.commonCancel)),
-        FilledButton(
-          onPressed: () {
-            final amount = parseMoney(_amount.text);
-            if (amount == null || amount <= 0) return setState(() => _error = l.customerAmountInvalid);
-            if (_reason == null) return setState(() => _error = l.refundPickReason);
-            goBack(result: CashMove(amount, _reason!, _note.text, _photo, _expense));
-          },
-          child: Text(l.commonSave),
-        ),
+        DialogButtons(children: [
+              OutlinedButton(onPressed: () => goBack<CashMove>(), child: Text(l.commonCancel)),
+          FilledButton(
+            onPressed: () {
+              final amount = parseMoney(_amount.text);
+              if (amount == null || amount <= 0) return setState(() => _error = l.customerAmountInvalid);
+              if (_reason == null) return setState(() => _error = l.refundPickReason);
+              goBack(result: CashMove(amount, _reason!, _note.text, _photo, _expense));
+            },
+            child: Text(l.commonSave),
+          ),
+        ]),
       ],
     );
   }

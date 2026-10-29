@@ -11,6 +11,7 @@ import '../../../domain/purchase_order_pdf.dart';
 import '../../../models/purchasing.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/pdf_brand_loader.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../ui/files.dart';
@@ -90,6 +91,8 @@ class PurchasingController extends GetxController {
       shopName: s.get(AppSettings.shopName),
       shopPhone: s.get(AppSettings.shopPhone),
       shopAddress: s.get(AppSettings.shopAddress),
+      brand: await loadPdfBrand(),
+      logo: shopLogo(),
     );
     await shareOrSaveBytes('${o.displayNumber}.pdf', bytes, text: appL10n().poShareText(o.displayNumber));
   }
