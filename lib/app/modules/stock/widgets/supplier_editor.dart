@@ -7,6 +7,7 @@ import '../../../models/purchasing.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/dialogs.dart';
 
 /// Name, contact and payment terms. [onSave] returns true when saved.
 Future<void> showSupplierEditor({Supplier? supplier, required Future<bool> Function(SupplierDraft) onSave}) =>
@@ -55,7 +56,7 @@ class _SupplierEditorState extends State<_SupplierEditor> {
       notes: _notes.text,
       paymentTermsDays: int.tryParse(_terms.text.trim()),
     ));
-    if (ok) Get.back<void>();
+    if (ok) goBack<void>();
   }
 
   @override
@@ -107,7 +108,7 @@ class _SupplierEditorState extends State<_SupplierEditor> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _save, child: Text(l.commonSave)),
       ],
     );

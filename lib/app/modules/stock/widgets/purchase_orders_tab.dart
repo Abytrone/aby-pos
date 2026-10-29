@@ -82,7 +82,7 @@ Future<void> showPurchaseOrder(PurchasingController ctl, PurchaseOrder o) => Get
           if (o.isOpen)
             TextButton(
               onPressed: () async {
-                Get.back<void>();
+                goBack<void>();
                 await ctl.cancelOrder(o);
               },
               child: Text(l.poCancel, style: TextStyle(color: c.danger)),
@@ -91,13 +91,13 @@ Future<void> showPurchaseOrder(PurchasingController ctl, PurchaseOrder o) => Get
           if (o.isOpen && ctl.canReceive)
             FilledButton.icon(
               onPressed: () async {
-                Get.back<void>();
+                goBack<void>();
                 await ctl.receiveOrder(o);
               },
               icon: const Icon(Icons.local_shipping_outlined),
               label: Text(l.poReceive),
             ),
-          if (!o.isOpen) FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
+          if (!o.isOpen) FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
         ],
       );
     }));
@@ -175,7 +175,7 @@ class _NewOrderState extends State<_NewOrder> {
     if (lines.isEmpty) return setState(() => _error = l.poAddItems);
     final order = await widget.ctl.createOrder(PurchaseOrderDraft(supplierId: supplier, lines: lines, expectedOn: _expected, note: _note.text));
     if (order != null) {
-      Get.back(result: order);
+      goBack(result: order);
     } else if (widget.ctl.message.value != null) {
       setState(() => _error = widget.ctl.message.value);
       widget.ctl.message.value = null;
@@ -269,7 +269,7 @@ class _NewOrderState extends State<_NewOrder> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _save, child: Text(l.poCreate)),
       ],
     );
@@ -304,7 +304,7 @@ Future<void> showExpiring(List<BatchLeft> batches) => Get.dialog<void>(Builder(b
                     ),
                 ]),
         ),
-        actions: [FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone))],
+        actions: [FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone))],
       );
     }));
 

@@ -18,6 +18,7 @@ import '../../../services/settings_service.dart';
 import '../../../ui/alert_text.dart';
 import '../../../ui/l10n.dart';
 import '../widgets/daily_summary.dart';
+import '../../../ui/dialogs.dart';
 
 /// Cash-up (the Z report): compare the counted drawer with what the till
 /// expects, then close the shift so its sales are locked. With a blind
@@ -158,7 +159,7 @@ class CloseDayController extends GetxController {
     }
   }
 
-  void done() => Get.back<void>();
+  void done() => goBack<void>();
 
   /// Sales, gross profit when costs are known, the cash difference, the top
   /// product and what needs attention.

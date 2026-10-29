@@ -96,7 +96,7 @@ class _PayMethodsState extends State<_PayMethods> {
       ),
       actions: [
         OutlinedButton.icon(onPressed: () => _edit(), icon: const Icon(Icons.add), label: Text(l.payMethodNew)),
-        FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
+        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
       ],
     );
   }
@@ -141,7 +141,7 @@ class _PayMethodEditorState extends State<_PayMethodEditor> {
         merchantNumber: _number.text,
         by: auth.authority,
       );
-      Get.back(result: true);
+      goBack(result: true);
     } on PayMethodException catch (e) {
       setState(() => _error = e.message);
     }
@@ -196,7 +196,7 @@ class _PayMethodEditorState extends State<_PayMethodEditor> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<bool>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<bool>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _save, child: Text(l.commonSave)),
       ],
     );

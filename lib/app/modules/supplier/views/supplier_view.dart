@@ -188,11 +188,11 @@ class _PayDialogState extends State<_PayDialog> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(
           onPressed: () async {
             if (await controller.pay(_amount.text, _method, reference: _reference.text)) {
-              Get.back<void>();
+              goBack<void>();
             } else if (controller.message.value case final text?) {
               controller.message.value = null;
               showMessage(text);

@@ -113,7 +113,7 @@ class _ReceiptDesignerState extends State<_ReceiptDesigner> {
       (AppSettings.receiptCopies, jsonEncode(copies)),
     ]);
     if (!ok) return;
-    Get.back<void>();
+    goBack<void>();
     _s.saved();
   }
 
@@ -207,7 +207,7 @@ class _ReceiptDesignerState extends State<_ReceiptDesigner> {
         }),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _save, child: Text(l.commonSave)),
       ],
     );

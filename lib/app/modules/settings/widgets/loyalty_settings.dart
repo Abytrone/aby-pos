@@ -14,6 +14,7 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
 import '../controllers/settings_controller.dart';
 import 'promotions_dialog.dart';
+import '../../../ui/dialogs.dart';
 
 String loyaltyStyleLabel(AppLocalizations l, LoyaltyStyle s) => switch (s) {
       LoyaltyStyle.off => l.settingsOff,
@@ -92,7 +93,7 @@ class _LoyaltySettingsState extends State<_LoyaltySettings> {
     ])) {
       return;
     }
-    Get.back<void>();
+    goBack<void>();
     _s.saved();
   }
 
@@ -167,7 +168,7 @@ class _LoyaltySettingsState extends State<_LoyaltySettings> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _save, child: Text(l.commonSave)),
       ],
     );

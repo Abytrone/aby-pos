@@ -7,6 +7,7 @@ import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
 import '../controllers/catalogue_controller.dart';
+import '../../../ui/dialogs.dart';
 
 /// Raise or lower many prices at once (the products in view), rounded,
 /// with a preview before anything changes.
@@ -102,14 +103,14 @@ class _BulkPricesState extends State<_BulkPrices> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(
           onPressed: changes.isEmpty
               ? null
               : () async {
                   final description = '${_raise ? '+' : '−'}${_value.text.trim()}${_percent ? '%' : ' GH₵'}'
                       '${_step == 0 ? '' : ', rounded to ${formatMoney(_step)}'}';
-                  if (await widget.controller.applyBulk(changes, description)) Get.back<void>();
+                  if (await widget.controller.applyBulk(changes, description)) goBack<void>();
                 },
           child: Text(l.bulkApply(changes.length)),
         ),
@@ -151,11 +152,11 @@ Future<void> runImport(CatalogueController controller) async {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(
           onPressed: preview.canApply
               ? () async {
-                  if (await controller.applyImport(preview)) Get.back<void>();
+                  if (await controller.applyImport(preview)) goBack<void>();
                 }
               : null,
           child: Text(l.importApply),

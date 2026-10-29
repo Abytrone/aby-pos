@@ -747,8 +747,11 @@ void main() {
     await tester.tap(find.text('Receipt printer'));
     await _settle(tester);
     expect(find.text('Print a test page'), findsOneWidget);
-    await tester.tap(find.text('Network'));
-    await _settle(tester);
+    // The kind picker only shows where there's more than network (Windows, Android).
+    if (find.text('Network').evaluate().isNotEmpty) {
+      await tester.tap(find.text('Network'));
+      await _settle(tester);
+    }
     await tester.enterText(find.widgetWithText(TextField, "Printer's IP address"), '192.168.1.50');
     await tester.tap(find.text('58 mm'));
     await tester.tap(find.text('Save'));

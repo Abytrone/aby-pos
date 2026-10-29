@@ -26,6 +26,7 @@ import '../../../services/settings_service.dart';
 import '../../../ui/l10n.dart';
 import '../../till/controllers/cart_controller.dart';
 import '../../till/controllers/till_controller.dart';
+import '../../../ui/dialogs.dart';
 
 /// Takes payment for the cart and saves the sale: one payment, or several
 /// (split), with cash rounding and exchanges. Amounts are pesewas.
@@ -360,6 +361,6 @@ class CheckoutController extends GetxController {
   /// Back to the till. Blocked while a sale is being saved.
   void close() {
     if (saving.value) return;
-    Get.back<void>();
+    goBack<void>();
   }
 }

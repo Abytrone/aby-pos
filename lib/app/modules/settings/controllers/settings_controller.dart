@@ -65,8 +65,7 @@ class SettingsController extends GetxController {
 
   /// Several settings with one approval (printer setup, receipt design).
   /// False when nothing was saved because approval was refused. The caller
-  /// closes its dialog, then says so ([saved]): Get.back would close the
-  /// message instead.
+  /// closes its dialog, then says so ([saved]).
   Future<bool> saveAll(List<(Setting<Object>, Object)> values) async {
     final changed = [for (final v in values) if (_settings.get(v.$1) != v.$2) v];
     if (changed.isEmpty) return true;

@@ -94,7 +94,7 @@ class TillView extends GetView<TillController> {
         height: MediaQuery.sizeOf(context).height * 0.85,
         child: CartPanel(
           onPay: () {
-            Get.back<void>();
+            goBack<void>();
             controller.pay();
           },
         ),

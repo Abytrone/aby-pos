@@ -8,6 +8,7 @@ import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/option_chip.dart';
+import '../../../ui/dialogs.dart';
 
 /// What the discount dialog decided: a discount, or none (removed).
 class DiscountChoice {
@@ -102,7 +103,7 @@ class _DiscountDialogState extends State<_DiscountDialog> {
     if (_reason == null) return setState(() => _error = l.discountPickReason);
     final d = _discount;
     if (d == null) return setState(() => _error = _kind == DiscountKind.percent ? l.discountPercentInvalid : l.discountAmountInvalid);
-    Get.back(result: DiscountChoice(d));
+    goBack(result: DiscountChoice(d));
   }
 
   @override
@@ -188,8 +189,8 @@ class _DiscountDialogState extends State<_DiscountDialog> {
       ),
       actions: [
         if (widget.current != null)
-          TextButton(onPressed: () => Get.back(result: const DiscountChoice(null)), child: Text(l.discountRemove)),
-        OutlinedButton(onPressed: () => Get.back<DiscountChoice>(), child: Text(l.commonCancel)),
+          TextButton(onPressed: () => goBack(result: const DiscountChoice(null)), child: Text(l.discountRemove)),
+        OutlinedButton(onPressed: () => goBack<DiscountChoice>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _apply, child: Text(l.discountApply)),
       ],
     );

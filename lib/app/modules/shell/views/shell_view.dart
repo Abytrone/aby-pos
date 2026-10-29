@@ -18,6 +18,7 @@ import '../../today/views/today_view.dart';
 import '../controllers/shell_controller.dart';
 import '../widgets/nav_rail.dart';
 import '../widgets/shell_header.dart';
+import '../../../ui/dialogs.dart';
 
 /// The app frame after sign-in: navigation, header, and the open section.
 /// Sections keep their state while you move between them.
@@ -118,7 +119,7 @@ class ShellView extends GetView<ShellController> {
               leading: Icon(s.icon),
               title: Text(s.label(context.l10n)),
               onTap: () {
-                Get.back<void>();
+                goBack<void>();
                 controller.select(s);
               },
             ),

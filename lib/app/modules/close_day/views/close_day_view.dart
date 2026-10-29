@@ -18,6 +18,7 @@ import '../controllers/close_day_controller.dart';
 import '../widgets/daily_summary.dart';
 import '../widgets/difference_box.dart';
 import '../widgets/period_summary.dart';
+import '../../../ui/dialogs.dart';
 
 class CloseDayView extends GetView<CloseDayController> {
   const CloseDayView({super.key});
@@ -186,8 +187,8 @@ class _CountForm extends GetView<CloseDayController> {
       title: Text(l.closeConfirmTitle),
       content: Text(l.closeConfirmBody),
       actions: [
-        OutlinedButton(onPressed: () => Get.back(result: false), child: Text(l.closeNotYet)),
-        FilledButton(onPressed: () => Get.back(result: true), child: Text(l.closeDayButton)),
+        OutlinedButton(onPressed: () => goBack(result: false), child: Text(l.closeNotYet)),
+        FilledButton(onPressed: () => goBack(result: true), child: Text(l.closeDayButton)),
       ],
     ));
     if (ok == true) await controller.closeDay();

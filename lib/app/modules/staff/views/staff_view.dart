@@ -62,12 +62,12 @@ class StaffView extends GetView<StaffController> {
         title: Text(title),
         content: StaffForm(withName: withName),
         actions: [
-          OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+          OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
           Obx(() => FilledButton(
                 onPressed: controller.saving.value
                     ? null
                     : () async {
-                        if (await save()) Get.back<void>();
+                        if (await save()) goBack<void>();
                       },
                 child: Text(l.commonSave),
               )),
@@ -86,13 +86,13 @@ class StaffView extends GetView<StaffController> {
         title: Text(role == null ? l.rolesAdd : roleName(l, role)),
         content: const RoleEditor(),
         actions: [
-          OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+          OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
           if (!roles.editingOwner)
             Obx(() => FilledButton(
                   onPressed: roles.saving.value
                       ? null
                       : () async {
-                          if (await roles.save()) Get.back<void>();
+                          if (await roles.save()) goBack<void>();
                         },
                   child: Text(l.commonSave),
                 )),

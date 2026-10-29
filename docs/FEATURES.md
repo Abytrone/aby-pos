@@ -1,6 +1,6 @@
 # Aby POS: feature specification
 
-Status: draft for review · Last updated: 23 October 2026
+Status: draft for review · Last updated: 29 October 2026
 
 This document lists every feature planned for the Aby till app, how each one works, and the order to
 build them in. Each feature has an ID (for example `SEL-04`) so phases, tickets and commits can refer
@@ -982,6 +982,10 @@ product and alerts.
 
 None of these are required. Each one adds value when the shop has internet.
 
+**Put aside (29 October 2026):** the app is used fully offline for now, and the Laravel backend
+these features talk to is not built yet. `INT-01`, `INT-02`, `INT-03`, `INT-04`, `INT-06` and the
+API part of `INT-05` wait for the backend and will be built alongside it (see Phase 8).
+
 - **INT-01 Cloud sync and the owner portal:**
   - The outbox syncs to the Laravel API.
   - The owner sees every branch from anywhere, through the web back office (Filament) and the app.
@@ -1618,10 +1622,38 @@ Decisions made on the way:
   `MDV-02`), and profit and loss covers all branches.
 - Receipts still show the shop's name and address, not the branch's.
 
+**Status (29 October 2026): fixes after Phase 7.** Schema unchanged (17). Done:
+
+- The app can now also be built for macOS and iOS (`flutter create --platforms=macos,ios`).
+  Printers there are network only, and the scale and Bluetooth printing stay Windows and
+  Android only.
+- Dialogs could stay open: while a message was showing at the bottom of the screen (the
+  3-second "Saved" and the like), GetX's `Get.back` closed the message instead of the dialog, so
+  saving a dialog soon after another save left it open. Every dialog, sheet and page now closes
+  with `goBack` (`lib/app/ui/dialogs.dart`), which closes the dialog and leaves the message up.
+  A test covers it.
+- The printer setup test no longer assumes Windows: on macOS, network is the only printer kind,
+  so there is no kind to pick.
+
 ### Phase 8: Aby Cloud and integrations
 
 - `INT-01` cloud sync and owner portal.
 - `INT-02` MoMo APIs, `INT-03` SMS, `INT-04` GRA E-VAT, `INT-05` accounting export.
+- `INT-06` online ordering.
+
+**Plan (29 October 2026):** the app is used offline for now and the Laravel backend is not ready,
+so only the offline part of Phase 8 is built now:
+
+- `INT-05` scheduled exports: the month-end accountant pack (`REP-09`) made on its own each
+  month and saved to a chosen folder.
+
+Put aside for the backend, to be built with it:
+
+- `INT-01` cloud sync and the owner portal (needs the Laravel API).
+- `INT-02` MoMo payment APIs.
+- `INT-03` SMS gateway.
+- `INT-04` GRA E-VAT (submits invoices online; check the legal requirements first).
+- The API for accounting tools in `INT-05`.
 - `INT-06` online ordering.
 
 ---
@@ -1629,7 +1661,8 @@ Decisions made on the way:
 ## 20. Open questions for the owner
 
 1. **Hub scope:** is the local hub (`MDV-01`) needed before cloud sync, or will the first
-   multi-device shops have internet? This decides the order of phases 7 and 8.
+   multi-device shops have internet? This decides the order of phases 7 and 8. *Answered: the
+   hub came first (Phase 7), and the app stays offline until the backend is ready.*
 2. **Tax:** which tax registrations do the first customers have? This decides how much of `CAT-06`
    and `INT-04` is needed early.
 3. **Languages:** which ones matter most for the first shops' staff?

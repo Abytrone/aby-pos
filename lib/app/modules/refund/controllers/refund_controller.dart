@@ -19,6 +19,7 @@ import '../../../services/printing/print_service.dart';
 import '../../../ui/l10n.dart';
 import '../../shell/controllers/shell_controller.dart';
 import '../../till/controllers/cart_controller.dart';
+import '../../../ui/dialogs.dart';
 
 /// An item typed in for a refund without a receipt.
 class ManualRefundLine {
@@ -253,7 +254,7 @@ class RefundController extends GetxController {
       saleNumber: sale.value?.number,
       approver: auth.approver,
     );
-    Get.back<void>();
+    goBack<void>();
     if (Get.isRegistered<ShellController>()) Get.find<ShellController>().select(ShellSection.sell);
   }
 }

@@ -81,12 +81,12 @@ class StaffProfileView extends GetView<StaffProfileController> {
         title: Text(l.profileEdit),
         content: const DetailsForm(),
         actions: [
-          OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+          OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
           Obx(() => FilledButton(
                 onPressed: controller.saving.value
                     ? null
                     : () async {
-                        if (await controller.saveDetails()) Get.back<void>();
+                        if (await controller.saveDetails()) goBack<void>();
                       },
                 child: Text(l.commonSave),
               )),
@@ -104,10 +104,10 @@ class StaffProfileView extends GetView<StaffProfileController> {
         title: Text(l.staffChangePin),
         content: const PinForm(),
         actions: [
-          OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+          OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
           FilledButton(
             onPressed: () async {
-              if (await controller.savePin()) Get.back<void>();
+              if (await controller.savePin()) goBack<void>();
             },
             child: Text(l.commonSave),
           ),

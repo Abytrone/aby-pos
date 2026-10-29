@@ -10,6 +10,7 @@ import '../../../ui/l10n.dart';
 import '../../../ui/status_dot.dart';
 import '../../settings/controllers/backup_controller.dart';
 import '../controllers/shell_controller.dart';
+import '../../../ui/dialogs.dart';
 
 /// Every "is the data safe?" signal in one place, each with its fix.
 Future<void> showStatusCentre() {
@@ -47,7 +48,7 @@ Future<void> showStatusCentre() {
             )),
       ),
       actions: [
-        FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
+        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
       ],
     );
   }));
@@ -82,7 +83,7 @@ Widget? _action(AppLocalizations l, StatusCheck check, BackupController backups,
     StatusItem.offsiteBackup => TextButton(onPressed: backups.sendOffDevice, child: Text(l.backupSend)),
     StatusItem.activityLog => TextButton(
         onPressed: () {
-          Get.back<void>();
+          goBack<void>();
           shell.select(ShellSection.activity);
         },
         child: Text(l.statusOpenActivity),

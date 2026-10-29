@@ -9,6 +9,7 @@ import '../../../ui/files.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/receipt_actions.dart';
 import '../../../ui/receipt_preview.dart';
+import '../../../ui/dialogs.dart';
 
 /// A staff badge: preview, print on the receipt printer, or send as a PDF
 /// to print on card.
@@ -25,7 +26,7 @@ Future<void> showBadgeDialog(ReceiptDoc doc, String name) => Get.dialog<void>(Bu
             label: Text(l.voucherSend),
           ),
           OutlinedButton.icon(onPressed: () => printOnPaper(doc), icon: const Icon(Icons.print_outlined), label: Text(l.receiptPrint)),
-          FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
+          FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
         ],
         actionsPadding: const EdgeInsets.all(AbySpace.s4),
       );

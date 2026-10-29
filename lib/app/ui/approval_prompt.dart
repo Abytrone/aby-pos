@@ -8,6 +8,7 @@ import '../theme/aby_theme.dart';
 import 'l10n.dart';
 import 'pin_pad.dart';
 import 'permission_labels.dart';
+import 'dialogs.dart';
 
 /// The approval ("manager override") prompt: someone allowed to do
 /// [permission] enters their PIN. Registered as PermissionService.prompter.
@@ -44,7 +45,7 @@ Future<Staff?> showApprovalPrompt(ApprovalNeed need, String reason) {
                     return l10n.pinTooManyTries(e.wait.inSeconds);
                   }
                   if (approver == null) return l10n.approvalWrongPin;
-                  Get.back(result: approver);
+                  goBack(result: approver);
                   return null;
                 },
               ),
@@ -52,7 +53,7 @@ Future<Staff?> showApprovalPrompt(ApprovalNeed need, String reason) {
           ),
         ),
         actions: [
-          OutlinedButton(onPressed: () => Get.back<Staff>(), child: Text(l10n.commonCancel)),
+          OutlinedButton(onPressed: () => goBack<Staff>(), child: Text(l10n.commonCancel)),
         ],
       );
     }),

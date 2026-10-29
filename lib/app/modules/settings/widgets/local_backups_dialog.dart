@@ -6,6 +6,7 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../controllers/backup_controller.dart';
+import '../../../ui/dialogs.dart';
 
 /// The backups kept on this device, newest first, each restorable.
 Future<void> showLocalBackups(BackupController backups) async {
@@ -38,7 +39,7 @@ Future<void> showLocalBackups(BackupController backups) async {
                   ),
                   TextButton(
                     onPressed: () async {
-                      Get.back<void>();
+                      goBack<void>();
                       await backups.restoreLocal(b);
                     },
                     child: Text(l.backupRestore),
@@ -49,7 +50,7 @@ Future<void> showLocalBackups(BackupController backups) async {
           );
         }),
       ),
-      actions: [FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone))],
+      actions: [FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone))],
     );
   }));
 }

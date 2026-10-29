@@ -37,7 +37,7 @@ class StockCountView extends GetView<StockCountController> {
                       );
                       if (ok) {
                         await controller.cancel();
-                        Get.back<void>();
+                        goBack<void>();
                       }
                     },
                     child: Text(l.countCancel),
@@ -56,7 +56,7 @@ class StockCountView extends GetView<StockCountController> {
                               if (!ok) return;
                               final posted = await controller.post();
                               _flush();
-                              if (posted) Get.back<void>();
+                              if (posted) goBack<void>();
                             },
                       child: Text(l.countPost),
                     ),

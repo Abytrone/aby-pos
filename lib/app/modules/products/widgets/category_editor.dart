@@ -9,6 +9,7 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
 import '../../till/widgets/category_dot.dart';
 import '../controllers/catalogue_controller.dart';
+import '../../../ui/dialogs.dart';
 
 /// Name, colour and (optionally) the category it sits in.
 Future<void> showCategoryEditor(CatalogueController controller, [Category? category]) =>
@@ -43,7 +44,7 @@ class _CategoryEditorState extends State<_CategoryEditor> {
     );
     if (!mounted) return;
     setState(() => _saving = false);
-    if (ok) Get.back<void>();
+    if (ok) goBack<void>();
   }
 
   @override
@@ -89,7 +90,7 @@ class _CategoryEditorState extends State<_CategoryEditor> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _saving ? null : _save, child: Text(l.commonSave)),
       ],
     );

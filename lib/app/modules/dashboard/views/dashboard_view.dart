@@ -12,6 +12,7 @@ import '../../../ui/l10n.dart';
 import '../../../ui/section_page.dart';
 import '../../reports/views/reports_view.dart' show changeText;
 import '../controllers/dashboard_controller.dart';
+import '../../../ui/dialogs.dart';
 
 String dashboardCardLabel(AppLocalizations l, DashboardCard c) => switch (c) {
       DashboardCard.insights => l.insightsTitle,
@@ -173,11 +174,11 @@ class _ArrangeState extends State<_Arrange> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(
           onPressed: () async {
             await widget.ctl.setLayout([for (final c in _order) if (_shown.contains(c)) c]);
-            Get.back<void>();
+            goBack<void>();
           },
           child: Text(l.commonSave),
         ),

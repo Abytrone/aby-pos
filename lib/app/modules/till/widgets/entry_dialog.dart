@@ -9,6 +9,7 @@ import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
 import '../controllers/till_controller.dart';
+import '../../../ui/dialogs.dart';
 
 /// The price for an open-price product and / or the weight for a weighed
 /// one, before it goes in the cart.
@@ -86,7 +87,7 @@ class _EntryDialogState extends State<_EntryDialog> {
   void _confirm() {
     final error = widget.controller.confirmEntry(price: _priceValue, amount: _amountValue);
     if (error == null) {
-      Get.back<void>();
+      goBack<void>();
     } else {
       setState(() => _error = error);
     }
@@ -156,7 +157,7 @@ class _EntryDialogState extends State<_EntryDialog> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _confirm, child: Text(l.entryAdd)),
       ],
     );

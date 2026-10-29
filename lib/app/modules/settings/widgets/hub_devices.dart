@@ -339,7 +339,7 @@ class _OfferDialog extends StatelessWidget {
           ]);
         }),
       ),
-      actions: [FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone))],
+      actions: [FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone))],
     );
   }
 }

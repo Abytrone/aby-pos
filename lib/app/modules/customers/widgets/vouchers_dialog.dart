@@ -20,6 +20,7 @@ import '../../../ui/files.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/receipt_actions.dart';
+import '../../../ui/dialogs.dart';
 
 /// Customers → Gift vouchers: what is out there, and selling a new one.
 Future<void> showVouchers() => Get.dialog<void>(const _Vouchers());
@@ -92,7 +93,7 @@ class _VouchersState extends State<_Vouchers> {
       ),
       actions: [
         OutlinedButton.icon(onPressed: _sell, icon: const Icon(Icons.card_giftcard), label: Text(l.voucherSell)),
-        FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
+        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
       ],
     );
   }
@@ -163,7 +164,7 @@ class _SellVoucherState extends State<_SellVoucher> {
         by: auth.authority,
       );
       if (method.isCash) printService?.openDrawer();
-      Get.back(result: voucher);
+      goBack(result: voucher);
     } on VoucherException catch (e) {
       setState(() {
         _error = e.message;
@@ -226,7 +227,7 @@ class _SellVoucherState extends State<_SellVoucher> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _saving ? null : _save, child: Text(l.voucherSellButton)),
       ],
     );
@@ -277,7 +278,7 @@ class _VoucherCard extends StatelessWidget {
           icon: const Icon(Icons.print_outlined),
           label: Text(l.receiptPrint),
         ),
-        FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
+        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
       ],
     );
   }

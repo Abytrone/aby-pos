@@ -11,6 +11,7 @@ import '../../../services/settings_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/dialogs.dart';
 
 /// "Pieces", "Weight (g, kg)", "Volume (ml, L)".
 String unitLabel(AppLocalizations l, StockUnit u) => switch (u) {
@@ -89,7 +90,7 @@ class _EditorState extends State<_Editor> {
     ));
     if (!mounted) return;
     setState(() => _saving = false);
-    if (ok) Get.back<void>();
+    if (ok) goBack<void>();
   }
 
   @override
@@ -168,7 +169,7 @@ class _EditorState extends State<_Editor> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _saving ? null : _save, child: Text(l.commonSave)),
       ],
     );

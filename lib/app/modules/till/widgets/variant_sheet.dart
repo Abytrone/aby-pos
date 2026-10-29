@@ -8,6 +8,7 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/option_chip.dart';
 import '../controllers/till_controller.dart';
+import '../../../ui/dialogs.dart';
 
 /// "Pick 1", "Up to 3", "Pick 1 to 2", "Optional".
 String groupRule(AppLocalizations l, OptionGroup g) {
@@ -90,14 +91,14 @@ class VariantSheet extends GetView<TillController> {
                 const SizedBox(height: AbySpace.s6),
                 Row(
                   children: [
-                    OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+                    OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
                     const SizedBox(width: AbySpace.s3),
                     Expanded(
                       child: FilledButton(
                         onPressed: controller.pickerValid
                             ? () {
                                 controller.confirmPick();
-                                Get.back<void>();
+                                goBack<void>();
                               }
                             : null,
                         child: Text(controller.pickerLineKey == null

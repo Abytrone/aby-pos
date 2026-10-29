@@ -13,6 +13,7 @@ import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/dialogs.dart';
 
 String promotionKindLabel(AppLocalizations l, PromotionKind k) => switch (k) {
       PromotionKind.percentOff => l.promoKindPercent,
@@ -146,7 +147,7 @@ class _PromotionsState extends State<_Promotions> {
       ),
       actions: [
         OutlinedButton.icon(onPressed: () => _edit(), icon: const Icon(Icons.add), label: Text(l.promoNew)),
-        FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
+        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
       ],
     );
   }
@@ -238,10 +239,10 @@ class _TargetPickerState extends State<_TargetPicker> {
         ]),
       ),
       actions: [
-        TextButton(onPressed: () => Get.back(result: const PromoTarget()), child: Text(l.promoEverything)),
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        TextButton(onPressed: () => goBack(result: const PromoTarget()), child: Text(l.promoEverything)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(
-          onPressed: () => Get.back(result: PromoTarget(products: _products, categories: _categories)),
+          onPressed: () => goBack(result: PromoTarget(products: _products, categories: _categories)),
           child: Text(l.commonDone),
         ),
       ],
@@ -354,14 +355,14 @@ class _PromotionEditorState extends State<_PromotionEditor> {
       ),
       by: auth.authority,
     );
-    Get.back(result: true);
+    goBack(result: true);
   }
 
   Future<void> _delete() async {
     final auth = await _authorize();
     if (auth == null) return;
     await Get.find<PromotionRepository>().delete(_p!.id, by: auth.authority);
-    Get.back(result: true);
+    goBack(result: true);
   }
 
   Future<DateTime?> _pickDate(DateTime? current) => showDatePicker(
@@ -592,7 +593,7 @@ class _PromotionEditorState extends State<_PromotionEditor> {
       ),
       actions: [
         if (_p != null) TextButton(onPressed: _delete, child: Text(l.commonDelete, style: TextStyle(color: c.danger))),
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _save, child: Text(l.commonSave)),
       ],
     );

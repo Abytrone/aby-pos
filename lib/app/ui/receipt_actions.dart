@@ -79,13 +79,13 @@ class _SendReceiptState extends State<_SendReceipt> {
       setState(() => _error = l.customerCannotOpen);
       return;
     }
-    Get.back<void>();
+    goBack<void>();
   }
 
   Future<void> _pdf() async {
     final bytes = await ReceiptPdf.build(widget.doc);
     final name = '${widget.doc.title.replaceAll(RegExp(r'[^A-Za-z0-9]+'), '_')}.pdf';
-    if (await shareOrSaveBytes(name, bytes)) Get.back<void>();
+    if (await shareOrSaveBytes(name, bytes)) goBack<void>();
   }
 
   @override
@@ -109,7 +109,7 @@ class _SendReceiptState extends State<_SendReceipt> {
           ]),
         ]),
       ),
-      actions: [OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel))],
+      actions: [OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel))],
     );
   }
 }

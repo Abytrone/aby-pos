@@ -42,7 +42,7 @@ class ReceiveView extends StatelessWidget {
                     ? null
                     : () async {
                         if (await ctl.save()) {
-                          Get.back<void>();
+                          goBack<void>();
                           showMessage(l.receiveDone(ctl.lastReceipt!.displayNumber));
                           // Price stickers for what came in.
                           final counts = await labelCountsFor(ctl.received);

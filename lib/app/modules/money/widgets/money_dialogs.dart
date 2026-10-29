@@ -63,7 +63,7 @@ class _ExpenseDialogState extends State<_ExpenseDialog> {
       photo: _photo,
     );
     if (error == null) {
-      Get.back<void>();
+      goBack<void>();
     } else {
       setState(() => _error = error);
     }
@@ -154,7 +154,7 @@ class _ExpenseDialogState extends State<_ExpenseDialog> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _save, child: Text(l.commonSave)),
       ],
     );
@@ -218,7 +218,7 @@ class _RecurringListState extends State<_RecurringList> {
       ),
       actions: [
         OutlinedButton.icon(onPressed: () => _edit(), icon: const Icon(Icons.add), label: Text(l.recurringNew)),
-        FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
+        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
       ],
     );
   }
@@ -301,7 +301,7 @@ class _RecurringEditorState extends State<_RecurringEditor> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<bool>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<bool>(), child: Text(l.commonCancel)),
         FilledButton(
           onPressed: () async {
             final amount = parseMoney(_amount.text);
@@ -316,7 +316,7 @@ class _RecurringEditorState extends State<_RecurringEditor> {
               paidFrom: _source,
             );
             if (error == null) {
-              Get.back(result: true);
+              goBack(result: true);
             } else {
               setState(() => _error = error);
             }
@@ -388,7 +388,7 @@ class _CategoriesState extends State<_Categories> {
       ),
       actions: [
         OutlinedButton.icon(onPressed: () => _edit(), icon: const Icon(Icons.add), label: Text(l.expenseCategoryNew)),
-        FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
+        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
       ],
     );
   }
@@ -454,14 +454,14 @@ class _OwnerMoneyState extends State<_OwnerMoney> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(
           onPressed: () async {
             final amount = parseMoney(_amount.text);
             if (amount == null || amount <= 0) return setState(() => _error = l.customerAmountInvalid);
             final error = await widget.ctl.ownerMoney(widget.kind, amount, _source, note: _note.text);
             if (error == null) {
-              Get.back<void>();
+              goBack<void>();
             } else {
               setState(() => _error = error);
             }

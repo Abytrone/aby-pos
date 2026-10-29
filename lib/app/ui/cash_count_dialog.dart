@@ -7,6 +7,7 @@ import '../services/money.dart';
 import '../theme/aby_colors.dart';
 import '../theme/aby_theme.dart';
 import 'l10n.dart';
+import 'dialogs.dart';
 
 /// Count the drawer note by note and coin by coin; the total adds up as
 /// you type. Null when cancelled.
@@ -102,8 +103,8 @@ class _CashCountDialogState extends State<_CashCountDialog> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<CashCount>(), child: Text(l.commonCancel)),
-        FilledButton(onPressed: () => Get.back(result: _count), child: Text(l.countCashUse)),
+        OutlinedButton(onPressed: () => goBack<CashCount>(), child: Text(l.commonCancel)),
+        FilledButton(onPressed: () => goBack(result: _count), child: Text(l.countCashUse)),
       ],
     );
   }

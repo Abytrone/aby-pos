@@ -14,6 +14,7 @@ import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
 import '../controllers/settings_controller.dart';
+import '../../../ui/dialogs.dart';
 
 String printerKindLabel(AppLocalizations l, PrinterKind k) => switch (k) {
       PrinterKind.network => l.printerNetwork,
@@ -133,13 +134,13 @@ class _PrinterSetupState extends State<_PrinterSetup> {
       if (!widget.kitchen) (AppSettings.paperWidth, _paper),
     ]);
     if (!ok) return;
-    Get.back<void>();
+    goBack<void>();
     widget.settings.saved();
   }
 
   Future<void> _remove() async {
     if (!await widget.settings.saveAll([(_setting, '')])) return;
-    Get.back<void>();
+    goBack<void>();
     widget.settings.saved();
   }
 
@@ -226,7 +227,7 @@ class _PrinterSetupState extends State<_PrinterSetup> {
       ),
       actions: [
         if (_current != null) TextButton(onPressed: _remove, child: Text(l.printerRemove)),
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _save, child: Text(l.commonSave)),
       ],
     );

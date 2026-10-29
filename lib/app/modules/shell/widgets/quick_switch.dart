@@ -9,6 +9,7 @@ import '../../../ui/permission_labels.dart';
 import '../../../ui/pin_pad.dart';
 import '../../../ui/staff_avatar.dart';
 import '../controllers/shell_controller.dart';
+import '../../../ui/dialogs.dart';
 
 /// Hand the till to someone else without going back to the start screen.
 /// The cart stays.
@@ -49,7 +50,7 @@ Future<void> showQuickSwitch(ShellController controller) async {
                     title: l.pinFor(person.name),
                     onSubmit: (pin) async {
                       final error = await controller.switchTo(person, pin);
-                      if (error == null) Get.back<void>();
+                      if (error == null) goBack<void>();
                       return error;
                     },
                   ),
@@ -60,7 +61,7 @@ Future<void> showQuickSwitch(ShellController controller) async {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
       ],
     );
   }));

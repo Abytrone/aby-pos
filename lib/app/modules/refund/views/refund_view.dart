@@ -11,6 +11,7 @@ import '../../../ui/l10n.dart';
 import '../../../ui/option_chip.dart';
 import '../../../ui/receipt_actions.dart';
 import '../controllers/refund_controller.dart';
+import '../../../ui/dialogs.dart';
 
 class RefundView extends GetView<RefundController> {
   const RefundView({super.key});
@@ -276,7 +277,7 @@ class _Done extends StatelessWidget {
               label: Text(l.refundPrintSlip),
             ),
             const SizedBox(height: AbySpace.s2),
-            FilledButton(autofocus: true, onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
+            FilledButton(autofocus: true, onPressed: () => goBack<void>(), child: Text(l.commonDone)),
           ]),
         ),
       ),

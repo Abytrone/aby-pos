@@ -104,7 +104,7 @@ class _ScreenLinksState extends State<_ScreenLinks> {
             },
             child: Text(l.screensNewLinks),
           ),
-        FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
+        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
       ],
     );
   }

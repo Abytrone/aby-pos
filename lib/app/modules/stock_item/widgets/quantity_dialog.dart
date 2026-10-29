@@ -9,6 +9,7 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
 import '../controllers/stock_item_controller.dart';
 import '../views/stock_item_view.dart' show wasteLabel;
+import '../../../ui/dialogs.dart';
 
 enum QuantityMode { adjust, waste }
 
@@ -48,7 +49,7 @@ class _QuantityDialogState extends State<_QuantityDialog> {
         ? await _ctl.logWaste(_amount.text, _unit, reason: _reason, note: _note.text)
         : await _ctl.adjust(_amount.text, _unit, add: _add, note: _note.text);
     if (ok) {
-      Get.back<void>();
+      goBack<void>();
     } else if (mounted) {
       setState(() => _error = _ctl.message.value);
       _ctl.message.value = null;
@@ -118,7 +119,7 @@ class _QuantityDialogState extends State<_QuantityDialog> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _save, child: Text(l.commonSave)),
       ],
     );

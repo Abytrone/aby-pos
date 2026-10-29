@@ -39,7 +39,7 @@ class ProductEditorView extends StatelessWidget {
                     ? null
                     : () async {
                         if (await ctl.save()) {
-                          Get.back<void>();
+                          goBack<void>();
                           showMessage(l.editorSaved);
                         }
                       },

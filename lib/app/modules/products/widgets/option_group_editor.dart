@@ -10,6 +10,7 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
 import '../controllers/catalogue_controller.dart';
 import 'recipe_lines.dart';
+import '../../../ui/dialogs.dart';
 
 /// A group of options (toppings, sugar level) with its rules.
 Future<void> showOptionGroupEditor(CatalogueController controller, [OptionGroup? group]) =>
@@ -115,7 +116,7 @@ class _GroupEditorState extends State<_GroupEditor> {
       options: options,
     ));
     if (ok) {
-      Get.back<void>();
+      goBack<void>();
     } else {
       setState(() => _error = widget.controller.message.value);
       widget.controller.message.value = null;
@@ -258,7 +259,7 @@ class _GroupEditorState extends State<_GroupEditor> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _save, child: Text(l.commonSave)),
       ],
     );

@@ -152,7 +152,7 @@ Future<void> showTransfer(StockTransfer t) => Get.dialog<void>(Builder(builder: 
                   danger: true,
                 );
                 if (!ok) return;
-                Get.back<void>();
+                goBack<void>();
                 await _guard(() => Get.find<TransferRepository>().cancel(t.id, by: Get.find<AuthService>().user));
               },
               child: Text(l.transferCallBack),
@@ -160,12 +160,12 @@ Future<void> showTransfer(StockTransfer t) => Get.dialog<void>(Builder(builder: 
           if (waiting && t.toBranch == here && canReceiveTransfer)
             FilledButton(
               onPressed: () {
-                Get.back<void>();
+                goBack<void>();
                 unawaited(showReceiveTransfer(t));
               },
               child: Text(l.transferReceive),
             ),
-          OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
+          OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
         ],
       );
     }));
@@ -215,7 +215,7 @@ Future<void> showReceiveTransfer(StockTransfer t) async {
           ),
         ),
         actions: [
-          OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+          OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
           FilledButton(
             onPressed: () {
               final out = <String, int>{};
@@ -224,7 +224,7 @@ Future<void> showReceiveTransfer(StockTransfer t) async {
                 if (q == null || q < 0) return setState(() => error = l.receiveLineInvalid(line.itemName));
                 out[line.id] = q;
               }
-              Get.back(result: out);
+              goBack(result: out);
             },
             child: Text(l.transferReceive),
           ),
@@ -309,7 +309,7 @@ class _NewTransferState extends State<_NewTransfer> {
         note: _note.text,
         by: Get.find<AuthService>().user,
       );
-      Get.back(result: t);
+      goBack(result: t);
     } on StockException catch (e) {
       setState(() {
         _error = e.message;
@@ -395,7 +395,7 @@ class _NewTransferState extends State<_NewTransfer> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _saving ? null : _send, child: Text(l.transferSend)),
       ],
     );

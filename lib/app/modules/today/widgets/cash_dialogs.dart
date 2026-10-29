@@ -21,6 +21,7 @@ import '../../../ui/option_chip.dart';
 import '../../../ui/photo_picker.dart';
 import '../../../ui/receipt_actions.dart';
 import '../../close_day/widgets/period_summary.dart';
+import '../../../ui/dialogs.dart';
 
 /// Opening float: typed, or counted note by note. Null when cancelled.
 Future<(int, CashCount?)?> showOpenShift({int suggested = 0}) => Get.dialog<(int, CashCount?)>(_OpenShift(suggested: suggested));
@@ -88,12 +89,12 @@ class _OpenShiftState extends State<_OpenShift> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<(int, CashCount?)>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<(int, CashCount?)>(), child: Text(l.commonCancel)),
         FilledButton(
           onPressed: () {
             final v = _float.text.trim().isEmpty ? 0 : parseMoney(_float.text);
             if (v == null) return setState(() => _error = l.customerAmountInvalid);
-            Get.back(result: (v, _count));
+            goBack(result: (v, _count));
           },
           child: Text(l.shiftOpen),
         ),
@@ -125,7 +126,7 @@ Future<void> showXReport(OpenPeriod period) => Get.dialog<void>(Builder(builder:
             icon: const Icon(Icons.print_outlined),
             label: Text(l.receiptPrint),
           ),
-          FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
+          FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
         ],
       );
     }));
@@ -234,13 +235,13 @@ class _PayInOutState extends State<_PayInOut> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<CashMove>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<CashMove>(), child: Text(l.commonCancel)),
         FilledButton(
           onPressed: () {
             final amount = parseMoney(_amount.text);
             if (amount == null || amount <= 0) return setState(() => _error = l.customerAmountInvalid);
             if (_reason == null) return setState(() => _error = l.refundPickReason);
-            Get.back(result: CashMove(amount, _reason!, _note.text, _photo, _expense));
+            goBack(result: CashMove(amount, _reason!, _note.text, _photo, _expense));
           },
           child: Text(l.commonSave),
         ),

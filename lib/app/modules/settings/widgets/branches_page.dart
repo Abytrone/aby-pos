@@ -205,9 +205,9 @@ class _BranchDialogState extends State<_BranchDialog> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(
-          onPressed: () => Get.back(
+          onPressed: () => goBack(
             result: BranchDraft(id: widget.branch?.id, name: _name.text, address: _address.text, phone: _phone.text),
           ),
           child: Text(l.commonSave),

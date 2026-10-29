@@ -14,6 +14,7 @@ import '../../../ui/l10n.dart';
 import '../../../ui/photo_picker.dart';
 import '../../../ui/section_page.dart';
 import '../controllers/safe_controller.dart';
+import '../../../ui/dialogs.dart';
 
 class SafeView extends GetView<SafeController> {
   const SafeView({super.key});
@@ -145,12 +146,12 @@ class _DepositDialogState extends State<_DepositDialog> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(
           onPressed: () async {
             final error = await widget.controller.deposit(_amount.text, bank: _bank.text, reference: _reference.text, slip: _slip);
             if (error == null) {
-              Get.back<void>();
+              goBack<void>();
             } else {
               setState(() => _error = error);
             }

@@ -12,6 +12,7 @@ import '../../../ui/l10n.dart';
 import '../controllers/till_controller.dart';
 import '../views/till_view.dart' show showPicker;
 import 'discount_dialog.dart';
+import '../../../ui/dialogs.dart';
 
 /// Change one cart line: quantity (or weight), price, discount, note, the
 /// size and options, or take it off.
@@ -74,7 +75,7 @@ class _LineEditorState extends State<_LineEditor> {
   void _changePick() {
     final current = line;
     if (current == null) return;
-    Get.back<void>();
+    goBack<void>();
     till.openPicker(current.product, editing: current);
     showPicker(context, till);
   }
@@ -82,7 +83,7 @@ class _LineEditorState extends State<_LineEditor> {
   Future<void> _done() async {
     final l = context.l10n;
     final current = line;
-    if (current == null) return Get.back<void>();
+    if (current == null) return goBack<void>();
     final quantity = current.weighed ? parseQuantity(_quantity.text, _unit) : int.tryParse(_quantity.text.trim());
     if (quantity == null || quantity < 1) {
       return setState(() => _error = current.weighed ? l.tillWeightInvalid : l.lineQuantityInvalid);
@@ -95,12 +96,12 @@ class _LineEditorState extends State<_LineEditor> {
     }
     till.cart.setQuantity(widget.lineKey, quantity);
     till.cart.setLineNote(widget.lineKey, _note.text);
-    Get.back<void>();
+    goBack<void>();
   }
 
   Future<void> _remove() async {
     till.cart.remove(widget.lineKey);
-    Get.back<void>();
+    goBack<void>();
   }
 
   @override
@@ -211,7 +212,7 @@ class _LineEditorState extends State<_LineEditor> {
           style: TextButton.styleFrom(foregroundColor: c.danger),
           child: Text(l.lineRemove),
         ),
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _done, child: Text(l.commonDone)),
       ],
     );

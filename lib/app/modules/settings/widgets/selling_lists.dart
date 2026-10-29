@@ -102,7 +102,7 @@ class _SavedDiscountsState extends State<_SavedDiscounts> {
       ),
       actions: [
         OutlinedButton.icon(onPressed: () => _edit(), icon: const Icon(Icons.add), label: Text(l.discountNew)),
-        FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
+        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
       ],
     );
   }
@@ -154,7 +154,7 @@ class _DiscountEditorState extends State<_DiscountEditor> {
         scope: _scope,
         by: auth.authority,
       );
-      Get.back(result: true);
+      goBack(result: true);
     } on DiscountException catch (e) {
       setState(() => _error = e.message);
     }
@@ -214,7 +214,7 @@ class _DiscountEditorState extends State<_DiscountEditor> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<bool>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<bool>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _save, child: Text(l.commonSave)),
       ],
     );
@@ -289,7 +289,7 @@ class _ReasonsState extends State<_Reasons> {
       ),
       actions: [
         OutlinedButton.icon(onPressed: () => _edit(), icon: const Icon(Icons.add), label: Text(l.reasonNew)),
-        FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone)),
+        FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
       ],
     );
   }

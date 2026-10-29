@@ -108,7 +108,7 @@ class _RecipeDialogState extends State<_RecipeDialog> {
   Future<void> _save({bool stop = false}) async {
     final l = context.l10n;
     if (stop) {
-      if (await _ctl.saveProduction(null, const [])) Get.back<void>();
+      if (await _ctl.saveProduction(null, const [])) goBack<void>();
       return;
     }
     final batch = parseQuantity(_yield.text, _bulk);
@@ -121,7 +121,7 @@ class _RecipeDialogState extends State<_RecipeDialog> {
     }
     if (lines.isEmpty) return setState(() => _error = l.produceNeedsIngredients);
     if (await _ctl.saveProduction(batch, lines)) {
-      Get.back<void>();
+      goBack<void>();
     } else {
       setState(() => _error = _ctl.message.value);
       _ctl.message.value = null;
@@ -197,7 +197,7 @@ class _RecipeDialogState extends State<_RecipeDialog> {
       actions: [
         if (_ctl.production.value != null)
           TextButton(onPressed: () => _save(stop: true), child: Text(l.produceStop, style: TextStyle(color: c.danger))),
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _save, child: Text(l.commonSave)),
       ],
     );
@@ -255,12 +255,12 @@ class _ProduceDialogState extends State<_ProduceDialog> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(
           onPressed: made <= 0
               ? null
               : () async {
-                  if (await _ctl.produce(_amount.text, _bulk, note: _note.text)) Get.back<void>();
+                  if (await _ctl.produce(_amount.text, _bulk, note: _note.text)) goBack<void>();
                 },
           child: Text(l.produceRecord),
         ),

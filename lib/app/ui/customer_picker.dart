@@ -12,6 +12,7 @@ import '../services/money.dart';
 import '../theme/aby_colors.dart';
 import '../theme/aby_theme.dart';
 import 'l10n.dart';
+import 'dialogs.dart';
 
 /// Find a customer by phone (4 digits are enough) or name, or add one with
 /// just a name and phone. Null when cancelled.
@@ -70,7 +71,7 @@ class _CustomerPickerState extends State<_CustomerPicker> {
   Future<void> _add() async {
     try {
       final id = await _repo.save(CustomerDraft(name: _name.text, phone: _phone.text), by: Get.find<AuthService>().user);
-      Get.back(result: await _repo.find(id));
+      goBack(result: await _repo.find(id));
     } on CustomerException catch (e) {
       setState(() => _error = e.message);
     }
@@ -129,7 +130,7 @@ class _CustomerPickerState extends State<_CustomerPicker> {
                                 if (x.owed > 0) l.customerOwes(formatMoney(x.owed)),
                                 if (x.wallet > 0) l.customerWallet(formatMoney(x.wallet)),
                               ].join('  ·  ')),
-                              onTap: () => Get.back(result: x),
+                              onTap: () => goBack(result: x),
                             );
                           },
                         ),
@@ -137,7 +138,7 @@ class _CustomerPickerState extends State<_CustomerPicker> {
               ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<Customer>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<Customer>(), child: Text(l.commonCancel)),
         if (_adding)
           FilledButton(onPressed: _add, child: Text(l.commonSave))
         else if (canAdd)

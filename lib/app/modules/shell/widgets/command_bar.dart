@@ -26,6 +26,7 @@ import '../../till/views/till_view.dart' show showPicker;
 import '../../till/widgets/entry_dialog.dart';
 import '../../today/controllers/today_controller.dart';
 import '../controllers/shell_controller.dart';
+import '../../../ui/dialogs.dart';
 
 /// One thing the command bar found, with what can be done with it.
 class CommandResult {
@@ -100,7 +101,7 @@ class _CommandBarState extends State<_CommandBar> {
 
   /// Leaves the bar, then does [action].
   FutureOr<void> Function() _then(FutureOr<void> Function() action) => () async {
-        Get.back<void>();
+        goBack<void>();
         await action();
       };
 

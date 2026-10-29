@@ -16,6 +16,7 @@ import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
 import '../controllers/settings_controller.dart';
+import '../../../ui/dialogs.dart';
 
 /// Scales this device can talk to: COM ports on Windows, Bluetooth on
 /// Android.
@@ -107,13 +108,13 @@ class _ScaleSetupState extends State<_ScaleSetup> {
     final t = _target;
     if (t == null) return _say(context.l10n.scaleChooseFirst, failed: true);
     if (!await widget.settings.saveAll([(AppSettings.scale, t.encode())])) return;
-    Get.back<void>();
+    goBack<void>();
     widget.settings.saved();
   }
 
   Future<void> _remove() async {
     if (!await widget.settings.saveAll([(AppSettings.scale, '')])) return;
-    Get.back<void>();
+    goBack<void>();
     widget.settings.saved();
   }
 
@@ -178,7 +179,7 @@ class _ScaleSetupState extends State<_ScaleSetup> {
       ),
       actions: [
         if (_current != null) TextButton(onPressed: _remove, child: Text(l.scaleRemove)),
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _save, child: Text(l.commonSave)),
       ],
     );
@@ -222,7 +223,7 @@ Future<void> showNotificationChoices() async {
             ),
         ]),
       ),
-      actions: [FilledButton(onPressed: () => Get.back<void>(), child: Text(l.commonDone))],
+      actions: [FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone))],
     );
   }));
 }

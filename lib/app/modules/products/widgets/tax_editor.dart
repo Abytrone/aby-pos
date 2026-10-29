@@ -7,6 +7,7 @@ import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
 import '../controllers/catalogue_controller.dart';
+import '../../../ui/dialogs.dart';
 
 Future<void> showTaxEditor(CatalogueController controller, [TaxRate? rate]) =>
     Get.dialog<void>(_TaxEditor(controller: controller, rate: rate));
@@ -43,7 +44,7 @@ class _TaxEditorState extends State<_TaxEditor> {
     final ok = await widget.controller.saveTaxRate(
       TaxRateDraft(id: widget.rate?.id, name: _name.text, rateBp: bp, compound: _compound),
     );
-    if (ok) Get.back<void>();
+    if (ok) goBack<void>();
   }
 
   @override
@@ -76,7 +77,7 @@ class _TaxEditorState extends State<_TaxEditor> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _save, child: Text(l.commonSave)),
       ],
     );

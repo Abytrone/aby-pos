@@ -10,6 +10,7 @@ import '../../../ui/l10n.dart';
 import '../../../ui/permission_labels.dart';
 import '../../../ui/staff_avatar.dart';
 import '../controllers/staff_profile_controller.dart';
+import '../../../ui/dialogs.dart';
 
 /// Photo, name, role and status, with the main actions.
 class ProfileHeader extends GetView<StaffProfileController> {
@@ -124,7 +125,7 @@ class ProfileHeader extends GetView<StaffProfileController> {
               leading: const Icon(Icons.photo_camera_outlined),
               title: Text(l.profileTakePhoto),
               onTap: () {
-                Get.back<void>();
+                goBack<void>();
                 controller.pickPhoto(ImageSource.camera);
               },
             ),
@@ -133,7 +134,7 @@ class ProfileHeader extends GetView<StaffProfileController> {
             leading: const Icon(Icons.photo_library_outlined),
             title: Text(l.profileChoosePhoto),
             onTap: () {
-              Get.back<void>();
+              goBack<void>();
               controller.pickPhoto(ImageSource.gallery);
             },
           ),
@@ -143,7 +144,7 @@ class ProfileHeader extends GetView<StaffProfileController> {
               leading: const Icon(Icons.delete_outline),
               title: Text(l.profileRemovePhoto),
               onTap: () {
-                Get.back<void>();
+                goBack<void>();
                 controller.removePhoto();
               },
             ),

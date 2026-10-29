@@ -274,10 +274,10 @@ class _VoidDialogState extends State<_VoidDialog> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<String>(), child: Text(l.voidKeep)),
+        OutlinedButton(onPressed: () => goBack<String>(), child: Text(l.voidKeep)),
         FilledButton(
           style: FilledButton.styleFrom(backgroundColor: c.danger),
-          onPressed: _reason == null ? null : () => Get.back(result: _reason),
+          onPressed: _reason == null ? null : () => goBack(result: _reason),
           child: Text(l.voidConfirm),
         ),
       ],

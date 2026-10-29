@@ -168,7 +168,7 @@ class _LabelsState extends State<_Labels> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton.icon(
           onPressed: total == 0 || _busy ? null : _print,
           icon: const Icon(Icons.print_outlined),

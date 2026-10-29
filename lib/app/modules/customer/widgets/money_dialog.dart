@@ -8,6 +8,7 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/option_chip.dart';
 import '../../../services/money.dart';
+import '../../../ui/dialogs.dart';
 
 /// Money in from a customer (a repayment or a wallet top-up): amount, how
 /// it was paid, the reference and, for repayments, which sale it is for.
@@ -62,7 +63,7 @@ class _MoneyDialogState extends State<_MoneyDialog> {
     final error = await widget.onSave(_amount.text, m, m.needsReference ? _reference.text : null, _saleId);
     if (!mounted) return;
     if (error == null) {
-      Get.back<void>();
+      goBack<void>();
     } else {
       setState(() {
         _error = error;
@@ -124,7 +125,7 @@ class _MoneyDialogState extends State<_MoneyDialog> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _saving ? null : _save, child: Text(l.commonSave)),
       ],
     );

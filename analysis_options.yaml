@@ -7,6 +7,8 @@ analyzer:
     - windows/**
     - brand/** # the source brand kit; lib/app/theme/ holds the copy we use
     - lib/**/*.g.dart
+    - ios/**
+    - macos/**
   errors:
     # The brand kit's aby_colors.dart (copied as-is) writes extension<AbyColors>
     # in a doc comment.

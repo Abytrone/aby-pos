@@ -9,6 +9,7 @@ import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/dialogs.dart';
 
 /// Add or change a customer. [onSave] returns true when saved.
 Future<void> showCustomerForm({Customer? customer, required Future<bool> Function(CustomerDraft) onSave}) =>
@@ -61,7 +62,7 @@ class _CustomerFormState extends State<_CustomerForm> {
       creditLimit: limit,
       dueDays: int.tryParse(_days.text.trim()),
     ));
-    if (ok) Get.back<void>();
+    if (ok) goBack<void>();
   }
 
   @override
@@ -144,7 +145,7 @@ class _CustomerFormState extends State<_CustomerForm> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(onPressed: _save, child: Text(l.commonSave)),
       ],
     );

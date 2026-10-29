@@ -4,6 +4,14 @@ import 'package:get/get.dart';
 import '../theme/aby_colors.dart';
 import 'l10n.dart';
 
+/// Closes the top dialog, sheet or page with [result]. Use this, not
+/// Get.back: while a message from [showMessage] is up, Get.back closes the
+/// message and leaves the dialog open.
+void goBack<T>({T? result}) {
+  final navigator = Get.key.currentState;
+  if (navigator != null && navigator.canPop()) navigator.pop<T>(result);
+}
+
 /// Yes/no question. [danger] colours the confirm button red.
 Future<bool> confirmDialog({
   required String title,
@@ -19,12 +27,12 @@ Future<bool> confirmDialog({
       content: Text(message),
       actions: [
         OutlinedButton(
-          onPressed: () => Get.back(result: false),
+          onPressed: () => goBack(result: false),
           child: Text(cancelLabel ?? context.l10n.commonCancel),
         ),
         FilledButton(
           style: danger ? FilledButton.styleFrom(backgroundColor: c.danger) : null,
-          onPressed: () => Get.back(result: true),
+          onPressed: () => goBack(result: true),
           child: Text(confirmLabel),
         ),
       ],
@@ -105,7 +113,7 @@ class _TextInputDialogState extends State<_TextInputDialog> {
   void _submit() {
     final message = widget.validate?.call(_field.text);
     if (message != null) return setState(() => _error = message);
-    Get.back(result: _field.text);
+    goBack(result: _field.text);
   }
 
   @override
@@ -129,7 +137,7 @@ class _TextInputDialogState extends State<_TextInputDialog> {
         ),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<String>(), child: Text(context.l10n.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<String>(), child: Text(context.l10n.commonCancel)),
         FilledButton(onPressed: _submit, child: Text(widget.confirmLabel ?? context.l10n.commonSave)),
       ],
     );
@@ -152,7 +160,7 @@ Future<T?> choiceDialog<T>({
             minTileHeight: 56,
             title: Text(label(option)),
             trailing: option == selected ? const Icon(Icons.check) : null,
-            onTap: () => Get.back(result: option),
+            onTap: () => goBack(result: option),
           ),
       ],
     );
@@ -183,5 +191,5 @@ void showProgress(String message) {
 void hideProgress() {
   if (!_progressOpen) return;
   _progressOpen = false;
-  if (Get.isDialogOpen ?? false) Get.back<void>();
+  if (Get.isDialogOpen ?? false) goBack<void>();
 }

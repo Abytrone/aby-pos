@@ -6,6 +6,7 @@ import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
 import '../controllers/till_controller.dart';
+import '../../../ui/dialogs.dart';
 
 /// Pick the products on the Quick tab and drag them into order.
 Future<void> showQuickArrange(TillController controller) =>
@@ -80,11 +81,11 @@ class _QuickArrangeState extends State<_QuickArrange> {
         ]),
       ),
       actions: [
-        OutlinedButton(onPressed: () => Get.back<void>(), child: Text(l.commonCancel)),
+        OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
         FilledButton(
           onPressed: () async {
             await widget.controller.arrangeQuickTab([for (final p in _chosen) p.id]);
-            Get.back<void>();
+            goBack<void>();
           },
           child: Text(l.commonSave),
         ),
