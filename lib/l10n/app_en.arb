@@ -4073,5 +4073,22 @@
         "type": "String"
       }
     }
-  }
+  },
+  "auditAccountsExported": "Accountant pack saved",
+  "accountsMonthly": "Save the accountant's pack every month",
+  "accountsMonthlyHelp": "On the 1st, last month's pack (sales, payments, expenses, purchases, tax and stock, every branch) is saved on this device.",
+  "accountsFolder": "Where the packs are saved",
+  "accountsFolderInApp": "Kept in the app on this device. Use Share to send one.",
+  "accountsShareLatest": "Share the latest pack",
+  "accountsNone": "No pack saved yet.",
+  "accountsSaved": "Accountant pack saved: {name}",
+  "@accountsSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "statusAccounts": "Accountant pack",
+  "statusAccountsFailed": "The last pack could not be saved. Check the folder in Settings, Data."
 }

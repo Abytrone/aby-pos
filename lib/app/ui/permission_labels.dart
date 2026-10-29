@@ -71,6 +71,7 @@ String auditActionLabel(AppLocalizations l, AuditAction a) => switch (a) {
       AuditAction.backupCreated => l.auditBackupCreated,
       AuditAction.backupExported => l.auditBackupExported,
       AuditAction.backupRestored => l.auditBackupRestored,
+      AuditAction.accountsExported => l.auditAccountsExported,
       AuditAction.productCreated => l.auditProductCreated,
       AuditAction.productUpdated => l.auditProductUpdated,
       AuditAction.productArchived => l.auditProductArchived,

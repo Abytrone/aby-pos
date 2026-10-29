@@ -10659,6 +10659,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Only {qty} of {item} here.'**
   String transferNotEnough(String item, String qty);
+
+  /// No description provided for @auditAccountsExported.
+  ///
+  /// In en, this message translates to:
+  /// **'Accountant pack saved'**
+  String get auditAccountsExported;
+
+  /// No description provided for @accountsMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the accountant\'s pack every month'**
+  String get accountsMonthly;
+
+  /// No description provided for @accountsMonthlyHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'On the 1st, last month\'s pack (sales, payments, expenses, purchases, tax and stock, every branch) is saved on this device.'**
+  String get accountsMonthlyHelp;
+
+  /// No description provided for @accountsFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Where the packs are saved'**
+  String get accountsFolder;
+
+  /// No description provided for @accountsFolderInApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept in the app on this device. Use Share to send one.'**
+  String get accountsFolderInApp;
+
+  /// No description provided for @accountsShareLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the latest pack'**
+  String get accountsShareLatest;
+
+  /// No description provided for @accountsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No pack saved yet.'**
+  String get accountsNone;
+
+  /// No description provided for @accountsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Accountant pack saved: {name}'**
+  String accountsSaved(String name);
+
+  /// No description provided for @statusAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Accountant pack'**
+  String get statusAccounts;
+
+  /// No description provided for @statusAccountsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The last pack could not be saved. Check the folder in Settings, Data.'**
+  String get statusAccountsFailed;
 }
 
 class _AppLocalizationsDelegate

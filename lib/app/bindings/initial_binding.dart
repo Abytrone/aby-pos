@@ -39,6 +39,7 @@ import '../domain/catalogue_rules.dart';
 import '../modules/till/controllers/cart_controller.dart';
 import '../services/alert_service.dart';
 import '../services/auth_service.dart';
+import '../services/accounts_export_service.dart';
 import '../services/backup/backup_service.dart';
 import '../services/backup/branch_merge.dart';
 import '../services/branch_service.dart';
@@ -145,6 +146,17 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => BranchMerge(db, audit, backups), fenix: true);
     Get.put(PriceScheduler(Get.find()), permanent: true);
     Get.put(PrintService(settings, ReceiptRepository(db), device), permanent: true);
+    // Every branch, whichever one Reports is looking at.
+    Get.put(
+      AccountsExportService(
+        db,
+        ReportRepository(db, Get.find<StockRepository>(), Get.find<CustomerRepository>()),
+        Get.find<ProfitRepository>(),
+        settings,
+        audit,
+      ),
+      permanent: true,
+    );
     Get.put(StatusService(backups, audit, settings, sync), permanent: true);
     final alerts = Get.put(AlertService(db), permanent: true);
     Get.lazyPut(() => InsightService(db, Get.find<StockRepository>(), Get.find<CustomerRepository>()), fenix: true);

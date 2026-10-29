@@ -6333,4 +6333,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String transferNotEnough(String item, String qty) {
     return 'Only $qty of $item here.';
   }
+
+  @override
+  String get auditAccountsExported => 'Accountant pack saved';
+
+  @override
+  String get accountsMonthly => 'Save the accountant\'s pack every month';
+
+  @override
+  String get accountsMonthlyHelp =>
+      'On the 1st, last month\'s pack (sales, payments, expenses, purchases, tax and stock, every branch) is saved on this device.';
+
+  @override
+  String get accountsFolder => 'Where the packs are saved';
+
+  @override
+  String get accountsFolderInApp =>
+      'Kept in the app on this device. Use Share to send one.';
+
+  @override
+  String get accountsShareLatest => 'Share the latest pack';
+
+  @override
+  String get accountsNone => 'No pack saved yet.';
+
+  @override
+  String accountsSaved(String name) {
+    return 'Accountant pack saved: $name';
+  }
+
+  @override
+  String get statusAccounts => 'Accountant pack';
+
+  @override
+  String get statusAccountsFailed =>
+      'The last pack could not be saved. Check the folder in Settings, Data.';
 }

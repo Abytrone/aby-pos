@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../core/settings.dart';
 import '../data/repositories/audit_repository.dart';
 import '../models/audit.dart';
+import 'accounts_export_service.dart';
 import 'backup/backup_service.dart';
 import 'printing/print_service.dart';
 import 'settings_service.dart';
@@ -12,7 +13,7 @@ import 'sync_service.dart';
 
 enum StatusLevel { ok, info, warning, problem }
 
-enum StatusItem { localBackup, offsiteBackup, activityLog, sync, printer }
+enum StatusItem { localBackup, offsiteBackup, activityLog, sync, printer, accounts }
 
 class StatusCheck {
   const StatusCheck(this.item, this.level, {this.at, this.count, this.detail});
@@ -26,7 +27,7 @@ class StatusCheck {
   /// Waiting items (sync, printing).
   final int? count;
 
-  /// What went wrong (printing).
+  /// What went wrong (printing, the accountant pack).
   final String? detail;
 }
 
@@ -91,6 +92,9 @@ class StatusService extends GetxService {
 
     final waiting = _sync.waitingSales.value;
     final printer = Get.isRegistered<PrintService>() ? Get.find<PrintService>() : null;
+    final accounts = Get.isRegistered<AccountsExportService>() ? Get.find<AccountsExportService>() : null;
+    final accountsProblem = accounts != null && accounts.isOn ? await accounts.problem() : null;
+    final accountsAt = accounts != null && accounts.isOn ? await accounts.lastExportAt() : null;
     checks.assignAll([
       StatusCheck(StatusItem.localBackup,
           age(local, const Duration(days: 2), const Duration(days: 7)),
@@ -116,6 +120,13 @@ class StatusService extends GetxService {
           printer.problem == null ? StatusLevel.ok : StatusLevel.warning,
           count: printer.queue.length,
           detail: printer.problem,
+        ),
+      if (accounts != null && accounts.isOn)
+        StatusCheck(
+          StatusItem.accounts,
+          accountsProblem == null ? StatusLevel.ok : StatusLevel.warning,
+          at: accountsAt,
+          detail: accountsProblem,
         ),
     ]);
   }

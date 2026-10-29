@@ -74,7 +74,8 @@ enum AuditAction {
   stockTransferSent,
   stockTransferReceived,
   stockTransferCancelled,
-  branchDataMerged;
+  branchDataMerged,
+  accountsExported;
 
   /// Actions an owner should notice first.
   bool get isSensitive => const {

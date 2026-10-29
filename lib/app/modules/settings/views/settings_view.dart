@@ -641,6 +641,31 @@ class SettingsView extends GetView<SettingsController> {
           if (v != null) await c.save(AppSettings.offsiteBackupDays, v);
         },
       ), keywords: ['backup', 'reminder']),
+      _Entry(data, InfoTile(
+        title: l.accountsMonthly,
+        subtitle: c.value(AppSettings.accountsMonthly)
+            ? (c.lastAccountsPack.value == null
+                ? l.accountsNone
+                : l.statusLast(relativeTime(l, c.lastAccountsPack.value!)))
+            : l.accountsMonthlyHelp,
+        trailing: Switch(
+          value: c.value(AppSettings.accountsMonthly),
+          onChanged: c.setAccountsMonthly,
+        ),
+      ), keywords: ['accountant', 'accounts', 'export', 'monthly', 'month end']),
+      if (c.value(AppSettings.accountsMonthly)) ...[
+        _Entry(data, InfoTile(
+          title: l.accountsFolder,
+          subtitle: c.canChooseAccountsFolder ? c.accountsFolder.value : l.accountsFolderInApp,
+          leading: const Icon(Icons.folder_outlined),
+          onTap: c.canChooseAccountsFolder ? c.chooseAccountsFolder : null,
+        ), keywords: ['accountant', 'folder']),
+        _Entry(data, InfoTile(
+          title: l.accountsShareLatest,
+          leading: const Icon(Icons.ios_share),
+          onTap: c.shareLatestAccounts,
+        ), keywords: ['accountant', 'share', 'whatsapp', 'email']),
+      ],
       _Entry(about, InfoTile(title: l.settingsVersion, value: '1.0.0')),
       _Entry(about, InfoTile(
         title: l.settingsDeviceId,

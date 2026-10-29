@@ -96,6 +96,7 @@ enum ActivityFilter {
             AuditAction.backupCreated,
             AuditAction.backupExported,
             AuditAction.backupRestored,
+            AuditAction.accountsExported,
           },
       };
 }

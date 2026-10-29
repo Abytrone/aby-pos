@@ -1,15 +1,19 @@
 import 'package:get/get.dart';
+import 'package:path/path.dart' as p;
 
 import '../../../app.dart';
 import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
 import '../../../data/database/app_database.dart';
+import '../../../services/accounts_export_service.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/backup/backup_service.dart';
 import '../../../services/device_service.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
+import '../../../services/status_service.dart';
 import '../../../ui/dialogs.dart';
+import '../../../ui/files.dart';
 import '../../../ui/l10n.dart';
 
 /// Manage → Settings. Shop settings need "Change settings" (or approval);
@@ -21,10 +25,13 @@ class SettingsController extends GetxController {
   final BackupService _backups = Get.find();
   final DeviceService _device = Get.find();
   final AppDatabase _db = Get.find();
+  final AccountsExportService _accounts = Get.find();
 
   final query = ''.obs;
   final lastLocalBackup = Rxn<DateTime>();
   final lastOffsiteBackup = Rxn<DateTime>();
+  final lastAccountsPack = Rxn<DateTime>();
+  final accountsFolder = ''.obs;
 
   static const comfortSettings = {
     'device.theme',
@@ -43,6 +50,44 @@ class SettingsController extends GetxController {
   Future<void> refreshBackupTimes() async {
     lastLocalBackup.value = await _backups.lastLocalBackupAt();
     lastOffsiteBackup.value = await _backups.lastOffsiteBackupAt();
+    lastAccountsPack.value = await _accounts.lastExportAt();
+    // Shown only where a folder can be chosen.
+    if (_accounts.isOn && canChooseAccountsFolder) accountsFolder.value = (await _accounts.folder()).path;
+  }
+
+  bool get canChooseAccountsFolder => AccountsExportService.canChooseFolder;
+
+  /// Turning it on saves last month's pack straight away.
+  Future<void> setAccountsMonthly(bool on) async {
+    await save(AppSettings.accountsMonthly, on);
+    if (on && _settings.get(AppSettings.accountsMonthly)) await _exportNow();
+    await Get.find<StatusService>().refresh(checkChain: false);
+  }
+
+  Future<void> chooseAccountsFolder() async {
+    final path = await pickFolder(appL10n().accountsFolder);
+    if (path == null) return;
+    await save(AppSettings.accountsFolder, path);
+    // A pack that failed to save goes to the new folder now.
+    await _exportNow();
+    await Get.find<StatusService>().refresh(checkChain: false);
+  }
+
+  Future<void> shareLatestAccounts() async {
+    final file = await _accounts.latest();
+    if (file == null) return showMessage(appL10n().accountsNone);
+    await shareOrSaveBytes(p.basename(file.path), await file.readAsBytes());
+  }
+
+  Future<void> _exportNow() async {
+    final l = appL10n();
+    final saved = await _accounts.exportIfDue();
+    if (saved.isNotEmpty) {
+      showMessage(l.accountsSaved(p.basename(saved.last.path)));
+    } else if (await _accounts.problem() != null) {
+      showMessage(l.statusAccountsFailed);
+    }
+    await refreshBackupTimes();
   }
 
   T value<T extends Object>(Setting<T> s) => _settings.get(s);

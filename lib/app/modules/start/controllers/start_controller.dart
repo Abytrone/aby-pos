@@ -9,6 +9,7 @@ import '../../../data/repositories/staff_repository.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/display/display_service.dart';
 import '../../../services/notification_service.dart';
+import '../../../services/accounts_export_service.dart';
 import '../../../services/backup/backup_service.dart';
 import '../../../services/device_service.dart';
 import '../../../services/price_scheduler.dart';
@@ -19,7 +20,8 @@ import '../../../services/training_service.dart';
 import '../../../services/status_service.dart';
 
 /// Opens the database, loads settings, finishes a restore if one just
-/// happened, takes the daily backup if due, then goes to setup or sign-in.
+/// happened, takes the daily backup and the monthly accountant pack if due,
+/// then goes to setup or sign-in.
 class StartController extends GetxController {
   final DeviceService _device = Get.find();
   final SettingsService _settings = Get.find();
@@ -43,6 +45,7 @@ class StartController extends GetxController {
     await Get.find<PriceScheduler>().run();
     final hasStaff = await _staff.hasStaff();
     if (hasStaff) unawaited(_dailyBackup());
+    if (hasStaff) unawaited(_monthlyAccounts());
     if (hasStaff) unawaited(Get.find<NotificationService>().start());
     unawaited(_startDisplays());
     unawaited(_startHub());
@@ -69,6 +72,13 @@ class StartController extends GetxController {
     } catch (e) {
       debugPrint('Hub did not start: $e');
     }
+  }
+
+  /// Last month's accountant pack, when this device saves it (INT-05). A
+  /// failure shows in the status centre.
+  Future<void> _monthlyAccounts() async {
+    await Get.find<AccountsExportService>().exportIfDue();
+    await _status.refresh(checkChain: false);
   }
 
   /// Never blocks start-up; a failed automatic backup shows in the status

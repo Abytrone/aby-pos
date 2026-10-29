@@ -48,3 +48,6 @@ Future<String?> pickTextFile() async {
   final bytes = await picked.readAsBytes();
   return utf8.decode(bytes, allowMalformed: true);
 }
+
+/// Picks a folder (Windows). Null when cancelled.
+Future<String?> pickFolder(String title) => FilePicker.getDirectoryPath(dialogTitle: title);

@@ -1647,6 +1647,25 @@ so only the offline part of Phase 8 is built now:
 - `INT-05` scheduled exports: the month-end accountant pack (`REP-09`) made on its own each
   month and saved to a chosen folder.
 
+**Status (29 October 2026): 8a built** (scheduled accounting exports). Schema unchanged (17).
+Built:
+
+- `INT-05` scheduled exports: Settings → Data → *Save the accountant's pack every month*, set per
+  device (turn it on at the computer whose folder the accountant reads). From the 1st, last
+  month's pack is saved: the same zip as Reports → Accountant pack (`REP-09`), always for every
+  branch and with profit and loss, named `aby_accounts_<first day>_<last day>.zip`. Turning it on
+  saves last month's straight away. It is checked at start and every hour, so a till left on
+  over the month end still makes it. Each month is saved once. A device that was off catches
+  up the missed months, oldest first (at most 12). Training mode never saves one.
+- Where: on Windows any folder can be chosen (a USB stick or a shared drive); the default is
+  Documents\Aby accounts. On Android, macOS and iOS the app may not write to a chosen folder
+  again after a restart, so packs stay in the app and *Share the latest pack* sends one
+  (WhatsApp, email, Drive).
+- If the chosen folder is not there (the USB stick is out), no folder is made in its place: the
+  status centre shows *Accountant pack* in amber with *Try again*, and it is tried again every
+  hour. Choosing another folder saves it there at once. Each saved pack is in the activity log
+  (Settings and data).
+
 Put aside for the backend, to be built with it:
 
 - `INT-01` cloud sync and the owner portal (needs the Laravel API).

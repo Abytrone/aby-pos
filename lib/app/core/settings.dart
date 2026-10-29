@@ -84,6 +84,11 @@ abstract final class AppSettings {
   static const offsiteBackupDays =
       Setting<int>('backup.offsiteReminderDays', SettingScope.shop, 7);
 
+  /// INT-05: this device saves last month's accountant pack each month, to
+  /// [accountsFolder] (empty = Documents/Aby accounts).
+  static const accountsMonthly = Setting<bool>('device.accountsMonthly', SettingScope.device, false);
+  static const accountsFolder = Setting<String>('device.accountsFolder', SettingScope.device, '');
+
   // Loyalty (CUS-04): one style per shop.
   /// off | stamps | points | tiers
   static const loyaltyStyle = Setting<String>('loyalty.style', SettingScope.shop, 'off');
@@ -212,6 +217,8 @@ abstract final class AppSettings {
     autoBackupDaily,
     backupsToKeep,
     offsiteBackupDays,
+    accountsMonthly,
+    accountsFolder,
     clockInToSell,
     commissionMode,
     commissionPercent,
