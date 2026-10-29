@@ -9,6 +9,7 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/layout.dart';
 import '../../../ui/period_bar.dart';
 import '../../../ui/section_page.dart';
 import '../controllers/money_controller.dart';
@@ -150,13 +151,18 @@ class _ProfitTab extends StatelessWidget {
       final p = ctl.pnl.value;
       final before = ctl.previous.value;
       if (p == null) return const SizedBox.shrink();
+      // Phones stack "before" under "this period": two columns beside the
+      // label leave it a few letters per line.
+      final narrow = context.isNarrow;
+      Widget columns(Widget now, Widget then) => narrow
+          ? SizedBox(width: 130, child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [now, then]))
+          : Row(mainAxisSize: MainAxisSize.min, children: [SizedBox(width: 130, child: now), SizedBox(width: 110, child: then)]);
       Widget row(String label, int now, int? then, {bool strong = false, bool minus = false}) => Padding(
             padding: const EdgeInsets.symmetric(vertical: AbySpace.s1),
             child: Row(children: [
               Expanded(child: Text(label, style: (strong ? AbyText.heading : AbyText.body).copyWith(color: strong ? c.ink : c.inkMuted))),
-              SizedBox(
-                width: 130,
-                child: Text(
+              columns(
+                Text(
                   '${minus && now != 0 ? '−' : ''}${formatMoney(now.abs())}${now < 0 && !minus ? ' ↓' : ''}',
                   textAlign: TextAlign.end,
                   style: (strong ? AbyText.heading : AbyText.body).copyWith(
@@ -164,10 +170,7 @@ class _ProfitTab extends StatelessWidget {
                     fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
-              ),
-              SizedBox(
-                width: 110,
-                child: Text(
+                Text(
                   then == null ? '' : formatMoney(then.abs()),
                   textAlign: TextAlign.end,
                   style: AbyText.caption.copyWith(color: c.inkMuted, fontFeatures: const [FontFeature.tabularFigures()]),
@@ -183,8 +186,10 @@ class _ProfitTab extends StatelessWidget {
             child: Column(children: [
               Row(children: [
                 const Spacer(),
-                SizedBox(width: 130, child: Text(l.profitThisPeriod, textAlign: TextAlign.end, style: AbyText.label.copyWith(color: c.inkMuted))),
-                SizedBox(width: 110, child: Text(l.profitBefore, textAlign: TextAlign.end, style: AbyText.label.copyWith(color: c.inkMuted))),
+                columns(
+                  Text(l.profitThisPeriod, textAlign: TextAlign.end, style: AbyText.label.copyWith(color: c.inkMuted)),
+                  Text(l.profitBefore, textAlign: TextAlign.end, style: AbyText.label.copyWith(color: c.inkMuted)),
+                ),
               ]),
               row(l.profitSales, p.sales, before?.sales),
               row(l.profitDiscounts, p.discounts, before?.discounts, minus: true),

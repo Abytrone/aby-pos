@@ -6,6 +6,7 @@ import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/layout.dart';
 
 /// Total, number of sales, and takings per payment method.
 class SummaryCards extends StatelessWidget {
@@ -16,9 +17,7 @@ class SummaryCards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return Wrap(
-      spacing: AbySpace.s3,
-      runSpacing: AbySpace.s3,
+    return TileGrid(
       children: [
         _Card(label: l.todayTotalSales.toUpperCase(), value: formatMoney(summary.total), large: true),
         _Card(label: l.todaySalesCount.toUpperCase(), value: '${summary.count}', large: true),
@@ -57,11 +56,16 @@ class _Card extends StatelessWidget {
         children: [
           Text(label, style: AbyText.label.copyWith(color: c.inkMuted)),
           const SizedBox(height: AbySpace.s1),
-          Text(
-            value,
-            style: (large ? AbyText.title : AbyText.heading).copyWith(
-              color: c.ink,
-              fontFeatures: const [FontFeature.tabularFigures()],
+          // Shrinks a big total to fit a phone's half-width card.
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              value,
+              style: (large ? AbyText.title : AbyText.heading).copyWith(
+                color: c.ink,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             ),
           ),
         ],

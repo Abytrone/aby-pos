@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/aby_colors.dart';
 import '../theme/aby_theme.dart';
+import 'layout.dart';
 
 /// The frame for a section in the shell: a title row with actions, then
 /// the content. Sections never build their own Scaffold or app bar.
@@ -26,6 +27,7 @@ class SectionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).extension<AbyColors>()!;
+    if (context.isNarrow) return _narrow(c);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -51,6 +53,44 @@ class SectionPage extends StatelessWidget {
             ],
           ),
         ),
+        ?bottom,
+        Expanded(child: child),
+      ],
+    );
+  }
+
+  /// Phones: a smaller title, then the actions on one line that scrolls
+  /// sideways instead of wrapping into a ragged stack.
+  Widget _narrow(AbyColors c) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(AbySpace.s4, AbySpace.s3, AbySpace.s4, AbySpace.s2),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(title, style: AbyText.titleCompact.copyWith(color: c.ink)),
+              if (subtitle != null) Text(subtitle!, style: AbyText.caption.copyWith(color: c.inkMuted)),
+            ],
+          ),
+        ),
+        if (actions.isNotEmpty)
+          CompactButtons(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.fromLTRB(AbySpace.s4, 0, AbySpace.s4, AbySpace.s2),
+              child: Row(
+                children: [
+                  for (var i = 0; i < actions.length; i++) ...[
+                    if (i > 0) const SizedBox(width: AbySpace.s2),
+                    actions[i],
+                  ],
+                ],
+              ),
+            ),
+          ),
         ?bottom,
         Expanded(child: child),
       ],
@@ -132,38 +172,45 @@ class InfoTile extends StatelessWidget {
         constraints: const BoxConstraints(minHeight: AbySize.tapPos),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: AbySpace.s4, vertical: AbySpace.s3),
-          child: Row(
-            children: [
-              if (leading != null) ...[leading!, const SizedBox(width: AbySpace.s3)],
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(title,
-                        style: AbyText.body.copyWith(
-                          color: danger ? c.danger : c.ink,
-                          fontWeight: FontWeight.w600,
-                        )),
-                    if (subtitle != null)
-                      Text(subtitle!, style: AbyText.caption.copyWith(color: c.inkMuted)),
-                  ],
+          child: LayoutBuilder(
+            builder: (context, box) => Row(
+              children: [
+                if (leading != null) ...[leading!, const SizedBox(width: AbySpace.s3)],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        style: AbyText.body.copyWith(color: danger ? c.danger : c.ink, fontWeight: FontWeight.w600),
+                      ),
+                      if (subtitle != null) Text(subtitle!, style: AbyText.caption.copyWith(color: c.inkMuted)),
+                    ],
+                  ),
                 ),
-              ),
-              if (value != null) ...[
-                const SizedBox(width: AbySpace.s3),
-                Flexible(
-                  child: Text(value!,
+                if (value != null) ...[
+                  const SizedBox(width: AbySpace.s3),
+                  // As wide as the value needs, at most 45%: a Flexible would
+                  // take half the row and squeeze the title on a phone.
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: box.maxWidth * 0.45),
+                    child: Text(
+                      value!,
                       textAlign: TextAlign.end,
-                      style: AbyText.body.copyWith(color: c.inkMuted)),
-                ),
+                      style: AbyText.body.copyWith(color: c.inkMuted),
+                    ),
+                  ),
+                ],
+                if (trailing != null) ...[
+                  const SizedBox(width: AbySpace.s2),
+                  trailing!,
+                ] else if (onTap != null) ...[
+                  const SizedBox(width: AbySpace.s1),
+                  Icon(Icons.chevron_right, color: c.inkMuted),
+                ],
               ],
-              if (trailing != null) ...[const SizedBox(width: AbySpace.s2), trailing!]
-              else if (onTap != null) ...[
-                const SizedBox(width: AbySpace.s1),
-                Icon(Icons.chevron_right, color: c.inkMuted),
-              ],
-            ],
+            ),
           ),
         ),
       ),
@@ -188,9 +235,11 @@ class EmptyState extends StatelessWidget {
           children: [
             Icon(icon, size: 40, color: c.lineStrong),
             const SizedBox(height: AbySpace.s3),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: AbyText.body.copyWith(color: c.inkMuted)),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: AbyText.body.copyWith(color: c.inkMuted),
+            ),
           ],
         ),
       ),

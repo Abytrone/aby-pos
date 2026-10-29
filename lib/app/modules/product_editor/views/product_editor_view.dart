@@ -34,7 +34,7 @@ class ProductEditorView extends StatelessWidget {
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: AbySpace.s4),
-              child: FilledButton(
+              child: CompactButtons(child: FilledButton(
                 onPressed: ctl.loading || ctl.saving
                     ? null
                     : () async {
@@ -44,7 +44,7 @@ class ProductEditorView extends StatelessWidget {
                         }
                       },
                 child: Text(l.commonSave),
-              ),
+              )),
             ),
           ],
         ),

@@ -9,6 +9,7 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/format.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/layout.dart';
 import '../../../ui/option_chip.dart';
 import '../../products/widgets/labels_dialog.dart';
 import '../controllers/receive_controller.dart';
@@ -37,7 +38,7 @@ class ReceiveView extends StatelessWidget {
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: AbySpace.s4),
-              child: FilledButton(
+              child: CompactButtons(child: FilledButton(
                 onPressed: ctl.loading || ctl.saving
                     ? null
                     : () async {
@@ -57,7 +58,7 @@ class ReceiveView extends StatelessWidget {
                         }
                       },
                 child: Text(l.receiveSave),
-              ),
+              )),
             ),
           ],
         ),
@@ -85,7 +86,7 @@ class ReceiveView extends StatelessWidget {
                       ),
                     Wrap(spacing: AbySpace.s3, runSpacing: AbySpace.s3, children: [
                       SizedBox(
-                        width: 320,
+                        width: context.isNarrow ? double.infinity : 320,
                         child: DropdownButtonFormField<String?>(
                           initialValue: ctl.supplierId,
                           isExpanded: true,
@@ -98,7 +99,7 @@ class ReceiveView extends StatelessWidget {
                         ),
                       ),
                       SizedBox(
-                        width: 240,
+                        width: context.isNarrow ? double.infinity : 240,
                         child: TextField(
                           controller: ctl.invoiceRef,
                           decoration: InputDecoration(labelText: l.receiveInvoice),
@@ -182,7 +183,7 @@ class _LineRow extends StatelessWidget {
         padding: const EdgeInsets.all(AbySpace.s3),
         child: Wrap(spacing: AbySpace.s2, runSpacing: AbySpace.s2, crossAxisAlignment: WrapCrossAlignment.center, children: [
           SizedBox(
-            width: 260,
+            width: context.isNarrow ? double.infinity : 260,
             child: DropdownButtonFormField<String>(
               initialValue: line.stockItemId,
               isExpanded: true,

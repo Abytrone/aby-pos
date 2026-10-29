@@ -7,6 +7,7 @@ import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/layout.dart';
 import '../../till/widgets/category_dot.dart';
 import '../controllers/catalogue_controller.dart';
 
@@ -50,6 +51,22 @@ class ProductRow extends StatelessWidget {
         : !product.active
             ? l.productsFilterOffTill
             : null;
+    final price = Text(priceText, style: AbyText.price.copyWith(color: c.ink));
+    final margin = !showCost
+        ? null
+        : Text(
+            lowest == null ? l.productsNoCost : l.productsMargin(lowest),
+            style: AbyText.caption.copyWith(
+              color: lowest == null
+                  ? c.inkMuted
+                  : lowest < targetMargin
+                      ? c.danger
+                      : c.success,
+              fontWeight: FontWeight.w700,
+            ),
+          );
+    // A price range beside the name leaves a phone no room for the name.
+    final narrow = context.isNarrow;
     return InkWell(
       onTap: onTap,
       child: ConstrainedBox(
@@ -88,23 +105,11 @@ class ProductRow extends StatelessWidget {
                   ].join('  ·  '),
                   style: AbyText.caption.copyWith(color: c.inkMuted),
                 ),
+                if (narrow)
+                  Wrap(spacing: AbySpace.s2, crossAxisAlignment: WrapCrossAlignment.center, children: [price, ?margin]),
               ]),
             ),
-            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              Text(priceText, style: AbyText.price.copyWith(color: c.ink)),
-              if (showCost)
-                Text(
-                  lowest == null ? l.productsNoCost : l.productsMargin(lowest),
-                  style: AbyText.caption.copyWith(
-                    color: lowest == null
-                        ? c.inkMuted
-                        : lowest < targetMargin
-                            ? c.danger
-                            : c.success,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-            ]),
+            if (!narrow) Column(crossAxisAlignment: CrossAxisAlignment.end, children: [price, ?margin]),
             if (onDuplicate != null || onArchive != null)
               PopupMenuButton<_RowAction>(
                 tooltip: l.commonMore,

@@ -10,6 +10,7 @@ import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/layout.dart';
 import '../../../ui/section_page.dart';
 import '../controllers/purchasing_controller.dart';
 import '../controllers/stock_controller.dart';
@@ -172,7 +173,7 @@ class _Items extends GetView<StockController> {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 SizedBox(
-                  width: 260,
+                  width: context.isNarrow ? double.infinity : 260,
                   child: TextField(
                     onChanged: (v) => controller.query.value = v,
                     decoration: InputDecoration(

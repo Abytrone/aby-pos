@@ -7,6 +7,7 @@ import '../../../ui/barcode_scanner.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/layout.dart';
 import '../../products/widgets/recipe_lines.dart';
 import '../controllers/product_editor_controller.dart';
 
@@ -54,65 +55,64 @@ class VariantCard extends StatelessWidget {
     final hasRecipe = form.recipe.any((r) => r.stockItemId != null);
     final cost = ctl.costOf(form);
     final margin = ctl.marginOf(form);
+    final name = TextField(
+      controller: form.name,
+      textCapitalization: TextCapitalization.sentences,
+      onChanged: (_) => ctl.changed(),
+      decoration: InputDecoration(labelText: l.editorVariantName, helperText: l.editorVariantNameHelp),
+    );
+    final price = TextField(
+      controller: form.price,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      onChanged: (_) => ctl.changed(),
+      decoration: InputDecoration(labelText: l.editorPrice, prefixText: 'GH₵ '),
+    );
+    final costField = !ctl.canSeeCost
+        ? null
+        : hasRecipe
+            ? InputDecorator(
+                decoration: InputDecoration(labelText: l.editorCost, helperText: l.editorCostFromRecipe),
+                child: Text(formatMoney(cost ?? 0)),
+              )
+            : TextField(
+                controller: form.cost,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                onChanged: (_) => ctl.changed(),
+                decoration: InputDecoration(labelText: l.editorCost, prefixText: 'GH₵ ', helperText: l.editorCostHelp),
+              );
+    final menu = PopupMenuButton<int>(
+      tooltip: l.commonMore,
+      onSelected: (a) => switch (a) {
+        0 => ctl.moveVariant(form, -1),
+        1 => ctl.moveVariant(form, 1),
+        _ => ctl.removeVariant(form),
+      },
+      itemBuilder: (_) => [
+        if (index > 0) PopupMenuItem(value: 0, child: Text(l.editorMoveUp)),
+        if (index < ctl.variants.length - 1) PopupMenuItem(value: 1, child: Text(l.editorMoveDown)),
+        PopupMenuItem(value: 2, child: Text(l.editorRemoveVariant)),
+      ],
+    );
     return Card(
       margin: const EdgeInsets.only(bottom: AbySpace.s3),
       child: Padding(
         padding: const EdgeInsets.all(AbySpace.s4),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            if (!single) ...[
-              Expanded(
-                flex: 3,
-                child: TextField(
-                  controller: form.name,
-                  textCapitalization: TextCapitalization.sentences,
-                  onChanged: (_) => ctl.changed(),
-                  decoration: InputDecoration(labelText: l.editorVariantName, helperText: l.editorVariantNameHelp),
-                ),
-              ),
-              const SizedBox(width: AbySpace.s3),
-            ],
-            Expanded(
-              flex: 2,
-              child: TextField(
-                controller: form.price,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                onChanged: (_) => ctl.changed(),
-                decoration: InputDecoration(labelText: l.editorPrice, prefixText: 'GH₵ '),
-              ),
-            ),
-            if (ctl.canSeeCost) ...[
-              const SizedBox(width: AbySpace.s3),
-              Expanded(
-                flex: 2,
-                child: hasRecipe
-                    ? InputDecorator(
-                        decoration: InputDecoration(labelText: l.editorCost, helperText: l.editorCostFromRecipe),
-                        child: Text(formatMoney(cost ?? 0)),
-                      )
-                    : TextField(
-                        controller: form.cost,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        onChanged: (_) => ctl.changed(),
-                        decoration: InputDecoration(labelText: l.editorCost, prefixText: 'GH₵ ', helperText: l.editorCostHelp),
-                      ),
-              ),
-            ],
-            if (!single)
-              PopupMenuButton<int>(
-                tooltip: l.commonMore,
-                onSelected: (a) => switch (a) {
-                  0 => ctl.moveVariant(form, -1),
-                  1 => ctl.moveVariant(form, 1),
-                  _ => ctl.removeVariant(form),
-                },
-                itemBuilder: (_) => [
-                  if (index > 0) PopupMenuItem(value: 0, child: Text(l.editorMoveUp)),
-                  if (index < ctl.variants.length - 1) PopupMenuItem(value: 1, child: Text(l.editorMoveDown)),
-                  PopupMenuItem(value: 2, child: Text(l.editorRemoveVariant)),
-                ],
-              ),
-          ]),
+          if (context.isNarrow && !single) ...[
+            // Four fields on one line leave a phone a few letters for each.
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Expanded(child: name), menu]),
+            const SizedBox(height: AbySpace.s3),
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(child: price),
+              if (costField != null) ...[const SizedBox(width: AbySpace.s3), Expanded(child: costField)],
+            ]),
+          ] else
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              if (!single) ...[Expanded(flex: 3, child: name), const SizedBox(width: AbySpace.s3)],
+              Expanded(flex: 2, child: price),
+              if (costField != null) ...[const SizedBox(width: AbySpace.s3), Expanded(flex: 2, child: costField)],
+              if (!single) menu,
+            ]),
           if (ctl.canSeeCost && margin != null)
             Padding(
               padding: const EdgeInsets.only(top: AbySpace.s2),

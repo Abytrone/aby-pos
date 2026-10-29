@@ -23,6 +23,8 @@ abstract final class AbyText {
   static const mono = 'JetBrains Mono';
   static const display = TextStyle(fontFamily: family, fontSize: 56, height: 1.0, fontWeight: FontWeight.w900, letterSpacing: -1.96);
   static const title = TextStyle(fontFamily: family, fontSize: 32, height: 36 / 32, fontWeight: FontWeight.w800, letterSpacing: -0.64);
+  /// [title] on phones, where 32 crowds out the actions beside it.
+  static const titleCompact = TextStyle(fontFamily: family, fontSize: 24, height: 30 / 24, fontWeight: FontWeight.w800, letterSpacing: -0.48);
   static const total = TextStyle(fontFamily: family, fontSize: 44, height: 48 / 44, fontWeight: FontWeight.w900, letterSpacing: -1.32, fontFeatures: [FontFeature.tabularFigures()]);
   static const heading = TextStyle(fontFamily: family, fontSize: 20, height: 28 / 20, fontWeight: FontWeight.w700);
   static const tile = TextStyle(fontFamily: family, fontSize: 17, height: 22 / 17, fontWeight: FontWeight.w600);
@@ -141,7 +143,16 @@ abstract final class AbyTheme {
         shape: const StadiumBorder(),
         selectedColor: c.blueSoft,
         side: BorderSide(color: c.lineStrong, width: 1.5),
-        labelStyle: const TextStyle(fontFamily: AbyText.family, fontSize: 16, fontWeight: FontWeight.w700),
+        // Without a colour the label paints white on the light chip.
+        labelStyle: TextStyle(fontFamily: AbyText.family, fontSize: 16, fontWeight: FontWeight.w700, color: c.ink),
+      ),
+      // 13 wraps "Dashboard" in a fifth of a small phone.
+      navigationBarTheme: const NavigationBarThemeData(
+        labelTextStyle: WidgetStatePropertyAll(TextStyle(fontFamily: AbyText.family, fontSize: 12, fontWeight: FontWeight.w600)),
+      ),
+      // Material's 40-pixel side inset leaves a small phone 240 pixels of dialog.
+      dialogTheme: const DialogThemeData(
+        insetPadding: EdgeInsets.symmetric(horizontal: AbySpace.s4, vertical: AbySpace.s6),
       ),
     );
   }

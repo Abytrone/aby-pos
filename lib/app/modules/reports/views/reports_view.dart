@@ -9,6 +9,7 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/charts.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/layout.dart';
 import '../../../ui/branch_picker.dart';
 import '../../../ui/period_bar.dart';
 import '../../../ui/section_page.dart';
@@ -84,7 +85,11 @@ class _Figure extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(label.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
         const SizedBox(height: AbySpace.s1),
-        Text(value, style: AbyText.heading.copyWith(color: c.ink, fontFeatures: const [FontFeature.tabularFigures()])),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: AlignmentDirectional.centerStart,
+          child: Text(value, style: AbyText.heading.copyWith(color: c.ink, fontFeatures: const [FontFeature.tabularFigures()])),
+        ),
         if (change != null)
           Text(change!, style: AbyText.caption.copyWith(color: change!.startsWith('-') ? c.danger : c.success, fontWeight: FontWeight.w700)),
       ]),
@@ -115,7 +120,7 @@ class _SalesTab extends GetView<ReportsController> {
       final b = controller.before.value;
       final series = s.series;
       return ListView(padding: const EdgeInsets.all(AbySpace.s4), children: [
-        Wrap(spacing: AbySpace.s3, runSpacing: AbySpace.s3, children: [
+        TileGrid(children: [
           _Figure(label: l.reportNetSales, value: formatMoney(s.net), change: changeText(s.net, b.net)),
           _Figure(label: l.reportSalesCount, value: '${s.count}', change: changeText(s.count, b.count)),
           _Figure(label: l.reportAverageSale, value: formatMoney(s.averageSale), change: changeText(s.averageSale, b.averageSale)),
@@ -299,7 +304,7 @@ class _CustomersTab extends GetView<ReportsController> {
     return Obx(() {
       final c = controller.customers.value;
       return ListView(padding: const EdgeInsets.all(AbySpace.s4), children: [
-        Wrap(spacing: AbySpace.s3, runSpacing: AbySpace.s3, children: [
+        TileGrid(children: [
           _Figure(label: l.reportNewCustomers, value: '${c.newCustomers}'),
           _Figure(label: l.reportReturning, value: '${c.returning}'),
           _Figure(label: l.reportOwed, value: formatMoney(c.owed)),
@@ -341,7 +346,7 @@ class _StockTaxTab extends GetView<ReportsController> {
       final s = controller.stockTax.value;
       return ListView(padding: const EdgeInsets.all(AbySpace.s4), children: [
         if (controller.canSeeCost)
-          Wrap(children: [_Figure(label: l.reportStockValue, value: formatMoney(s.stockValue))]),
+          TileGrid(children: [_Figure(label: l.reportStockValue, value: formatMoney(s.stockValue))]),
         const SizedBox(height: AbySpace.s4),
         if (controller.canSeeCost)
           GroupCard(title: l.reportMovements, children: [

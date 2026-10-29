@@ -9,6 +9,7 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/layout.dart';
 import '../controllers/stock_count_controller.dart';
 
 class StockCountView extends GetView<StockCountController> {
@@ -76,7 +77,7 @@ class StockCountView extends GetView<StockCountController> {
             padding: const EdgeInsets.all(AbySpace.s4),
             child: Wrap(spacing: AbySpace.s3, runSpacing: AbySpace.s2, crossAxisAlignment: WrapCrossAlignment.center, children: [
               SizedBox(
-                width: 260,
+                width: context.isNarrow ? double.infinity : 260,
                 child: TextField(
                   onChanged: (v) => controller.query.value = v,
                   decoration: InputDecoration(prefixIcon: const Icon(Icons.search), hintText: l.stockSearch, isDense: true),
@@ -141,6 +142,14 @@ class _CountRow extends GetView<StockCountController> {
     final l = context.l10n;
     final unit = DisplayUnit.bulk(line.unit);
     final diff = line.difference;
+    final difference = showExpected && diff != null && diff != 0
+        ? Text(
+            '${diff > 0 ? '+' : ''}${formatQuantity(diff, line.unit)}  (${formatMoney(costOf(diff, line.costMilli))})',
+            style: AbyText.caption.copyWith(color: diff < 0 ? c.danger : c.success, fontWeight: FontWeight.w700),
+          )
+        : null;
+    // Beside the count field there is no room for it on a phone.
+    final narrow = context.isNarrow;
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 64),
       child: Row(children: [
@@ -156,16 +165,11 @@ class _CountRow extends GetView<StockCountController> {
                 ].join('  ·  '),
                 style: AbyText.caption.copyWith(color: c.inkMuted),
               ),
+            if (difference != null && narrow) difference,
           ]),
         ),
-        if (showExpected && diff != null && diff != 0)
-          Padding(
-            padding: const EdgeInsets.only(right: AbySpace.s3),
-            child: Text(
-              '${diff > 0 ? '+' : ''}${formatQuantity(diff, line.unit)}  (${formatMoney(costOf(diff, line.costMilli))})',
-              style: AbyText.caption.copyWith(color: diff < 0 ? c.danger : c.success, fontWeight: FontWeight.w700),
-            ),
-          ),
+        if (difference != null && !narrow)
+          Padding(padding: const EdgeInsets.only(right: AbySpace.s3), child: difference),
         if (open) ...[
           SizedBox(
             width: 120,

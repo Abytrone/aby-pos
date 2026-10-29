@@ -8,6 +8,7 @@ import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/layout.dart';
 import '../../../ui/option_chip.dart';
 import '../../../ui/section_page.dart';
 import '../../till/widgets/category_dot.dart';
@@ -132,7 +133,7 @@ class _Products extends GetView<CatalogueController> {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 SizedBox(
-                  width: 260,
+                  width: context.isNarrow ? double.infinity : 260,
                   child: TextField(
                     onChanged: (v) => controller.query.value = v,
                     decoration: InputDecoration(
