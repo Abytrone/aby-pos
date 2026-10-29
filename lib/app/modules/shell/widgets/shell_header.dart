@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../data/repositories/time_repository.dart';
+import '../../../services/clock_service.dart';
 import '../../../services/printing/print_service.dart';
 import '../../../services/status_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_mark.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/layout.dart';
@@ -114,7 +117,7 @@ class _StatusChip extends StatelessWidget {
   }
 }
 
-enum _UserAction { profile, switchUser, lock }
+enum _UserAction { profile, clock, toggleBreak, switchUser, lock }
 
 class _UserChip extends StatelessWidget {
   const _UserChip({required this.controller, required this.compact});
@@ -129,11 +132,15 @@ class _UserChip extends StatelessWidget {
     return Obx(() {
       final user = controller.auth.currentUser.value;
       if (user == null) return const SizedBox.shrink();
+      final clock = Get.isRegistered<ClockService>() ? Get.find<ClockService>() : null;
+      final clocked = clock?.state.value;
       return PopupMenuButton<_UserAction>(
         tooltip: l.userMenu,
         position: PopupMenuPosition.under,
         onSelected: (action) => switch (action) {
           _UserAction.profile => controller.openMyProfile(),
+          _UserAction.clock => _clock(clock!, clocked == null),
+          _UserAction.toggleBreak => clock!.toggleBreak(),
           _UserAction.switchUser => showQuickSwitch(controller),
           _UserAction.lock => controller.lock(),
         },
@@ -143,6 +150,26 @@ class _UserChip extends StatelessWidget {
             height: AbySize.tapPos,
             child: ListTile(leading: const Icon(Icons.person_outline), title: Text(l.profileMine)),
           ),
+          if (clock != null) ...[
+            PopupMenuItem(
+              value: _UserAction.clock,
+              height: AbySize.tapPos,
+              child: ListTile(
+                leading: Icon(clocked == null ? Icons.login : Icons.logout),
+                title: Text(clocked == null ? l.clockIn : l.clockOut),
+                subtitle: clocked == null ? null : Text(l.clockInSince(formatTime(clocked.since))),
+              ),
+            ),
+            if (clocked != null)
+              PopupMenuItem(
+                value: _UserAction.toggleBreak,
+                height: AbySize.tapPos,
+                child: ListTile(
+                  leading: const Icon(Icons.free_breakfast_outlined),
+                  title: Text(clocked.onBreak ? l.clockEndBreak : l.clockStartBreak),
+                ),
+              ),
+          ],
           PopupMenuItem(
             value: _UserAction.switchUser,
             height: AbySize.tapPos,
@@ -180,5 +207,20 @@ class _UserChip extends StatelessWidget {
         ),
       );
     });
+  }
+}
+
+Future<void> _clock(ClockService clock, bool clockIn) async {
+  final l = appL10n();
+  try {
+    if (clockIn) {
+      await clock.clockIn();
+      showMessage(l.clockedIn);
+    } else {
+      await clock.clockOut();
+      showMessage(l.clockedOut);
+    }
+  } on TimeClockException catch (e) {
+    showMessage(e.message);
   }
 }

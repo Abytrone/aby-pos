@@ -1260,6 +1260,43 @@
   "produceStop": "Not made here",
   "produceHowMuch": "How much was made",
   "produceUses": "This uses",
+  "badgeTitle": "Badge and hours",
+  "badgeNone": "No sign-in badge",
+  "badgeHas": "Has a sign-in badge",
+  "badgeHelp": "A QR code to scan at sign-in, instead of picking the name. The PIN is still needed.",
+  "badgeMake": "Make a badge",
+  "badgeNew": "New badge",
+  "badgeRemove": "Remove the badge",
+  "badgeRemoved": "Badge removed. It no longer works.",
+  "badgeUnknown": "That badge is not known. Pick your name instead.",
+  "workHours": "Usual hours",
+  "workHoursHelp": "For late arrivals and early leaves on the timesheet.",
+  "workStarts": "Starts at",
+  "workEnds": "Finishes at",
+  "clockIn": "Clock in",
+  "clockOut": "Clock out",
+  "clockStartBreak": "Start a break",
+  "clockEndBreak": "End the break",
+  "clockedIn": "Clocked in.",
+  "clockedOut": "Clocked out.",
+  "clockInToSellTitle": "Clock in to sell",
+  "clockInToSellBody": "The shop asks staff to clock in before selling. Clock in now?",
+  "timeTab": "Timesheets",
+  "timeNone": "No one clocked in during these dates.",
+  "timeWorked": "Hours worked",
+  "timeStillIn": "still in",
+  "reportItems": "Items sold",
+  "reportCommission": "Commission",
+  "settingsGroupStaff": "Staff",
+  "settingsClockInToSell": "Clock in before selling",
+  "settingsClockInToSellHelp": "Staff clock in and out from their name at the top. Timesheets are in Staff.",
+  "settingsCommission": "Commission",
+  "settingsCommissionHelp": "Worked out per person in Reports, Staff, for any dates.",
+  "commissionPercentChoice": "A percent of their sales",
+  "commissionPerProduct": "An amount per product",
+  "editorCommission": "Commission",
+  "editorCommissionPer": "Commission per one sold",
+  "editorCommissionHelp": "Paid to whoever sells it. Leave empty for none.",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -3528,6 +3565,81 @@
       },
       "cost": {
         "type": "String"
+      }
+    }
+  },
+  "badgeFor": "Badge for {name}",
+  "@badgeFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "clockInSince": "In since {time}",
+  "@clockInSince": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "timeHours": "{hours} h {minutes} min",
+  "@timeHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "timeBreak": "{minutes} min break",
+  "@timeBreak": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "timeLate": "{minutes} min late",
+  "@timeLate": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "timeEarly": "left {minutes} min early",
+  "@timeEarly": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "timeLateCount": "{count, plural, =1{late once} other{late {count} times}}",
+  "@timeLateCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeEarlyCount": "{count, plural, =1{left early once} other{left early {count} times}}",
+  "@timeEarlyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commissionPercentOfSales": "{percent}% of sales",
+  "@commissionPercentOfSales": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
       }
     }
   }

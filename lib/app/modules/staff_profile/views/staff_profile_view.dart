@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../../data/repositories/staff_repository.dart';
 import '../../../core/validators.dart';
 import '../../../models/staff.dart';
 import '../../../services/money.dart';
@@ -223,6 +224,44 @@ class _Details extends GetView<StaffProfileController> {
         ),
       ]),
       const SizedBox(height: AbySpace.s6),
+      if (controller.canManage)
+        GroupCard(title: l.badgeTitle, children: [
+          InfoTile(
+            title: profile.badgeCode == null ? l.badgeNone : l.badgeHas,
+            subtitle: l.badgeHelp,
+            leading: const Icon(Icons.badge_outlined),
+            trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+              if (profile.badgeCode != null) ...[
+                IconButton(
+                  tooltip: l.receiptPrint,
+                  onPressed: () => controller.showBadge('${StaffRepository.badgePrefix}${profile.badgeCode}'),
+                  icon: const Icon(Icons.print_outlined),
+                ),
+                IconButton(tooltip: l.badgeRemove, onPressed: controller.removeBadge, icon: const Icon(Icons.close)),
+              ],
+              TextButton(
+                onPressed: controller.newBadge,
+                child: Text(profile.badgeCode == null ? l.badgeMake : l.badgeNew),
+              ),
+            ]),
+          ),
+          InfoTile(
+            title: l.workHours,
+            subtitle: l.workHoursHelp,
+            value: profile.workStart == null || profile.workEnd == null
+                ? l.settingsNotSet
+                : '${formatMinutesOfDay(profile.workStart!)} – ${formatMinutesOfDay(profile.workEnd!)}',
+            leading: const Icon(Icons.schedule),
+            onTap: () async {
+              TimeOfDay at(int? m, int fallback) => TimeOfDay(hour: (m ?? fallback) ~/ 60, minute: (m ?? fallback) % 60);
+              final start = await showTimePicker(context: context, initialTime: at(profile.workStart, 8 * 60), helpText: l.workStarts);
+              if (start == null || !context.mounted) return;
+              final end = await showTimePicker(context: context, initialTime: at(profile.workEnd, 17 * 60), helpText: l.workEnds);
+              if (end == null) return;
+              await controller.setWorkHours(start.hour * 60 + start.minute, end.hour * 60 + end.minute);
+            },
+          ),
+        ]),
       GroupCard(title: l.profileContact, children: [
         copyable(l.profilePhone, phone(profile.phone)),
         copyable(l.profileEmail, profile.email),

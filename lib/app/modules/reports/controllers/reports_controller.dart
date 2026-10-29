@@ -63,7 +63,7 @@ class ReportsController extends GetxController {
     final (byMethod, round) = await _reports.payments(r);
     payments.assignAll(byMethod);
     rounding.value = round;
-    staff.assignAll(await _reports.staff(r));
+    staff.assignAll(await _reports.staff(r, commission: commission));
     customers.value = await _reports.customers(r);
     stockTax.value = await _reports.stockAndTax(r);
     loading.value = false;
@@ -91,10 +91,25 @@ class ReportsController extends GetxController {
         for (final (d, v) in sales.value.series) [AccountantPack.day(d), _m(v)],
       ]));
 
+  /// The shop's commission rules (STF-07).
+  CommissionConfig get commission {
+    final s = Get.find<SettingsService>();
+    return CommissionConfig(
+      mode: CommissionMode.values.asNameMap()[s.get(AppSettings.commissionMode)] ?? CommissionMode.off,
+      percent: s.get(AppSettings.commissionPercent),
+    );
+  }
+
   Future<void> exportStaff() => shareOrSaveText('staff_$_stamp.csv', Csv.encode([
-        ['name', 'sales', 'total', 'average', 'discounts', 'voids', 'refunds', 'no-sales', 'times short', 'short by'],
+        [
+          'name', 'sales', 'total', 'average', 'items', 'discounts', 'voids', 'refunds', 'no-sales', 'times short', 'short by',
+          'hours', 'commission',
+        ],
         for (final s in staff)
-          [s.name, '${s.sales}', _m(s.total), _m(s.average), _m(s.discounts), '${s.voids}', '${s.refunds}', '${s.noSales}', '${s.shorts}', _m(s.shortTotal)],
+          [
+            s.name, '${s.sales}', _m(s.total), _m(s.average), '${s.items}', _m(s.discounts), '${s.voids}', '${s.refunds}',
+            '${s.noSales}', '${s.shorts}', _m(s.shortTotal), (s.minutesWorked / 60).toStringAsFixed(2), _m(s.commission),
+          ],
       ]));
 
   /// The month-end pack: CSVs and a PDF summary in one zip.

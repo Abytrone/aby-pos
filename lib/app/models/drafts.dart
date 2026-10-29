@@ -48,6 +48,7 @@ class ProductDraft {
     this.minPrice,
     this.maxPrice,
     this.onQuickTab = false,
+    this.commission,
   });
 
   final String? id;
@@ -67,6 +68,9 @@ class ProductDraft {
   final int? maxPrice;
   final bool onQuickTab;
 
+  /// Pesewas of commission per one sold.
+  final int? commission;
+
   ProductDraft copyWith({String? categoryId}) => ProductDraft(
         id: id,
         categoryId: categoryId ?? this.categoryId,
@@ -82,6 +86,7 @@ class ProductDraft {
         minPrice: minPrice,
         maxPrice: maxPrice,
         onQuickTab: onQuickTab,
+        commission: commission,
       );
 }
 

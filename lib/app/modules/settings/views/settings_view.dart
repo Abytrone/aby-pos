@@ -137,6 +137,12 @@ class SettingsView extends GetView<SettingsController> {
     final printer = PrinterTarget.decode(c.value(AppSettings.receiptPrinter));
     final scale = ScaleTarget.decode(c.value(AppSettings.scale));
     final orders = l.settingsGroupOrders;
+    final staffGroup = l.settingsGroupStaff;
+    String commissionLabel(String m) => switch (m) {
+          'percent' => l.commissionPercentOfSales(c.value(AppSettings.commissionPercent)),
+          'perProduct' => l.commissionPerProduct,
+          _ => l.settingsOff,
+        };
     final kitchen = PrinterTarget.decode(c.value(AppSettings.kitchenPrinter));
     final device = l.settingsGroupDevice;
     final data = l.settingsGroupData;
@@ -389,6 +395,38 @@ class SettingsView extends GetView<SettingsController> {
           leading: const Icon(Icons.connected_tv_outlined),
           onTap: showScreenLinks,
         ), keywords: ['link', 'qr', 'display']),
+      _Entry(staffGroup, InfoTile(
+        title: l.settingsClockInToSell,
+        subtitle: l.settingsClockInToSellHelp,
+        trailing: Switch(value: c.value(AppSettings.clockInToSell), onChanged: (v) => c.save(AppSettings.clockInToSell, v)),
+      ), keywords: ['clock', 'time', 'attendance', 'shift']),
+      _Entry(staffGroup, InfoTile(
+        title: l.settingsCommission,
+        subtitle: l.settingsCommissionHelp,
+        value: commissionLabel(c.value(AppSettings.commissionMode)),
+        onTap: () async {
+          final mode = await choiceDialog<String>(
+            title: l.settingsCommission,
+            options: const ['off', 'percent', 'perProduct'],
+            label: (m) => m == 'percent' ? l.commissionPercentChoice : commissionLabel(m),
+            selected: c.value(AppSettings.commissionMode),
+          );
+          if (mode == null) return;
+          if (mode == 'percent') {
+            final percent = await choiceDialog<int>(
+              title: l.commissionPercentChoice,
+              options: const [1, 2, 3, 5, 7, 10, 15],
+              label: (p) => '$p%',
+              selected: c.value(AppSettings.commissionPercent),
+            );
+            if (percent == null) return;
+            await c.saveAll([(AppSettings.commissionMode, mode), (AppSettings.commissionPercent, percent)]);
+            c.saved();
+          } else {
+            await c.save(AppSettings.commissionMode, mode);
+          }
+        },
+      ), keywords: ['commission', 'pay', 'wages', 'bonus']),
       _Entry(security, InfoTile(
         title: l.settingsAutoLock,
         subtitle: l.settingsAutoLockHelp,

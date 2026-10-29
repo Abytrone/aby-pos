@@ -75,6 +75,9 @@ class StaffFigures {
     this.noSales = 0,
     this.shorts = 0,
     this.shortTotal = 0,
+    this.items = 0,
+    this.minutesWorked = 0,
+    this.commission = 0,
   });
 
   final String name;
@@ -86,6 +89,16 @@ class StaffFigures {
   final int noSales;
   final int shorts;
   final int shortTotal;
+
+  /// Pieces sold (a weighed line is one).
+  final int items;
+
+  /// From the time clock.
+  final int minutesWorked;
+
+  /// Pesewas earned, when the shop pays commission.
+  final int commission;
+
 
   int get average => sales == 0 ? 0 : total ~/ sales;
 }
@@ -138,4 +151,17 @@ class StockTaxFigures {
 
   /// (tax name, rate in basis points, amount).
   final List<(String, int, int)> taxes;
+}
+
+/// Commission (STF-07): off, a percent of each person's sales, or an amount
+/// per product sold.
+enum CommissionMode { off, percent, perProduct }
+
+class CommissionConfig {
+  const CommissionConfig({this.mode = CommissionMode.off, this.percent = 0});
+
+  final CommissionMode mode;
+
+  /// Whole percent of sales.
+  final int percent;
 }

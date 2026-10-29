@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_mark.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/barcode_scanner.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/option_chip.dart';
 import '../../../ui/permission_labels.dart';
@@ -37,7 +38,12 @@ class SignInView extends GetView<SignInController> {
                 ),
               ]),
               const SizedBox(height: AbySpace.s6),
-              Text(context.l10n.signInWho, style: AbyText.heading.copyWith(color: c.ink)),
+              Row(children: [
+                Expanded(child: Text(context.l10n.signInWho, style: AbyText.heading.copyWith(color: c.ink))),
+                ?cameraScanButton(controller.scannedBadge),
+              ]),
+              if (controller.badgeError.value != null)
+                Text(controller.badgeError.value!, style: AbyText.caption.copyWith(color: c.danger)),
               const SizedBox(height: AbySpace.s3),
               Wrap(
                 spacing: AbySpace.s2,
@@ -59,7 +65,7 @@ class SignInView extends GetView<SignInController> {
               ? Text(context.l10n.signInPickName, style: AbyText.body.copyWith(color: c.inkMuted))
               : PinPad(
                   // A new pad (cleared digits) for each person.
-                  key: ValueKey(selected.id),
+                  key: ValueKey('${selected.id}-${controller.padKey.value}'),
                   title: context.l10n.pinFor(selected.name),
                   onSubmit: controller.submitPin,
                 );

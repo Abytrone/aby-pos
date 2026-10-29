@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../models/report.dart';
 import '../../../models/enums.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
@@ -10,6 +11,7 @@ import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/period_bar.dart';
 import '../../../ui/section_page.dart';
+import '../../staff/widgets/timesheets.dart' show hoursText;
 import '../controllers/reports_controller.dart';
 
 /// "+12%" against the period before, or nothing when there was nothing.
@@ -270,6 +272,10 @@ class _StaffTab extends GetView<ReportsController> {
               InfoTile(title: l.reportSalesCount, value: '${s.sales}'),
               InfoTile(title: l.reportNetSales, value: formatMoney(s.total)),
               InfoTile(title: l.reportAverageSale, value: formatMoney(s.average)),
+              InfoTile(title: l.reportItems, value: '${s.items}'),
+              if (s.minutesWorked > 0) InfoTile(title: l.timeWorked, value: hoursText(l, s.minutesWorked)),
+              if (controller.commission.mode != CommissionMode.off)
+                InfoTile(title: l.reportCommission, value: formatMoney(s.commission)),
               InfoTile(title: l.profitDiscounts, value: formatMoney(s.discounts)),
               InfoTile(title: l.reportVoids, value: '${s.voids}'),
               InfoTile(title: l.reportRefundsGiven, value: '${s.refunds}'),

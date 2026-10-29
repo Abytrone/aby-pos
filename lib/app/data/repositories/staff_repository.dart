@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:drift/drift.dart';
 
 import '../../core/permissions.dart';
@@ -205,7 +207,75 @@ class StaffRepository {
       dateOfBirth: row.dateOfBirth,
       startedOn: row.startedOn,
       notes: row.notes,
+      badgeCode: row.badgeCode,
+      workStart: row.workStart,
+      workEnd: row.workEnd,
     );
+  }
+
+  /// The badge prefix: a scan of "ABY-STAFF:..." at sign-in picks the person.
+  static const badgePrefix = 'ABY-STAFF:';
+
+  /// The active staff member with this badge (as scanned), or null.
+  Future<Staff?> byBadge(String scanned) async {
+    final t = scanned.trim();
+    if (!t.toUpperCase().startsWith(badgePrefix)) return null;
+    final code = t.substring(badgePrefix.length).toLowerCase();
+    final row = await (_db.select(_db.staffMembers)
+          ..where((s) => s.badgeCode.equals(code) & s.active.equals(true) & s.deletedAt.isNull()))
+        .getSingleOrNull();
+    return row == null ? null : find(row.id);
+  }
+
+  /// A new badge (the old one stops working). Returns what goes in the QR
+  /// code.
+  Future<String> newBadge(String staffId, {required Staff by}) async {
+    // Letters only: a keyboard scanner also types into the PIN pad, which
+    // takes digits.
+    const chars = 'abcdefghjkmnpqrstuvwxyz';
+    final random = Random.secure();
+    final code = List.generate(14, (_) => chars[random.nextInt(chars.length)]).join();
+    final row = await _requireRow(staffId);
+    await _db.transaction(() async {
+      await _db.updateTracked(_db.staffMembers, row.copyWith(badgeCode: Value(code), updatedAt: DateTime.now()));
+      await _audit.record(
+        action: AuditAction.staffDetailsChanged,
+        actor: by,
+        entity: 'staff',
+        entityId: staffId,
+        summary: 'New sign-in badge for ${row.name}',
+      );
+    });
+    return '$badgePrefix$code';
+  }
+
+  Future<void> removeBadge(String staffId, {required Staff by}) async {
+    final row = await _requireRow(staffId);
+    await _db.transaction(() async {
+      await _db.updateTracked(_db.staffMembers, row.copyWith(badgeCode: const Value(null), updatedAt: DateTime.now()));
+      await _audit.record(
+        action: AuditAction.staffDetailsChanged,
+        actor: by,
+        entity: 'staff',
+        entityId: staffId,
+        summary: 'Removed the sign-in badge of ${row.name}',
+      );
+    });
+  }
+
+  /// Usual hours (minutes after midnight), or null for none.
+  Future<void> setWorkHours(String staffId, {int? start, int? end, required Staff by}) async {
+    final row = await _requireRow(staffId);
+    await _db.transaction(() async {
+      await _db.updateTracked(_db.staffMembers, row.copyWith(workStart: Value(start), workEnd: Value(end), updatedAt: DateTime.now()));
+      await _audit.record(
+        action: AuditAction.staffDetailsChanged,
+        actor: by,
+        entity: 'staff',
+        entityId: staffId,
+        summary: 'Usual hours of ${row.name} changed',
+      );
+    });
   }
 
   /// Saves profile details. Values should already be normalised (see

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/settings.dart';
 import '../../../models/enums.dart';
 import '../../../services/money.dart';
+import '../../../services/settings_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
@@ -262,6 +264,17 @@ class _OptionsAndTax extends StatelessWidget {
             ]),
           ),
       ]),
+      if (Get.find<SettingsService>().get(AppSettings.commissionMode) == 'perProduct')
+        GroupCard(title: l.editorCommission, children: [
+          Padding(
+            padding: const EdgeInsets.all(AbySpace.s4),
+            child: TextField(
+              controller: ctl.commission,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(labelText: l.editorCommissionPer, prefixText: 'GH₵ ', helperText: l.editorCommissionHelp),
+            ),
+          ),
+        ]),
       GroupCard(
         title: l.editorOptions,
         footer: groups.isEmpty ? l.editorNoOptions : null,

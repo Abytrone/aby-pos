@@ -958,6 +958,60 @@ void main() {
     await _dispose(tester);
   });
 
+  testWidgets('tablet: clock in before selling, then the timesheet', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await _settle(tester);
+    await tester.tap(find.text('Kofi'));
+    await _settle(tester);
+    await _typePin(tester, '1234');
+
+    await tester.tap(find.text('Settings'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Search settings'), 'clock in');
+    await _settle(tester);
+    await tester.tap(find.byType(Switch).first);
+    await _settle(tester);
+
+    await tester.tap(find.text('Sell'));
+    await _settle(tester);
+    await tester.tap(find.text('Waffle'));
+    await _settle(tester);
+    await tester.tap(find.text('Pay GH₵ 12.00'));
+    await _settle(tester);
+    expect(find.text('Clock in to sell'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Clock in'));
+    await _settle(tester);
+    expect(find.text('Exact'), findsOneWidget, reason: 'on to checkout');
+    await tester.tap(find.text('Exact'));
+    await _settle(tester);
+    await tester.tap(find.text('Complete sale'));
+    await _settle(tester);
+    await tester.tap(find.text('New sale'));
+    await _settle(tester);
+
+    await tester.tap(find.byTooltip('Signed in'));
+    await _settle(tester);
+    expect(find.text('Clock out'), findsOneWidget);
+    expect(find.text('Start a break'), findsOneWidget);
+    await tester.tapAt(const Offset(10, 790));
+    await _settle(tester);
+
+    await tester.tap(find.text('Staff'));
+    await _settle(tester);
+    await tester.tap(find.widgetWithText(Tab, 'Timesheets'));
+    await _settle(tester);
+    expect(find.text('HOURS WORKED'), findsNothing);
+    expect(find.text('Hours worked'), findsOneWidget);
+    expect(find.textContaining('still in'), findsOneWidget);
+
+    await _dispose(tester);
+  });
+
   testWidgets('phone portrait, first run: name the shop, create the owner, start selling', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;

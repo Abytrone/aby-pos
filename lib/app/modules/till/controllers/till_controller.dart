@@ -20,12 +20,15 @@ import '../../../models/catalog.dart';
 import '../../../models/discount.dart';
 import '../../../models/enums.dart';
 import '../../../routes/app_routes.dart';
+import '../../../data/repositories/time_repository.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/clock_service.dart';
 import '../../../services/device_service.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/printing/print_service.dart';
 import '../../../services/settings_service.dart';
+import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
 import '../../shell/controllers/shell_controller.dart';
 import 'cart_controller.dart';
@@ -670,8 +673,21 @@ class TillController extends GetxController {
     await _rules.setQuickTab(productIds);
   }
 
-  void pay() {
+  Future<void> pay() async {
     if (cart.isEmpty) return;
-    Get.toNamed<void>(Routes.checkout);
+    // The shop may want people clocked in before they sell (STF-04).
+    final clock = Get.isRegistered<ClockService>() ? Get.find<ClockService>() : null;
+    if (clock != null && clock.mayNotSell) {
+      final l = appL10n();
+      final ok = await confirmDialog(title: l.clockInToSellTitle, message: l.clockInToSellBody, confirmLabel: l.clockIn);
+      if (!ok) return;
+      try {
+        await clock.clockIn();
+      } on TimeClockException catch (e) {
+        showMessage(e.message);
+        return;
+      }
+    }
+    await Get.toNamed<void>(Routes.checkout);
   }
 }

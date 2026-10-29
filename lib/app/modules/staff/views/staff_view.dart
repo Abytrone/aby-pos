@@ -13,6 +13,7 @@ import '../controllers/roles_controller.dart';
 import '../controllers/staff_controller.dart';
 import '../widgets/role_editor.dart';
 import '../widgets/staff_form.dart';
+import '../widgets/timesheets.dart';
 
 /// Manage → Staff: people, and (with permission) roles.
 class StaffView extends GetView<StaffController> {
@@ -23,7 +24,7 @@ class StaffView extends GetView<StaffController> {
     final l = context.l10n;
     final withRoles = controller.canManageRoles;
     return DefaultTabController(
-      length: withRoles ? 2 : 1,
+      length: withRoles ? 3 : 2,
       child: SectionPage(
         title: l.navStaff,
         actions: [
@@ -39,16 +40,12 @@ class StaffView extends GetView<StaffController> {
               label: Text(l.rolesAdd),
             ),
         ],
-        bottom: withRoles
-            ? TabBar(
-                isScrollable: true,
-                tabAlignment: TabAlignment.start,
-                tabs: [Tab(text: l.staffPeople), Tab(text: l.staffRoles)],
-              )
-            : null,
-        child: withRoles
-            ? TabBarView(children: [_People(view: this), _Roles(view: this)])
-            : _People(view: this),
+        bottom: TabBar(
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
+          tabs: [Tab(text: l.staffPeople), Tab(text: l.timeTab), if (withRoles) Tab(text: l.staffRoles)],
+        ),
+        child: TabBarView(children: [_People(view: this), const TimesheetsTab(), if (withRoles) _Roles(view: this)]),
       ),
     );
   }

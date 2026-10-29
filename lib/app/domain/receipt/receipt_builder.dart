@@ -298,6 +298,14 @@ abstract final class ReceiptBuilder {
         RText('Pay with it at $shopName. What is left stays on the code.', align: ReceiptAlign.center),
       ]);
 
+  /// A staff sign-in badge: the name and a QR code to scan at sign-in.
+  static ReceiptDoc badge({required String name, required String shopName, required String code}) => ReceiptDoc('Badge $name', [
+        RText(shopName, align: ReceiptAlign.center),
+        RText(name, align: ReceiptAlign.center, bold: true, big: true),
+        RQr(code),
+        const RText('Scan to sign in. The PIN is still needed.', align: ReceiptAlign.center),
+      ]);
+
   /// Shows the paper width, the characters and a QR code.
   static ReceiptDoc testPage(String shopName, Paper paper, String printerName) => ReceiptDoc('Test page', [
         const RText('Aby printer test', align: ReceiptAlign.center, bold: true, big: true),

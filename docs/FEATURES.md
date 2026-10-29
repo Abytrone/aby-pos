@@ -1481,6 +1481,29 @@ Decisions made on the way:
 - Purchase orders do not change what is owed to the supplier; the delivery does, as before.
 - Recording a production run needs "Correct stock"; setting the recipe needs "Edit products".
 
+**Status (29 October 2026): 6e built** (badges, time clock, commission). Schema 15. Built:
+
+- `STF-01` badge sign-in: on a staff member's page, "Make a badge" prints a badge (receipt
+  printer) or shares it as a PDF, with a QR code. Scanning it at sign-in (keyboard scanner, or
+  the camera on Android) picks the person; the PIN is still needed. "New badge" stops the old
+  one; badges can be removed. Badge codes are letters only, so a scanner typing into the PIN
+  pad never makes a wrong-PIN attempt.
+- `STF-04` clock in / out: from the name at the top (Clock in, Start a break, End the break,
+  Clock out). Staff can have usual hours; the timesheet (Staff → Timesheets, any week or
+  dates) shows each stretch with breaks, hours worked, late arrivals and early leaves (5
+  minutes' grace), and exports to CSV for wages. Settings → Staff → "Clock in before selling"
+  asks people to clock in at Pay.
+- `STF-07` performance and commission: Reports → Staff now shows items sold, hours worked and
+  commission next to sales, average sale, discounts, voids, refunds, no-sales and shorts (also
+  in the CSV). Commission (Settings → Staff) is off, a percent of each person's sales, or an
+  amount per product (set on the product); it is worked out for the dates chosen.
+
+Decisions made on the way:
+
+- Clocking in uses the person already signed in with their PIN; no second PIN.
+- Commission is on sales as made: refunds do not take it back (the owner sees refunds by
+  person next to it).
+
 ### Phase 7: Many devices without internet
 
 - `MDV-01` local hub, `MDV-03` device management.

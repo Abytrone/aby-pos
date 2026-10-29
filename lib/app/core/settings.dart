@@ -113,6 +113,16 @@ abstract final class AppSettings {
   /// Items that need prep ([PromoTarget] as JSON; empty = everything).
   static const orderPrepTarget = Setting<String>('orders.prepTarget', SettingScope.shop, '{}');
 
+  // Staff (STF-04, STF-07)
+  /// Someone must be clocked in to sell.
+  static const clockInToSell = Setting<bool>('staff.clockInToSell', SettingScope.shop, false);
+
+  /// off | percent | perProduct
+  static const commissionMode = Setting<String>('staff.commissionMode', SettingScope.shop, 'off');
+
+  /// Whole percent of each person's sales.
+  static const commissionPercent = Setting<int>('staff.commissionPercent', SettingScope.shop, 5);
+
   // Receipts (Settings → Receipt design)
   static const receiptHeader = Setting<String>('receipt.header', SettingScope.shop, '');
   static const receiptFooter = Setting<String>('receipt.footer', SettingScope.shop, 'Thank you. Come again!');
@@ -194,6 +204,9 @@ abstract final class AppSettings {
     autoBackupDaily,
     backupsToKeep,
     offsiteBackupDays,
+    clockInToSell,
+    commissionMode,
+    commissionPercent,
     ordersOn,
     orderPrefix,
     orderPrepTarget,

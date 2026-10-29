@@ -10,6 +10,7 @@ import '../../../data/repositories/audit_repository.dart';
 import '../../../data/repositories/role_repository.dart';
 import '../../../data/repositories/staff_repository.dart';
 import '../../../data/repositories/staff_stats_repository.dart';
+import '../../../domain/receipt/receipt_builder.dart';
 import '../../../models/audit.dart';
 import '../../../models/staff.dart';
 import '../../../services/auth_service.dart';
@@ -18,6 +19,7 @@ import '../../../services/pin_hasher.dart';
 import '../../../services/settings_service.dart';
 import '../../../services/staff_photo_service.dart';
 import '../../../ui/l10n.dart';
+import '../widgets/badge_dialog.dart';
 import '../../../ui/photo_picker.dart';
 import '../../staff/controllers/staff_controller.dart';
 
@@ -256,6 +258,30 @@ class StaffProfileController extends GetxController {
         await _staff.setActive(staffId, active: active, by: me);
         final name = profile.value!.staff.name;
         message.value = active ? l.staffReactivated(name) : l.staffDeactivated(name);
+      });
+
+  /// A new sign-in badge, printed on the receipt printer or shared as a PDF.
+  Future<void> newBadge() => _run(() async {
+        final code = await _staff.newBadge(staffId, by: me);
+        await _afterChange();
+        await showBadge(code);
+      });
+
+  Future<void> removeBadge() => _run(() async {
+        await _staff.removeBadge(staffId, by: me);
+        message.value = appL10n().badgeRemoved;
+      });
+
+  /// The badge as a card to print or send.
+  Future<void> showBadge(String code) async {
+    final p = profile.value!;
+    final doc = ReceiptBuilder.badge(name: p.staff.name, shopName: _settings.get(AppSettings.shopName), code: code);
+    await showBadgeDialog(doc, p.staff.name);
+  }
+
+  Future<void> setWorkHours(int? start, int? end) => _run(() async {
+        await _staff.setWorkHours(staffId, start: start, end: end, by: me);
+        message.value = appL10n().settingsSaved;
       });
 
   Future<void> _run(Future<void> Function() action) async {

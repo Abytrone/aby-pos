@@ -873,6 +873,17 @@ class $ProductsTable extends Products
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _commissionMeta = const VerificationMeta(
+    'commission',
+  );
+  @override
+  late final GeneratedColumn<int> commission = GeneratedColumn<int>(
+    'commission',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -893,6 +904,7 @@ class $ProductsTable extends Products
     minPrice,
     maxPrice,
     quickOrder,
+    commission,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1020,6 +1032,12 @@ class $ProductsTable extends Products
         quickOrder.isAcceptableOrUnknown(data['quick_order']!, _quickOrderMeta),
       );
     }
+    if (data.containsKey('commission')) {
+      context.handle(
+        _commissionMeta,
+        commission.isAcceptableOrUnknown(data['commission']!, _commissionMeta),
+      );
+    }
     return context;
   }
 
@@ -1103,6 +1121,10 @@ class $ProductsTable extends Products
         DriftSqlType.int,
         data['${effectivePrefix}quick_order'],
       ),
+      commission: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}commission'],
+      ),
     );
   }
 
@@ -1149,6 +1171,10 @@ class ProductRow extends DataClass implements Insertable<ProductRow> {
 
   /// Position on the till's Quick tab; null when not on it. v6.
   final int? quickOrder;
+
+  /// Pesewas of commission per one sold, when the shop pays commission per
+  /// product (STF-07). v15.
+  final int? commission;
   const ProductRow({
     required this.id,
     required this.createdAt,
@@ -1168,6 +1194,7 @@ class ProductRow extends DataClass implements Insertable<ProductRow> {
     this.minPrice,
     this.maxPrice,
     this.quickOrder,
+    this.commission,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1210,6 +1237,9 @@ class ProductRow extends DataClass implements Insertable<ProductRow> {
     if (!nullToAbsent || quickOrder != null) {
       map['quick_order'] = Variable<int>(quickOrder);
     }
+    if (!nullToAbsent || commission != null) {
+      map['commission'] = Variable<int>(commission);
+    }
     return map;
   }
 
@@ -1249,6 +1279,9 @@ class ProductRow extends DataClass implements Insertable<ProductRow> {
       quickOrder: quickOrder == null && nullToAbsent
           ? const Value.absent()
           : Value(quickOrder),
+      commission: commission == null && nullToAbsent
+          ? const Value.absent()
+          : Value(commission),
     );
   }
 
@@ -1278,6 +1311,7 @@ class ProductRow extends DataClass implements Insertable<ProductRow> {
       minPrice: serializer.fromJson<int?>(json['minPrice']),
       maxPrice: serializer.fromJson<int?>(json['maxPrice']),
       quickOrder: serializer.fromJson<int?>(json['quickOrder']),
+      commission: serializer.fromJson<int?>(json['commission']),
     );
   }
   @override
@@ -1304,6 +1338,7 @@ class ProductRow extends DataClass implements Insertable<ProductRow> {
       'minPrice': serializer.toJson<int?>(minPrice),
       'maxPrice': serializer.toJson<int?>(maxPrice),
       'quickOrder': serializer.toJson<int?>(quickOrder),
+      'commission': serializer.toJson<int?>(commission),
     };
   }
 
@@ -1326,6 +1361,7 @@ class ProductRow extends DataClass implements Insertable<ProductRow> {
     Value<int?> minPrice = const Value.absent(),
     Value<int?> maxPrice = const Value.absent(),
     Value<int?> quickOrder = const Value.absent(),
+    Value<int?> commission = const Value.absent(),
   }) => ProductRow(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -1345,6 +1381,7 @@ class ProductRow extends DataClass implements Insertable<ProductRow> {
     minPrice: minPrice.present ? minPrice.value : this.minPrice,
     maxPrice: maxPrice.present ? maxPrice.value : this.maxPrice,
     quickOrder: quickOrder.present ? quickOrder.value : this.quickOrder,
+    commission: commission.present ? commission.value : this.commission,
   );
   ProductRow copyWithCompanion(ProductsCompanion data) {
     return ProductRow(
@@ -1374,6 +1411,9 @@ class ProductRow extends DataClass implements Insertable<ProductRow> {
       quickOrder: data.quickOrder.present
           ? data.quickOrder.value
           : this.quickOrder,
+      commission: data.commission.present
+          ? data.commission.value
+          : this.commission,
     );
   }
 
@@ -1397,7 +1437,8 @@ class ProductRow extends DataClass implements Insertable<ProductRow> {
           ..write('openPrice: $openPrice, ')
           ..write('minPrice: $minPrice, ')
           ..write('maxPrice: $maxPrice, ')
-          ..write('quickOrder: $quickOrder')
+          ..write('quickOrder: $quickOrder, ')
+          ..write('commission: $commission')
           ..write(')'))
         .toString();
   }
@@ -1422,6 +1463,7 @@ class ProductRow extends DataClass implements Insertable<ProductRow> {
     minPrice,
     maxPrice,
     quickOrder,
+    commission,
   );
   @override
   bool operator ==(Object other) =>
@@ -1444,7 +1486,8 @@ class ProductRow extends DataClass implements Insertable<ProductRow> {
           other.openPrice == this.openPrice &&
           other.minPrice == this.minPrice &&
           other.maxPrice == this.maxPrice &&
-          other.quickOrder == this.quickOrder);
+          other.quickOrder == this.quickOrder &&
+          other.commission == this.commission);
 }
 
 class ProductsCompanion extends UpdateCompanion<ProductRow> {
@@ -1466,6 +1509,7 @@ class ProductsCompanion extends UpdateCompanion<ProductRow> {
   final Value<int?> minPrice;
   final Value<int?> maxPrice;
   final Value<int?> quickOrder;
+  final Value<int?> commission;
   final Value<int> rowid;
   const ProductsCompanion({
     this.id = const Value.absent(),
@@ -1486,6 +1530,7 @@ class ProductsCompanion extends UpdateCompanion<ProductRow> {
     this.minPrice = const Value.absent(),
     this.maxPrice = const Value.absent(),
     this.quickOrder = const Value.absent(),
+    this.commission = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ProductsCompanion.insert({
@@ -1507,6 +1552,7 @@ class ProductsCompanion extends UpdateCompanion<ProductRow> {
     this.minPrice = const Value.absent(),
     this.maxPrice = const Value.absent(),
     this.quickOrder = const Value.absent(),
+    this.commission = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -1533,6 +1579,7 @@ class ProductsCompanion extends UpdateCompanion<ProductRow> {
     Expression<int>? minPrice,
     Expression<int>? maxPrice,
     Expression<int>? quickOrder,
+    Expression<int>? commission,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1554,6 +1601,7 @@ class ProductsCompanion extends UpdateCompanion<ProductRow> {
       if (minPrice != null) 'min_price': minPrice,
       if (maxPrice != null) 'max_price': maxPrice,
       if (quickOrder != null) 'quick_order': quickOrder,
+      if (commission != null) 'commission': commission,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1577,6 +1625,7 @@ class ProductsCompanion extends UpdateCompanion<ProductRow> {
     Value<int?>? minPrice,
     Value<int?>? maxPrice,
     Value<int?>? quickOrder,
+    Value<int?>? commission,
     Value<int>? rowid,
   }) {
     return ProductsCompanion(
@@ -1598,6 +1647,7 @@ class ProductsCompanion extends UpdateCompanion<ProductRow> {
       minPrice: minPrice ?? this.minPrice,
       maxPrice: maxPrice ?? this.maxPrice,
       quickOrder: quickOrder ?? this.quickOrder,
+      commission: commission ?? this.commission,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1661,6 +1711,9 @@ class ProductsCompanion extends UpdateCompanion<ProductRow> {
     if (quickOrder.present) {
       map['quick_order'] = Variable<int>(quickOrder.value);
     }
+    if (commission.present) {
+      map['commission'] = Variable<int>(commission.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1688,6 +1741,7 @@ class ProductsCompanion extends UpdateCompanion<ProductRow> {
           ..write('minPrice: $minPrice, ')
           ..write('maxPrice: $maxPrice, ')
           ..write('quickOrder: $quickOrder, ')
+          ..write('commission: $commission, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -32922,6 +32976,774 @@ class StockBatchesCompanion extends UpdateCompanion<StockBatchRow> {
   }
 }
 
+class $TimeEntriesTable extends TimeEntries
+    with TableInfo<$TimeEntriesTable, TimeEntryRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TimeEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
+    'syncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
+    'synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _staffIdMeta = const VerificationMeta(
+    'staffId',
+  );
+  @override
+  late final GeneratedColumn<String> staffId = GeneratedColumn<String>(
+    'staff_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _staffNameMeta = const VerificationMeta(
+    'staffName',
+  );
+  @override
+  late final GeneratedColumn<String> staffName = GeneratedColumn<String>(
+    'staff_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _clockInMeta = const VerificationMeta(
+    'clockIn',
+  );
+  @override
+  late final GeneratedColumn<DateTime> clockIn = GeneratedColumn<DateTime>(
+    'clock_in',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _clockOutMeta = const VerificationMeta(
+    'clockOut',
+  );
+  @override
+  late final GeneratedColumn<DateTime> clockOut = GeneratedColumn<DateTime>(
+    'clock_out',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _breakMinutesMeta = const VerificationMeta(
+    'breakMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> breakMinutes = GeneratedColumn<int>(
+    'break_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _breakStartedAtMeta = const VerificationMeta(
+    'breakStartedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> breakStartedAt =
+      GeneratedColumn<DateTime>(
+        'break_started_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    syncedAt,
+    deviceId,
+    staffId,
+    staffName,
+    clockIn,
+    clockOut,
+    breakMinutes,
+    breakStartedAt,
+    note,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'time_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TimeEntryRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('synced_at')) {
+      context.handle(
+        _syncedAtMeta,
+        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
+      );
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('staff_id')) {
+      context.handle(
+        _staffIdMeta,
+        staffId.isAcceptableOrUnknown(data['staff_id']!, _staffIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_staffIdMeta);
+    }
+    if (data.containsKey('staff_name')) {
+      context.handle(
+        _staffNameMeta,
+        staffName.isAcceptableOrUnknown(data['staff_name']!, _staffNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_staffNameMeta);
+    }
+    if (data.containsKey('clock_in')) {
+      context.handle(
+        _clockInMeta,
+        clockIn.isAcceptableOrUnknown(data['clock_in']!, _clockInMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_clockInMeta);
+    }
+    if (data.containsKey('clock_out')) {
+      context.handle(
+        _clockOutMeta,
+        clockOut.isAcceptableOrUnknown(data['clock_out']!, _clockOutMeta),
+      );
+    }
+    if (data.containsKey('break_minutes')) {
+      context.handle(
+        _breakMinutesMeta,
+        breakMinutes.isAcceptableOrUnknown(
+          data['break_minutes']!,
+          _breakMinutesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('break_started_at')) {
+      context.handle(
+        _breakStartedAtMeta,
+        breakStartedAt.isAcceptableOrUnknown(
+          data['break_started_at']!,
+          _breakStartedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TimeEntryRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TimeEntryRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      syncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}synced_at'],
+      ),
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      staffId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}staff_id'],
+      )!,
+      staffName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}staff_name'],
+      )!,
+      clockIn: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}clock_in'],
+      )!,
+      clockOut: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}clock_out'],
+      ),
+      breakMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}break_minutes'],
+      )!,
+      breakStartedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}break_started_at'],
+      ),
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+    );
+  }
+
+  @override
+  $TimeEntriesTable createAlias(String alias) {
+    return $TimeEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class TimeEntryRow extends DataClass implements Insertable<TimeEntryRow> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+
+  /// When the server last confirmed this row. Null means not yet synced.
+  final DateTime? syncedAt;
+  final String deviceId;
+  final String staffId;
+  final String staffName;
+  final DateTime clockIn;
+  final DateTime? clockOut;
+
+  /// Minutes on breaks so far, and when the current break started.
+  final int breakMinutes;
+  final DateTime? breakStartedAt;
+  final String? note;
+  const TimeEntryRow({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    this.syncedAt,
+    required this.deviceId,
+    required this.staffId,
+    required this.staffName,
+    required this.clockIn,
+    this.clockOut,
+    required this.breakMinutes,
+    this.breakStartedAt,
+    this.note,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || syncedAt != null) {
+      map['synced_at'] = Variable<DateTime>(syncedAt);
+    }
+    map['device_id'] = Variable<String>(deviceId);
+    map['staff_id'] = Variable<String>(staffId);
+    map['staff_name'] = Variable<String>(staffName);
+    map['clock_in'] = Variable<DateTime>(clockIn);
+    if (!nullToAbsent || clockOut != null) {
+      map['clock_out'] = Variable<DateTime>(clockOut);
+    }
+    map['break_minutes'] = Variable<int>(breakMinutes);
+    if (!nullToAbsent || breakStartedAt != null) {
+      map['break_started_at'] = Variable<DateTime>(breakStartedAt);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    return map;
+  }
+
+  TimeEntriesCompanion toCompanion(bool nullToAbsent) {
+    return TimeEntriesCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      syncedAt: syncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedAt),
+      deviceId: Value(deviceId),
+      staffId: Value(staffId),
+      staffName: Value(staffName),
+      clockIn: Value(clockIn),
+      clockOut: clockOut == null && nullToAbsent
+          ? const Value.absent()
+          : Value(clockOut),
+      breakMinutes: Value(breakMinutes),
+      breakStartedAt: breakStartedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(breakStartedAt),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+    );
+  }
+
+  factory TimeEntryRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TimeEntryRow(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      staffId: serializer.fromJson<String>(json['staffId']),
+      staffName: serializer.fromJson<String>(json['staffName']),
+      clockIn: serializer.fromJson<DateTime>(json['clockIn']),
+      clockOut: serializer.fromJson<DateTime?>(json['clockOut']),
+      breakMinutes: serializer.fromJson<int>(json['breakMinutes']),
+      breakStartedAt: serializer.fromJson<DateTime?>(json['breakStartedAt']),
+      note: serializer.fromJson<String?>(json['note']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'syncedAt': serializer.toJson<DateTime?>(syncedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'staffId': serializer.toJson<String>(staffId),
+      'staffName': serializer.toJson<String>(staffName),
+      'clockIn': serializer.toJson<DateTime>(clockIn),
+      'clockOut': serializer.toJson<DateTime?>(clockOut),
+      'breakMinutes': serializer.toJson<int>(breakMinutes),
+      'breakStartedAt': serializer.toJson<DateTime?>(breakStartedAt),
+      'note': serializer.toJson<String?>(note),
+    };
+  }
+
+  TimeEntryRow copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    Value<DateTime?> syncedAt = const Value.absent(),
+    String? deviceId,
+    String? staffId,
+    String? staffName,
+    DateTime? clockIn,
+    Value<DateTime?> clockOut = const Value.absent(),
+    int? breakMinutes,
+    Value<DateTime?> breakStartedAt = const Value.absent(),
+    Value<String?> note = const Value.absent(),
+  }) => TimeEntryRow(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
+    deviceId: deviceId ?? this.deviceId,
+    staffId: staffId ?? this.staffId,
+    staffName: staffName ?? this.staffName,
+    clockIn: clockIn ?? this.clockIn,
+    clockOut: clockOut.present ? clockOut.value : this.clockOut,
+    breakMinutes: breakMinutes ?? this.breakMinutes,
+    breakStartedAt: breakStartedAt.present
+        ? breakStartedAt.value
+        : this.breakStartedAt,
+    note: note.present ? note.value : this.note,
+  );
+  TimeEntryRow copyWithCompanion(TimeEntriesCompanion data) {
+    return TimeEntryRow(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      staffId: data.staffId.present ? data.staffId.value : this.staffId,
+      staffName: data.staffName.present ? data.staffName.value : this.staffName,
+      clockIn: data.clockIn.present ? data.clockIn.value : this.clockIn,
+      clockOut: data.clockOut.present ? data.clockOut.value : this.clockOut,
+      breakMinutes: data.breakMinutes.present
+          ? data.breakMinutes.value
+          : this.breakMinutes,
+      breakStartedAt: data.breakStartedAt.present
+          ? data.breakStartedAt.value
+          : this.breakStartedAt,
+      note: data.note.present ? data.note.value : this.note,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TimeEntryRow(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('staffId: $staffId, ')
+          ..write('staffName: $staffName, ')
+          ..write('clockIn: $clockIn, ')
+          ..write('clockOut: $clockOut, ')
+          ..write('breakMinutes: $breakMinutes, ')
+          ..write('breakStartedAt: $breakStartedAt, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    syncedAt,
+    deviceId,
+    staffId,
+    staffName,
+    clockIn,
+    clockOut,
+    breakMinutes,
+    breakStartedAt,
+    note,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TimeEntryRow &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.syncedAt == this.syncedAt &&
+          other.deviceId == this.deviceId &&
+          other.staffId == this.staffId &&
+          other.staffName == this.staffName &&
+          other.clockIn == this.clockIn &&
+          other.clockOut == this.clockOut &&
+          other.breakMinutes == this.breakMinutes &&
+          other.breakStartedAt == this.breakStartedAt &&
+          other.note == this.note);
+}
+
+class TimeEntriesCompanion extends UpdateCompanion<TimeEntryRow> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<DateTime?> syncedAt;
+  final Value<String> deviceId;
+  final Value<String> staffId;
+  final Value<String> staffName;
+  final Value<DateTime> clockIn;
+  final Value<DateTime?> clockOut;
+  final Value<int> breakMinutes;
+  final Value<DateTime?> breakStartedAt;
+  final Value<String?> note;
+  final Value<int> rowid;
+  const TimeEntriesCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.staffId = const Value.absent(),
+    this.staffName = const Value.absent(),
+    this.clockIn = const Value.absent(),
+    this.clockOut = const Value.absent(),
+    this.breakMinutes = const Value.absent(),
+    this.breakStartedAt = const Value.absent(),
+    this.note = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TimeEntriesCompanion.insert({
+    required String id,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    required String deviceId,
+    required String staffId,
+    required String staffName,
+    required DateTime clockIn,
+    this.clockOut = const Value.absent(),
+    this.breakMinutes = const Value.absent(),
+    this.breakStartedAt = const Value.absent(),
+    this.note = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       staffId = Value(staffId),
+       staffName = Value(staffName),
+       clockIn = Value(clockIn);
+  static Insertable<TimeEntryRow> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<DateTime>? syncedAt,
+    Expression<String>? deviceId,
+    Expression<String>? staffId,
+    Expression<String>? staffName,
+    Expression<DateTime>? clockIn,
+    Expression<DateTime>? clockOut,
+    Expression<int>? breakMinutes,
+    Expression<DateTime>? breakStartedAt,
+    Expression<String>? note,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (syncedAt != null) 'synced_at': syncedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (staffId != null) 'staff_id': staffId,
+      if (staffName != null) 'staff_name': staffName,
+      if (clockIn != null) 'clock_in': clockIn,
+      if (clockOut != null) 'clock_out': clockOut,
+      if (breakMinutes != null) 'break_minutes': breakMinutes,
+      if (breakStartedAt != null) 'break_started_at': breakStartedAt,
+      if (note != null) 'note': note,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TimeEntriesCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<DateTime?>? syncedAt,
+    Value<String>? deviceId,
+    Value<String>? staffId,
+    Value<String>? staffName,
+    Value<DateTime>? clockIn,
+    Value<DateTime?>? clockOut,
+    Value<int>? breakMinutes,
+    Value<DateTime?>? breakStartedAt,
+    Value<String?>? note,
+    Value<int>? rowid,
+  }) {
+    return TimeEntriesCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      syncedAt: syncedAt ?? this.syncedAt,
+      deviceId: deviceId ?? this.deviceId,
+      staffId: staffId ?? this.staffId,
+      staffName: staffName ?? this.staffName,
+      clockIn: clockIn ?? this.clockIn,
+      clockOut: clockOut ?? this.clockOut,
+      breakMinutes: breakMinutes ?? this.breakMinutes,
+      breakStartedAt: breakStartedAt ?? this.breakStartedAt,
+      note: note ?? this.note,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<DateTime>(syncedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (staffId.present) {
+      map['staff_id'] = Variable<String>(staffId.value);
+    }
+    if (staffName.present) {
+      map['staff_name'] = Variable<String>(staffName.value);
+    }
+    if (clockIn.present) {
+      map['clock_in'] = Variable<DateTime>(clockIn.value);
+    }
+    if (clockOut.present) {
+      map['clock_out'] = Variable<DateTime>(clockOut.value);
+    }
+    if (breakMinutes.present) {
+      map['break_minutes'] = Variable<int>(breakMinutes.value);
+    }
+    if (breakStartedAt.present) {
+      map['break_started_at'] = Variable<DateTime>(breakStartedAt.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TimeEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('staffId: $staffId, ')
+          ..write('staffName: $staffName, ')
+          ..write('clockIn: $clockIn, ')
+          ..write('clockOut: $clockOut, ')
+          ..write('breakMinutes: $breakMinutes, ')
+          ..write('breakStartedAt: $breakStartedAt, ')
+          ..write('note: $note, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $VoucherEntriesTable extends VoucherEntries
     with TableInfo<$VoucherEntriesTable, VoucherEntryRow> {
   @override
@@ -38465,6 +39287,39 @@ class $StaffMembersTable extends StaffMembers
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _badgeCodeMeta = const VerificationMeta(
+    'badgeCode',
+  );
+  @override
+  late final GeneratedColumn<String> badgeCode = GeneratedColumn<String>(
+    'badge_code',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _workStartMeta = const VerificationMeta(
+    'workStart',
+  );
+  @override
+  late final GeneratedColumn<int> workStart = GeneratedColumn<int>(
+    'work_start',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _workEndMeta = const VerificationMeta(
+    'workEnd',
+  );
+  @override
+  late final GeneratedColumn<int> workEnd = GeneratedColumn<int>(
+    'work_end',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -38486,6 +39341,9 @@ class $StaffMembersTable extends StaffMembers
     dateOfBirth,
     startedOn,
     notes,
+    badgeCode,
+    workStart,
+    workEnd,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -38633,6 +39491,24 @@ class $StaffMembersTable extends StaffMembers
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('badge_code')) {
+      context.handle(
+        _badgeCodeMeta,
+        badgeCode.isAcceptableOrUnknown(data['badge_code']!, _badgeCodeMeta),
+      );
+    }
+    if (data.containsKey('work_start')) {
+      context.handle(
+        _workStartMeta,
+        workStart.isAcceptableOrUnknown(data['work_start']!, _workStartMeta),
+      );
+    }
+    if (data.containsKey('work_end')) {
+      context.handle(
+        _workEndMeta,
+        workEnd.isAcceptableOrUnknown(data['work_end']!, _workEndMeta),
+      );
+    }
     return context;
   }
 
@@ -38718,6 +39594,18 @@ class $StaffMembersTable extends StaffMembers
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      badgeCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}badge_code'],
+      ),
+      workStart: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}work_start'],
+      ),
+      workEnd: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}work_end'],
+      ),
     );
   }
 
@@ -38755,6 +39643,15 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
   final DateTime? dateOfBirth;
   final DateTime? startedOn;
   final String? notes;
+
+  /// Printed on a badge as a QR code, scanned at sign-in (the PIN is still
+  /// needed). v15.
+  final String? badgeCode;
+
+  /// Usual hours, minutes after midnight, for late and early on timesheets.
+  /// v15.
+  final int? workStart;
+  final int? workEnd;
   const StaffRow({
     required this.id,
     required this.createdAt,
@@ -38775,6 +39672,9 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
     this.dateOfBirth,
     this.startedOn,
     this.notes,
+    this.badgeCode,
+    this.workStart,
+    this.workEnd,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -38819,6 +39719,15 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
     }
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || badgeCode != null) {
+      map['badge_code'] = Variable<String>(badgeCode);
+    }
+    if (!nullToAbsent || workStart != null) {
+      map['work_start'] = Variable<int>(workStart);
+    }
+    if (!nullToAbsent || workEnd != null) {
+      map['work_end'] = Variable<int>(workEnd);
     }
     return map;
   }
@@ -38866,6 +39775,15 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      badgeCode: badgeCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(badgeCode),
+      workStart: workStart == null && nullToAbsent
+          ? const Value.absent()
+          : Value(workStart),
+      workEnd: workEnd == null && nullToAbsent
+          ? const Value.absent()
+          : Value(workEnd),
     );
   }
 
@@ -38894,6 +39812,9 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
       dateOfBirth: serializer.fromJson<DateTime?>(json['dateOfBirth']),
       startedOn: serializer.fromJson<DateTime?>(json['startedOn']),
       notes: serializer.fromJson<String?>(json['notes']),
+      badgeCode: serializer.fromJson<String?>(json['badgeCode']),
+      workStart: serializer.fromJson<int?>(json['workStart']),
+      workEnd: serializer.fromJson<int?>(json['workEnd']),
     );
   }
   @override
@@ -38919,6 +39840,9 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
       'dateOfBirth': serializer.toJson<DateTime?>(dateOfBirth),
       'startedOn': serializer.toJson<DateTime?>(startedOn),
       'notes': serializer.toJson<String?>(notes),
+      'badgeCode': serializer.toJson<String?>(badgeCode),
+      'workStart': serializer.toJson<int?>(workStart),
+      'workEnd': serializer.toJson<int?>(workEnd),
     };
   }
 
@@ -38942,6 +39866,9 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
     Value<DateTime?> dateOfBirth = const Value.absent(),
     Value<DateTime?> startedOn = const Value.absent(),
     Value<String?> notes = const Value.absent(),
+    Value<String?> badgeCode = const Value.absent(),
+    Value<int?> workStart = const Value.absent(),
+    Value<int?> workEnd = const Value.absent(),
   }) => StaffRow(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -38966,6 +39893,9 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
     dateOfBirth: dateOfBirth.present ? dateOfBirth.value : this.dateOfBirth,
     startedOn: startedOn.present ? startedOn.value : this.startedOn,
     notes: notes.present ? notes.value : this.notes,
+    badgeCode: badgeCode.present ? badgeCode.value : this.badgeCode,
+    workStart: workStart.present ? workStart.value : this.workStart,
+    workEnd: workEnd.present ? workEnd.value : this.workEnd,
   );
   StaffRow copyWithCompanion(StaffMembersCompanion data) {
     return StaffRow(
@@ -38994,6 +39924,9 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
           : this.dateOfBirth,
       startedOn: data.startedOn.present ? data.startedOn.value : this.startedOn,
       notes: data.notes.present ? data.notes.value : this.notes,
+      badgeCode: data.badgeCode.present ? data.badgeCode.value : this.badgeCode,
+      workStart: data.workStart.present ? data.workStart.value : this.workStart,
+      workEnd: data.workEnd.present ? data.workEnd.value : this.workEnd,
     );
   }
 
@@ -39018,13 +39951,16 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
           ..write('idNumber: $idNumber, ')
           ..write('dateOfBirth: $dateOfBirth, ')
           ..write('startedOn: $startedOn, ')
-          ..write('notes: $notes')
+          ..write('notes: $notes, ')
+          ..write('badgeCode: $badgeCode, ')
+          ..write('workStart: $workStart, ')
+          ..write('workEnd: $workEnd')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     createdAt,
     updatedAt,
@@ -39044,7 +39980,10 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
     dateOfBirth,
     startedOn,
     notes,
-  );
+    badgeCode,
+    workStart,
+    workEnd,
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -39067,7 +40006,10 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
           other.idNumber == this.idNumber &&
           other.dateOfBirth == this.dateOfBirth &&
           other.startedOn == this.startedOn &&
-          other.notes == this.notes);
+          other.notes == this.notes &&
+          other.badgeCode == this.badgeCode &&
+          other.workStart == this.workStart &&
+          other.workEnd == this.workEnd);
 }
 
 class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
@@ -39090,6 +40032,9 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
   final Value<DateTime?> dateOfBirth;
   final Value<DateTime?> startedOn;
   final Value<String?> notes;
+  final Value<String?> badgeCode;
+  final Value<int?> workStart;
+  final Value<int?> workEnd;
   final Value<int> rowid;
   const StaffMembersCompanion({
     this.id = const Value.absent(),
@@ -39111,6 +40056,9 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
     this.dateOfBirth = const Value.absent(),
     this.startedOn = const Value.absent(),
     this.notes = const Value.absent(),
+    this.badgeCode = const Value.absent(),
+    this.workStart = const Value.absent(),
+    this.workEnd = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   StaffMembersCompanion.insert({
@@ -39133,6 +40081,9 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
     this.dateOfBirth = const Value.absent(),
     this.startedOn = const Value.absent(),
     this.notes = const Value.absent(),
+    this.badgeCode = const Value.absent(),
+    this.workStart = const Value.absent(),
+    this.workEnd = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -39161,6 +40112,9 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
     Expression<DateTime>? dateOfBirth,
     Expression<DateTime>? startedOn,
     Expression<String>? notes,
+    Expression<String>? badgeCode,
+    Expression<int>? workStart,
+    Expression<int>? workEnd,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -39183,6 +40137,9 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
       if (dateOfBirth != null) 'date_of_birth': dateOfBirth,
       if (startedOn != null) 'started_on': startedOn,
       if (notes != null) 'notes': notes,
+      if (badgeCode != null) 'badge_code': badgeCode,
+      if (workStart != null) 'work_start': workStart,
+      if (workEnd != null) 'work_end': workEnd,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -39207,6 +40164,9 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
     Value<DateTime?>? dateOfBirth,
     Value<DateTime?>? startedOn,
     Value<String?>? notes,
+    Value<String?>? badgeCode,
+    Value<int?>? workStart,
+    Value<int?>? workEnd,
     Value<int>? rowid,
   }) {
     return StaffMembersCompanion(
@@ -39229,6 +40189,9 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       startedOn: startedOn ?? this.startedOn,
       notes: notes ?? this.notes,
+      badgeCode: badgeCode ?? this.badgeCode,
+      workStart: workStart ?? this.workStart,
+      workEnd: workEnd ?? this.workEnd,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -39293,6 +40256,15 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (badgeCode.present) {
+      map['badge_code'] = Variable<String>(badgeCode.value);
+    }
+    if (workStart.present) {
+      map['work_start'] = Variable<int>(workStart.value);
+    }
+    if (workEnd.present) {
+      map['work_end'] = Variable<int>(workEnd.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -39321,6 +40293,9 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
           ..write('dateOfBirth: $dateOfBirth, ')
           ..write('startedOn: $startedOn, ')
           ..write('notes: $notes, ')
+          ..write('badgeCode: $badgeCode, ')
+          ..write('workStart: $workStart, ')
+          ..write('workEnd: $workEnd, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -43865,6 +44840,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PurchaseOrderLinesTable purchaseOrderLines =
       $PurchaseOrderLinesTable(this);
   late final $StockBatchesTable stockBatches = $StockBatchesTable(this);
+  late final $TimeEntriesTable timeEntries = $TimeEntriesTable(this);
   late final $VoucherEntriesTable voucherEntries = $VoucherEntriesTable(this);
   late final $OwnerMoneyTable ownerMoney = $OwnerMoneyTable(this);
   late final $DiscountsTable discounts = $DiscountsTable(this);
@@ -43927,6 +44903,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     purchaseOrders,
     purchaseOrderLines,
     stockBatches,
+    timeEntries,
     voucherEntries,
     ownerMoney,
     discounts,
@@ -44377,6 +45354,7 @@ typedef $$ProductsTableCreateCompanionBuilder = ProductsCompanion Function({
   Value<int?> minPrice,
   Value<int?> maxPrice,
   Value<int?> quickOrder,
+  Value<int?> commission,
   Value<int> rowid,
 });
 typedef $$ProductsTableUpdateCompanionBuilder = ProductsCompanion Function({
@@ -44398,6 +45376,7 @@ typedef $$ProductsTableUpdateCompanionBuilder = ProductsCompanion Function({
   Value<int?> minPrice,
   Value<int?> maxPrice,
   Value<int?> quickOrder,
+  Value<int?> commission,
   Value<int> rowid,
 });
 
@@ -44631,6 +45610,11 @@ class $$ProductsTableFilterComposer
 
   ColumnFilters<int> get quickOrder => $composableBuilder(
     column: $table.quickOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get commission => $composableBuilder(
+    column: $table.commission,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -44902,6 +45886,11 @@ class $$ProductsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get commission => $composableBuilder(
+    column: $table.commission,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$CategoriesTableOrderingComposer get categoryId {
     final $$CategoriesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -44989,6 +45978,11 @@ class $$ProductsTableAnnotationComposer
 
   GeneratedColumn<int> get quickOrder => $composableBuilder(
     column: $table.quickOrder,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get commission => $composableBuilder(
+    column: $table.commission,
     builder: (column) => column,
   );
 
@@ -45221,6 +46215,7 @@ class $$ProductsTableTableManager
                 Value<int?> minPrice = const Value.absent(),
                 Value<int?> maxPrice = const Value.absent(),
                 Value<int?> quickOrder = const Value.absent(),
+                Value<int?> commission = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ProductsCompanion(
                 id: id,
@@ -45241,6 +46236,7 @@ class $$ProductsTableTableManager
                 minPrice: minPrice,
                 maxPrice: maxPrice,
                 quickOrder: quickOrder,
+                commission: commission,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -45263,6 +46259,7 @@ class $$ProductsTableTableManager
                 Value<int?> minPrice = const Value.absent(),
                 Value<int?> maxPrice = const Value.absent(),
                 Value<int?> quickOrder = const Value.absent(),
+                Value<int?> commission = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ProductsCompanion.insert(
                 id: id,
@@ -45283,6 +46280,7 @@ class $$ProductsTableTableManager
                 minPrice: minPrice,
                 maxPrice: maxPrice,
                 quickOrder: quickOrder,
+                commission: commission,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -66780,6 +67778,371 @@ typedef $$StockBatchesTableProcessedTableManager =
       StockBatchRow,
       PrefetchHooks Function({bool stockItemId})
     >;
+typedef $$TimeEntriesTableCreateCompanionBuilder =
+    TimeEntriesCompanion Function({
+      required String id,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<DateTime?> syncedAt,
+      required String deviceId,
+      required String staffId,
+      required String staffName,
+      required DateTime clockIn,
+      Value<DateTime?> clockOut,
+      Value<int> breakMinutes,
+      Value<DateTime?> breakStartedAt,
+      Value<String?> note,
+      Value<int> rowid,
+    });
+typedef $$TimeEntriesTableUpdateCompanionBuilder =
+    TimeEntriesCompanion Function({
+      Value<String> id,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<DateTime?> syncedAt,
+      Value<String> deviceId,
+      Value<String> staffId,
+      Value<String> staffName,
+      Value<DateTime> clockIn,
+      Value<DateTime?> clockOut,
+      Value<int> breakMinutes,
+      Value<DateTime?> breakStartedAt,
+      Value<String?> note,
+      Value<int> rowid,
+    });
+
+class $$TimeEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $TimeEntriesTable> {
+  $$TimeEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get staffId => $composableBuilder(
+    column: $table.staffId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get staffName => $composableBuilder(
+    column: $table.staffName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get clockIn => $composableBuilder(
+    column: $table.clockIn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get clockOut => $composableBuilder(
+    column: $table.clockOut,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get breakMinutes => $composableBuilder(
+    column: $table.breakMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get breakStartedAt => $composableBuilder(
+    column: $table.breakStartedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TimeEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $TimeEntriesTable> {
+  $$TimeEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get staffId => $composableBuilder(
+    column: $table.staffId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get staffName => $composableBuilder(
+    column: $table.staffName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get clockIn => $composableBuilder(
+    column: $table.clockIn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get clockOut => $composableBuilder(
+    column: $table.clockOut,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get breakMinutes => $composableBuilder(
+    column: $table.breakMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get breakStartedAt => $composableBuilder(
+    column: $table.breakStartedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TimeEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TimeEntriesTable> {
+  $$TimeEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get syncedAt =>
+      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<String> get staffId =>
+      $composableBuilder(column: $table.staffId, builder: (column) => column);
+
+  GeneratedColumn<String> get staffName =>
+      $composableBuilder(column: $table.staffName, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get clockIn =>
+      $composableBuilder(column: $table.clockIn, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get clockOut =>
+      $composableBuilder(column: $table.clockOut, builder: (column) => column);
+
+  GeneratedColumn<int> get breakMinutes => $composableBuilder(
+    column: $table.breakMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get breakStartedAt => $composableBuilder(
+    column: $table.breakStartedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+}
+
+class $$TimeEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TimeEntriesTable,
+          TimeEntryRow,
+          $$TimeEntriesTableFilterComposer,
+          $$TimeEntriesTableOrderingComposer,
+          $$TimeEntriesTableAnnotationComposer,
+          $$TimeEntriesTableCreateCompanionBuilder,
+          $$TimeEntriesTableUpdateCompanionBuilder,
+          (
+            TimeEntryRow,
+            BaseReferences<_$AppDatabase, $TimeEntriesTable, TimeEntryRow>,
+          ),
+          TimeEntryRow,
+          PrefetchHooks Function()
+        > {
+  $$TimeEntriesTableTableManager(_$AppDatabase db, $TimeEntriesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TimeEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TimeEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TimeEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<DateTime?> syncedAt = const Value.absent(),
+                Value<String> deviceId = const Value.absent(),
+                Value<String> staffId = const Value.absent(),
+                Value<String> staffName = const Value.absent(),
+                Value<DateTime> clockIn = const Value.absent(),
+                Value<DateTime?> clockOut = const Value.absent(),
+                Value<int> breakMinutes = const Value.absent(),
+                Value<DateTime?> breakStartedAt = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TimeEntriesCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                syncedAt: syncedAt,
+                deviceId: deviceId,
+                staffId: staffId,
+                staffName: staffName,
+                clockIn: clockIn,
+                clockOut: clockOut,
+                breakMinutes: breakMinutes,
+                breakStartedAt: breakStartedAt,
+                note: note,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<DateTime?> syncedAt = const Value.absent(),
+                required String deviceId,
+                required String staffId,
+                required String staffName,
+                required DateTime clockIn,
+                Value<DateTime?> clockOut = const Value.absent(),
+                Value<int> breakMinutes = const Value.absent(),
+                Value<DateTime?> breakStartedAt = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TimeEntriesCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                syncedAt: syncedAt,
+                deviceId: deviceId,
+                staffId: staffId,
+                staffName: staffName,
+                clockIn: clockIn,
+                clockOut: clockOut,
+                breakMinutes: breakMinutes,
+                breakStartedAt: breakStartedAt,
+                note: note,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$TimeEntriesTable, TimeEntryRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $TimeEntriesTable,
+                    TimeEntryRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TimeEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TimeEntriesTable,
+      TimeEntryRow,
+      $$TimeEntriesTableFilterComposer,
+      $$TimeEntriesTableOrderingComposer,
+      $$TimeEntriesTableAnnotationComposer,
+      $$TimeEntriesTableCreateCompanionBuilder,
+      $$TimeEntriesTableUpdateCompanionBuilder,
+      (
+        TimeEntryRow,
+        BaseReferences<_$AppDatabase, $TimeEntriesTable, TimeEntryRow>,
+      ),
+      TimeEntryRow,
+      PrefetchHooks Function()
+    >;
 typedef $$VoucherEntriesTableCreateCompanionBuilder =
     VoucherEntriesCompanion Function({
       required String id,
@@ -69903,6 +71266,9 @@ typedef $$StaffMembersTableCreateCompanionBuilder =
       Value<DateTime?> dateOfBirth,
       Value<DateTime?> startedOn,
       Value<String?> notes,
+      Value<String?> badgeCode,
+      Value<int?> workStart,
+      Value<int?> workEnd,
       Value<int> rowid,
     });
 typedef $$StaffMembersTableUpdateCompanionBuilder =
@@ -69926,6 +71292,9 @@ typedef $$StaffMembersTableUpdateCompanionBuilder =
       Value<DateTime?> dateOfBirth,
       Value<DateTime?> startedOn,
       Value<String?> notes,
+      Value<String?> badgeCode,
+      Value<int?> workStart,
+      Value<int?> workEnd,
       Value<int> rowid,
     });
 
@@ -70065,6 +71434,21 @@ class $$StaffMembersTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
     column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get badgeCode => $composableBuilder(
+    column: $table.badgeCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get workStart => $composableBuilder(
+    column: $table.workStart,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get workEnd => $composableBuilder(
+    column: $table.workEnd,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -70216,6 +71600,21 @@ class $$StaffMembersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get badgeCode => $composableBuilder(
+    column: $table.badgeCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get workStart => $composableBuilder(
+    column: $table.workStart,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get workEnd => $composableBuilder(
+    column: $table.workEnd,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$RolesTableOrderingComposer get roleId {
     final $$RolesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -70308,6 +71707,15 @@ class $$StaffMembersTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get badgeCode =>
+      $composableBuilder(column: $table.badgeCode, builder: (column) => column);
+
+  GeneratedColumn<int> get workStart =>
+      $composableBuilder(column: $table.workStart, builder: (column) => column);
+
+  GeneratedColumn<int> get workEnd =>
+      $composableBuilder(column: $table.workEnd, builder: (column) => column);
 
   $$RolesTableAnnotationComposer get roleId {
     final $$RolesTableAnnotationComposer composer = $composerBuilder(
@@ -70405,6 +71813,9 @@ class $$StaffMembersTableTableManager
                 Value<DateTime?> dateOfBirth = const Value.absent(),
                 Value<DateTime?> startedOn = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> badgeCode = const Value.absent(),
+                Value<int?> workStart = const Value.absent(),
+                Value<int?> workEnd = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StaffMembersCompanion(
                 id: id,
@@ -70426,6 +71837,9 @@ class $$StaffMembersTableTableManager
                 dateOfBirth: dateOfBirth,
                 startedOn: startedOn,
                 notes: notes,
+                badgeCode: badgeCode,
+                workStart: workStart,
+                workEnd: workEnd,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -70449,6 +71863,9 @@ class $$StaffMembersTableTableManager
                 Value<DateTime?> dateOfBirth = const Value.absent(),
                 Value<DateTime?> startedOn = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> badgeCode = const Value.absent(),
+                Value<int?> workStart = const Value.absent(),
+                Value<int?> workEnd = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StaffMembersCompanion.insert(
                 id: id,
@@ -70470,6 +71887,9 @@ class $$StaffMembersTableTableManager
                 dateOfBirth: dateOfBirth,
                 startedOn: startedOn,
                 notes: notes,
+                badgeCode: badgeCode,
+                workStart: workStart,
+                workEnd: workEnd,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -72866,6 +74286,8 @@ class $AppDatabaseManager {
       $$PurchaseOrderLinesTableTableManager(_db, _db.purchaseOrderLines);
   $$StockBatchesTableTableManager get stockBatches =>
       $$StockBatchesTableTableManager(_db, _db.stockBatches);
+  $$TimeEntriesTableTableManager get timeEntries =>
+      $$TimeEntriesTableTableManager(_db, _db.timeEntries);
   $$VoucherEntriesTableTableManager get voucherEntries =>
       $$VoucherEntriesTableTableManager(_db, _db.voucherEntries);
   $$OwnerMoneyTableTableManager get ownerMoney =>

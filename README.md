@@ -73,6 +73,9 @@ App icons: `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml`.
 - **Buying and making:** purchase orders from what is low, shared as a PDF and received in
   parts; batches and expiry dates with an expiring list and alert; recipes for stock made in
   the shop (milkshake base, batter) with production runs at cost.
+- **Staff time and pay:** sign-in badges with a QR code, clock in / out with breaks,
+  timesheets with late and early, and commission by percent or per product in the staff
+  report.
 - **Money:** Manage → Money: expenses (with categories, receipts and monthly reminders), a simple
   profit and loss for any period beside the one before, and the owner's drawings and money put
   in. A pay-out on Today can be marked as an expense.
@@ -120,7 +123,7 @@ lib/
                             PinPad, OptionChip, approval prompt, status dot, labels, formatting
     data/database/          drift tables, AppDatabase, step-by-step migrations, seed
     data/repositories/      catalog, sale, refund, customer, shift, safe, MoMo, expense, profit, payment methods, cash events, discounts,
-                            parked orders, promotion, receipt, voucher, order, purchase order, stock, supplier, receiving, stock count, staff, role,
+                            parked orders, promotion, receipt, voucher, order, purchase order, time, stock, supplier, receiving, stock count, staff, role,
                             day close, audit, settings, outbox:
                             the only code that touches drift
     services/               auth, permissions, session (auto-lock), settings, status, backup,

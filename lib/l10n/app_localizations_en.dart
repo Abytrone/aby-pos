@@ -3916,6 +3916,123 @@ class AppLocalizationsEn extends AppLocalizations {
   String get produceUses => 'This uses';
 
   @override
+  String get badgeTitle => 'Badge and hours';
+
+  @override
+  String get badgeNone => 'No sign-in badge';
+
+  @override
+  String get badgeHas => 'Has a sign-in badge';
+
+  @override
+  String get badgeHelp =>
+      'A QR code to scan at sign-in, instead of picking the name. The PIN is still needed.';
+
+  @override
+  String get badgeMake => 'Make a badge';
+
+  @override
+  String get badgeNew => 'New badge';
+
+  @override
+  String get badgeRemove => 'Remove the badge';
+
+  @override
+  String get badgeRemoved => 'Badge removed. It no longer works.';
+
+  @override
+  String get badgeUnknown => 'That badge is not known. Pick your name instead.';
+
+  @override
+  String get workHours => 'Usual hours';
+
+  @override
+  String get workHoursHelp =>
+      'For late arrivals and early leaves on the timesheet.';
+
+  @override
+  String get workStarts => 'Starts at';
+
+  @override
+  String get workEnds => 'Finishes at';
+
+  @override
+  String get clockIn => 'Clock in';
+
+  @override
+  String get clockOut => 'Clock out';
+
+  @override
+  String get clockStartBreak => 'Start a break';
+
+  @override
+  String get clockEndBreak => 'End the break';
+
+  @override
+  String get clockedIn => 'Clocked in.';
+
+  @override
+  String get clockedOut => 'Clocked out.';
+
+  @override
+  String get clockInToSellTitle => 'Clock in to sell';
+
+  @override
+  String get clockInToSellBody =>
+      'The shop asks staff to clock in before selling. Clock in now?';
+
+  @override
+  String get timeTab => 'Timesheets';
+
+  @override
+  String get timeNone => 'No one clocked in during these dates.';
+
+  @override
+  String get timeWorked => 'Hours worked';
+
+  @override
+  String get timeStillIn => 'still in';
+
+  @override
+  String get reportItems => 'Items sold';
+
+  @override
+  String get reportCommission => 'Commission';
+
+  @override
+  String get settingsGroupStaff => 'Staff';
+
+  @override
+  String get settingsClockInToSell => 'Clock in before selling';
+
+  @override
+  String get settingsClockInToSellHelp =>
+      'Staff clock in and out from their name at the top. Timesheets are in Staff.';
+
+  @override
+  String get settingsCommission => 'Commission';
+
+  @override
+  String get settingsCommissionHelp =>
+      'Worked out per person in Reports, Staff, for any dates.';
+
+  @override
+  String get commissionPercentChoice => 'A percent of their sales';
+
+  @override
+  String get commissionPerProduct => 'An amount per product';
+
+  @override
+  String get editorCommission => 'Commission';
+
+  @override
+  String get editorCommissionPer => 'Commission per one sold';
+
+  @override
+  String get editorCommissionHelp =>
+      'Paid to whoever sells it. Leave empty for none.';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }
@@ -5454,5 +5571,62 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String produceDone(String amount, String cost) {
     return 'Made $amount, $cost of ingredients.';
+  }
+
+  @override
+  String badgeFor(String name) {
+    return 'Badge for $name';
+  }
+
+  @override
+  String clockInSince(String time) {
+    return 'In since $time';
+  }
+
+  @override
+  String timeHours(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String timeBreak(int minutes) {
+    return '$minutes min break';
+  }
+
+  @override
+  String timeLate(int minutes) {
+    return '$minutes min late';
+  }
+
+  @override
+  String timeEarly(int minutes) {
+    return 'left $minutes min early';
+  }
+
+  @override
+  String timeLateCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'late $count times',
+      one: 'late once',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String timeEarlyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'left early $count times',
+      one: 'left early once',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String commissionPercentOfSales(int percent) {
+    return '$percent% of sales';
   }
 }

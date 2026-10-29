@@ -88,6 +88,9 @@ class ProductEditorController extends GetxController {
   bool openPrice = false;
   final minPrice = TextEditingController();
   final maxPrice = TextEditingController();
+
+  /// Per one sold, when the shop pays commission per product.
+  final commission = TextEditingController();
   bool onQuickTab = false;
   final variants = <VariantForm>[];
   final groupIds = <String>[];
@@ -116,6 +119,7 @@ class ProductEditorController extends GetxController {
     description.dispose();
     minPrice.dispose();
     maxPrice.dispose();
+    commission.dispose();
     for (final v in variants) {
       v.dispose();
     }
@@ -137,6 +141,7 @@ class ProductEditorController extends GetxController {
       openPrice = p.openPrice;
       minPrice.text = p.minPrice == null ? '' : _plain(p.minPrice!);
       maxPrice.text = p.maxPrice == null ? '' : _plain(p.maxPrice!);
+      commission.text = p.commission == null ? '' : _plain(p.commission!);
       onQuickTab = p.quickOrder != null;
       for (final v in p.variants) {
         variants.add(VariantForm(
@@ -376,6 +381,7 @@ class ProductEditorController extends GetxController {
           minPrice: min,
           maxPrice: max,
           onQuickTab: onQuickTab,
+          commission: commission.text.trim().isEmpty ? null : parseMoney(commission.text),
         ),
         by: by,
       );

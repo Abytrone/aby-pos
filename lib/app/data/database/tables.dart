@@ -58,6 +58,10 @@ class Products extends Table with SyncColumns {
 
   /// Position on the till's Quick tab; null when not on it. v6.
   IntColumn get quickOrder => integer().nullable()();
+
+  /// Pesewas of commission per one sold, when the shop pays commission per
+  /// product (STF-07). v15.
+  IntColumn get commission => integer().nullable()();
 }
 
 /// What is actually sold and priced. Every product has at least one; a
@@ -816,6 +820,15 @@ class StaffMembers extends Table with SyncColumns {
   DateTimeColumn get dateOfBirth => dateTime().nullable()();
   DateTimeColumn get startedOn => dateTime().nullable()();
   TextColumn get notes => text().nullable()();
+
+  /// Printed on a badge as a QR code, scanned at sign-in (the PIN is still
+  /// needed). v15.
+  TextColumn get badgeCode => text().nullable()();
+
+  /// Usual hours, minutes after midnight, for late and early on timesheets.
+  /// v15.
+  IntColumn get workStart => integer().nullable()();
+  IntColumn get workEnd => integer().nullable()();
 }
 
 /// Staff photos, small and kept apart from staff rows so they stay out of
@@ -1043,4 +1056,18 @@ class StockBatches extends Table with SyncColumns {
 
   /// Base units received in this batch.
   IntColumn get quantity => integer()();
+}
+
+/// Clocking in and out (STF-04). v15.
+@DataClassName('TimeEntryRow')
+class TimeEntries extends Table with SyncColumns {
+  TextColumn get staffId => text()();
+  TextColumn get staffName => text()();
+  DateTimeColumn get clockIn => dateTime()();
+  DateTimeColumn get clockOut => dateTime().nullable()();
+
+  /// Minutes on breaks so far, and when the current break started.
+  IntColumn get breakMinutes => integer().withDefault(const Constant(0))();
+  DateTimeColumn get breakStartedAt => dateTime().nullable()();
+  TextColumn get note => text().nullable()();
 }

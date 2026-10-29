@@ -72,9 +72,19 @@ class StaffProfile {
     this.dateOfBirth,
     this.startedOn,
     this.notes,
+    this.badgeCode,
+    this.workStart,
+    this.workEnd,
   });
 
   final Staff staff;
+
+  /// The code on their badge, when they have one.
+  final String? badgeCode;
+
+  /// Usual hours, minutes after midnight.
+  final int? workStart;
+  final int? workEnd;
 
   /// When the record was created in Aby.
   final DateTime joinedAt;

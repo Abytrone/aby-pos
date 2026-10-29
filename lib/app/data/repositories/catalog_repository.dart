@@ -196,6 +196,7 @@ class CatalogRepository {
           minPrice: p.minPrice,
           maxPrice: p.maxPrice,
           quickOrder: p.quickOrder,
+          commission: p.commission,
           variants: variants,
           groups: [
             for (final l in linkRows.where((l) => l.productId == p.id))
@@ -304,6 +305,7 @@ class CatalogRepository {
             minPrice: Value(d.openPrice ? d.minPrice : null),
             maxPrice: Value(d.openPrice ? d.maxPrice : null),
             quickOrder: Value(await quickOrder(null)),
+            commission: Value(d.commission),
           ),
         );
       } else {
@@ -319,6 +321,7 @@ class CatalogRepository {
           minPrice: Value(d.openPrice ? d.minPrice : null),
           maxPrice: Value(d.openPrice ? d.maxPrice : null),
           quickOrder: Value(await quickOrder(row.quickOrder)),
+          commission: Value(d.commission),
         );
         if (updated != row) {
           if (row.sellBy != updated.sellBy) changes.add('sold by ${updated.sellBy.name}');

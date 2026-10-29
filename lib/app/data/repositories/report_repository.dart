@@ -201,8 +201,9 @@ class ReportRepository {
     return ({for (final row in rows) row.read<String>('name'): row.read<int>('v')}, rounding.read<int>('v'));
   }
 
-  /// Per cashier: sales, voids, refunds, discounts, no-sales and shorts.
-  Future<List<StaffFigures>> staff(DateRange r) async {
+  /// Per cashier: sales, items, voids, refunds, discounts, no-sales,
+  /// shorts, hours on the time clock and commission (STF-07).
+  Future<List<StaffFigures>> staff(DateRange r, {CommissionConfig commission = const CommissionConfig()}) async {
     final vars = _range(r);
     final sales = await _db.customSelect(
       // Discounts the cashier gave: promotions apply themselves.
@@ -236,10 +237,27 @@ class ReportRepository {
       variables: vars,
       readsFrom: {_db.dayCloses},
     ).get();
+    final items = await _db.customSelect(
+      "SELECT s.cashier_name AS name, SUM(CASE WHEN l.sell_by = 'each' THEN l.quantity ELSE 1 END) AS n, "
+      "SUM(CASE WHEN l.sell_by = 'each' THEN l.quantity ELSE 1 END * COALESCE(p.commission, 0)) AS c "
+      'FROM sale_lines l JOIN sales s ON s.id = l.sale_id LEFT JOIN products p ON p.id = l.product_id '
+      'WHERE l.deleted_at IS NULL AND $_completed GROUP BY s.cashier_name',
+      variables: vars,
+      readsFrom: {_db.sales, _db.saleLines, _db.products},
+    ).get();
+    // Time stored as seconds: a stretch still open counts to now.
+    final hours = await _db.customSelect(
+      "SELECT staff_name AS name, SUM((COALESCE(clock_out, CAST(strftime('%s', 'now') AS INTEGER)) - clock_in) / 60 - break_minutes) AS n "
+      'FROM time_entries WHERE deleted_at IS NULL AND clock_in >= ? AND clock_in < ? GROUP BY staff_name',
+      variables: vars,
+      readsFrom: {_db.timeEntries},
+    ).get();
+    final it = {for (final x in items) x.read<String>('name'): (x.read<int>('n'), x.read<int>('c'))};
+    final hw = {for (final x in hours) x.read<String>('name'): x.read<int>('n')};
     Map<String, int> count(List<QueryRow> rows) => {for (final x in rows) x.read<String?>('name') ?? '?': x.read<int>('n')};
     final v = count(voids), rf = count(refunds), ns = count(noSales);
     final sh = {for (final x in closes) x.read<String>('name'): (x.read<int>('n'), x.read<int>('v'))};
-    final names = {for (final x in sales) x.read<String>('name'), ...v.keys, ...rf.keys, ...ns.keys, ...sh.keys};
+    final names = {for (final x in sales) x.read<String>('name'), ...v.keys, ...rf.keys, ...ns.keys, ...sh.keys, ...hw.keys};
     final byName = {for (final x in sales) x.read<String>('name'): x};
     return [
       for (final n in names)
@@ -253,6 +271,13 @@ class ReportRepository {
           noSales: ns[n] ?? 0,
           shorts: sh[n]?.$1 ?? 0,
           shortTotal: sh[n]?.$2 ?? 0,
+          items: it[n]?.$1 ?? 0,
+          minutesWorked: (hw[n] ?? 0) < 0 ? 0 : hw[n] ?? 0,
+          commission: switch (commission.mode) {
+            CommissionMode.percent => ((byName[n]?.read<int>('total') ?? 0) * commission.percent + 50) ~/ 100,
+            CommissionMode.perProduct => it[n]?.$2 ?? 0,
+            CommissionMode.off => 0,
+          },
         ),
     ]..sort((a, b) => b.total.compareTo(a.total));
   }

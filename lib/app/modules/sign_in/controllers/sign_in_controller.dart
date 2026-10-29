@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../../data/repositories/staff_repository.dart';
@@ -20,12 +23,58 @@ class SignInController extends GetxController {
   final selected = Rxn<Staff>();
   final loading = true.obs;
 
+  /// Changes to give the PIN pad a fresh start (after a badge scan, whose
+  /// characters a keyboard scanner also typed into it).
+  final padKey = 0.obs;
+  final badgeError = RxnString();
+
+  // What a keyboard-mode scanner is typing.
+  final _typed = StringBuffer();
+  DateTime _lastKey = DateTime(2000);
+
   String get shopName => _settings.get(AppSettings.shopName);
 
   @override
   void onInit() {
     super.onInit();
+    HardwareKeyboard.instance.addHandler(_onKey);
     _load();
+  }
+
+  @override
+  void onClose() {
+    HardwareKeyboard.instance.removeHandler(_onKey);
+    super.onClose();
+  }
+
+  /// Collects fast typing ending in Enter: a scanner. Never swallows keys,
+  /// so the PIN pad still gets them.
+  bool _onKey(KeyEvent e) {
+    if (e is! KeyDownEvent) return false;
+    final now = DateTime.now();
+    if (now.difference(_lastKey) > const Duration(milliseconds: 300)) _typed.clear();
+    _lastKey = now;
+    if (e.logicalKey == LogicalKeyboardKey.enter || e.logicalKey == LogicalKeyboardKey.numpadEnter) {
+      final text = _typed.toString();
+      _typed.clear();
+      if (text.toUpperCase().startsWith(StaffRepository.badgePrefix)) unawaited(scannedBadge(text));
+      return false;
+    }
+    final ch = e.character;
+    if (ch != null && ch.length == 1) _typed.write(ch);
+    return false;
+  }
+
+  /// A badge scanned (keyboard scanner or camera): picks the person.
+  Future<void> scannedBadge(String text) async {
+    final person = await _staff.byBadge(text);
+    if (person == null) {
+      badgeError.value = appL10n().badgeUnknown;
+      return;
+    }
+    badgeError.value = null;
+    selected.value = person;
+    padKey.value++;
   }
 
   Future<void> _load() async {

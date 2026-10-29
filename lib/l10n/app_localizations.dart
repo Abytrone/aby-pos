@@ -7654,6 +7654,228 @@ abstract class AppLocalizations {
   /// **'This uses'**
   String get produceUses;
 
+  /// No description provided for @badgeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge and hours'**
+  String get badgeTitle;
+
+  /// No description provided for @badgeNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No sign-in badge'**
+  String get badgeNone;
+
+  /// No description provided for @badgeHas.
+  ///
+  /// In en, this message translates to:
+  /// **'Has a sign-in badge'**
+  String get badgeHas;
+
+  /// No description provided for @badgeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A QR code to scan at sign-in, instead of picking the name. The PIN is still needed.'**
+  String get badgeHelp;
+
+  /// No description provided for @badgeMake.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a badge'**
+  String get badgeMake;
+
+  /// No description provided for @badgeNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New badge'**
+  String get badgeNew;
+
+  /// No description provided for @badgeRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the badge'**
+  String get badgeRemove;
+
+  /// No description provided for @badgeRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge removed. It no longer works.'**
+  String get badgeRemoved;
+
+  /// No description provided for @badgeUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'That badge is not known. Pick your name instead.'**
+  String get badgeUnknown;
+
+  /// No description provided for @workHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Usual hours'**
+  String get workHours;
+
+  /// No description provided for @workHoursHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'For late arrivals and early leaves on the timesheet.'**
+  String get workHoursHelp;
+
+  /// No description provided for @workStarts.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts at'**
+  String get workStarts;
+
+  /// No description provided for @workEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Finishes at'**
+  String get workEnds;
+
+  /// No description provided for @clockIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock in'**
+  String get clockIn;
+
+  /// No description provided for @clockOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock out'**
+  String get clockOut;
+
+  /// No description provided for @clockStartBreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a break'**
+  String get clockStartBreak;
+
+  /// No description provided for @clockEndBreak.
+  ///
+  /// In en, this message translates to:
+  /// **'End the break'**
+  String get clockEndBreak;
+
+  /// No description provided for @clockedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Clocked in.'**
+  String get clockedIn;
+
+  /// No description provided for @clockedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Clocked out.'**
+  String get clockedOut;
+
+  /// No description provided for @clockInToSellTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock in to sell'**
+  String get clockInToSellTitle;
+
+  /// No description provided for @clockInToSellBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop asks staff to clock in before selling. Clock in now?'**
+  String get clockInToSellBody;
+
+  /// No description provided for @timeTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Timesheets'**
+  String get timeTab;
+
+  /// No description provided for @timeNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No one clocked in during these dates.'**
+  String get timeNone;
+
+  /// No description provided for @timeWorked.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours worked'**
+  String get timeWorked;
+
+  /// No description provided for @timeStillIn.
+  ///
+  /// In en, this message translates to:
+  /// **'still in'**
+  String get timeStillIn;
+
+  /// No description provided for @reportItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Items sold'**
+  String get reportItems;
+
+  /// No description provided for @reportCommission.
+  ///
+  /// In en, this message translates to:
+  /// **'Commission'**
+  String get reportCommission;
+
+  /// No description provided for @settingsGroupStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get settingsGroupStaff;
+
+  /// No description provided for @settingsClockInToSell.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock in before selling'**
+  String get settingsClockInToSell;
+
+  /// No description provided for @settingsClockInToSellHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff clock in and out from their name at the top. Timesheets are in Staff.'**
+  String get settingsClockInToSellHelp;
+
+  /// No description provided for @settingsCommission.
+  ///
+  /// In en, this message translates to:
+  /// **'Commission'**
+  String get settingsCommission;
+
+  /// No description provided for @settingsCommissionHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked out per person in Reports, Staff, for any dates.'**
+  String get settingsCommissionHelp;
+
+  /// No description provided for @commissionPercentChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'A percent of their sales'**
+  String get commissionPercentChoice;
+
+  /// No description provided for @commissionPerProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'An amount per product'**
+  String get commissionPerProduct;
+
+  /// No description provided for @editorCommission.
+  ///
+  /// In en, this message translates to:
+  /// **'Commission'**
+  String get editorCommission;
+
+  /// No description provided for @editorCommissionPer.
+  ///
+  /// In en, this message translates to:
+  /// **'Commission per one sold'**
+  String get editorCommissionPer;
+
+  /// No description provided for @editorCommissionHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid to whoever sells it. Leave empty for none.'**
+  String get editorCommissionHelp;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -9231,6 +9453,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Made {amount}, {cost} of ingredients.'**
   String produceDone(String amount, String cost);
+
+  /// No description provided for @badgeFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge for {name}'**
+  String badgeFor(String name);
+
+  /// No description provided for @clockInSince.
+  ///
+  /// In en, this message translates to:
+  /// **'In since {time}'**
+  String clockInSince(String time);
+
+  /// No description provided for @timeHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String timeHours(int hours, int minutes);
+
+  /// No description provided for @timeBreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min break'**
+  String timeBreak(int minutes);
+
+  /// No description provided for @timeLate.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min late'**
+  String timeLate(int minutes);
+
+  /// No description provided for @timeEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'left {minutes} min early'**
+  String timeEarly(int minutes);
+
+  /// No description provided for @timeLateCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{late once} other{late {count} times}}'**
+  String timeLateCount(int count);
+
+  /// No description provided for @timeEarlyCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{left early once} other{left early {count} times}}'**
+  String timeEarlyCount(int count);
+
+  /// No description provided for @commissionPercentOfSales.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of sales'**
+  String commissionPercentOfSales(int percent);
 }
 
 class _AppLocalizationsDelegate

@@ -181,6 +181,7 @@ class Product {
     this.minPrice,
     this.maxPrice,
     this.quickOrder,
+    this.commission,
   });
 
   final String id;
@@ -209,6 +210,9 @@ class Product {
 
   /// Position on the till's Quick tab; null when not on it.
   final int? quickOrder;
+
+  /// Pesewas of commission per one sold (STF-07).
+  final int? commission;
 
   bool get weighed => sellBy != SellBy.each;
 
