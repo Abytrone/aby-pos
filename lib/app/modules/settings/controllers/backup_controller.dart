@@ -13,6 +13,7 @@ import '../../../models/staff.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/backup/backup_codec.dart';
 import '../../../services/backup/backup_service.dart';
+import '../../../services/training_service.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../services/status_service.dart';
@@ -50,7 +51,10 @@ class BackupController extends GetxController {
     }
   }
 
-  Future<void> backUpNow() => _guard(() async {
+  /// Backups and restores belong to the real data, not the training copy.
+  bool get _training => Get.isRegistered<TrainingService>() && Get.find<TrainingService>().active.value;
+
+  Future<void> backUpNow() => _training ? Future<void>.sync(() => showMessage(appL10n().trainingNoBackups)) : _guard(() async {
         await _backups.createLocalBackup(by: _auth.currentUser.value);
         await refreshList();
         await _status.refresh(checkChain: false);
@@ -88,6 +92,7 @@ class BackupController extends GetxController {
 
   /// Encrypt a fresh backup and send it somewhere off this device.
   Future<void> sendOffDevice() async {
+    if (_training) return showMessage(appL10n().trainingNoBackups);
     final l = appL10n();
     final auth = await _permissions.authorize(Permission.exportData, reason: l.backupSend);
     if (auth == null) return;
@@ -164,6 +169,7 @@ class BackupController extends GetxController {
   /// Restore from a file (`.abybak` from another device, or a copied
   /// `.sqlite`). [fromSetup]: first run, nobody to authorise yet.
   Future<void> restoreFromFile({bool fromSetup = false}) async {
+    if (_training) return showMessage(appL10n().trainingNoBackups);
     final l = appL10n();
     Authorization? auth;
     if (!fromSetup) {

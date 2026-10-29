@@ -34,6 +34,18 @@ abstract final class MetaKeys {
 Future<File> databaseFile() async =>
     File(p.join((await getApplicationDocumentsDirectory()).path, 'aby_pos.sqlite'));
 
+/// Training mode (APP-05) runs on a copy, opened while this marker exists.
+Future<File> trainingMarkerFile() async =>
+    File(p.join((await getApplicationDocumentsDirectory()).path, 'aby_pos.training'));
+
+Future<File> trainingDatabaseFile() async =>
+    File(p.join((await getApplicationDocumentsDirectory()).path, 'aby_pos_training.sqlite'));
+
+/// The file the app opens: the training copy while training, else the
+/// real one.
+Future<File> activeDatabaseFile() async =>
+    await (await trainingMarkerFile()).exists() ? trainingDatabaseFile() : databaseFile();
+
 /// Stable row ID for a setting, so every device of a shop writes the same
 /// row for a shop setting, and one row per device for device settings.
 String settingRowId(String key, SettingScope scope, String deviceId) =>
@@ -162,7 +174,7 @@ class AppDatabase extends _$AppDatabase {
             driftDatabase(
               name: 'aby_pos',
               native: DriftNativeOptions(
-                databasePath: () async => (await databaseFile()).path,
+                databasePath: () async => (await activeDatabaseFile()).path,
               ),
             ));
 

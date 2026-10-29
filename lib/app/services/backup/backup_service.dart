@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqlite3/sqlite3.dart';
@@ -13,6 +14,7 @@ import '../../models/audit.dart';
 import '../../models/staff.dart';
 import '../pin_hasher.dart';
 import '../settings_service.dart';
+import '../training_service.dart';
 import 'backup_codec.dart';
 
 class BackupException implements Exception {
@@ -119,6 +121,8 @@ class BackupService {
   /// The daily automatic backup, if it is switched on and due.
   Future<LocalBackup?> autoBackupIfDue() async {
     if (!_settings.get(AppSettings.autoBackupDaily)) return null;
+    // The training copy is never backed up.
+    if (Get.isRegistered<TrainingService>() && Get.find<TrainingService>().active.value) return null;
     final last = await lastLocalBackupAt();
     if (last != null && DateTime.now().difference(last) < const Duration(hours: 20)) return null;
     return createLocalBackup();

@@ -13,6 +13,7 @@ import '../../../models/scale.dart';
 import '../../../services/money.dart';
 import '../../../services/display/display_service.dart';
 import '../../../services/printing/print_service.dart';
+import '../../../services/training_service.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/format.dart';
@@ -51,6 +52,26 @@ Future<void> editPrepItems(SettingsController c) async {
     LoyaltyConfig.decodeTarget(c.value(AppSettings.orderPrepTarget)),
   );
   if (picked != null) await c.save(AppSettings.orderPrepTarget, jsonEncode(picked.toJson()));
+}
+
+/// Training mode on or off, or a fresh copy (owner, or with a PIN).
+Future<void> setTraining(SettingsController c, bool on, {bool reset = false}) async {
+  final l = appL10n();
+  final ok = await confirmDialog(
+    title: reset ? l.trainingReset : (on ? l.trainingStartTitle : l.trainingStopTitle),
+    message: reset ? l.trainingResetHelp : (on ? l.trainingStartBody : l.trainingStopBody),
+    confirmLabel: reset ? l.trainingReset : (on ? l.trainingStart : l.trainingStop),
+  );
+  if (!ok) return;
+  if (!await c.authorizeChange()) return;
+  final training = Get.find<TrainingService>();
+  if (reset) {
+    await training.reset();
+  } else if (on) {
+    await training.enter();
+  } else {
+    await training.leave();
+  }
 }
 
 /// Manage → Settings, grouped and searchable.
@@ -509,6 +530,19 @@ class SettingsView extends GetView<SettingsController> {
         subtitle: l.settingsLanguageMore,
         value: 'English',
       ), keywords: ['twi', 'dagbani', 'hausa', 'ewe', 'ga']),
+      _Entry(data, InfoTile(
+        title: l.trainingTitle,
+        subtitle: l.trainingHelp,
+        leading: const Icon(Icons.school_outlined),
+        trailing: Switch(value: Get.find<TrainingService>().active.value, onChanged: (on) => setTraining(c, on)),
+      ), keywords: ['training', 'practice', 'sandbox', 'new cashier']),
+      if (Get.find<TrainingService>().active.value)
+        _Entry(data, InfoTile(
+          title: l.trainingReset,
+          subtitle: l.trainingResetHelp,
+          leading: const Icon(Icons.restart_alt),
+          onTap: () => setTraining(c, true, reset: true),
+        ), keywords: ['training', 'reset']),
       _Entry(data, InfoTile(
         title: l.settingsAutoBackup,
         subtitle: local == null ? l.statusNever : l.statusLast(relativeTime(l, local)),

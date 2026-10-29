@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../../core/permissions.dart';
@@ -14,6 +15,7 @@ import '../../../services/settings_service.dart';
 import '../../../services/status_service.dart';
 import '../../../services/sync_service.dart';
 import '../../../ui/l10n.dart';
+import '../widgets/command_bar.dart';
 
 enum Workspace { sell, manage }
 
@@ -90,10 +92,20 @@ class ShellController extends GetxController {
     super.onInit();
     _ensureAllowed();
     _userSub = auth.currentUser.listen((_) => _ensureAllowed());
+    HardwareKeyboard.instance.addHandler(_onKey);
+  }
+
+  /// Ctrl+K opens the command bar (APP-03).
+  bool _onKey(KeyEvent e) {
+    if (e is! KeyDownEvent || e.logicalKey != LogicalKeyboardKey.keyK) return false;
+    if (!HardwareKeyboard.instance.isControlPressed || auth.currentUser.value == null) return false;
+    unawaited(showCommandBar());
+    return true;
   }
 
   @override
   void onClose() {
+    HardwareKeyboard.instance.removeHandler(_onKey);
     _userSub?.cancel();
     super.onClose();
   }

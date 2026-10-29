@@ -76,6 +76,9 @@ App icons: `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml`.
 - **Staff time and pay:** sign-in badges with a QR code, clock in / out with breaks,
   timesheets with late and early, and commission by percent or per product in the staff
   report.
+- **Search, insights and training:** Ctrl+K searches everything and acts on it; the dashboard
+  points out stock running out, falling margins, late customers and short cash; the day's
+  summary goes to the owner's WhatsApp as a picture; training mode practises on a copy.
 - **Money:** Manage → Money: expenses (with categories, receipts and monthly reminders), a simple
   profit and loss for any period beside the one before, and the owner's drawings and money put
   in. A pay-out on Today can be marked as an expense.

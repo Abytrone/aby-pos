@@ -164,6 +164,7 @@ class ReceiptDesign {
     this.loyaltyStyle = 'off',
     this.stampsForReward = 9,
     this.orderPrefix = 'A',
+    this.training = false,
   });
 
   final String shopName;
@@ -190,6 +191,9 @@ class ReceiptDesign {
 
   /// The letter before queue numbers.
   final String orderPrefix;
+
+  /// Printed in training mode: not a real sale.
+  final bool training;
 
   /// The most copies any of the payments asks for.
   int copiesFor(Iterable<PaymentMethod> methods) =>

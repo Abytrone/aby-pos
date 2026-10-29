@@ -13,6 +13,7 @@ import '../../../services/backup/backup_service.dart';
 import '../../../services/device_service.dart';
 import '../../../services/price_scheduler.dart';
 import '../../../services/settings_service.dart';
+import '../../../services/training_service.dart';
 import '../../../services/status_service.dart';
 
 /// Opens the database, loads settings, finishes a restore if one just
@@ -33,6 +34,7 @@ class StartController extends GetxController {
   Future<void> _start() async {
     await _device.ready;
     await _settings.load();
+    await Get.find<TrainingService>().load();
     AppRestarter.applyTheme(_settings.get(AppSettings.themeMode));
     await _backups.finishPendingRestore();
     await Get.find<PriceScheduler>().run();

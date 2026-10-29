@@ -6,12 +6,14 @@ import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/alert_text.dart';
 import '../../../ui/charts.dart';
+import '../../../ui/insight_text.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/section_page.dart';
 import '../../reports/views/reports_view.dart' show changeText;
 import '../controllers/dashboard_controller.dart';
 
 String dashboardCardLabel(AppLocalizations l, DashboardCard c) => switch (c) {
+      DashboardCard.insights => l.insightsTitle,
       DashboardCard.sales => l.dashSales,
       DashboardCard.payments => l.reportPayments,
       DashboardCard.hours => l.reportByHour,
@@ -47,6 +49,26 @@ class DashboardView extends GetView<DashboardController> {
     final t = controller.today.value;
     final w = controller.lastWeek.value;
     return switch (card) {
+      DashboardCard.insights => controller.insights.isEmpty
+          ? const SizedBox.shrink()
+          : GroupCard(title: l.insightsTitle, children: [
+              for (final i in controller.insights)
+                InfoTile(
+                  leading: Icon(Icons.lightbulb_outline, color: c.blue),
+                  title: insightText(l, i),
+                  trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                    TextButton(onPressed: () => insightAction(i), child: Text(insightActionLabel(l, i))),
+                    PopupMenuButton<VoidCallback>(
+                      tooltip: l.commonMore,
+                      onSelected: (f) => f(),
+                      itemBuilder: (_) => [
+                        PopupMenuItem(value: () => controller.dismiss(i), child: Text(l.insightDismiss)),
+                        PopupMenuItem(value: () => controller.turnOff(i.kind), child: Text(l.insightTurnOff)),
+                      ],
+                    ),
+                  ]),
+                ),
+            ]),
       DashboardCard.sales => GroupCard(title: l.dashSales, children: [
           InfoTile(
             title: l.reportNetSales,

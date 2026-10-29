@@ -15,6 +15,7 @@ import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/receipt_actions.dart';
 import '../controllers/close_day_controller.dart';
+import '../widgets/daily_summary.dart';
 import '../widgets/difference_box.dart';
 import '../widgets/period_summary.dart';
 
@@ -229,6 +230,11 @@ class _Closed extends StatelessWidget {
         const SizedBox(height: AbySpace.s4),
         Text(l.checkoutSavedHere, textAlign: TextAlign.center, style: AbyText.caption.copyWith(color: c.inkMuted)),
         const SizedBox(height: AbySpace.s4),
+        Obx(() {
+          final s = Get.find<CloseDayController>().summary.value;
+          if (s == null) return const SizedBox.shrink();
+          return Padding(padding: const EdgeInsets.only(bottom: AbySpace.s3), child: DailySummaryCard(summary: s));
+        }),
         OutlinedButton.icon(
           onPressed: () => printZ(close),
           icon: const Icon(Icons.print_outlined),

@@ -644,6 +644,9 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Close day').last);
     await _settle(tester);
     expect(find.text('Day closed'), findsOneWidget);
+    // The owner's summary, ready to share.
+    expect(find.text('Share the summary'), findsOneWidget);
+    await tester.ensureVisible(find.text('Done'));
     await tester.tap(find.text('Done'));
     await _settle(tester);
 
@@ -1008,6 +1011,45 @@ void main() {
     expect(find.text('HOURS WORKED'), findsNothing);
     expect(find.text('Hours worked'), findsOneWidget);
     expect(find.textContaining('still in'), findsOneWidget);
+
+    await _dispose(tester);
+  });
+
+  testWidgets('tablet: Ctrl+K finds a product and adds it to the cart', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await _settle(tester);
+    await tester.tap(find.text('Kofi'));
+    await _settle(tester);
+    await _typePin(tester, '1234');
+
+    await tester.tap(find.text('Settings'));
+    await _settle(tester);
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyK);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await _settle(tester);
+    expect(find.text('GO TO'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).last, 'waff');
+    await tester.pump(const Duration(milliseconds: 300));
+    await _settle(tester);
+    expect(find.text('PRODUCTS'), findsOneWidget);
+    await tester.tap(find.widgetWithText(ListTile, 'Waffle'));
+    await _settle(tester);
+    expect(find.text('Pay GH₵ 12.00'), findsOneWidget, reason: 'on the Sell screen, in the cart');
+
+    await tester.tap(find.byTooltip('Search everything (Ctrl+K)'));
+    await _settle(tester);
+    await tester.enterText(find.byType(TextField).last, 'close day');
+    await tester.pump(const Duration(milliseconds: 300));
+    await _settle(tester);
+    expect(find.widgetWithText(ListTile, 'Close day'), findsOneWidget);
+    await tester.tapAt(const Offset(5, 795));
+    await _settle(tester);
 
     await _dispose(tester);
   });

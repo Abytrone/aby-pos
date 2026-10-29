@@ -40,6 +40,7 @@ import '../services/auth_service.dart';
 import '../services/backup/backup_service.dart';
 import '../services/clock_service.dart';
 import '../services/device_service.dart';
+import '../services/insight_service.dart';
 import '../services/display/display_service.dart';
 import '../services/notification_service.dart';
 import '../services/permission_service.dart';
@@ -51,6 +52,7 @@ import '../services/settings_service.dart';
 import '../services/status_service.dart';
 import '../services/staff_photo_service.dart';
 import '../services/sync_service.dart';
+import '../services/training_service.dart';
 import '../ui/approval_prompt.dart';
 
 /// App-wide services: the composition root. Runs once per app start (and
@@ -125,11 +127,13 @@ class InitialBinding extends Bindings {
     final times = Get.put(TimeRepository(db, device), permanent: true);
     Get.put(ClockService(times, auth, settings), permanent: true);
     final sync = Get.put(SyncService(Get.find()), permanent: true);
+    Get.put(TrainingService(db), permanent: true);
     final backups = Get.put(BackupService(db, audit, settings), permanent: true);
     Get.put(PriceScheduler(Get.find()), permanent: true);
     Get.put(PrintService(settings, ReceiptRepository(db), device), permanent: true);
     Get.put(StatusService(backups, audit, settings, sync), permanent: true);
     final alerts = Get.put(AlertService(db), permanent: true);
+    Get.lazyPut(() => InsightService(db, Get.find<StockRepository>(), Get.find<CustomerRepository>()), fenix: true);
     Get.put(NotificationService(db, settings, alerts), permanent: true);
     Get.put(ScaleService(settings), permanent: true);
 

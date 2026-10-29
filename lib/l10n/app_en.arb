@@ -1297,6 +1297,44 @@
   "editorCommission": "Commission",
   "editorCommissionPer": "Commission per one sold",
   "editorCommissionHelp": "Paid to whoever sells it. Leave empty for none.",
+  "commandTooltip": "Search everything (Ctrl+K)",
+  "commandHint": "Products, customers, sale numbers, MoMo references, actions...",
+  "commandNothing": "Nothing found.",
+  "commandActions": "Go to",
+  "commandSales": "Sales",
+  "commandOpen": "Open",
+  "commandAddToCart": "Add to cart",
+  "commandEditProduct": "Edit product",
+  "commandAddToSale": "Add to the sale",
+  "commandOpenCustomer": "Open",
+  "commandReprint": "Reprint",
+  "commandOpenProfile": "Open profile",
+  "commandNewProduct": "New product",
+  "commandAddExpense": "Add an expense",
+  "insightsTitle": "Worth knowing",
+  "insightOrderMore": "Order more",
+  "insightSeeTimes": "See the times",
+  "insightReviewPrice": "Review price",
+  "insightSendReminders": "Send reminders",
+  "insightSeeStaff": "See staff",
+  "insightDismiss": "Not now",
+  "insightTurnOff": "Don't show these",
+  "summaryProfitLabel": "Profit before expenses",
+  "summaryCash": "Cash",
+  "summaryTopLabel": "Top product",
+  "summaryShare": "Share the summary",
+  "trainingTitle": "Training mode",
+  "trainingHelp": "Practise on a copy of the shop. Nothing reaches the real sales, stock, reports or backups.",
+  "trainingBand": "TRAINING: NOT REAL SALES",
+  "trainingStartTitle": "Start training mode?",
+  "trainingStartBody": "Aby restarts on a copy of the shop. Sales and stock changes stay in the copy.",
+  "trainingStart": "Start training",
+  "trainingStopTitle": "Leave training mode?",
+  "trainingStopBody": "Aby restarts on the real shop. The practice stays in the copy until it is reset.",
+  "trainingStop": "Leave training",
+  "trainingReset": "Reset training data",
+  "trainingResetHelp": "Throw the practice away and start again from the real shop as it is now.",
+  "trainingNoBackups": "Backups are for the real shop. Leave training mode first.",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -3639,6 +3677,115 @@
   "@commissionPercentOfSales": {
     "placeholders": {
       "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "commandFrom": "from {price}",
+  "@commandFrom": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "insightRunningOut": "{count, plural, =1{{item} will run out in about a day at this week's pace.} other{{item} will run out in about {count} days at this week's pace.}}",
+  "@insightRunningOut": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "insightBusyDay": "{day} sales are {percent}% higher than weekdays. Plan enough staff.",
+  "@insightBusyDay": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "insightMarginDrop": "{product} margin fell from {before}% to {now}% this week. Costs may have gone up.",
+  "@insightMarginDrop": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      },
+      "before": {
+        "type": "int"
+      },
+      "now": {
+        "type": "int"
+      }
+    }
+  },
+  "insightLateCredit": "{count, plural, =1{1 customer owes for more than 30 days: {amount}.} other{{count} customers owe for more than 30 days: {amount} in total.}}",
+  "@insightLateCredit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "insightCashShort": "Cash was short {count} times this month: {amount} in all.",
+  "@insightCashShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "summarySales": "Sales: {amount} ({count})",
+  "@summarySales": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryProfit": "Profit before expenses: {amount}",
+  "@summaryProfit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryTop": "Top: {product}",
+  "@summaryTop": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryClosedBy": "Closed by {name}",
+  "@summaryClosedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "summarySalesLabel": "{count, plural, =1{1 sale} other{{count} sales}}",
+  "@summarySalesLabel": {
+    "placeholders": {
+      "count": {
         "type": "int"
       }
     }

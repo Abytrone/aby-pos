@@ -14,6 +14,7 @@ import '../../models/order.dart';
 import '../../models/receipt.dart';
 import '../device_service.dart';
 import '../settings_service.dart';
+import '../training_service.dart';
 import 'printer_link.dart';
 
 /// This device's printer service, or null where none is set up (some tests).
@@ -95,6 +96,7 @@ class PrintService extends GetxService {
       loyaltyStyle: _settings.get(AppSettings.loyaltyStyle),
       stampsForReward: _settings.get(AppSettings.loyaltyStamps),
       orderPrefix: _settings.get(AppSettings.orderPrefix),
+      training: Get.isRegistered<TrainingService>() && Get.find<TrainingService>().active.value,
     );
   }
 

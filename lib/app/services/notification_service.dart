@@ -12,6 +12,7 @@ import '../ui/l10n.dart';
 import 'alert_service.dart';
 import 'auth_service.dart';
 import 'settings_service.dart';
+import 'training_service.dart';
 
 /// Shows a notification outside the app.
 abstract interface class Notifier {
@@ -117,6 +118,7 @@ class NotificationService extends GetxService {
   Future<List<Alert>> check({DateTime? now, bool force = false}) async {
     if (!_ready && !force) return const [];
     if (!_settings.get(AppSettings.notifications)) return const [];
+    if (Get.isRegistered<TrainingService>() && Get.find<TrainingService>().active.value) return const [];
     final at = now ?? DateTime.now();
     final day = '${at.year}-${at.month}-${at.day}';
     final staff = _staffId;

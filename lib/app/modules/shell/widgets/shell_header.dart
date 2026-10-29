@@ -16,6 +16,7 @@ import '../../../ui/permission_labels.dart';
 import '../../../ui/staff_avatar.dart';
 import '../../../ui/status_dot.dart';
 import '../controllers/shell_controller.dart';
+import 'command_bar.dart';
 import 'quick_switch.dart';
 import 'status_centre.dart';
 
@@ -47,6 +48,11 @@ class ShellHeader extends StatelessWidget {
                       style: AbyText.heading.copyWith(color: c.ink),
                       overflow: TextOverflow.ellipsis,
                     )),
+          ),
+          IconButton(
+            tooltip: context.l10n.commandTooltip,
+            onPressed: showCommandBar,
+            icon: const Icon(Icons.search),
           ),
           // "Reprint last" is one tap from anywhere.
           Obx(() {

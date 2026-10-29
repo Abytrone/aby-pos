@@ -8,6 +8,7 @@ import 'data/database/app_database.dart';
 import 'routes/app_pages.dart';
 import 'services/session_service.dart';
 import 'services/settings_service.dart';
+import 'services/training_service.dart';
 import 'theme/aby_theme.dart';
 import 'ui/l10n.dart';
 
@@ -73,9 +74,44 @@ class _AbyAppState extends State<AbyApp> {
       builder: (context, child) => Listener(
         behavior: HitTestBehavior.translucent,
         onPointerDown: (_) => _touch(),
-        child: _TextSize(child: child ?? const SizedBox.shrink()),
+        child: _TextSize(child: _TrainingBand(child: child ?? const SizedBox.shrink())),
       ),
     );
+  }
+}
+
+/// A yellow "Training" band over every screen while in training mode.
+class _TrainingBand extends StatelessWidget {
+  const _TrainingBand({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!Get.isRegistered<TrainingService>()) return child;
+    final training = Get.find<TrainingService>();
+    return Obx(() {
+      if (!training.active.value) return child;
+      return Column(children: [
+        Material(
+          color: const Color(0xFFFFD233),
+          child: SafeArea(
+            bottom: false,
+            child: SizedBox(
+              height: 28,
+              width: double.infinity,
+              child: Center(
+                child: Text(
+                  context.l10n.trainingBand,
+                  style: const TextStyle(color: Color(0xFF101322), fontWeight: FontWeight.w800, letterSpacing: 1),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Expanded(child: child),
+      ]);
+    });
   }
 }
 

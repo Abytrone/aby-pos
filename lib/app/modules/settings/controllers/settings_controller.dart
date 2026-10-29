@@ -80,4 +80,8 @@ class SettingsController extends GetxController {
   }
 
   void saved() => showMessage(appL10n().settingsSaved);
+
+  /// "Change settings", or an approver's PIN.
+  Future<bool> authorizeChange() async =>
+      await _permissions.authorize(Permission.changeSettings, reason: appL10n().settingsApprovalReason) != null;
 }

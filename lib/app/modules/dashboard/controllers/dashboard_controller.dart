@@ -14,9 +14,10 @@ import '../../../models/day_close.dart';
 import '../../../models/report.dart';
 import '../../../services/alert_service.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/insight_service.dart';
 import '../../../services/settings_service.dart';
 
-enum DashboardCard { sales, payments, hours, topProducts, shift, alerts }
+enum DashboardCard { insights, sales, payments, hours, topProducts, shift, alerts }
 
 /// The owner's first screen of Manage: today against the same day last
 /// week, takings, the hours, top products, the drawer and alerts. Cards can
@@ -36,6 +37,7 @@ class DashboardController extends GetxController {
   final hours = <int>[].obs;
   final period = Rxn<OpenPeriod>();
   final alerts = <Alert>[].obs;
+  final insights = <Insight>[].obs;
 
   /// Shown cards, in order.
   final cards = <DashboardCard>[...DashboardCard.values].obs;
@@ -78,6 +80,7 @@ class DashboardController extends GetxController {
     hours.assignAll([for (var h = 0; h < 24; h++) grid.fold(0, (s, row) => s + row[h])]);
     period.value = await _closes.openPeriod();
     alerts.assignAll(await Get.find<AlertService>().current(now: now));
+    if (Get.isRegistered<InsightService>()) insights.assignAll(await Get.find<InsightService>().current());
     loading.value = false;
   }
 
@@ -86,12 +89,26 @@ class DashboardController extends GetxController {
     if (saved == null) return;
     final names = (jsonDecode(saved) as List).cast<String>();
     final byName = DashboardCard.values.asNameMap();
-    cards.assignAll([for (final n in names) ?byName[n]]);
+    cards.assignAll([
+      // Insights came later (6f): layouts saved before them show them first.
+      if (!saved.contains('"v2"')) DashboardCard.insights,
+      for (final n in names) ?byName[n],
+    ]);
+  }
+
+  Future<void> dismiss(Insight i) async {
+    await Get.find<InsightService>().dismiss(i);
+    insights.remove(i);
+  }
+
+  Future<void> turnOff(InsightKind kind) async {
+    await Get.find<InsightService>().turnOff(kind);
+    insights.removeWhere((i) => i.kind == kind);
   }
 
   /// Saves the order and which cards are shown, for this person.
   Future<void> setLayout(List<DashboardCard> shown) async {
     cards.assignAll(shown);
-    await _db.writeMeta(_layoutKey, jsonEncode([for (final c in shown) c.name]));
+    await _db.writeMeta(_layoutKey, jsonEncode(['v2', for (final c in shown) c.name]));
   }
 }

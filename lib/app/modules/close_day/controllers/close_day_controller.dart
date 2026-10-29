@@ -3,15 +3,21 @@ import 'package:get/get.dart';
 
 import '../../../core/denominations.dart';
 import '../../../core/permissions.dart';
+import '../../../core/period.dart';
 import '../../../core/settings.dart';
 import '../../../data/repositories/day_close_repository.dart';
 import '../../../data/repositories/parked_order_repository.dart';
+import '../../../data/repositories/report_repository.dart';
 import '../../../models/day_close.dart';
+import '../../../models/report.dart';
+import '../../../services/alert_service.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
+import '../../../ui/alert_text.dart';
 import '../../../ui/l10n.dart';
+import '../widgets/daily_summary.dart';
 
 /// Cash-up (the Z report): compare the counted drawer with what the till
 /// expects, then close the shift so its sales are locked. With a blind
@@ -30,6 +36,9 @@ class CloseDayController extends GetxController {
   final saving = false.obs;
   final error = RxnString();
   final closed = Rxn<DayClose>();
+
+  /// The owner's summary of the day just closed (NTF-02).
+  final summary = Rxn<DailySummary>();
 
   final floatField = TextEditingController();
   final countedField = TextEditingController();
@@ -141,6 +150,7 @@ class CloseDayController extends GetxController {
         varianceReason: needsReason ? reasonField.text : null,
       );
       history.assignAll(await _closes.history());
+      summary.value = await _summary(closed.value!);
     } catch (_) {
       error.value = appL10n().closeFailed;
     } finally {
@@ -149,6 +159,28 @@ class CloseDayController extends GetxController {
   }
 
   void done() => Get.back<void>();
+
+  /// Sales, gross profit when costs are known, the cash difference, the top
+  /// product and what needs attention.
+  Future<DailySummary> _summary(DayClose z) async {
+    final range = DateRange(z.periodStart ?? DateTime(2000), z.closedAt.add(const Duration(seconds: 1)));
+    var top = <ProductFigures>[];
+    if (Get.isRegistered<ReportRepository>()) top = await Get.find<ReportRepository>().products(range);
+    final costed = top.where((p) => p.cost > 0).toList();
+    final alerts = Get.isRegistered<AlertService>() ? await Get.find<AlertService>().current() : const <Alert>[];
+    final l = appL10n();
+    return DailySummary(
+      shopName: _settings.get(AppSettings.shopName),
+      closedAt: z.closedAt,
+      closedBy: z.closedByName,
+      sales: z.salesTotal,
+      count: z.salesCount,
+      cashDifference: z.difference,
+      profit: costed.isEmpty ? null : costed.fold<int>(0, (s, p) => s + p.revenue - p.cost),
+      topProduct: top.firstOrNull?.name,
+      alerts: [for (final a in alerts.where((a) => a.kind != AlertKind.dayNotClosed).take(3)) alertText(l, a)],
+    );
+  }
 
   static String _plain(int pesewas) => '${pesewas ~/ 100}.${(pesewas % 100).toString().padLeft(2, '0')}';
 }

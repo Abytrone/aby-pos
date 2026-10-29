@@ -1504,6 +1504,37 @@ Decisions made on the way:
 - Commission is on sales as made: refunds do not take it back (the owner sees refunds by
   person next to it).
 
+**Status (29 October 2026): 6f built** (command bar, insights, daily summary, training mode).
+Schema unchanged (15). Built:
+
+- `APP-03` command bar: the search icon in the header or Ctrl+K. One box finds products ("Add
+  to cart", "Edit product"), customers ("Add to the sale", "Open"), sales by number or MoMo
+  reference ("Reprint", "Refund"), staff and actions by name ("close day", "receive stock",
+  "new product", "add an expense", every section). Enter does the first result's first action.
+  Only what the signed-in person may do is offered.
+- `REP-08` insights: "Worth knowing" at the top of the dashboard, worked out on the device:
+  stock that runs out in under 3 days at this week's pace, the busiest day against weekdays,
+  a product's margin falling 10 points or more, customers more than 30 days late, cash short 3
+  or more times this month. Each has one action (the section where it is dealt with), "Not
+  now" (hidden for a week) and "Don't show these". A day not closed stays an alert.
+- `NTF-02` daily summary: at day close, a card with sales, profit before expenses (when costs
+  are known), the cash difference, the top product and what needs attention, shared as a
+  picture (WhatsApp) with the same as text. With Aby Cloud it can be sent automatically later.
+- `APP-05` training mode: Settings → Training mode (needs "Change settings"). Aby restarts on a
+  copy of the shop, with a yellow band on every screen; receipts say "TRAINING - NOT A REAL
+  SALE". Sales, refunds and stock changes stay in the copy, which has no outbox and is never
+  backed up or notified about. "Reset training data" starts again from the real shop; leaving
+  restarts on the real data, untouched.
+- `APP-06` languages: not added for now, at the owner's request. English stays; every string
+  is already in the translation file for when they are wanted.
+
+Decisions made on the way:
+
+- Training mode is per device and switched in Settings, not per staff member.
+- Insights are rules on this device's data; they do not use the internet.
+
+**6g next:** business templates (`APP-04`).
+
 ### Phase 7: Many devices without internet
 
 - `MDV-01` local hub, `MDV-03` device management.

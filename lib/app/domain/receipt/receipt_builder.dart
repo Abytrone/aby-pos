@@ -66,6 +66,7 @@ abstract final class ReceiptBuilder {
       if (copy == ReceiptCopy.customer) const RText('CUSTOMER COPY', align: ReceiptAlign.center, bold: true),
       if (copy == ReceiptCopy.shop) const RText('SHOP COPY', align: ReceiptAlign.center, bold: true),
       if (reprint) const RText('REPRINT', align: ReceiptAlign.center, bold: true),
+      if (d.training) const RText('TRAINING - NOT A REAL SALE', align: ReceiptAlign.center, bold: true, big: true),
       if (s.voided) const RText('VOIDED - NOT A SALE', align: ReceiptAlign.center, bold: true, big: true),
       const RRule(),
       for (final l in s.lines) ...[

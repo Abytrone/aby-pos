@@ -4033,6 +4033,126 @@ class AppLocalizationsEn extends AppLocalizations {
       'Paid to whoever sells it. Leave empty for none.';
 
   @override
+  String get commandTooltip => 'Search everything (Ctrl+K)';
+
+  @override
+  String get commandHint =>
+      'Products, customers, sale numbers, MoMo references, actions...';
+
+  @override
+  String get commandNothing => 'Nothing found.';
+
+  @override
+  String get commandActions => 'Go to';
+
+  @override
+  String get commandSales => 'Sales';
+
+  @override
+  String get commandOpen => 'Open';
+
+  @override
+  String get commandAddToCart => 'Add to cart';
+
+  @override
+  String get commandEditProduct => 'Edit product';
+
+  @override
+  String get commandAddToSale => 'Add to the sale';
+
+  @override
+  String get commandOpenCustomer => 'Open';
+
+  @override
+  String get commandReprint => 'Reprint';
+
+  @override
+  String get commandOpenProfile => 'Open profile';
+
+  @override
+  String get commandNewProduct => 'New product';
+
+  @override
+  String get commandAddExpense => 'Add an expense';
+
+  @override
+  String get insightsTitle => 'Worth knowing';
+
+  @override
+  String get insightOrderMore => 'Order more';
+
+  @override
+  String get insightSeeTimes => 'See the times';
+
+  @override
+  String get insightReviewPrice => 'Review price';
+
+  @override
+  String get insightSendReminders => 'Send reminders';
+
+  @override
+  String get insightSeeStaff => 'See staff';
+
+  @override
+  String get insightDismiss => 'Not now';
+
+  @override
+  String get insightTurnOff => 'Don\'t show these';
+
+  @override
+  String get summaryProfitLabel => 'Profit before expenses';
+
+  @override
+  String get summaryCash => 'Cash';
+
+  @override
+  String get summaryTopLabel => 'Top product';
+
+  @override
+  String get summaryShare => 'Share the summary';
+
+  @override
+  String get trainingTitle => 'Training mode';
+
+  @override
+  String get trainingHelp =>
+      'Practise on a copy of the shop. Nothing reaches the real sales, stock, reports or backups.';
+
+  @override
+  String get trainingBand => 'TRAINING: NOT REAL SALES';
+
+  @override
+  String get trainingStartTitle => 'Start training mode?';
+
+  @override
+  String get trainingStartBody =>
+      'Aby restarts on a copy of the shop. Sales and stock changes stay in the copy.';
+
+  @override
+  String get trainingStart => 'Start training';
+
+  @override
+  String get trainingStopTitle => 'Leave training mode?';
+
+  @override
+  String get trainingStopBody =>
+      'Aby restarts on the real shop. The practice stays in the copy until it is reset.';
+
+  @override
+  String get trainingStop => 'Leave training';
+
+  @override
+  String get trainingReset => 'Reset training data';
+
+  @override
+  String get trainingResetHelp =>
+      'Throw the practice away and start again from the real shop as it is now.';
+
+  @override
+  String get trainingNoBackups =>
+      'Backups are for the real shop. Leave training mode first.';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }
@@ -5628,5 +5748,78 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String commissionPercentOfSales(int percent) {
     return '$percent% of sales';
+  }
+
+  @override
+  String commandFrom(String price) {
+    return 'from $price';
+  }
+
+  @override
+  String insightRunningOut(String item, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$item will run out in about $count days at this week\'s pace.',
+      one: '$item will run out in about a day at this week\'s pace.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String insightBusyDay(String day, int percent) {
+    return '$day sales are $percent% higher than weekdays. Plan enough staff.';
+  }
+
+  @override
+  String insightMarginDrop(String product, int before, int now) {
+    return '$product margin fell from $before% to $now% this week. Costs may have gone up.';
+  }
+
+  @override
+  String insightLateCredit(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count customers owe for more than 30 days: $amount in total.',
+      one: '1 customer owes for more than 30 days: $amount.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String insightCashShort(int count, String amount) {
+    return 'Cash was short $count times this month: $amount in all.';
+  }
+
+  @override
+  String summarySales(String amount, int count) {
+    return 'Sales: $amount ($count)';
+  }
+
+  @override
+  String summaryProfit(String amount) {
+    return 'Profit before expenses: $amount';
+  }
+
+  @override
+  String summaryTop(String product) {
+    return 'Top: $product';
+  }
+
+  @override
+  String summaryClosedBy(String name) {
+    return 'Closed by $name';
+  }
+
+  @override
+  String summarySalesLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sales',
+      one: '1 sale',
+    );
+    return '$_temp0';
   }
 }

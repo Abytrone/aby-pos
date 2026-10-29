@@ -7876,6 +7876,234 @@ abstract class AppLocalizations {
   /// **'Paid to whoever sells it. Leave empty for none.'**
   String get editorCommissionHelp;
 
+  /// No description provided for @commandTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Search everything (Ctrl+K)'**
+  String get commandTooltip;
+
+  /// No description provided for @commandHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Products, customers, sale numbers, MoMo references, actions...'**
+  String get commandHint;
+
+  /// No description provided for @commandNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found.'**
+  String get commandNothing;
+
+  /// No description provided for @commandActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to'**
+  String get commandActions;
+
+  /// No description provided for @commandSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get commandSales;
+
+  /// No description provided for @commandOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get commandOpen;
+
+  /// No description provided for @commandAddToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to cart'**
+  String get commandAddToCart;
+
+  /// No description provided for @commandEditProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit product'**
+  String get commandEditProduct;
+
+  /// No description provided for @commandAddToSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to the sale'**
+  String get commandAddToSale;
+
+  /// No description provided for @commandOpenCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get commandOpenCustomer;
+
+  /// No description provided for @commandReprint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reprint'**
+  String get commandReprint;
+
+  /// No description provided for @commandOpenProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open profile'**
+  String get commandOpenProfile;
+
+  /// No description provided for @commandNewProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'New product'**
+  String get commandNewProduct;
+
+  /// No description provided for @commandAddExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an expense'**
+  String get commandAddExpense;
+
+  /// No description provided for @insightsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Worth knowing'**
+  String get insightsTitle;
+
+  /// No description provided for @insightOrderMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Order more'**
+  String get insightOrderMore;
+
+  /// No description provided for @insightSeeTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'See the times'**
+  String get insightSeeTimes;
+
+  /// No description provided for @insightReviewPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Review price'**
+  String get insightReviewPrice;
+
+  /// No description provided for @insightSendReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reminders'**
+  String get insightSendReminders;
+
+  /// No description provided for @insightSeeStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'See staff'**
+  String get insightSeeStaff;
+
+  /// No description provided for @insightDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get insightDismiss;
+
+  /// No description provided for @insightTurnOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t show these'**
+  String get insightTurnOff;
+
+  /// No description provided for @summaryProfitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit before expenses'**
+  String get summaryProfitLabel;
+
+  /// No description provided for @summaryCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get summaryCash;
+
+  /// No description provided for @summaryTopLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Top product'**
+  String get summaryTopLabel;
+
+  /// No description provided for @summaryShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the summary'**
+  String get summaryShare;
+
+  /// No description provided for @trainingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Training mode'**
+  String get trainingTitle;
+
+  /// No description provided for @trainingHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise on a copy of the shop. Nothing reaches the real sales, stock, reports or backups.'**
+  String get trainingHelp;
+
+  /// No description provided for @trainingBand.
+  ///
+  /// In en, this message translates to:
+  /// **'TRAINING: NOT REAL SALES'**
+  String get trainingBand;
+
+  /// No description provided for @trainingStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start training mode?'**
+  String get trainingStartTitle;
+
+  /// No description provided for @trainingStartBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Aby restarts on a copy of the shop. Sales and stock changes stay in the copy.'**
+  String get trainingStartBody;
+
+  /// No description provided for @trainingStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start training'**
+  String get trainingStart;
+
+  /// No description provided for @trainingStopTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave training mode?'**
+  String get trainingStopTitle;
+
+  /// No description provided for @trainingStopBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Aby restarts on the real shop. The practice stays in the copy until it is reset.'**
+  String get trainingStopBody;
+
+  /// No description provided for @trainingStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave training'**
+  String get trainingStop;
+
+  /// No description provided for @trainingReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset training data'**
+  String get trainingReset;
+
+  /// No description provided for @trainingResetHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Throw the practice away and start again from the real shop as it is now.'**
+  String get trainingResetHelp;
+
+  /// No description provided for @trainingNoBackups.
+  ///
+  /// In en, this message translates to:
+  /// **'Backups are for the real shop. Leave training mode first.'**
+  String get trainingNoBackups;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -9507,6 +9735,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{percent}% of sales'**
   String commissionPercentOfSales(int percent);
+
+  /// No description provided for @commandFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'from {price}'**
+  String commandFrom(String price);
+
+  /// No description provided for @insightRunningOut.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{item} will run out in about a day at this week\'s pace.} other{{item} will run out in about {count} days at this week\'s pace.}}'**
+  String insightRunningOut(String item, int count);
+
+  /// No description provided for @insightBusyDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{day} sales are {percent}% higher than weekdays. Plan enough staff.'**
+  String insightBusyDay(String day, int percent);
+
+  /// No description provided for @insightMarginDrop.
+  ///
+  /// In en, this message translates to:
+  /// **'{product} margin fell from {before}% to {now}% this week. Costs may have gone up.'**
+  String insightMarginDrop(String product, int before, int now);
+
+  /// No description provided for @insightLateCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 customer owes for more than 30 days: {amount}.} other{{count} customers owe for more than 30 days: {amount} in total.}}'**
+  String insightLateCredit(int count, String amount);
+
+  /// No description provided for @insightCashShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash was short {count} times this month: {amount} in all.'**
+  String insightCashShort(int count, String amount);
+
+  /// No description provided for @summarySales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales: {amount} ({count})'**
+  String summarySales(String amount, int count);
+
+  /// No description provided for @summaryProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit before expenses: {amount}'**
+  String summaryProfit(String amount);
+
+  /// No description provided for @summaryTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Top: {product}'**
+  String summaryTop(String product);
+
+  /// No description provided for @summaryClosedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed by {name}'**
+  String summaryClosedBy(String name);
+
+  /// No description provided for @summarySalesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 sale} other{{count} sales}}'**
+  String summarySalesLabel(int count);
 }
 
 class _AppLocalizationsDelegate
