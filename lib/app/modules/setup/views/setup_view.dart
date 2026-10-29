@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../../domain/business_templates.dart';
 import '../../../services/pin_hasher.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_mark.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/option_chip.dart';
 import '../controllers/setup_controller.dart';
 
 class SetupView extends GetView<SetupController> {
@@ -42,6 +44,17 @@ class SetupView extends GetView<SetupController> {
                     style: AbyText.body.copyWith(color: c.inkMuted),
                   ),
                   const SizedBox(height: AbySpace.s6),
+                  Text(l.setupShopType, style: AbyText.label.copyWith(color: c.inkMuted)),
+                  const SizedBox(height: AbySpace.s2),
+                  Obx(() => Wrap(spacing: AbySpace.s2, runSpacing: AbySpace.s2, children: [
+                        for (final t in BusinessType.values)
+                          OptionChip(
+                            label: businessTypeLabel(l, t),
+                            selected: controller.type.value == t,
+                            onTap: () => controller.pickType(t),
+                          ),
+                      ])),
+                  const SizedBox(height: AbySpace.s4),
                   TextField(
                     controller: controller.shopField,
                     textCapitalization: TextCapitalization.words,
@@ -104,3 +117,15 @@ class SetupView extends GetView<SetupController> {
     );
   }
 }
+
+String businessTypeLabel(AppLocalizations l, BusinessType t) => switch (t) {
+      BusinessType.iceCream => l.shopTypeIceCream,
+      BusinessType.provision => l.shopTypeProvision,
+      BusinessType.chopBar => l.shopTypeChopBar,
+      BusinessType.pharmacy => l.shopTypePharmacy,
+      BusinessType.salon => l.shopTypeSalon,
+      BusinessType.phones => l.shopTypePhones,
+      BusinessType.boutique => l.shopTypeBoutique,
+      BusinessType.building => l.shopTypeBuilding,
+      BusinessType.other => l.shopTypeOther,
+    };

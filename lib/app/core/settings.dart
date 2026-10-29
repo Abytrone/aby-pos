@@ -24,6 +24,12 @@ abstract final class AppSettings {
   static const businessDayStart =
       Setting<int>('day.startMinutes', SettingScope.shop, 5 * 60);
 
+  /// The kind of shop chosen at setup (APP-04): iceCream, provision, ...
+  static const shopType = Setting<String>('shop.type', SettingScope.shop, 'iceCream');
+
+  /// New stock items ask for batches and expiry dates.
+  static const expiryByDefault = Setting<bool>('stock.expiryByDefault', SettingScope.shop, false);
+
   // Selling
   /// off | inclusive (prices include tax) | exclusive (tax added at the till).
   static const taxMode = Setting<String>('tax.mode', SettingScope.shop, 'off');
@@ -187,6 +193,8 @@ abstract final class AppSettings {
     shopName,
     shopPhone,
     shopAddress,
+    shopType,
+    expiryByDefault,
     businessDayStart,
     taxMode,
     allowNegativeStock,

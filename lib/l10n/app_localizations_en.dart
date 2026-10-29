@@ -4000,9 +4000,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportCommission => 'Commission';
 
   @override
-  String get settingsGroupStaff => 'Staff';
-
-  @override
   String get settingsClockInToSell => 'Clock in before selling';
 
   @override
@@ -4151,6 +4148,50 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get trainingNoBackups =>
       'Backups are for the real shop. Leave training mode first.';
+
+  @override
+  String get setupShopType => 'What kind of shop?';
+
+  @override
+  String get shopTypeIceCream => 'Ice cream / cold store';
+
+  @override
+  String get shopTypeProvision => 'Provision shop';
+
+  @override
+  String get shopTypeChopBar => 'Chop bar / restaurant';
+
+  @override
+  String get shopTypePharmacy => 'Pharmacy shop';
+
+  @override
+  String get shopTypeSalon => 'Salon / barber';
+
+  @override
+  String get shopTypePhones => 'Phones and accessories';
+
+  @override
+  String get shopTypeBoutique => 'Boutique';
+
+  @override
+  String get shopTypeBuilding => 'Building materials';
+
+  @override
+  String get shopTypeOther => 'Something else';
+
+  @override
+  String get settingsGroupFeatures => 'Features';
+
+  @override
+  String get settingsFeaturesHelp =>
+      'Chosen at setup. Every feature below can be switched on or off.';
+
+  @override
+  String get settingsExpiryByDefault => 'Expiry dates for new stock';
+
+  @override
+  String get settingsExpiryByDefaultHelp =>
+      'New stock items ask for batches and expiry dates when they come in.';
 
   @override
   String pinMustBeDigits(int count) {

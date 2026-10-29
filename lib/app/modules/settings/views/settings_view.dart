@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../../core/settings.dart';
+import '../../../domain/business_templates.dart';
 import '../../../domain/loyalty.dart';
 import '../../../models/enums.dart';
 import '../../../models/receipt.dart';
@@ -21,6 +22,7 @@ import '../../../ui/l10n.dart';
 import '../../../ui/section_page.dart';
 import '../controllers/backup_controller.dart';
 import '../controllers/settings_controller.dart';
+import '../../setup/views/setup_view.dart' show businessTypeLabel;
 import '../widgets/device_hardware.dart';
 import '../widgets/local_backups_dialog.dart';
 import '../widgets/loyalty_settings.dart';
@@ -158,7 +160,7 @@ class SettingsView extends GetView<SettingsController> {
     final printer = PrinterTarget.decode(c.value(AppSettings.receiptPrinter));
     final scale = ScaleTarget.decode(c.value(AppSettings.scale));
     final orders = l.settingsGroupOrders;
-    final staffGroup = l.settingsGroupStaff;
+    final features = l.settingsGroupFeatures;
     String commissionLabel(String m) => switch (m) {
           'percent' => l.commissionPercentOfSales(c.value(AppSettings.commissionPercent)),
           'perProduct' => l.commissionPerProduct,
@@ -187,6 +189,16 @@ class SettingsView extends GetView<SettingsController> {
         value: c.value(AppSettings.shopAddress).isEmpty ? l.settingsNotSet : c.value(AppSettings.shopAddress),
         onTap: () => editText(AppSettings.shopAddress, l.settingsShopAddress),
       ), keywords: ['location', 'landmark']),
+      _Entry(features, InfoTile(
+        title: l.setupShopType,
+        subtitle: l.settingsFeaturesHelp,
+        value: businessTypeLabel(l, BusinessType.values.asNameMap()[c.value(AppSettings.shopType)] ?? BusinessType.other),
+      ), keywords: ['features', 'shop type', 'business']),
+      _Entry(features, InfoTile(
+        title: l.settingsExpiryByDefault,
+        subtitle: l.settingsExpiryByDefaultHelp,
+        trailing: Switch(value: c.value(AppSettings.expiryByDefault), onChanged: (v) => c.save(AppSettings.expiryByDefault, v)),
+      ), keywords: ['expiry', 'batches', 'features']),
       _Entry(day, InfoTile(
         title: l.settingsDayStart,
         subtitle: l.settingsDayStartHelp,
@@ -248,7 +260,7 @@ class SettingsView extends GetView<SettingsController> {
           if (v != null && v.trim().isNotEmpty) await c.save(AppSettings.creditReminder, v.trim());
         },
       ), keywords: ['whatsapp', 'sms', 'credit', 'reminder']),
-      _Entry(selling, InfoTile(
+      _Entry(features, InfoTile(
         title: l.settingsOrderTypes,
         subtitle: l.settingsOrderTypesHelp,
         trailing: Switch(value: c.value(AppSettings.orderTypes), onChanged: (v) => c.save(AppSettings.orderTypes, v)),
@@ -267,14 +279,14 @@ class SettingsView extends GetView<SettingsController> {
         leading: const Icon(Icons.local_offer_outlined),
         onTap: showSavedDiscounts,
       ), keywords: ['discount', 'student', 'staff']),
-      _Entry(selling, InfoTile(
+      _Entry(features, InfoTile(
         title: l.loyaltyTitle,
         subtitle: l.loyaltySettingsHelp,
         value: loyaltyStyleLabel(l, LoyaltyStyle.values.asNameMap()[c.value(AppSettings.loyaltyStyle)] ?? LoyaltyStyle.off),
         leading: const Icon(Icons.loyalty_outlined),
         onTap: () => showLoyaltySettings(c),
       ), keywords: ['loyalty', 'stamps', 'points', 'gold', 'reward', 'free']),
-      _Entry(selling, InfoTile(
+      _Entry(features, InfoTile(
         title: l.promoTitle,
         subtitle: l.promoSettingsHelp,
         leading: const Icon(Icons.celebration_outlined),
@@ -370,7 +382,7 @@ class SettingsView extends GetView<SettingsController> {
         leading: const Icon(Icons.receipt_long_outlined),
         onTap: () => showReceiptDesigner(c),
       ), keywords: ['receipt', 'logo', 'footer', 'header', 'qr', 'momo', 'copies']),
-      _Entry(orders, InfoTile(
+      _Entry(features, InfoTile(
         title: l.settingsOrderNumbers,
         subtitle: l.settingsOrderNumbersHelp,
         trailing: Switch(value: c.value(AppSettings.ordersOn), onChanged: (v) => c.save(AppSettings.ordersOn, v)),
@@ -416,12 +428,12 @@ class SettingsView extends GetView<SettingsController> {
           leading: const Icon(Icons.connected_tv_outlined),
           onTap: showScreenLinks,
         ), keywords: ['link', 'qr', 'display']),
-      _Entry(staffGroup, InfoTile(
+      _Entry(features, InfoTile(
         title: l.settingsClockInToSell,
         subtitle: l.settingsClockInToSellHelp,
         trailing: Switch(value: c.value(AppSettings.clockInToSell), onChanged: (v) => c.save(AppSettings.clockInToSell, v)),
       ), keywords: ['clock', 'time', 'attendance', 'shift']),
-      _Entry(staffGroup, InfoTile(
+      _Entry(features, InfoTile(
         title: l.settingsCommission,
         subtitle: l.settingsCommissionHelp,
         value: commissionLabel(c.value(AppSettings.commissionMode)),

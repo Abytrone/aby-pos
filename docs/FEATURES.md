@@ -1533,7 +1533,26 @@ Decisions made on the way:
 - Training mode is per device and switched in Settings, not per staff member.
 - Insights are rules on this device's data; they do not use the internet.
 
-**6g next:** business templates (`APP-04`).
+**Status (29 October 2026): 6g built** (business templates). Schema unchanged (15). Phase 6
+is done, apart from languages (`APP-06`), held back at the owner's request. Built:
+
+- `APP-04` business templates: setup starts with "What kind of shop?": ice cream / cold
+  store, provision shop, chop bar / restaurant, pharmacy shop, salon / barber, phones and
+  accessories, boutique, building materials, or something else. The ice cream shop keeps the
+  sample menu, stock and recipes, with stamps and expiry dates on. Every other kind starts
+  without the sample menu (the tax rates stay) and with its own categories, and with its
+  features: a chop bar gets order types and order numbers (kitchen tickets); a provision shop
+  and a pharmacy get expiry dates for new stock; a salon gets 10% commission.
+- Settings → Features: the shop type and the switches for order types, order numbers,
+  loyalty, promotions, clock-in before selling, commission and expiry dates for new stock,
+  in one group.
+
+Decisions made on the way:
+
+- The sample menu is only cleared while nothing has been sold, so a template applied later
+  never removes real products.
+- Templates give categories, not sample products: the owner adds their own (or imports a
+  CSV).
 
 ### Phase 7: Many devices without internet
 

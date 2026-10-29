@@ -1054,6 +1054,33 @@ void main() {
     await _dispose(tester);
   });
 
+  testWidgets('tablet, first run as a chop bar: its categories, order numbers on, no sample ice cream', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(AbyApp(openDatabase: memoryDb));
+    await _settle(tester);
+    expect(find.text('What kind of shop?'), findsOneWidget);
+    await tester.tap(find.text('Chop bar / restaurant'));
+    await _settle(tester);
+    final fields = find.byType(TextField);
+    expect(tester.widget<TextField>(fields.at(0)).controller!.text, isEmpty, reason: 'not the sample shop name');
+    await tester.enterText(fields.at(0), 'Auntie Mercy Chop Bar');
+    await tester.enterText(fields.at(1), 'Mercy');
+    await tester.enterText(fields.at(2), '2468');
+    await tester.enterText(fields.at(3), '2468');
+    await tester.ensureVisible(find.text('Create owner and start'));
+    await tester.tap(find.text('Create owner and start'));
+    await _settle(tester);
+
+    expect(find.text('Food'), findsWidgets);
+    expect(find.text('Vanilla cone'), findsNothing);
+    expect(find.text('Orders'), findsOneWidget, reason: 'kitchen tickets and the Orders board are on');
+
+    await _dispose(tester);
+  });
+
   testWidgets('phone portrait, first run: name the shop, create the owner, start selling', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
@@ -1069,6 +1096,7 @@ void main() {
     await tester.enterText(fields.at(1), 'Kofi');
     await tester.enterText(fields.at(2), '1234');
     await tester.enterText(fields.at(3), '1243');
+    await tester.ensureVisible(find.text('Create owner and start'));
     await tester.tap(find.text('Create owner and start'));
     await _settle(tester);
     expect(find.text("The PINs don't match."), findsOneWidget);

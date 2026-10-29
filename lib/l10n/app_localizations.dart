@@ -7816,12 +7816,6 @@ abstract class AppLocalizations {
   /// **'Commission'**
   String get reportCommission;
 
-  /// No description provided for @settingsGroupStaff.
-  ///
-  /// In en, this message translates to:
-  /// **'Staff'**
-  String get settingsGroupStaff;
-
   /// No description provided for @settingsClockInToSell.
   ///
   /// In en, this message translates to:
@@ -8103,6 +8097,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Backups are for the real shop. Leave training mode first.'**
   String get trainingNoBackups;
+
+  /// No description provided for @setupShopType.
+  ///
+  /// In en, this message translates to:
+  /// **'What kind of shop?'**
+  String get setupShopType;
+
+  /// No description provided for @shopTypeIceCream.
+  ///
+  /// In en, this message translates to:
+  /// **'Ice cream / cold store'**
+  String get shopTypeIceCream;
+
+  /// No description provided for @shopTypeProvision.
+  ///
+  /// In en, this message translates to:
+  /// **'Provision shop'**
+  String get shopTypeProvision;
+
+  /// No description provided for @shopTypeChopBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Chop bar / restaurant'**
+  String get shopTypeChopBar;
+
+  /// No description provided for @shopTypePharmacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Pharmacy shop'**
+  String get shopTypePharmacy;
+
+  /// No description provided for @shopTypeSalon.
+  ///
+  /// In en, this message translates to:
+  /// **'Salon / barber'**
+  String get shopTypeSalon;
+
+  /// No description provided for @shopTypePhones.
+  ///
+  /// In en, this message translates to:
+  /// **'Phones and accessories'**
+  String get shopTypePhones;
+
+  /// No description provided for @shopTypeBoutique.
+  ///
+  /// In en, this message translates to:
+  /// **'Boutique'**
+  String get shopTypeBoutique;
+
+  /// No description provided for @shopTypeBuilding.
+  ///
+  /// In en, this message translates to:
+  /// **'Building materials'**
+  String get shopTypeBuilding;
+
+  /// No description provided for @shopTypeOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get shopTypeOther;
+
+  /// No description provided for @settingsGroupFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get settingsGroupFeatures;
+
+  /// No description provided for @settingsFeaturesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen at setup. Every feature below can be switched on or off.'**
+  String get settingsFeaturesHelp;
+
+  /// No description provided for @settingsExpiryByDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry dates for new stock'**
+  String get settingsExpiryByDefault;
+
+  /// No description provided for @settingsExpiryByDefaultHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'New stock items ask for batches and expiry dates when they come in.'**
+  String get settingsExpiryByDefaultHelp;
 
   /// No description provided for @pinMustBeDigits.
   ///

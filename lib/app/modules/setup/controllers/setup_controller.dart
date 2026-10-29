@@ -3,11 +3,14 @@ import 'package:get/get.dart';
 
 import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
+import '../../../data/repositories/catalog_repository.dart';
 import '../../../data/repositories/staff_repository.dart';
+import '../../../domain/business_templates.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/pin_hasher.dart';
 import '../../../services/settings_service.dart';
+import '../../../services/template_service.dart';
 import '../../../ui/l10n.dart';
 import '../../settings/controllers/backup_controller.dart';
 
@@ -24,6 +27,15 @@ class SetupController extends GetxController {
 
   final saving = false.obs;
   final error = RxnString();
+
+  /// The kind of shop (APP-04): sets up categories and features.
+  final type = BusinessType.iceCream.obs;
+
+  void pickType(BusinessType t) {
+    type.value = t;
+    // The sample shop's name only fits the sample ice cream shop.
+    if (t != BusinessType.iceCream && shopField.text == 'Scoops Tamale') shopField.clear();
+  }
 
   @override
   void onClose() {
@@ -63,6 +75,7 @@ class SetupController extends GetxController {
         pin: pin,
       );
       await _settings.set(AppSettings.shopName, shopField.text.trim(), by: owner);
+      await TemplateService(Get.find(), Get.find<CatalogRepository>(), _settings).apply(type.value, by: owner);
       _auth.signInAsNew(owner);
       await Get.offAllNamed<void>(Routes.shell);
     } on StaffException catch (e) {

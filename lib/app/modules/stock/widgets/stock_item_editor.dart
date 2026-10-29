@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/settings.dart';
 import '../../../core/units.dart';
 import '../../../models/drafts.dart';
 import '../../../models/enums.dart';
 import '../../../models/stock.dart';
 import '../../../services/money.dart';
+import '../../../services/settings_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/l10n.dart';
@@ -47,7 +49,8 @@ class _EditorState extends State<_Editor> {
   late final _reorderQty = TextEditingController(
     text: widget.item?.reorderQty == null ? '' : quantityIn(widget.item!.reorderQty!, DisplayUnit.bulk(_unit)),
   );
-  late bool _expiry = widget.item?.tracksExpiry ?? false;
+  late bool _expiry = widget.item?.tracksExpiry ??
+      (Get.isRegistered<SettingsService>() && Get.find<SettingsService>().get(AppSettings.expiryByDefault));
   String? _error;
   bool _saving = false;
 
