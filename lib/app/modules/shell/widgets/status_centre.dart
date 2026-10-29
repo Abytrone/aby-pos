@@ -66,7 +66,10 @@ String _detail(AppLocalizations l, StatusCheck check) => switch (check.item) {
         check.at == null ? l.statusNever : l.statusLast(relativeTime(l, check.at!)),
       StatusItem.activityLog =>
         check.level == StatusLevel.ok ? l.statusChainIntact : l.statusChainBroken,
-      StatusItem.sync => (check.count ?? 0) == 0 ? l.statusNothingWaiting : l.statusSalesWaiting(check.count!),
+      StatusItem.sync => [
+          if (check.detail != null) l.statusHubUnreachable,
+          (check.count ?? 0) == 0 ? l.statusNothingWaiting : l.statusSalesWaiting(check.count!),
+        ].join(' '),
       StatusItem.printer => check.detail == null
           ? l.statusPrinterReady
           : '${l.statusPrintsWaiting(check.count ?? 0)} ${check.detail}',

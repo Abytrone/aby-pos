@@ -102,6 +102,10 @@ App icons: `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml`.
   and waste. *Deliveries* receives stock (cost, supplier, paid now or owed), *Counts* is the
   stocktake (blind or open), and *Suppliers* shows what is owed and records payments. Each item
   shows daily use, how long it lasts and a suggested low level.
+- **Several tills:** Settings → Devices and hub. Make the main till the hub, then *Add a
+  device* and scan its QR code (or type the address and code) on each other till. Sales, stock
+  and customers sync over the shop's Wi-Fi with no internet; each till keeps selling if the
+  Wi-Fi drops. The hub can rename devices or remove a lost one.
 - **Business day:** starts at 05:00 by default, so late-night sales count on the evening's day.
 - **Close day:** Today → Close day counts the drawer (opening float + cash takings = expected) and
   locks those sales against voids.
@@ -125,12 +129,13 @@ lib/
     ui/                     shared design system: SectionPage, GroupCard, InfoTile, dialogs,
                             PinPad, OptionChip, approval prompt, status dot, labels, formatting
     data/database/          drift tables, AppDatabase, step-by-step migrations, seed
+    data/sync/              row store: reads and applies synced rows by table (last write wins)
     data/repositories/      catalog, sale, refund, customer, shift, safe, MoMo, expense, profit, payment methods, cash events, discounts,
                             parked orders, promotion, receipt, voucher, order, purchase order, time, stock, supplier, receiving, stock count, staff, role,
                             day close, audit, settings, outbox:
                             the only code that touches drift
     services/               auth, permissions, session (auto-lock), settings, status, backup,
-                            device, money, ids, PIN hashing, price scheduler, sync (stub),
+                            device, money, ids, PIN hashing, price scheduler, sync, hub (local Wi-Fi sync),
                             printing/ (print queue, network, Windows spooler, Bluetooth links),
                             scale/ (serial port, Bluetooth), display/ (screens server),
                             notifications, alerts

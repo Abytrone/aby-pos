@@ -8182,6 +8182,348 @@ abstract class AppLocalizations {
   /// **'New stock items ask for batches and expiry dates when they come in.'**
   String get settingsExpiryByDefaultHelp;
 
+  /// No description provided for @hubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices and hub'**
+  String get hubTitle;
+
+  /// No description provided for @hubSettingsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Tills on the same Wi-Fi share sales, stock and customers, without internet.'**
+  String get hubSettingsHelp;
+
+  /// No description provided for @hubRoleNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Working alone'**
+  String get hubRoleNone;
+
+  /// No description provided for @hubRoleHub.
+  ///
+  /// In en, this message translates to:
+  /// **'This device is the hub'**
+  String get hubRoleHub;
+
+  /// No description provided for @hubRoleMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to the hub'**
+  String get hubRoleMember;
+
+  /// No description provided for @hubNoneHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Make one device the hub (the main till or a back-office PC), then join the others to it. Each device keeps selling when the Wi-Fi drops and catches up later.'**
+  String get hubNoneHelp;
+
+  /// No description provided for @hubHubHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Other devices sync through this one. Keep it on and on the shop Wi-Fi during trading.'**
+  String get hubHubHelp;
+
+  /// No description provided for @hubMemberHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales and changes here go to the hub every few seconds, and changes from the other tills come back.'**
+  String get hubMemberHelp;
+
+  /// No description provided for @hubBecome.
+  ///
+  /// In en, this message translates to:
+  /// **'Make this the hub'**
+  String get hubBecome;
+
+  /// No description provided for @hubBecomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Make this device the hub?'**
+  String get hubBecomeTitle;
+
+  /// No description provided for @hubBecomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The other devices will join this one and send it their sales. Its menu, stock and customers become the shop data that others merge into.'**
+  String get hubBecomeBody;
+
+  /// No description provided for @hubJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a hub'**
+  String get hubJoin;
+
+  /// No description provided for @hubJoinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join the hub?'**
+  String get hubJoinTitle;
+
+  /// No description provided for @hubJoinBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything on this device is merged into the hub, and the hub data comes here. Products or customers on both may then appear twice and can be tidied up.'**
+  String get hubJoinBody;
+
+  /// No description provided for @hubJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined the hub. Syncing now.'**
+  String get hubJoined;
+
+  /// No description provided for @hubAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Hub address'**
+  String get hubAddress;
+
+  /// No description provided for @hubAddressHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown on the hub under Add a device, for example 192.168.1.20:8787'**
+  String get hubAddressHelp;
+
+  /// No description provided for @hubCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing code'**
+  String get hubCode;
+
+  /// No description provided for @hubCodeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The 8 letters shown on the hub'**
+  String get hubCodeHelp;
+
+  /// No description provided for @hubNotACode.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not an Aby pairing code. Scan the code on the hub under Add a device.'**
+  String get hubNotACode;
+
+  /// No description provided for @hubAddDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a device'**
+  String get hubAddDevice;
+
+  /// No description provided for @hubAddHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'On the new device open Settings, Devices and hub, Join a hub, then scan this code or type the address and code.'**
+  String get hubAddHelp;
+
+  /// No description provided for @hubPaired.
+  ///
+  /// In en, this message translates to:
+  /// **'Device added. It is syncing now.'**
+  String get hubPaired;
+
+  /// No description provided for @hubSyncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get hubSyncNow;
+
+  /// No description provided for @hubNeverSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Not synced yet'**
+  String get hubNeverSynced;
+
+  /// No description provided for @hubStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop the hub'**
+  String get hubStop;
+
+  /// No description provided for @hubStopTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop being the hub?'**
+  String get hubStopTitle;
+
+  /// No description provided for @hubStopBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The other devices stop syncing until a hub is set up again. Nothing is deleted.'**
+  String get hubStopBody;
+
+  /// No description provided for @hubLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the hub'**
+  String get hubLeave;
+
+  /// No description provided for @hubLeaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the hub?'**
+  String get hubLeaveTitle;
+
+  /// No description provided for @hubLeaveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This device stops syncing and works alone. It keeps all its data.'**
+  String get hubLeaveBody;
+
+  /// No description provided for @hubDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired devices'**
+  String get hubDevices;
+
+  /// No description provided for @hubNoDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'No devices yet. Use Add a device on each till.'**
+  String get hubNoDevices;
+
+  /// No description provided for @hubDeviceTill.
+  ///
+  /// In en, this message translates to:
+  /// **'Till'**
+  String get hubDeviceTill;
+
+  /// No description provided for @hubDeviceKitchen.
+  ///
+  /// In en, this message translates to:
+  /// **'Kitchen'**
+  String get hubDeviceKitchen;
+
+  /// No description provided for @hubDeviceDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Display'**
+  String get hubDeviceDisplay;
+
+  /// No description provided for @hubDeviceOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner\'s device'**
+  String get hubDeviceOwner;
+
+  /// No description provided for @hubRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get hubRename;
+
+  /// No description provided for @hubSetRole.
+  ///
+  /// In en, this message translates to:
+  /// **'What is it used for?'**
+  String get hubSetRole;
+
+  /// No description provided for @hubRevoke.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from the hub'**
+  String get hubRevoke;
+
+  /// No description provided for @hubRevokeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this for a lost or stolen device. It can no longer sync. What it already sent is kept.'**
+  String get hubRevokeBody;
+
+  /// No description provided for @hubRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed'**
+  String get hubRevoked;
+
+  /// No description provided for @hubDuplicates.
+  ///
+  /// In en, this message translates to:
+  /// **'May be duplicates'**
+  String get hubDuplicates;
+
+  /// No description provided for @hubDuplicatesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'These names appear more than once after merging. Check them and delete or rename the extra ones.'**
+  String get hubDuplicatesHelp;
+
+  /// No description provided for @hubKindProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'product'**
+  String get hubKindProduct;
+
+  /// No description provided for @hubKindCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'customer'**
+  String get hubKindCustomer;
+
+  /// No description provided for @hubKindStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'staff'**
+  String get hubKindStaff;
+
+  /// No description provided for @hubErrAlreadyLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'This device is already part of a hub.'**
+  String get hubErrAlreadyLinked;
+
+  /// No description provided for @hubErrNoCode.
+  ///
+  /// In en, this message translates to:
+  /// **'No pairing code is on offer. Tap Add a device on the hub.'**
+  String get hubErrNoCode;
+
+  /// No description provided for @hubErrTooManyTries.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many wrong tries. Show a new code on the hub.'**
+  String get hubErrTooManyTries;
+
+  /// No description provided for @hubErrWrongCode.
+  ///
+  /// In en, this message translates to:
+  /// **'That pairing code is not right.'**
+  String get hubErrWrongCode;
+
+  /// No description provided for @hubErrNotPaired.
+  ///
+  /// In en, this message translates to:
+  /// **'This device is not paired with the hub. Leave and join again.'**
+  String get hubErrNotPaired;
+
+  /// No description provided for @hubErrRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'This device was removed from the hub.'**
+  String get hubErrRevoked;
+
+  /// No description provided for @hubErrUnreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot reach the hub. Check both devices are on the same Wi-Fi and the hub is on.'**
+  String get hubErrUnreachable;
+
+  /// No description provided for @hubErrRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'The hub refused the request.'**
+  String get hubErrRefused;
+
+  /// No description provided for @statusHubUnreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot reach the hub.'**
+  String get statusHubUnreachable;
+
+  /// No description provided for @hubTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Training mode is on: this copy does not sync. Leave training mode to use the hub.'**
+  String get hubTraining;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -9879,6 +10221,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 sale} other{{count} sales}}'**
   String summarySalesLabel(int count);
+
+  /// No description provided for @hubCodeExpires.
+  ///
+  /// In en, this message translates to:
+  /// **'The code works once, until {time}.'**
+  String hubCodeExpires(String time);
+
+  /// No description provided for @hubLastSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Last synced {when}'**
+  String hubLastSync(String when);
+
+  /// No description provided for @hubLastSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'Last seen {when}'**
+  String hubLastSeen(String when);
+
+  /// No description provided for @hubRevokeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String hubRevokeTitle(String name);
+
+  /// No description provided for @hubCannotStart.
+  ///
+  /// In en, this message translates to:
+  /// **'The hub could not start: {error}'**
+  String hubCannotStart(String error);
 }
 
 class _AppLocalizationsDelegate

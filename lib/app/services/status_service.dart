@@ -47,7 +47,7 @@ class StatusService extends GetxService {
 
   Timer? _timer;
   StreamSubscription<int>? _syncSub;
-  Worker? _printWorker;
+  Worker? _printWorker, _onlineWorker;
 
   StatusLevel get overall => checks.fold(
         StatusLevel.ok,
@@ -59,6 +59,7 @@ class StatusService extends GetxService {
     super.onInit();
     _timer = Timer.periodic(const Duration(minutes: 10), (_) => refresh());
     _syncSub = _sync.waitingSales.listen((_) => refresh(checkChain: false));
+    _onlineWorker = ever(_sync.online, (_) => refresh(checkChain: false));
     if (Get.isRegistered<PrintService>()) {
       _printWorker = ever(Get.find<PrintService>().queue, (_) => refresh(checkChain: false));
     }
@@ -69,6 +70,7 @@ class StatusService extends GetxService {
     _timer?.cancel();
     _syncSub?.cancel();
     _printWorker?.dispose();
+    _onlineWorker?.dispose();
     super.onClose();
   }
 
@@ -98,8 +100,16 @@ class StatusService extends GetxService {
           at: offsite),
       StatusCheck(StatusItem.activityLog,
           chain.value?.isIntact ?? true ? StatusLevel.ok : StatusLevel.problem),
-      // TODO(sync): becomes a warning when sync is on and stuck.
-      StatusCheck(StatusItem.sync, StatusLevel.info, count: waiting),
+      StatusCheck(
+        StatusItem.sync,
+        !_sync.linked.value
+            ? StatusLevel.info
+            : _sync.online.value
+                ? StatusLevel.ok
+                : StatusLevel.warning,
+        count: waiting,
+        detail: _sync.linked.value && !_sync.online.value ? _sync.problem.value : null,
+      ),
       if (printer != null && printer.hasPrinter)
         StatusCheck(
           StatusItem.printer,

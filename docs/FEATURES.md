@@ -830,7 +830,8 @@ internet, but they do have a Wi-Fi router or a phone hotspot.
   over the local network, with no internet needed.
 - **Pairing:** the hub shows a QR code with a one-time pairing code. The new device scans it, and
   they exchange keys. After that, all traffic is encrypted.
-- **Discovery:** devices find the hub automatically on the same network (mDNS).
+- **Discovery:** devices find the hub automatically on the same network (a UDP broadcast
+  beacon; mDNS is not needed).
 - **What syncs:** sales, stock, customers, parked orders, shifts and settings, in near real time,
   using the same outbox and UUIDs as cloud sync.
 - **Working through outages:** if the network drops, each device keeps working alone and catches up
@@ -1558,6 +1559,34 @@ Decisions made on the way:
 
 - `MDV-01` local hub, `MDV-03` device management.
 - `MDV-02` multi-branch, with `INV-10` transfers.
+
+**Status (29 October 2026): 7a built** (local hub, device management). Schema 16. Built:
+
+- `MDV-01` local hub: Settings → Devices and hub. One device becomes the hub and serves the
+  others over the shop's Wi-Fi (port 8787), no internet needed. *Add a device* shows a QR code
+  with a one-time 8-letter code (10 minutes, five tries); the new device scans it (Android) or
+  types the address and code (Windows). Pairing is sealed with a key derived from the code
+  (PBKDF2), and gives the device its own secret; everything after that is AES-GCM sealed with
+  it. Members send their outbox and pull the others' changes every 3 seconds; the hub keeps a
+  change log (`hub_changes`) of every version, including the ones that lost. If the hub's
+  address changes, members find it again from its UDP beacon. When the network drops, each
+  device keeps selling and catches up later; the status centre warns when the hub cannot be
+  reached.
+- Joining merges: everything on the joining device goes to the hub and the hub's data comes
+  back. Names that then appear twice (products, customers, staff) are listed to tidy up.
+- Conflicts: rows are applied last-write-wins on `updated_at` (the device ID breaks ties), so
+  every device ends up with the same row. Ledgers only add rows, so they never conflict. Each
+  device keeps its own activity log chain.
+- `MDV-03` device management: the hub lists paired devices with role, last seen and app
+  version; rename, set the role (till, kitchen, display, owner's device), or remove a lost
+  device so it can no longer sync (what it sent is kept).
+- Training mode never syncs.
+
+Decisions made on the way:
+
+- A device joining a hub merges into it rather than being replaced, so a second till that has
+  already been selling keeps its sales.
+- 7b follows: branches (`MDV-02`), transfers (`INV-10`) and the offline transfer file.
 
 ### Phase 8: Aby Cloud and integrations
 

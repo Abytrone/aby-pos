@@ -4,12 +4,9 @@ import 'package:get/get.dart';
 
 import '../data/repositories/outbox_repository.dart';
 
-/// Watches the outbox so the header can show what is waiting to sync.
-///
-/// TODO(sync): this is a stub. The sync engine will read
-/// [OutboxRepository.pending], send batches to the Laravel API, call
-/// [OutboxRepository.acknowledge] and pull server changes. Until then nothing
-/// leaves the device and [online] stays false; there are no network calls.
+/// What the header and status centre show about sync: what is waiting, and
+/// whether this device reaches its hub (MDV-01). The hub service fills
+/// [linked], [online] and [problem]; the cloud later will too.
 class SyncService extends GetxService {
   SyncService(this._outbox);
 
@@ -18,8 +15,14 @@ class SyncService extends GetxService {
   /// Sales saved on this device and not yet on the server.
   final waitingSales = 0.obs;
 
-  /// Whether the sync engine can reach the server.
+  /// Whether this device syncs with anything (it is a hub or a member).
+  final linked = false.obs;
+
+  /// Whether the last sync went through.
   final online = false.obs;
+
+  /// Why the last sync failed.
+  final problem = RxnString();
 
   StreamSubscription<int>? _sub;
 

@@ -12,6 +12,7 @@ import '../../../services/notification_service.dart';
 import '../../../services/backup/backup_service.dart';
 import '../../../services/device_service.dart';
 import '../../../services/price_scheduler.dart';
+import '../../../services/hub/hub_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../services/training_service.dart';
 import '../../../services/status_service.dart';
@@ -42,6 +43,7 @@ class StartController extends GetxController {
     if (hasStaff) unawaited(_dailyBackup());
     if (hasStaff) unawaited(Get.find<NotificationService>().start());
     unawaited(_startDisplays());
+    unawaited(_startHub());
     await _status.refresh();
     await Get.offAllNamed<void>(hasStaff ? Routes.signIn : Routes.setup);
   }
@@ -53,6 +55,17 @@ class StartController extends GetxController {
       await Get.find<DisplayService>().apply();
     } catch (e) {
       debugPrint('Display server did not start: $e');
+    }
+  }
+
+  /// Carries on as the hub or a member; a problem shows in the status centre.
+  Future<void> _startHub() async {
+    // Practice sales never reach the other tills.
+    if (Get.find<TrainingService>().active.value) return;
+    try {
+      await Get.find<HubService>().start();
+    } catch (e) {
+      debugPrint('Hub did not start: $e');
     }
   }
 

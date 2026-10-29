@@ -150,6 +150,8 @@ const builtInPayMethods = [
   PurchaseOrderLines,
   StockBatches,
   TimeEntries,
+  HubChanges,
+  HubDevices,
   VoucherEntries,
   OwnerMoney,
   Discounts,
@@ -181,7 +183,7 @@ class AppDatabase extends _$AppDatabase {
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -508,6 +510,11 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(schema.staff, schema.staff.workStart);
             await m.addColumn(schema.staff, schema.staff.workEnd);
             await m.addColumn(schema.products, schema.products.commission);
+          },
+          // v16: the local hub's change log and paired devices.
+          from15To16: (m, schema) async {
+            await m.createTable(schema.hubChanges);
+            await m.createTable(schema.hubDevices);
           },
         ),
         beforeOpen: (details) async {

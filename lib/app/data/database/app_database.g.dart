@@ -33744,6 +33744,929 @@ class TimeEntriesCompanion extends UpdateCompanion<TimeEntryRow> {
   }
 }
 
+class $HubChangesTable extends HubChanges
+    with TableInfo<$HubChangesTable, HubChangeRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $HubChangesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _seqMeta = const VerificationMeta('seq');
+  @override
+  late final GeneratedColumn<int> seq = GeneratedColumn<int>(
+    'seq',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _entityMeta = const VerificationMeta('entity');
+  @override
+  late final GeneratedColumn<String> entity = GeneratedColumn<String>(
+    'entity',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _recordIdMeta = const VerificationMeta(
+    'recordId',
+  );
+  @override
+  late final GeneratedColumn<String> recordId = GeneratedColumn<String>(
+    'record_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _rowMeta = const VerificationMeta('row');
+  @override
+  late final GeneratedColumn<String> row = GeneratedColumn<String>(
+    'row',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _originDeviceMeta = const VerificationMeta(
+    'originDevice',
+  );
+  @override
+  late final GeneratedColumn<String> originDevice = GeneratedColumn<String>(
+    'origin_device',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _atMeta = const VerificationMeta('at');
+  @override
+  late final GeneratedColumn<DateTime> at = GeneratedColumn<DateTime>(
+    'at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    seq,
+    entity,
+    recordId,
+    row,
+    originDevice,
+    at,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'hub_changes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<HubChangeRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('seq')) {
+      context.handle(
+        _seqMeta,
+        seq.isAcceptableOrUnknown(data['seq']!, _seqMeta),
+      );
+    }
+    if (data.containsKey('entity')) {
+      context.handle(
+        _entityMeta,
+        entity.isAcceptableOrUnknown(data['entity']!, _entityMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityMeta);
+    }
+    if (data.containsKey('record_id')) {
+      context.handle(
+        _recordIdMeta,
+        recordId.isAcceptableOrUnknown(data['record_id']!, _recordIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_recordIdMeta);
+    }
+    if (data.containsKey('row')) {
+      context.handle(
+        _rowMeta,
+        row.isAcceptableOrUnknown(data['row']!, _rowMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_rowMeta);
+    }
+    if (data.containsKey('origin_device')) {
+      context.handle(
+        _originDeviceMeta,
+        originDevice.isAcceptableOrUnknown(
+          data['origin_device']!,
+          _originDeviceMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_originDeviceMeta);
+    }
+    if (data.containsKey('at')) {
+      context.handle(_atMeta, at.isAcceptableOrUnknown(data['at']!, _atMeta));
+    } else if (isInserting) {
+      context.missing(_atMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {seq};
+  @override
+  HubChangeRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return HubChangeRow(
+      seq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}seq'],
+      )!,
+      entity: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity'],
+      )!,
+      recordId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}record_id'],
+      )!,
+      row: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}row'],
+      )!,
+      originDevice: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}origin_device'],
+      )!,
+      at: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}at'],
+      )!,
+    );
+  }
+
+  @override
+  $HubChangesTable createAlias(String alias) {
+    return $HubChangesTable(attachedDatabase, alias);
+  }
+}
+
+class HubChangeRow extends DataClass implements Insertable<HubChangeRow> {
+  final int seq;
+  final String entity;
+  final String recordId;
+
+  /// The row as its database columns, as JSON.
+  final String row;
+  final String originDevice;
+  final DateTime at;
+  const HubChangeRow({
+    required this.seq,
+    required this.entity,
+    required this.recordId,
+    required this.row,
+    required this.originDevice,
+    required this.at,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['seq'] = Variable<int>(seq);
+    map['entity'] = Variable<String>(entity);
+    map['record_id'] = Variable<String>(recordId);
+    map['row'] = Variable<String>(row);
+    map['origin_device'] = Variable<String>(originDevice);
+    map['at'] = Variable<DateTime>(at);
+    return map;
+  }
+
+  HubChangesCompanion toCompanion(bool nullToAbsent) {
+    return HubChangesCompanion(
+      seq: Value(seq),
+      entity: Value(entity),
+      recordId: Value(recordId),
+      row: Value(row),
+      originDevice: Value(originDevice),
+      at: Value(at),
+    );
+  }
+
+  factory HubChangeRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return HubChangeRow(
+      seq: serializer.fromJson<int>(json['seq']),
+      entity: serializer.fromJson<String>(json['entity']),
+      recordId: serializer.fromJson<String>(json['recordId']),
+      row: serializer.fromJson<String>(json['row']),
+      originDevice: serializer.fromJson<String>(json['originDevice']),
+      at: serializer.fromJson<DateTime>(json['at']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'seq': serializer.toJson<int>(seq),
+      'entity': serializer.toJson<String>(entity),
+      'recordId': serializer.toJson<String>(recordId),
+      'row': serializer.toJson<String>(row),
+      'originDevice': serializer.toJson<String>(originDevice),
+      'at': serializer.toJson<DateTime>(at),
+    };
+  }
+
+  HubChangeRow copyWith({
+    int? seq,
+    String? entity,
+    String? recordId,
+    String? row,
+    String? originDevice,
+    DateTime? at,
+  }) => HubChangeRow(
+    seq: seq ?? this.seq,
+    entity: entity ?? this.entity,
+    recordId: recordId ?? this.recordId,
+    row: row ?? this.row,
+    originDevice: originDevice ?? this.originDevice,
+    at: at ?? this.at,
+  );
+  HubChangeRow copyWithCompanion(HubChangesCompanion data) {
+    return HubChangeRow(
+      seq: data.seq.present ? data.seq.value : this.seq,
+      entity: data.entity.present ? data.entity.value : this.entity,
+      recordId: data.recordId.present ? data.recordId.value : this.recordId,
+      row: data.row.present ? data.row.value : this.row,
+      originDevice: data.originDevice.present
+          ? data.originDevice.value
+          : this.originDevice,
+      at: data.at.present ? data.at.value : this.at,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HubChangeRow(')
+          ..write('seq: $seq, ')
+          ..write('entity: $entity, ')
+          ..write('recordId: $recordId, ')
+          ..write('row: $row, ')
+          ..write('originDevice: $originDevice, ')
+          ..write('at: $at')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(seq, entity, recordId, row, originDevice, at);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is HubChangeRow &&
+          other.seq == this.seq &&
+          other.entity == this.entity &&
+          other.recordId == this.recordId &&
+          other.row == this.row &&
+          other.originDevice == this.originDevice &&
+          other.at == this.at);
+}
+
+class HubChangesCompanion extends UpdateCompanion<HubChangeRow> {
+  final Value<int> seq;
+  final Value<String> entity;
+  final Value<String> recordId;
+  final Value<String> row;
+  final Value<String> originDevice;
+  final Value<DateTime> at;
+  const HubChangesCompanion({
+    this.seq = const Value.absent(),
+    this.entity = const Value.absent(),
+    this.recordId = const Value.absent(),
+    this.row = const Value.absent(),
+    this.originDevice = const Value.absent(),
+    this.at = const Value.absent(),
+  });
+  HubChangesCompanion.insert({
+    this.seq = const Value.absent(),
+    required String entity,
+    required String recordId,
+    required String row,
+    required String originDevice,
+    required DateTime at,
+  }) : entity = Value(entity),
+       recordId = Value(recordId),
+       row = Value(row),
+       originDevice = Value(originDevice),
+       at = Value(at);
+  static Insertable<HubChangeRow> custom({
+    Expression<int>? seq,
+    Expression<String>? entity,
+    Expression<String>? recordId,
+    Expression<String>? row,
+    Expression<String>? originDevice,
+    Expression<DateTime>? at,
+  }) {
+    return RawValuesInsertable({
+      if (seq != null) 'seq': seq,
+      if (entity != null) 'entity': entity,
+      if (recordId != null) 'record_id': recordId,
+      if (row != null) 'row': row,
+      if (originDevice != null) 'origin_device': originDevice,
+      if (at != null) 'at': at,
+    });
+  }
+
+  HubChangesCompanion copyWith({
+    Value<int>? seq,
+    Value<String>? entity,
+    Value<String>? recordId,
+    Value<String>? row,
+    Value<String>? originDevice,
+    Value<DateTime>? at,
+  }) {
+    return HubChangesCompanion(
+      seq: seq ?? this.seq,
+      entity: entity ?? this.entity,
+      recordId: recordId ?? this.recordId,
+      row: row ?? this.row,
+      originDevice: originDevice ?? this.originDevice,
+      at: at ?? this.at,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (seq.present) {
+      map['seq'] = Variable<int>(seq.value);
+    }
+    if (entity.present) {
+      map['entity'] = Variable<String>(entity.value);
+    }
+    if (recordId.present) {
+      map['record_id'] = Variable<String>(recordId.value);
+    }
+    if (row.present) {
+      map['row'] = Variable<String>(row.value);
+    }
+    if (originDevice.present) {
+      map['origin_device'] = Variable<String>(originDevice.value);
+    }
+    if (at.present) {
+      map['at'] = Variable<DateTime>(at.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HubChangesCompanion(')
+          ..write('seq: $seq, ')
+          ..write('entity: $entity, ')
+          ..write('recordId: $recordId, ')
+          ..write('row: $row, ')
+          ..write('originDevice: $originDevice, ')
+          ..write('at: $at')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $HubDevicesTable extends HubDevices
+    with TableInfo<$HubDevicesTable, HubDeviceRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $HubDevicesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _roleMeta = const VerificationMeta('role');
+  @override
+  late final GeneratedColumn<String> role = GeneratedColumn<String>(
+    'role',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('till'),
+  );
+  static const VerificationMeta _secretMeta = const VerificationMeta('secret');
+  @override
+  late final GeneratedColumn<String> secret = GeneratedColumn<String>(
+    'secret',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pairedAtMeta = const VerificationMeta(
+    'pairedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> pairedAt = GeneratedColumn<DateTime>(
+    'paired_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lastSeenAtMeta = const VerificationMeta(
+    'lastSeenAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastSeenAt = GeneratedColumn<DateTime>(
+    'last_seen_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _appVersionMeta = const VerificationMeta(
+    'appVersion',
+  );
+  @override
+  late final GeneratedColumn<String> appVersion = GeneratedColumn<String>(
+    'app_version',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _revokedAtMeta = const VerificationMeta(
+    'revokedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> revokedAt = GeneratedColumn<DateTime>(
+    'revoked_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    deviceId,
+    name,
+    role,
+    secret,
+    pairedAt,
+    lastSeenAt,
+    appVersion,
+    revokedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'hub_devices';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<HubDeviceRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('role')) {
+      context.handle(
+        _roleMeta,
+        role.isAcceptableOrUnknown(data['role']!, _roleMeta),
+      );
+    }
+    if (data.containsKey('secret')) {
+      context.handle(
+        _secretMeta,
+        secret.isAcceptableOrUnknown(data['secret']!, _secretMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_secretMeta);
+    }
+    if (data.containsKey('paired_at')) {
+      context.handle(
+        _pairedAtMeta,
+        pairedAt.isAcceptableOrUnknown(data['paired_at']!, _pairedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_pairedAtMeta);
+    }
+    if (data.containsKey('last_seen_at')) {
+      context.handle(
+        _lastSeenAtMeta,
+        lastSeenAt.isAcceptableOrUnknown(
+          data['last_seen_at']!,
+          _lastSeenAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('app_version')) {
+      context.handle(
+        _appVersionMeta,
+        appVersion.isAcceptableOrUnknown(data['app_version']!, _appVersionMeta),
+      );
+    }
+    if (data.containsKey('revoked_at')) {
+      context.handle(
+        _revokedAtMeta,
+        revokedAt.isAcceptableOrUnknown(data['revoked_at']!, _revokedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {deviceId};
+  @override
+  HubDeviceRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return HubDeviceRow(
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      role: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}role'],
+      )!,
+      secret: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}secret'],
+      )!,
+      pairedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}paired_at'],
+      )!,
+      lastSeenAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_seen_at'],
+      ),
+      appVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}app_version'],
+      ),
+      revokedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}revoked_at'],
+      ),
+    );
+  }
+
+  @override
+  $HubDevicesTable createAlias(String alias) {
+    return $HubDevicesTable(attachedDatabase, alias);
+  }
+}
+
+class HubDeviceRow extends DataClass implements Insertable<HubDeviceRow> {
+  final String deviceId;
+  final String name;
+
+  /// till | kitchen | display | owner
+  final String role;
+
+  /// The device's secret (base64): everything it sends is sealed with it.
+  final String secret;
+  final DateTime pairedAt;
+  final DateTime? lastSeenAt;
+  final String? appVersion;
+  final DateTime? revokedAt;
+  const HubDeviceRow({
+    required this.deviceId,
+    required this.name,
+    required this.role,
+    required this.secret,
+    required this.pairedAt,
+    this.lastSeenAt,
+    this.appVersion,
+    this.revokedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['device_id'] = Variable<String>(deviceId);
+    map['name'] = Variable<String>(name);
+    map['role'] = Variable<String>(role);
+    map['secret'] = Variable<String>(secret);
+    map['paired_at'] = Variable<DateTime>(pairedAt);
+    if (!nullToAbsent || lastSeenAt != null) {
+      map['last_seen_at'] = Variable<DateTime>(lastSeenAt);
+    }
+    if (!nullToAbsent || appVersion != null) {
+      map['app_version'] = Variable<String>(appVersion);
+    }
+    if (!nullToAbsent || revokedAt != null) {
+      map['revoked_at'] = Variable<DateTime>(revokedAt);
+    }
+    return map;
+  }
+
+  HubDevicesCompanion toCompanion(bool nullToAbsent) {
+    return HubDevicesCompanion(
+      deviceId: Value(deviceId),
+      name: Value(name),
+      role: Value(role),
+      secret: Value(secret),
+      pairedAt: Value(pairedAt),
+      lastSeenAt: lastSeenAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSeenAt),
+      appVersion: appVersion == null && nullToAbsent
+          ? const Value.absent()
+          : Value(appVersion),
+      revokedAt: revokedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(revokedAt),
+    );
+  }
+
+  factory HubDeviceRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return HubDeviceRow(
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      name: serializer.fromJson<String>(json['name']),
+      role: serializer.fromJson<String>(json['role']),
+      secret: serializer.fromJson<String>(json['secret']),
+      pairedAt: serializer.fromJson<DateTime>(json['pairedAt']),
+      lastSeenAt: serializer.fromJson<DateTime?>(json['lastSeenAt']),
+      appVersion: serializer.fromJson<String?>(json['appVersion']),
+      revokedAt: serializer.fromJson<DateTime?>(json['revokedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'deviceId': serializer.toJson<String>(deviceId),
+      'name': serializer.toJson<String>(name),
+      'role': serializer.toJson<String>(role),
+      'secret': serializer.toJson<String>(secret),
+      'pairedAt': serializer.toJson<DateTime>(pairedAt),
+      'lastSeenAt': serializer.toJson<DateTime?>(lastSeenAt),
+      'appVersion': serializer.toJson<String?>(appVersion),
+      'revokedAt': serializer.toJson<DateTime?>(revokedAt),
+    };
+  }
+
+  HubDeviceRow copyWith({
+    String? deviceId,
+    String? name,
+    String? role,
+    String? secret,
+    DateTime? pairedAt,
+    Value<DateTime?> lastSeenAt = const Value.absent(),
+    Value<String?> appVersion = const Value.absent(),
+    Value<DateTime?> revokedAt = const Value.absent(),
+  }) => HubDeviceRow(
+    deviceId: deviceId ?? this.deviceId,
+    name: name ?? this.name,
+    role: role ?? this.role,
+    secret: secret ?? this.secret,
+    pairedAt: pairedAt ?? this.pairedAt,
+    lastSeenAt: lastSeenAt.present ? lastSeenAt.value : this.lastSeenAt,
+    appVersion: appVersion.present ? appVersion.value : this.appVersion,
+    revokedAt: revokedAt.present ? revokedAt.value : this.revokedAt,
+  );
+  HubDeviceRow copyWithCompanion(HubDevicesCompanion data) {
+    return HubDeviceRow(
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      name: data.name.present ? data.name.value : this.name,
+      role: data.role.present ? data.role.value : this.role,
+      secret: data.secret.present ? data.secret.value : this.secret,
+      pairedAt: data.pairedAt.present ? data.pairedAt.value : this.pairedAt,
+      lastSeenAt: data.lastSeenAt.present
+          ? data.lastSeenAt.value
+          : this.lastSeenAt,
+      appVersion: data.appVersion.present
+          ? data.appVersion.value
+          : this.appVersion,
+      revokedAt: data.revokedAt.present ? data.revokedAt.value : this.revokedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HubDeviceRow(')
+          ..write('deviceId: $deviceId, ')
+          ..write('name: $name, ')
+          ..write('role: $role, ')
+          ..write('secret: $secret, ')
+          ..write('pairedAt: $pairedAt, ')
+          ..write('lastSeenAt: $lastSeenAt, ')
+          ..write('appVersion: $appVersion, ')
+          ..write('revokedAt: $revokedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    deviceId,
+    name,
+    role,
+    secret,
+    pairedAt,
+    lastSeenAt,
+    appVersion,
+    revokedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is HubDeviceRow &&
+          other.deviceId == this.deviceId &&
+          other.name == this.name &&
+          other.role == this.role &&
+          other.secret == this.secret &&
+          other.pairedAt == this.pairedAt &&
+          other.lastSeenAt == this.lastSeenAt &&
+          other.appVersion == this.appVersion &&
+          other.revokedAt == this.revokedAt);
+}
+
+class HubDevicesCompanion extends UpdateCompanion<HubDeviceRow> {
+  final Value<String> deviceId;
+  final Value<String> name;
+  final Value<String> role;
+  final Value<String> secret;
+  final Value<DateTime> pairedAt;
+  final Value<DateTime?> lastSeenAt;
+  final Value<String?> appVersion;
+  final Value<DateTime?> revokedAt;
+  final Value<int> rowid;
+  const HubDevicesCompanion({
+    this.deviceId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.role = const Value.absent(),
+    this.secret = const Value.absent(),
+    this.pairedAt = const Value.absent(),
+    this.lastSeenAt = const Value.absent(),
+    this.appVersion = const Value.absent(),
+    this.revokedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  HubDevicesCompanion.insert({
+    required String deviceId,
+    required String name,
+    this.role = const Value.absent(),
+    required String secret,
+    required DateTime pairedAt,
+    this.lastSeenAt = const Value.absent(),
+    this.appVersion = const Value.absent(),
+    this.revokedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : deviceId = Value(deviceId),
+       name = Value(name),
+       secret = Value(secret),
+       pairedAt = Value(pairedAt);
+  static Insertable<HubDeviceRow> custom({
+    Expression<String>? deviceId,
+    Expression<String>? name,
+    Expression<String>? role,
+    Expression<String>? secret,
+    Expression<DateTime>? pairedAt,
+    Expression<DateTime>? lastSeenAt,
+    Expression<String>? appVersion,
+    Expression<DateTime>? revokedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (deviceId != null) 'device_id': deviceId,
+      if (name != null) 'name': name,
+      if (role != null) 'role': role,
+      if (secret != null) 'secret': secret,
+      if (pairedAt != null) 'paired_at': pairedAt,
+      if (lastSeenAt != null) 'last_seen_at': lastSeenAt,
+      if (appVersion != null) 'app_version': appVersion,
+      if (revokedAt != null) 'revoked_at': revokedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  HubDevicesCompanion copyWith({
+    Value<String>? deviceId,
+    Value<String>? name,
+    Value<String>? role,
+    Value<String>? secret,
+    Value<DateTime>? pairedAt,
+    Value<DateTime?>? lastSeenAt,
+    Value<String?>? appVersion,
+    Value<DateTime?>? revokedAt,
+    Value<int>? rowid,
+  }) {
+    return HubDevicesCompanion(
+      deviceId: deviceId ?? this.deviceId,
+      name: name ?? this.name,
+      role: role ?? this.role,
+      secret: secret ?? this.secret,
+      pairedAt: pairedAt ?? this.pairedAt,
+      lastSeenAt: lastSeenAt ?? this.lastSeenAt,
+      appVersion: appVersion ?? this.appVersion,
+      revokedAt: revokedAt ?? this.revokedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (role.present) {
+      map['role'] = Variable<String>(role.value);
+    }
+    if (secret.present) {
+      map['secret'] = Variable<String>(secret.value);
+    }
+    if (pairedAt.present) {
+      map['paired_at'] = Variable<DateTime>(pairedAt.value);
+    }
+    if (lastSeenAt.present) {
+      map['last_seen_at'] = Variable<DateTime>(lastSeenAt.value);
+    }
+    if (appVersion.present) {
+      map['app_version'] = Variable<String>(appVersion.value);
+    }
+    if (revokedAt.present) {
+      map['revoked_at'] = Variable<DateTime>(revokedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HubDevicesCompanion(')
+          ..write('deviceId: $deviceId, ')
+          ..write('name: $name, ')
+          ..write('role: $role, ')
+          ..write('secret: $secret, ')
+          ..write('pairedAt: $pairedAt, ')
+          ..write('lastSeenAt: $lastSeenAt, ')
+          ..write('appVersion: $appVersion, ')
+          ..write('revokedAt: $revokedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $VoucherEntriesTable extends VoucherEntries
     with TableInfo<$VoucherEntriesTable, VoucherEntryRow> {
   @override
@@ -44841,6 +45764,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $PurchaseOrderLinesTable(this);
   late final $StockBatchesTable stockBatches = $StockBatchesTable(this);
   late final $TimeEntriesTable timeEntries = $TimeEntriesTable(this);
+  late final $HubChangesTable hubChanges = $HubChangesTable(this);
+  late final $HubDevicesTable hubDevices = $HubDevicesTable(this);
   late final $VoucherEntriesTable voucherEntries = $VoucherEntriesTable(this);
   late final $OwnerMoneyTable ownerMoney = $OwnerMoneyTable(this);
   late final $DiscountsTable discounts = $DiscountsTable(this);
@@ -44904,6 +45829,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     purchaseOrderLines,
     stockBatches,
     timeEntries,
+    hubChanges,
+    hubDevices,
     voucherEntries,
     ownerMoney,
     discounts,
@@ -68143,6 +69070,496 @@ typedef $$TimeEntriesTableProcessedTableManager =
       TimeEntryRow,
       PrefetchHooks Function()
     >;
+typedef $$HubChangesTableCreateCompanionBuilder = HubChangesCompanion Function({
+  Value<int> seq,
+  required String entity,
+  required String recordId,
+  required String row,
+  required String originDevice,
+  required DateTime at,
+});
+typedef $$HubChangesTableUpdateCompanionBuilder = HubChangesCompanion Function({
+  Value<int> seq,
+  Value<String> entity,
+  Value<String> recordId,
+  Value<String> row,
+  Value<String> originDevice,
+  Value<DateTime> at,
+});
+
+class $$HubChangesTableFilterComposer
+    extends Composer<_$AppDatabase, $HubChangesTable> {
+  $$HubChangesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get seq => $composableBuilder(
+    column: $table.seq,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entity => $composableBuilder(
+    column: $table.entity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get recordId => $composableBuilder(
+    column: $table.recordId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get row => $composableBuilder(
+    column: $table.row,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get originDevice => $composableBuilder(
+    column: $table.originDevice,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get at => $composableBuilder(
+    column: $table.at,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$HubChangesTableOrderingComposer
+    extends Composer<_$AppDatabase, $HubChangesTable> {
+  $$HubChangesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get seq => $composableBuilder(
+    column: $table.seq,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entity => $composableBuilder(
+    column: $table.entity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get recordId => $composableBuilder(
+    column: $table.recordId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get row => $composableBuilder(
+    column: $table.row,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get originDevice => $composableBuilder(
+    column: $table.originDevice,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get at => $composableBuilder(
+    column: $table.at,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$HubChangesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $HubChangesTable> {
+  $$HubChangesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get seq =>
+      $composableBuilder(column: $table.seq, builder: (column) => column);
+
+  GeneratedColumn<String> get entity =>
+      $composableBuilder(column: $table.entity, builder: (column) => column);
+
+  GeneratedColumn<String> get recordId =>
+      $composableBuilder(column: $table.recordId, builder: (column) => column);
+
+  GeneratedColumn<String> get row =>
+      $composableBuilder(column: $table.row, builder: (column) => column);
+
+  GeneratedColumn<String> get originDevice => $composableBuilder(
+    column: $table.originDevice,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get at =>
+      $composableBuilder(column: $table.at, builder: (column) => column);
+}
+
+class $$HubChangesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $HubChangesTable,
+          HubChangeRow,
+          $$HubChangesTableFilterComposer,
+          $$HubChangesTableOrderingComposer,
+          $$HubChangesTableAnnotationComposer,
+          $$HubChangesTableCreateCompanionBuilder,
+          $$HubChangesTableUpdateCompanionBuilder,
+          (
+            HubChangeRow,
+            BaseReferences<_$AppDatabase, $HubChangesTable, HubChangeRow>,
+          ),
+          HubChangeRow,
+          PrefetchHooks Function()
+        > {
+  $$HubChangesTableTableManager(_$AppDatabase db, $HubChangesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$HubChangesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$HubChangesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$HubChangesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> seq = const Value.absent(),
+                Value<String> entity = const Value.absent(),
+                Value<String> recordId = const Value.absent(),
+                Value<String> row = const Value.absent(),
+                Value<String> originDevice = const Value.absent(),
+                Value<DateTime> at = const Value.absent(),
+              }) => HubChangesCompanion(
+                seq: seq,
+                entity: entity,
+                recordId: recordId,
+                row: row,
+                originDevice: originDevice,
+                at: at,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> seq = const Value.absent(),
+                required String entity,
+                required String recordId,
+                required String row,
+                required String originDevice,
+                required DateTime at,
+              }) => HubChangesCompanion.insert(
+                seq: seq,
+                entity: entity,
+                recordId: recordId,
+                row: row,
+                originDevice: originDevice,
+                at: at,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$HubChangesTable, HubChangeRow>(table),
+                  BaseReferences<_$AppDatabase, $HubChangesTable, HubChangeRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$HubChangesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $HubChangesTable,
+      HubChangeRow,
+      $$HubChangesTableFilterComposer,
+      $$HubChangesTableOrderingComposer,
+      $$HubChangesTableAnnotationComposer,
+      $$HubChangesTableCreateCompanionBuilder,
+      $$HubChangesTableUpdateCompanionBuilder,
+      (
+        HubChangeRow,
+        BaseReferences<_$AppDatabase, $HubChangesTable, HubChangeRow>,
+      ),
+      HubChangeRow,
+      PrefetchHooks Function()
+    >;
+typedef $$HubDevicesTableCreateCompanionBuilder = HubDevicesCompanion Function({
+  required String deviceId,
+  required String name,
+  Value<String> role,
+  required String secret,
+  required DateTime pairedAt,
+  Value<DateTime?> lastSeenAt,
+  Value<String?> appVersion,
+  Value<DateTime?> revokedAt,
+  Value<int> rowid,
+});
+typedef $$HubDevicesTableUpdateCompanionBuilder = HubDevicesCompanion Function({
+  Value<String> deviceId,
+  Value<String> name,
+  Value<String> role,
+  Value<String> secret,
+  Value<DateTime> pairedAt,
+  Value<DateTime?> lastSeenAt,
+  Value<String?> appVersion,
+  Value<DateTime?> revokedAt,
+  Value<int> rowid,
+});
+
+class $$HubDevicesTableFilterComposer
+    extends Composer<_$AppDatabase, $HubDevicesTable> {
+  $$HubDevicesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get role => $composableBuilder(
+    column: $table.role,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get secret => $composableBuilder(
+    column: $table.secret,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get pairedAt => $composableBuilder(
+    column: $table.pairedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastSeenAt => $composableBuilder(
+    column: $table.lastSeenAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get appVersion => $composableBuilder(
+    column: $table.appVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get revokedAt => $composableBuilder(
+    column: $table.revokedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$HubDevicesTableOrderingComposer
+    extends Composer<_$AppDatabase, $HubDevicesTable> {
+  $$HubDevicesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get role => $composableBuilder(
+    column: $table.role,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get secret => $composableBuilder(
+    column: $table.secret,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get pairedAt => $composableBuilder(
+    column: $table.pairedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastSeenAt => $composableBuilder(
+    column: $table.lastSeenAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get appVersion => $composableBuilder(
+    column: $table.appVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get revokedAt => $composableBuilder(
+    column: $table.revokedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$HubDevicesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $HubDevicesTable> {
+  $$HubDevicesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get role =>
+      $composableBuilder(column: $table.role, builder: (column) => column);
+
+  GeneratedColumn<String> get secret =>
+      $composableBuilder(column: $table.secret, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get pairedAt =>
+      $composableBuilder(column: $table.pairedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSeenAt => $composableBuilder(
+    column: $table.lastSeenAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get appVersion => $composableBuilder(
+    column: $table.appVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get revokedAt =>
+      $composableBuilder(column: $table.revokedAt, builder: (column) => column);
+}
+
+class $$HubDevicesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $HubDevicesTable,
+          HubDeviceRow,
+          $$HubDevicesTableFilterComposer,
+          $$HubDevicesTableOrderingComposer,
+          $$HubDevicesTableAnnotationComposer,
+          $$HubDevicesTableCreateCompanionBuilder,
+          $$HubDevicesTableUpdateCompanionBuilder,
+          (
+            HubDeviceRow,
+            BaseReferences<_$AppDatabase, $HubDevicesTable, HubDeviceRow>,
+          ),
+          HubDeviceRow,
+          PrefetchHooks Function()
+        > {
+  $$HubDevicesTableTableManager(_$AppDatabase db, $HubDevicesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$HubDevicesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$HubDevicesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$HubDevicesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> deviceId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> role = const Value.absent(),
+                Value<String> secret = const Value.absent(),
+                Value<DateTime> pairedAt = const Value.absent(),
+                Value<DateTime?> lastSeenAt = const Value.absent(),
+                Value<String?> appVersion = const Value.absent(),
+                Value<DateTime?> revokedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => HubDevicesCompanion(
+                deviceId: deviceId,
+                name: name,
+                role: role,
+                secret: secret,
+                pairedAt: pairedAt,
+                lastSeenAt: lastSeenAt,
+                appVersion: appVersion,
+                revokedAt: revokedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String deviceId,
+                required String name,
+                Value<String> role = const Value.absent(),
+                required String secret,
+                required DateTime pairedAt,
+                Value<DateTime?> lastSeenAt = const Value.absent(),
+                Value<String?> appVersion = const Value.absent(),
+                Value<DateTime?> revokedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => HubDevicesCompanion.insert(
+                deviceId: deviceId,
+                name: name,
+                role: role,
+                secret: secret,
+                pairedAt: pairedAt,
+                lastSeenAt: lastSeenAt,
+                appVersion: appVersion,
+                revokedAt: revokedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$HubDevicesTable, HubDeviceRow>(table),
+                  BaseReferences<_$AppDatabase, $HubDevicesTable, HubDeviceRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$HubDevicesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $HubDevicesTable,
+      HubDeviceRow,
+      $$HubDevicesTableFilterComposer,
+      $$HubDevicesTableOrderingComposer,
+      $$HubDevicesTableAnnotationComposer,
+      $$HubDevicesTableCreateCompanionBuilder,
+      $$HubDevicesTableUpdateCompanionBuilder,
+      (
+        HubDeviceRow,
+        BaseReferences<_$AppDatabase, $HubDevicesTable, HubDeviceRow>,
+      ),
+      HubDeviceRow,
+      PrefetchHooks Function()
+    >;
 typedef $$VoucherEntriesTableCreateCompanionBuilder =
     VoucherEntriesCompanion Function({
       required String id,
@@ -74288,6 +75705,10 @@ class $AppDatabaseManager {
       $$StockBatchesTableTableManager(_db, _db.stockBatches);
   $$TimeEntriesTableTableManager get timeEntries =>
       $$TimeEntriesTableTableManager(_db, _db.timeEntries);
+  $$HubChangesTableTableManager get hubChanges =>
+      $$HubChangesTableTableManager(_db, _db.hubChanges);
+  $$HubDevicesTableTableManager get hubDevices =>
+      $$HubDevicesTableTableManager(_db, _db.hubDevices);
   $$VoucherEntriesTableTableManager get voucherEntries =>
       $$VoucherEntriesTableTableManager(_db, _db.voucherEntries);
   $$OwnerMoneyTableTableManager get ownerMoney =>

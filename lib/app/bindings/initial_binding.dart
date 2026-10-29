@@ -51,6 +51,7 @@ import '../services/session_service.dart';
 import '../services/settings_service.dart';
 import '../services/status_service.dart';
 import '../services/staff_photo_service.dart';
+import '../services/hub/hub_service.dart';
 import '../services/sync_service.dart';
 import '../services/training_service.dart';
 import '../ui/approval_prompt.dart';
@@ -127,6 +128,7 @@ class InitialBinding extends Bindings {
     final times = Get.put(TimeRepository(db, device), permanent: true);
     Get.put(ClockService(times, auth, settings), permanent: true);
     final sync = Get.put(SyncService(Get.find()), permanent: true);
+    Get.put(HubService(db, device, sync: sync), permanent: true);
     Get.put(TrainingService(db), permanent: true);
     final backups = Get.put(BackupService(db, audit, settings), permanent: true);
     Get.put(PriceScheduler(Get.find()), permanent: true);

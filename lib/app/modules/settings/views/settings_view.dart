@@ -11,6 +11,7 @@ import '../../../domain/loyalty.dart';
 import '../../../models/enums.dart';
 import '../../../models/receipt.dart';
 import '../../../models/scale.dart';
+import '../../../services/hub/hub_service.dart';
 import '../../../services/money.dart';
 import '../../../services/display/display_service.dart';
 import '../../../services/printing/print_service.dart';
@@ -30,6 +31,7 @@ import '../widgets/pay_methods_dialog.dart';
 import '../widgets/printer_setup.dart';
 import '../widgets/promotions_dialog.dart';
 import '../widgets/receipt_designer.dart';
+import '../widgets/hub_devices.dart';
 import '../widgets/screens_dialog.dart';
 import '../widgets/selling_lists.dart';
 
@@ -479,6 +481,13 @@ class SettingsView extends GetView<SettingsController> {
         value: c.value(AppSettings.deviceName).isEmpty ? l.settingsNotSet : c.value(AppSettings.deviceName),
         onTap: () => editText(AppSettings.deviceName, l.settingsDeviceName),
       )),
+      _Entry(device, InfoTile(
+        title: l.hubTitle,
+        subtitle: l.hubSettingsHelp,
+        value: hubRoleText(l, Get.find<HubService>().role.value),
+        leading: const Icon(Icons.hub_outlined),
+        onTap: showHubDevices,
+      ), keywords: ['hub', 'sync', 'devices', 'tills', 'wifi', 'network', 'pair', 'join']),
       if (scaleKindHere != null)
         _Entry(device, InfoTile(
           title: l.scaleTitle,

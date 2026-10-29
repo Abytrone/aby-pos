@@ -1071,3 +1071,38 @@ class TimeEntries extends Table with SyncColumns {
   DateTimeColumn get breakStartedAt => dateTime().nullable()();
   TextColumn get note => text().nullable()();
 }
+
+/// On the hub: every change from every device, in order (MDV-01). Members
+/// pull what is new since their cursor. Also the history of edits that lost
+/// to a later one. Local to the hub, not synced. v16.
+@DataClassName('HubChangeRow')
+class HubChanges extends Table {
+  IntColumn get seq => integer().autoIncrement()();
+  TextColumn get entity => text()();
+  TextColumn get recordId => text()();
+
+  /// The row as its database columns, as JSON.
+  TextColumn get row => text()();
+  TextColumn get originDevice => text()();
+  DateTimeColumn get at => dateTime()();
+}
+
+/// On the hub: devices paired with it (MDV-03). Local to the hub. v16.
+@DataClassName('HubDeviceRow')
+class HubDevices extends Table {
+  TextColumn get deviceId => text()();
+  TextColumn get name => text()();
+
+  /// till | kitchen | display | owner
+  TextColumn get role => text().withDefault(const Constant('till'))();
+
+  /// The device's secret (base64): everything it sends is sealed with it.
+  TextColumn get secret => text()();
+  DateTimeColumn get pairedAt => dateTime()();
+  DateTimeColumn get lastSeenAt => dateTime().nullable()();
+  TextColumn get appVersion => text().nullable()();
+  DateTimeColumn get revokedAt => dateTime().nullable()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {deviceId};
+}

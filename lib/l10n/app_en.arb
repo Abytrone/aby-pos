@@ -1348,6 +1348,63 @@
   "settingsFeaturesHelp": "Chosen at setup. Every feature below can be switched on or off.",
   "settingsExpiryByDefault": "Expiry dates for new stock",
   "settingsExpiryByDefaultHelp": "New stock items ask for batches and expiry dates when they come in.",
+  "hubTitle": "Devices and hub",
+  "hubSettingsHelp": "Tills on the same Wi-Fi share sales, stock and customers, without internet.",
+  "hubRoleNone": "Working alone",
+  "hubRoleHub": "This device is the hub",
+  "hubRoleMember": "Connected to the hub",
+  "hubNoneHelp": "Make one device the hub (the main till or a back-office PC), then join the others to it. Each device keeps selling when the Wi-Fi drops and catches up later.",
+  "hubHubHelp": "Other devices sync through this one. Keep it on and on the shop Wi-Fi during trading.",
+  "hubMemberHelp": "Sales and changes here go to the hub every few seconds, and changes from the other tills come back.",
+  "hubBecome": "Make this the hub",
+  "hubBecomeTitle": "Make this device the hub?",
+  "hubBecomeBody": "The other devices will join this one and send it their sales. Its menu, stock and customers become the shop data that others merge into.",
+  "hubJoin": "Join a hub",
+  "hubJoinTitle": "Join the hub?",
+  "hubJoinBody": "Everything on this device is merged into the hub, and the hub data comes here. Products or customers on both may then appear twice and can be tidied up.",
+  "hubJoined": "Joined the hub. Syncing now.",
+  "hubAddress": "Hub address",
+  "hubAddressHelp": "Shown on the hub under Add a device, for example 192.168.1.20:8787",
+  "hubCode": "Pairing code",
+  "hubCodeHelp": "The 8 letters shown on the hub",
+  "hubNotACode": "That is not an Aby pairing code. Scan the code on the hub under Add a device.",
+  "hubAddDevice": "Add a device",
+  "hubAddHelp": "On the new device open Settings, Devices and hub, Join a hub, then scan this code or type the address and code.",
+  "hubPaired": "Device added. It is syncing now.",
+  "hubSyncNow": "Sync now",
+  "hubNeverSynced": "Not synced yet",
+  "hubStop": "Stop the hub",
+  "hubStopTitle": "Stop being the hub?",
+  "hubStopBody": "The other devices stop syncing until a hub is set up again. Nothing is deleted.",
+  "hubLeave": "Leave the hub",
+  "hubLeaveTitle": "Leave the hub?",
+  "hubLeaveBody": "This device stops syncing and works alone. It keeps all its data.",
+  "hubDevices": "Paired devices",
+  "hubNoDevices": "No devices yet. Use Add a device on each till.",
+  "hubDeviceTill": "Till",
+  "hubDeviceKitchen": "Kitchen",
+  "hubDeviceDisplay": "Display",
+  "hubDeviceOwner": "Owner's device",
+  "hubRename": "Rename",
+  "hubSetRole": "What is it used for?",
+  "hubRevoke": "Remove from the hub",
+  "hubRevokeBody": "Use this for a lost or stolen device. It can no longer sync. What it already sent is kept.",
+  "hubRevoked": "Removed",
+  "hubDuplicates": "May be duplicates",
+  "hubDuplicatesHelp": "These names appear more than once after merging. Check them and delete or rename the extra ones.",
+  "hubKindProduct": "product",
+  "hubKindCustomer": "customer",
+  "hubKindStaff": "staff",
+  "hubErrAlreadyLinked": "This device is already part of a hub.",
+  "hubErrNoCode": "No pairing code is on offer. Tap Add a device on the hub.",
+  "hubErrTooManyTries": "Too many wrong tries. Show a new code on the hub.",
+  "hubErrWrongCode": "That pairing code is not right.",
+  "hubErrNotPaired": "This device is not paired with the hub. Leave and join again.",
+  "hubErrRevoked": "This device was removed from the hub.",
+  "hubErrUnreachable": "Cannot reach the hub. Check both devices are on the same Wi-Fi and the hub is on.",
+  "hubErrRefused": "The hub refused the request.",
+  "statusHubUnreachable": "Cannot reach the hub.",
+  "hubTraining": "Training mode is on: this copy does not sync. Leave training mode to use the hub.",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -3800,6 +3857,46 @@
     "placeholders": {
       "count": {
         "type": "int"
+      }
+    }
+  },
+  "hubCodeExpires": "The code works once, until {time}.",
+  "@hubCodeExpires": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "hubLastSync": "Last synced {when}",
+  "@hubLastSync": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "hubLastSeen": "Last seen {when}",
+  "@hubLastSeen": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "hubRevokeTitle": "Remove {name}?",
+  "@hubRevokeTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "hubCannotStart": "The hub could not start: {error}",
+  "@hubCannotStart": {
+    "placeholders": {
+      "error": {
+        "type": "String"
       }
     }
   }

@@ -4194,6 +4194,195 @@ class AppLocalizationsEn extends AppLocalizations {
       'New stock items ask for batches and expiry dates when they come in.';
 
   @override
+  String get hubTitle => 'Devices and hub';
+
+  @override
+  String get hubSettingsHelp =>
+      'Tills on the same Wi-Fi share sales, stock and customers, without internet.';
+
+  @override
+  String get hubRoleNone => 'Working alone';
+
+  @override
+  String get hubRoleHub => 'This device is the hub';
+
+  @override
+  String get hubRoleMember => 'Connected to the hub';
+
+  @override
+  String get hubNoneHelp =>
+      'Make one device the hub (the main till or a back-office PC), then join the others to it. Each device keeps selling when the Wi-Fi drops and catches up later.';
+
+  @override
+  String get hubHubHelp =>
+      'Other devices sync through this one. Keep it on and on the shop Wi-Fi during trading.';
+
+  @override
+  String get hubMemberHelp =>
+      'Sales and changes here go to the hub every few seconds, and changes from the other tills come back.';
+
+  @override
+  String get hubBecome => 'Make this the hub';
+
+  @override
+  String get hubBecomeTitle => 'Make this device the hub?';
+
+  @override
+  String get hubBecomeBody =>
+      'The other devices will join this one and send it their sales. Its menu, stock and customers become the shop data that others merge into.';
+
+  @override
+  String get hubJoin => 'Join a hub';
+
+  @override
+  String get hubJoinTitle => 'Join the hub?';
+
+  @override
+  String get hubJoinBody =>
+      'Everything on this device is merged into the hub, and the hub data comes here. Products or customers on both may then appear twice and can be tidied up.';
+
+  @override
+  String get hubJoined => 'Joined the hub. Syncing now.';
+
+  @override
+  String get hubAddress => 'Hub address';
+
+  @override
+  String get hubAddressHelp =>
+      'Shown on the hub under Add a device, for example 192.168.1.20:8787';
+
+  @override
+  String get hubCode => 'Pairing code';
+
+  @override
+  String get hubCodeHelp => 'The 8 letters shown on the hub';
+
+  @override
+  String get hubNotACode =>
+      'That is not an Aby pairing code. Scan the code on the hub under Add a device.';
+
+  @override
+  String get hubAddDevice => 'Add a device';
+
+  @override
+  String get hubAddHelp =>
+      'On the new device open Settings, Devices and hub, Join a hub, then scan this code or type the address and code.';
+
+  @override
+  String get hubPaired => 'Device added. It is syncing now.';
+
+  @override
+  String get hubSyncNow => 'Sync now';
+
+  @override
+  String get hubNeverSynced => 'Not synced yet';
+
+  @override
+  String get hubStop => 'Stop the hub';
+
+  @override
+  String get hubStopTitle => 'Stop being the hub?';
+
+  @override
+  String get hubStopBody =>
+      'The other devices stop syncing until a hub is set up again. Nothing is deleted.';
+
+  @override
+  String get hubLeave => 'Leave the hub';
+
+  @override
+  String get hubLeaveTitle => 'Leave the hub?';
+
+  @override
+  String get hubLeaveBody =>
+      'This device stops syncing and works alone. It keeps all its data.';
+
+  @override
+  String get hubDevices => 'Paired devices';
+
+  @override
+  String get hubNoDevices => 'No devices yet. Use Add a device on each till.';
+
+  @override
+  String get hubDeviceTill => 'Till';
+
+  @override
+  String get hubDeviceKitchen => 'Kitchen';
+
+  @override
+  String get hubDeviceDisplay => 'Display';
+
+  @override
+  String get hubDeviceOwner => 'Owner\'s device';
+
+  @override
+  String get hubRename => 'Rename';
+
+  @override
+  String get hubSetRole => 'What is it used for?';
+
+  @override
+  String get hubRevoke => 'Remove from the hub';
+
+  @override
+  String get hubRevokeBody =>
+      'Use this for a lost or stolen device. It can no longer sync. What it already sent is kept.';
+
+  @override
+  String get hubRevoked => 'Removed';
+
+  @override
+  String get hubDuplicates => 'May be duplicates';
+
+  @override
+  String get hubDuplicatesHelp =>
+      'These names appear more than once after merging. Check them and delete or rename the extra ones.';
+
+  @override
+  String get hubKindProduct => 'product';
+
+  @override
+  String get hubKindCustomer => 'customer';
+
+  @override
+  String get hubKindStaff => 'staff';
+
+  @override
+  String get hubErrAlreadyLinked => 'This device is already part of a hub.';
+
+  @override
+  String get hubErrNoCode =>
+      'No pairing code is on offer. Tap Add a device on the hub.';
+
+  @override
+  String get hubErrTooManyTries =>
+      'Too many wrong tries. Show a new code on the hub.';
+
+  @override
+  String get hubErrWrongCode => 'That pairing code is not right.';
+
+  @override
+  String get hubErrNotPaired =>
+      'This device is not paired with the hub. Leave and join again.';
+
+  @override
+  String get hubErrRevoked => 'This device was removed from the hub.';
+
+  @override
+  String get hubErrUnreachable =>
+      'Cannot reach the hub. Check both devices are on the same Wi-Fi and the hub is on.';
+
+  @override
+  String get hubErrRefused => 'The hub refused the request.';
+
+  @override
+  String get statusHubUnreachable => 'Cannot reach the hub.';
+
+  @override
+  String get hubTraining =>
+      'Training mode is on: this copy does not sync. Leave training mode to use the hub.';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }
@@ -5862,5 +6051,30 @@ class AppLocalizationsEn extends AppLocalizations {
       one: '1 sale',
     );
     return '$_temp0';
+  }
+
+  @override
+  String hubCodeExpires(String time) {
+    return 'The code works once, until $time.';
+  }
+
+  @override
+  String hubLastSync(String when) {
+    return 'Last synced $when';
+  }
+
+  @override
+  String hubLastSeen(String when) {
+    return 'Last seen $when';
+  }
+
+  @override
+  String hubRevokeTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String hubCannotStart(String error) {
+    return 'The hub could not start: $error';
   }
 }
