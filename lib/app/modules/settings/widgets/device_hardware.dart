@@ -187,6 +187,7 @@ class _ScaleSetupState extends State<_ScaleSetup> {
 
 String alertKindLabel(AppLocalizations l, AlertKind k) => switch (k) {
       AlertKind.lowStock => l.notifyLowStock,
+      AlertKind.expiring => l.notifyExpiring,
       AlertKind.creditOverdue => l.notifyCredit,
       AlertKind.backup => l.notifyBackup,
       AlertKind.dayNotClosed => l.notifyDayOpen,

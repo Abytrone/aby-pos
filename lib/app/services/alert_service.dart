@@ -12,7 +12,7 @@ import '../models/customer.dart';
 import 'settings_service.dart';
 import 'status_service.dart';
 
-enum AlertKind { lowStock, creditOverdue, backup, dayNotClosed, parkedOld, expenseDue }
+enum AlertKind { lowStock, expiring, creditOverdue, backup, dayNotClosed, parkedOld, expenseDue }
 
 /// Something the owner should do something about.
 class Alert {
@@ -43,6 +43,13 @@ class AlertService extends GetxService {
 
     final low = (await Get.find<StockRepository>().items()).where((i) => i.isLow).toList();
     if (low.isNotEmpty) alerts.add(Alert(AlertKind.lowStock, count: low.length, names: [for (final i in low.take(3)) i.name]));
+
+    // Batches in stock that expire within a week (or have expired).
+    final expiring = await Get.find<StockRepository>().expiring(days: 7, now: at);
+    if (expiring.isNotEmpty) {
+      final names = {for (final b in expiring) b.itemName}.toList();
+      alerts.add(Alert(AlertKind.expiring, count: names.length, names: names.take(3).toList()));
+    }
 
     final customers = Get.find<CustomerRepository>();
     var late = 0;

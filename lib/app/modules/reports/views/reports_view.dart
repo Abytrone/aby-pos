@@ -320,6 +320,7 @@ class _StockTaxTab extends GetView<ReportsController> {
         StockReason.adjustment => l.moveAdjustment,
         StockReason.count => l.moveCount,
         StockReason.returned => l.moveReturned,
+        StockReason.production => l.moveProduction,
         null => r,
       };
 

@@ -134,6 +134,9 @@ const builtInPayMethods = [
   RecurringExpenses,
   Promotions,
   GiftVouchers,
+  PurchaseOrders,
+  PurchaseOrderLines,
+  StockBatches,
   VoucherEntries,
   OwnerMoney,
   Discounts,
@@ -165,7 +168,7 @@ class AppDatabase extends _$AppDatabase {
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -474,6 +477,16 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(schema.sales, schema.sales.orderNumber);
             await m.addColumn(schema.sales, schema.sales.orderStatus);
             await m.addColumn(schema.sales, schema.sales.orderStatusAt);
+          },
+          // v14: purchase orders, batches and expiry, production.
+          from13To14: (m, schema) async {
+            for (final table in [schema.purchaseOrders, schema.purchaseOrderLines, schema.stockBatches]) {
+              await m.createTable(table);
+            }
+            await m.addColumn(schema.stockItems, schema.stockItems.tracksExpiry);
+            await m.addColumn(schema.stockItems, schema.stockItems.batchYield);
+            await m.addColumn(schema.recipeItems, schema.recipeItems.madeItemId);
+            await m.addColumn(schema.stockReceipts, schema.stockReceipts.purchaseOrderId);
           },
         ),
         beforeOpen: (details) async {

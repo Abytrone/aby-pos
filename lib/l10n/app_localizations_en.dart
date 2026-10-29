@@ -3793,6 +3793,129 @@ class AppLocalizationsEn extends AppLocalizations {
   String get labelsForDelivery => 'Labels for this delivery?';
 
   @override
+  String get auditPurchaseOrderSaved => 'Purchase order';
+
+  @override
+  String get auditStockProduced => 'Stock made';
+
+  @override
+  String get moveProduction => 'Made here';
+
+  @override
+  String get notifyExpiring => 'Stock about to expire';
+
+  @override
+  String get stockTracksExpiry => 'Batches and expiry dates';
+
+  @override
+  String get stockTracksExpiryHelp =>
+      'Ask for the batch and expiry date when it comes in, like milk and ice cream base.';
+
+  @override
+  String get receiveBatchNo => 'Batch';
+
+  @override
+  String get receiveExpiry => 'Expiry date';
+
+  @override
+  String get expiryTitle => 'Expiring';
+
+  @override
+  String get expiryNone => 'Nothing in stock expires in the next 30 days.';
+
+  @override
+  String get expiryBatches => 'Batches in stock';
+
+  @override
+  String get expiryNoBatches => 'No batches in stock.';
+
+  @override
+  String get expiryNoDate => 'No expiry date';
+
+  @override
+  String get poTab => 'Orders';
+
+  @override
+  String get poNone => 'No purchase orders yet.';
+
+  @override
+  String get poNew => 'New order';
+
+  @override
+  String get poCreate => 'Create order';
+
+  @override
+  String get poOpen => 'Waiting';
+
+  @override
+  String get poPartial => 'Part delivered';
+
+  @override
+  String get poReceived => 'Delivered';
+
+  @override
+  String get poCancelled => 'Cancelled';
+
+  @override
+  String get poNeededByPick => 'Needed by';
+
+  @override
+  String get poCancel => 'Cancel order';
+
+  @override
+  String get poSend => 'Send';
+
+  @override
+  String get poReceive => 'Receive delivery';
+
+  @override
+  String get poPickSupplier => 'Choose the supplier.';
+
+  @override
+  String get poAddItems => 'Add what to order.';
+
+  @override
+  String get poSuggestHelp =>
+      'Their items that are low come in at the usual order.';
+
+  @override
+  String get poReason => 'Purchase orders spend the shop money.';
+
+  @override
+  String get produceSetUp => 'Made here? Set its recipe';
+
+  @override
+  String get produceMadeHere => 'Made here';
+
+  @override
+  String get produceRecord => 'Record a batch made';
+
+  @override
+  String get produceRecipeHelp =>
+      'For one batch: how much it makes and what goes in. Making it takes the ingredients off stock and adds what was made, at what they cost.';
+
+  @override
+  String get produceOneBatchMakes => 'One batch makes';
+
+  @override
+  String get produceIngredients => 'Ingredients for one batch';
+
+  @override
+  String get produceYieldInvalid => 'Enter how much one batch makes.';
+
+  @override
+  String get produceNeedsIngredients => 'Add at least one ingredient.';
+
+  @override
+  String get produceStop => 'Not made here';
+
+  @override
+  String get produceHowMuch => 'How much was made';
+
+  @override
+  String get produceUses => 'This uses';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }
@@ -5255,5 +5378,81 @@ class AppLocalizationsEn extends AppLocalizations {
       one: '1 product came in that is sold as is. Print its price labels?',
     );
     return '$_temp0';
+  }
+
+  @override
+  String alertExpiring(int count, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items expire within a week: $names',
+      one: '1 item expires within a week: $names',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String receiveExpiresOn(String date) {
+    return 'Expires $date';
+  }
+
+  @override
+  String receiveAgainst(String order, String supplier) {
+    return 'Against $order from $supplier';
+  }
+
+  @override
+  String expiryOn(String date) {
+    return 'Expires $date';
+  }
+
+  @override
+  String expiryExpired(String date) {
+    return 'Expired $date';
+  }
+
+  @override
+  String expiryReceived(String date) {
+    return 'came in $date';
+  }
+
+  @override
+  String poNeededBy(String date) {
+    return 'Needed by $date';
+  }
+
+  @override
+  String poLineReceived(String amount) {
+    return '$amount received';
+  }
+
+  @override
+  String poShareText(String number) {
+    return 'Purchase order $number';
+  }
+
+  @override
+  String produceBatchMakes(String amount) {
+    return 'One batch makes $amount';
+  }
+
+  @override
+  String produceRecordTitle(String name) {
+    return 'Made $name';
+  }
+
+  @override
+  String produceRecipeTitle(String name) {
+    return 'What $name is made from';
+  }
+
+  @override
+  String produceReason(String name) {
+    return 'Making $name uses up stock.';
+  }
+
+  @override
+  String produceDone(String amount, String cost) {
+    return 'Made $amount, $cost of ingredients.';
   }
 }

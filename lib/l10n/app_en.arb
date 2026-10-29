@@ -1220,6 +1220,46 @@
   "labelsNoBarcode": "no barcode",
   "labelsMakeBarcodes": "Make barcodes for products",
   "labelsForDelivery": "Labels for this delivery?",
+  "auditPurchaseOrderSaved": "Purchase order",
+  "auditStockProduced": "Stock made",
+  "moveProduction": "Made here",
+  "notifyExpiring": "Stock about to expire",
+  "stockTracksExpiry": "Batches and expiry dates",
+  "stockTracksExpiryHelp": "Ask for the batch and expiry date when it comes in, like milk and ice cream base.",
+  "receiveBatchNo": "Batch",
+  "receiveExpiry": "Expiry date",
+  "expiryTitle": "Expiring",
+  "expiryNone": "Nothing in stock expires in the next 30 days.",
+  "expiryBatches": "Batches in stock",
+  "expiryNoBatches": "No batches in stock.",
+  "expiryNoDate": "No expiry date",
+  "poTab": "Orders",
+  "poNone": "No purchase orders yet.",
+  "poNew": "New order",
+  "poCreate": "Create order",
+  "poOpen": "Waiting",
+  "poPartial": "Part delivered",
+  "poReceived": "Delivered",
+  "poCancelled": "Cancelled",
+  "poNeededByPick": "Needed by",
+  "poCancel": "Cancel order",
+  "poSend": "Send",
+  "poReceive": "Receive delivery",
+  "poPickSupplier": "Choose the supplier.",
+  "poAddItems": "Add what to order.",
+  "poSuggestHelp": "Their items that are low come in at the usual order.",
+  "poReason": "Purchase orders spend the shop money.",
+  "produceSetUp": "Made here? Set its recipe",
+  "produceMadeHere": "Made here",
+  "produceRecord": "Record a batch made",
+  "produceRecipeHelp": "For one batch: how much it makes and what goes in. Making it takes the ingredients off stock and adds what was made, at what they cost.",
+  "produceOneBatchMakes": "One batch makes",
+  "produceIngredients": "Ingredients for one batch",
+  "produceYieldInvalid": "Enter how much one batch makes.",
+  "produceNeedsIngredients": "Add at least one ingredient.",
+  "produceStop": "Not made here",
+  "produceHowMuch": "How much was made",
+  "produceUses": "This uses",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -3367,6 +3407,127 @@
     "placeholders": {
       "count": {
         "type": "int"
+      }
+    }
+  },
+  "alertExpiring": "{count, plural, =1{1 item expires within a week: {names}} other{{count} items expire within a week: {names}}}",
+  "@alertExpiring": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "receiveExpiresOn": "Expires {date}",
+  "@receiveExpiresOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "receiveAgainst": "Against {order} from {supplier}",
+  "@receiveAgainst": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      },
+      "supplier": {
+        "type": "String"
+      }
+    }
+  },
+  "expiryOn": "Expires {date}",
+  "@expiryOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "expiryExpired": "Expired {date}",
+  "@expiryExpired": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "expiryReceived": "came in {date}",
+  "@expiryReceived": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "poNeededBy": "Needed by {date}",
+  "@poNeededBy": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "poLineReceived": "{amount} received",
+  "@poLineReceived": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "poShareText": "Purchase order {number}",
+  "@poShareText": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "produceBatchMakes": "One batch makes {amount}",
+  "@produceBatchMakes": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "produceRecordTitle": "Made {name}",
+  "@produceRecordTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "produceRecipeTitle": "What {name} is made from",
+  "@produceRecipeTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "produceReason": "Making {name} uses up stock.",
+  "@produceReason": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "produceDone": "Made {amount}, {cost} of ingredients.",
+  "@produceDone": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "cost": {
+        "type": "String"
       }
     }
   }

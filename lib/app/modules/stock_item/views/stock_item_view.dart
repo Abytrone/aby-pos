@@ -14,6 +14,7 @@ import '../../../ui/layout.dart';
 import '../../../ui/section_page.dart';
 import '../../stock/widgets/stock_item_editor.dart';
 import '../controllers/stock_item_controller.dart';
+import '../widgets/production.dart';
 import '../widgets/quantity_dialog.dart';
 
 String reasonLabel(AppLocalizations l, StockMovement m) => switch (m.reason) {
@@ -23,6 +24,7 @@ String reasonLabel(AppLocalizations l, StockMovement m) => switch (m.reason) {
       StockReason.adjustment => l.moveAdjustment,
       StockReason.count => l.moveCount,
       StockReason.returned => l.moveReturned,
+      StockReason.production => l.moveProduction,
     };
 
 String wasteLabel(AppLocalizations l, WasteReason r) => switch (r) {
@@ -183,6 +185,12 @@ class _Summary extends GetView<StockItemController> {
         title: l.stockUsedBy,
         children: usedBy.isEmpty ? [InfoTile(title: l.stockUsedByNone)] : [for (final n in usedBy) InfoTile(title: n)],
       ),
+      const SizedBox(height: AbySpace.s3),
+      ProductionCard(item: item),
+      if (item.tracksExpiry || controller.batches.isNotEmpty) ...[
+        const SizedBox(height: AbySpace.s3),
+        const BatchesCard(),
+      ],
     ]);
   }
 }

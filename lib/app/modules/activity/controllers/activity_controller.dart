@@ -77,6 +77,8 @@ enum ActivityFilter {
             AuditAction.stockReceived,
             AuditAction.stockAdjusted,
             AuditAction.stockWasted,
+            AuditAction.stockProduced,
+            AuditAction.purchaseOrderSaved,
             AuditAction.stockCountPosted,
             AuditAction.supplierSaved,
             AuditAction.supplierPaid,

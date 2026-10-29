@@ -11,19 +11,21 @@ import '../../services/ids.dart';
 import '../../services/money.dart';
 import '../database/app_database.dart';
 import 'audit_repository.dart';
+import 'purchase_order_repository.dart';
 import 'stock_repository.dart';
 import 'supplier_repository.dart';
 
 /// Deliveries ("goods received"): stock in, average cost updated, and what
 /// is owed to the supplier, all in one transaction.
 class ReceivingRepository {
-  ReceivingRepository(this._db, this._device, this._audit, this._stock, this._suppliers);
+  ReceivingRepository(this._db, this._device, this._audit, this._stock, this._suppliers, [this._orders]);
 
   final AppDatabase _db;
   final DeviceInfo _device;
   final AuditRepository _audit;
   final StockRepository _stock;
   final SupplierRepository _suppliers;
+  final PurchaseOrderRepository? _orders;
 
   Future<StockReceipt> receive(ReceiptDraft d, {required Staff by}) async {
     if (d.lines.isEmpty) throw const StockException('Add what was delivered.');
@@ -65,6 +67,7 @@ class ReceivingRepository {
           note: Value(d.note?.trim().isEmpty ?? true ? null : d.note!.trim()),
           receivedById: by.id,
           receivedByName: by.name,
+          purchaseOrderId: Value(d.purchaseOrderId),
         ),
       );
 
@@ -96,6 +99,15 @@ class ReceivingRepository {
           byName: by.name,
           at: now,
         );
+        if (l.batchNo != null || l.expiresOn != null) {
+          await _stock.addBatch(
+            stockItemId: l.stockItemId,
+            quantity: l.quantity,
+            receiptId: id,
+            batchNo: l.batchNo,
+            expiresOn: l.expiresOn,
+          );
+        }
         final average = Inventory.averageCost(
           onHand: onHand,
           oldCostMilli: item.costMilli,
@@ -105,6 +117,10 @@ class ReceivingRepository {
         if (average != item.costMilli) {
           await _db.updateTracked(_db.stockItems, item.copyWith(costMilli: average, updatedAt: now));
         }
+      }
+
+      if (d.purchaseOrderId != null) {
+        await _orders?.applyDelivery(d.purchaseOrderId!, {for (final l in d.lines) l.stockItemId: l.quantity});
       }
 
       String? supplierName;

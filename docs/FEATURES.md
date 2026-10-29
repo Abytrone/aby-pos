@@ -1455,6 +1455,32 @@ Decisions made on the way:
   them.
 - Kitchen tickets print on 80 mm paper on a separate kitchen printer.
 
+**Status (29 October 2026): 6d built** (purchase orders, batches and expiry, production).
+Schema 14. Built:
+
+- `INV-03` purchase orders: Stock → Orders → New order. Picking the supplier brings in its
+  items that are low, at their usual order (or enough to get back to twice the low level);
+  more can be added, with a "needed by" date and a note. The order is shared as a PDF (A4) by
+  WhatsApp or email. "Receive delivery" opens the delivery form with what is still to come at
+  the expected cost; each delivery adds to what was received, and the order moves from
+  Waiting to Part delivered to Delivered. Orders can be cancelled; all are in the activity log.
+- `INV-07` batches and expiry: a stock item can track batches and expiry dates (on for milk
+  and ice cream in the ice cream shop). Receiving asks for the batch and expiry date. What is
+  left of each batch is worked out first-expiring-first-out from what is in stock, so sales
+  and waste need no batch picking. Stock → Expiring lists what expires in the next 30 days;
+  the item page shows its batches; an alert (and notification) warns a week ahead.
+- `INV-09` production: on a stock item, "Made here? Set its recipe": what one batch makes and
+  its ingredients. "Record a batch made" takes the ingredients off stock in proportion and
+  adds what was made at what they cost (moving average), so products using it carry the
+  right cost.
+
+Decisions made on the way:
+
+- FEFO is worked out rather than tracked per sale: what is on hand is assumed to be the
+  latest-expiring stock. A batch with no date is used last.
+- Purchase orders do not change what is owed to the supplier; the delivery does, as before.
+- Recording a production run needs "Correct stock"; setting the recipe needs "Edit products".
+
 ### Phase 7: Many devices without internet
 
 - `MDV-01` local hub, `MDV-03` device management.

@@ -7414,6 +7414,246 @@ abstract class AppLocalizations {
   /// **'Labels for this delivery?'**
   String get labelsForDelivery;
 
+  /// No description provided for @auditPurchaseOrderSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase order'**
+  String get auditPurchaseOrderSaved;
+
+  /// No description provided for @auditStockProduced.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock made'**
+  String get auditStockProduced;
+
+  /// No description provided for @moveProduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Made here'**
+  String get moveProduction;
+
+  /// No description provided for @notifyExpiring.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock about to expire'**
+  String get notifyExpiring;
+
+  /// No description provided for @stockTracksExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Batches and expiry dates'**
+  String get stockTracksExpiry;
+
+  /// No description provided for @stockTracksExpiryHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for the batch and expiry date when it comes in, like milk and ice cream base.'**
+  String get stockTracksExpiryHelp;
+
+  /// No description provided for @receiveBatchNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch'**
+  String get receiveBatchNo;
+
+  /// No description provided for @receiveExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry date'**
+  String get receiveExpiry;
+
+  /// No description provided for @expiryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiring'**
+  String get expiryTitle;
+
+  /// No description provided for @expiryNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in stock expires in the next 30 days.'**
+  String get expiryNone;
+
+  /// No description provided for @expiryBatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Batches in stock'**
+  String get expiryBatches;
+
+  /// No description provided for @expiryNoBatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No batches in stock.'**
+  String get expiryNoBatches;
+
+  /// No description provided for @expiryNoDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No expiry date'**
+  String get expiryNoDate;
+
+  /// No description provided for @poTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get poTab;
+
+  /// No description provided for @poNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No purchase orders yet.'**
+  String get poNone;
+
+  /// No description provided for @poNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New order'**
+  String get poNew;
+
+  /// No description provided for @poCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create order'**
+  String get poCreate;
+
+  /// No description provided for @poOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get poOpen;
+
+  /// No description provided for @poPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Part delivered'**
+  String get poPartial;
+
+  /// No description provided for @poReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get poReceived;
+
+  /// No description provided for @poCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get poCancelled;
+
+  /// No description provided for @poNeededByPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed by'**
+  String get poNeededByPick;
+
+  /// No description provided for @poCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel order'**
+  String get poCancel;
+
+  /// No description provided for @poSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get poSend;
+
+  /// No description provided for @poReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive delivery'**
+  String get poReceive;
+
+  /// No description provided for @poPickSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the supplier.'**
+  String get poPickSupplier;
+
+  /// No description provided for @poAddItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Add what to order.'**
+  String get poAddItems;
+
+  /// No description provided for @poSuggestHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Their items that are low come in at the usual order.'**
+  String get poSuggestHelp;
+
+  /// No description provided for @poReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase orders spend the shop money.'**
+  String get poReason;
+
+  /// No description provided for @produceSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Made here? Set its recipe'**
+  String get produceSetUp;
+
+  /// No description provided for @produceMadeHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Made here'**
+  String get produceMadeHere;
+
+  /// No description provided for @produceRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a batch made'**
+  String get produceRecord;
+
+  /// No description provided for @produceRecipeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'For one batch: how much it makes and what goes in. Making it takes the ingredients off stock and adds what was made, at what they cost.'**
+  String get produceRecipeHelp;
+
+  /// No description provided for @produceOneBatchMakes.
+  ///
+  /// In en, this message translates to:
+  /// **'One batch makes'**
+  String get produceOneBatchMakes;
+
+  /// No description provided for @produceIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients for one batch'**
+  String get produceIngredients;
+
+  /// No description provided for @produceYieldInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter how much one batch makes.'**
+  String get produceYieldInvalid;
+
+  /// No description provided for @produceNeedsIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one ingredient.'**
+  String get produceNeedsIngredients;
+
+  /// No description provided for @produceStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Not made here'**
+  String get produceStop;
+
+  /// No description provided for @produceHowMuch.
+  ///
+  /// In en, this message translates to:
+  /// **'How much was made'**
+  String get produceHowMuch;
+
+  /// No description provided for @produceUses.
+  ///
+  /// In en, this message translates to:
+  /// **'This uses'**
+  String get produceUses;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -8907,6 +9147,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 product came in that is sold as is. Print its price labels?} other{{count} products came in that are sold as is. Print their price labels?}}'**
   String labelsForDeliveryBody(int count);
+
+  /// No description provided for @alertExpiring.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item expires within a week: {names}} other{{count} items expire within a week: {names}}}'**
+  String alertExpiring(int count, String names);
+
+  /// No description provided for @receiveExpiresOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires {date}'**
+  String receiveExpiresOn(String date);
+
+  /// No description provided for @receiveAgainst.
+  ///
+  /// In en, this message translates to:
+  /// **'Against {order} from {supplier}'**
+  String receiveAgainst(String order, String supplier);
+
+  /// No description provided for @expiryOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires {date}'**
+  String expiryOn(String date);
+
+  /// No description provided for @expiryExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired {date}'**
+  String expiryExpired(String date);
+
+  /// No description provided for @expiryReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'came in {date}'**
+  String expiryReceived(String date);
+
+  /// No description provided for @poNeededBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed by {date}'**
+  String poNeededBy(String date);
+
+  /// No description provided for @poLineReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} received'**
+  String poLineReceived(String amount);
+
+  /// No description provided for @poShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase order {number}'**
+  String poShareText(String number);
+
+  /// No description provided for @produceBatchMakes.
+  ///
+  /// In en, this message translates to:
+  /// **'One batch makes {amount}'**
+  String produceBatchMakes(String amount);
+
+  /// No description provided for @produceRecordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Made {name}'**
+  String produceRecordTitle(String name);
+
+  /// No description provided for @produceRecipeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What {name} is made from'**
+  String produceRecipeTitle(String name);
+
+  /// No description provided for @produceReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Making {name} uses up stock.'**
+  String produceReason(String name);
+
+  /// No description provided for @produceDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Made {amount}, {cost} of ingredients.'**
+  String produceDone(String amount, String cost);
 }
 
 class _AppLocalizationsDelegate

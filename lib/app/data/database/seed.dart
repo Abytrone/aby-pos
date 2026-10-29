@@ -63,6 +63,10 @@ Future<void> seedScoopsTamale(AppDatabase db, {required String deviceId}) async 
     final sprinkles = await stock('Sprinkles', StockUnit.g, cedis(40), 2000);
     final crunch = await stock('Groundnut crunch', StockUnit.g, cedis(30), 2000);
     final sauce = await stock('Chocolate sauce', StockUnit.ml, cedis(60), 3000);
+    // Dairy keeps batches and expiry dates (INV-07).
+    for (final id in [vanilla, chocolate, milk]) {
+      await (db.update(db.stockItems)..where((s) => s.id.equals(id))).write(const StockItemsCompanion(tracksExpiry: Value(true)));
+    }
 
     Future<void> recipe(List<(String, int)> items, {String? variantId, String? optionId}) async {
       for (final (item, qty) in items) {

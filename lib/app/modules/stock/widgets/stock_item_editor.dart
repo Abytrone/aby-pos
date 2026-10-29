@@ -47,6 +47,7 @@ class _EditorState extends State<_Editor> {
   late final _reorderQty = TextEditingController(
     text: widget.item?.reorderQty == null ? '' : quantityIn(widget.item!.reorderQty!, DisplayUnit.bulk(_unit)),
   );
+  late bool _expiry = widget.item?.tracksExpiry ?? false;
   String? _error;
   bool _saving = false;
 
@@ -81,6 +82,7 @@ class _EditorState extends State<_Editor> {
       reorderPoint: at,
       reorderQty: reorder,
       supplierId: widget.item?.supplierId,
+      tracksExpiry: _expiry,
     ));
     if (!mounted) return;
     setState(() => _saving = false);
@@ -146,6 +148,13 @@ class _EditorState extends State<_Editor> {
             Padding(
               padding: const EdgeInsets.only(top: AbySpace.s1),
               child: Text(l.stockReorderHelp, style: AbyText.caption.copyWith(color: c.inkMuted)),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l.stockTracksExpiry),
+              subtitle: Text(l.stockTracksExpiryHelp),
+              value: _expiry,
+              onChanged: (v) => setState(() => _expiry = v),
             ),
             if (_error != null)
               Padding(

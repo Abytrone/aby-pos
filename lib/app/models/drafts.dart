@@ -150,6 +150,7 @@ class StockItemDraft {
     this.reorderPoint,
     this.reorderQty,
     this.supplierId,
+    this.tracksExpiry = false,
   });
 
   final String? id;
@@ -159,4 +160,5 @@ class StockItemDraft {
   final int? reorderPoint;
   final int? reorderQty;
   final String? supplierId;
+  final bool tracksExpiry;
 }

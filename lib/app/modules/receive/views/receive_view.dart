@@ -6,6 +6,7 @@ import '../../../models/enums.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/format.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/option_chip.dart';
@@ -73,6 +74,14 @@ class ReceiveView extends StatelessWidget {
                         padding: const EdgeInsets.all(AbySpace.s3),
                         decoration: BoxDecoration(color: c.dangerSoft, borderRadius: BorderRadius.circular(AbyRadius.sm)),
                         child: Text(ctl.error!, style: AbyText.body.copyWith(color: c.danger)),
+                      ),
+                    if (ctl.order != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AbySpace.s3),
+                        child: Text(
+                          l.receiveAgainst(ctl.order!.displayNumber, ctl.order!.supplierName),
+                          style: AbyText.heading.copyWith(color: c.ink),
+                        ),
                       ),
                     Wrap(spacing: AbySpace.s3, runSpacing: AbySpace.s3, children: [
                       SizedBox(
@@ -212,6 +221,29 @@ class _LineRow extends StatelessWidget {
             Text(l.stockCostEach(formatMoney(unitPrice), DisplayUnit.bulk(item.unit).symbol),
                 style: AbyText.caption.copyWith(color: c.inkMuted)),
           IconButton(tooltip: l.recipeRemove, icon: const Icon(Icons.close), onPressed: () => ctl.removeLine(line)),
+          if (item?.tracksExpiry ?? false) ...[
+            SizedBox(
+              width: 160,
+              child: TextField(
+                controller: line.batchNo,
+                decoration: InputDecoration(labelText: l.receiveBatchNo, isDense: true),
+              ),
+            ),
+            ActionChip(
+              avatar: const Icon(Icons.event, size: 18),
+              label: Text(line.expiresOn == null ? l.receiveExpiry : l.receiveExpiresOn(formatDate(line.expiresOn!))),
+              onPressed: () async {
+                final now = DateTime.now();
+                final day = await showDatePicker(
+                  context: context,
+                  initialDate: line.expiresOn ?? now.add(const Duration(days: 30)),
+                  firstDate: now.subtract(const Duration(days: 30)),
+                  lastDate: DateTime(now.year + 5),
+                );
+                if (day != null) ctl.setExpiry(line, day);
+              },
+            ),
+          ],
         ]),
       ),
     );

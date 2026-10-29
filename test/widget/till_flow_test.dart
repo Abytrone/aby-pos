@@ -912,6 +912,52 @@ void main() {
     await _dispose(tester);
   });
 
+  testWidgets('tablet: purchase orders, expiring stock, and an item made here', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await _settle(tester);
+    await tester.tap(find.text('Kofi'));
+    await _settle(tester);
+    await _typePin(tester, '1234');
+
+    await tester.tap(find.text('Stock'));
+    await _settle(tester);
+    await tester.tap(find.text('Expiring'));
+    await _settle(tester);
+    expect(find.textContaining('Nothing in stock expires'), findsOneWidget);
+    await tester.tap(find.text('Done'));
+    await _settle(tester);
+
+    await tester.tap(find.widgetWithText(Tab, 'Orders'));
+    await _settle(tester);
+    expect(find.text('No purchase orders yet.'), findsOneWidget);
+    await tester.tap(find.text('New order'));
+    await _settle(tester);
+    await tester.tap(find.text('Create order'));
+    await _settle(tester);
+    expect(find.text('Choose the supplier.'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await _settle(tester);
+
+    await tester.tap(find.widgetWithText(Tab, 'Items'));
+    await _settle(tester);
+    await tester.tap(find.text('Milk'));
+    await _settle(tester);
+    expect(find.text('BATCHES IN STOCK'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Made here? Set its recipe'), 200, scrollable: find.byType(Scrollable).first);
+    await tester.tap(find.text('Made here? Set its recipe'));
+    await _settle(tester);
+    expect(find.text('What Milk is made from'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await _settle(tester);
+
+    await _dispose(tester);
+  });
+
   testWidgets('phone portrait, first run: name the shop, create the owner, start selling', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;

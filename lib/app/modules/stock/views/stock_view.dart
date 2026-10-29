@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../data/repositories/stock_repository.dart';
 import '../../../core/units.dart';
 import '../../../models/stock.dart';
 import '../../../services/money.dart';
@@ -11,6 +12,7 @@ import '../../../ui/l10n.dart';
 import '../../../ui/section_page.dart';
 import '../controllers/purchasing_controller.dart';
 import '../controllers/stock_controller.dart';
+import '../widgets/purchase_orders_tab.dart';
 import '../widgets/purchasing_tabs.dart';
 import '../widgets/supplier_editor.dart';
 import '../widgets/stock_item_editor.dart';
@@ -24,7 +26,7 @@ class StockView extends GetView<StockController> {
     final l = context.l10n;
     final purchasing = Get.find<PurchasingController>();
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Builder(builder: (context) {
         final tabs = DefaultTabController.of(context);
         return AnimatedBuilder(
@@ -41,6 +43,11 @@ class StockView extends GetView<StockController> {
                         label: Text(l.stockNew),
                       ),
                     OutlinedButton.icon(
+                      onPressed: () async => showExpiring(await Get.find<StockRepository>().expiring(days: 30)),
+                      icon: const Icon(Icons.event_busy_outlined),
+                      label: Text(l.expiryTitle),
+                    ),
+                    OutlinedButton.icon(
                       onPressed: controller.exportStock,
                       icon: const Icon(Icons.download_outlined),
                       label: Text(l.exportButton),
@@ -55,6 +62,14 @@ class StockView extends GetView<StockController> {
                       ),
                   ],
                 2 => [
+                    if (purchasing.canReceive)
+                      FilledButton.icon(
+                        onPressed: () => showNewPurchaseOrder(purchasing).then((_) => flushPurchasing(purchasing)),
+                        icon: const Icon(Icons.add),
+                        label: Text(l.poNew),
+                      ),
+                  ],
+                3 => [
                     if (purchasing.canCount)
                       Obx(() => FilledButton.icon(
                             onPressed: () => _startCount(purchasing),
@@ -78,11 +93,12 @@ class StockView extends GetView<StockController> {
               tabs: [
                 Tab(text: l.stockItemsTab),
                 Tab(text: l.deliveriesTab),
+                Tab(text: l.poTab),
                 Tab(text: l.countsTab),
                 Tab(text: l.suppliersTab),
               ],
             ),
-            child: const TabBarView(children: [_Items(), DeliveriesTab(), CountsTab(), SuppliersTab()]),
+            child: const TabBarView(children: [_Items(), DeliveriesTab(), PurchaseOrdersTab(), CountsTab(), SuppliersTab()]),
           ),
         );
       }),

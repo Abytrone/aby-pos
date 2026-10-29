@@ -135,6 +135,13 @@ class StockItems extends Table with SyncColumns {
   IntColumn get reorderQty => integer().nullable()();
   TextColumn get supplierId => text().nullable()();
   BoolColumn get active => boolean().withDefault(const Constant(true))();
+
+  /// Batch numbers and expiry dates are asked for when receiving. v14.
+  BoolColumn get tracksExpiry => boolean().withDefault(const Constant(false))();
+
+  /// Made here: base units one batch of its recipe makes (the recipe is the
+  /// recipe lines with [RecipeItems.madeItemId] = this item). v14.
+  IntColumn get batchYield => integer().nullable()();
 }
 
 /// What a variant (or an option) uses up each time it is sold.
@@ -142,6 +149,9 @@ class StockItems extends Table with SyncColumns {
 class RecipeItems extends Table with SyncColumns {
   TextColumn get variantId => text().nullable().references(ProductVariants, #id)();
   TextColumn get optionId => text().nullable().references(OptionItems, #id)();
+
+  /// An ingredient of a stock item made here (production). v14.
+  TextColumn get madeItemId => text().nullable()();
   TextColumn get stockItemId => text().references(StockItems, #id)();
 
   /// Base units.
@@ -245,6 +255,9 @@ class StockReceipts extends Table with SyncColumns {
   TextColumn get note => text().nullable()();
   TextColumn get receivedById => text()();
   TextColumn get receivedByName => text()();
+
+  /// The purchase order this delivery was received against. v14.
+  TextColumn get purchaseOrderId => text().nullable()();
 }
 
 @DataClassName('StockReceiptLineRow')
@@ -993,4 +1006,41 @@ class VoucherEntries extends Table with SyncColumns {
   TextColumn get methodName => text().nullable()();
   TextColumn get reference => text().nullable()();
   TextColumn get byName => text()();
+}
+
+/// An order to a supplier (INV-03). v14.
+@DataClassName('PurchaseOrderRow')
+class PurchaseOrders extends Table with SyncColumns {
+  IntColumn get number => integer()();
+  TextColumn get supplierId => text().references(Suppliers, #id)();
+  TextColumn get status => textEnum<PurchaseOrderStatus>()();
+  DateTimeColumn get expectedOn => dateTime().nullable()();
+  TextColumn get note => text().nullable()();
+  TextColumn get byName => text()();
+}
+
+@DataClassName('PurchaseOrderLineRow')
+class PurchaseOrderLines extends Table with SyncColumns {
+  TextColumn get orderId => text().references(PurchaseOrders, #id)();
+  TextColumn get stockItemId => text().references(StockItems, #id)();
+
+  /// Base units ordered, and received so far.
+  IntColumn get quantity => integer()();
+  IntColumn get received => integer().withDefault(const Constant(0))();
+
+  /// Thousandths of a pesewa per base unit: the cost expected (last cost).
+  IntColumn get unitCostMilli => integer().withDefault(const Constant(0))();
+}
+
+/// A batch received with its expiry date (INV-07). What is left of each
+/// batch is worked out first-expiring-first-out from what is in stock. v14.
+@DataClassName('StockBatchRow')
+class StockBatches extends Table with SyncColumns {
+  TextColumn get stockItemId => text().references(StockItems, #id)();
+  TextColumn get receiptId => text().nullable()();
+  TextColumn get batchNo => text().nullable()();
+  DateTimeColumn get expiresOn => dateTime().nullable()();
+
+  /// Base units received in this batch.
+  IntColumn get quantity => integer()();
 }

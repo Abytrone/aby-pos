@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../core/units.dart';
+import '../../domain/inventory.dart';
 import '../../models/audit.dart';
 import '../../models/drafts.dart';
 import '../../models/enums.dart';
@@ -61,6 +62,8 @@ class StockRepository {
     reorderQty: r.reorderQty,
     supplierId: r.supplierId,
     active: r.active,
+    tracksExpiry: r.tracksExpiry,
+    batchYield: r.batchYield,
   );
 
   Future<String> saveItem(StockItemDraft d, {required Staff by}) async {
@@ -84,6 +87,7 @@ class StockRepository {
             reorderPoint: Value(d.reorderPoint),
             reorderQty: Value(d.reorderQty),
             supplierId: Value(d.supplierId),
+            tracksExpiry: Value(d.tracksExpiry),
           ),
         );
       } else {
@@ -100,6 +104,7 @@ class StockRepository {
             reorderPoint: Value(d.reorderPoint),
             reorderQty: Value(d.reorderQty),
             supplierId: Value(d.supplierId),
+            tracksExpiry: d.tracksExpiry,
             updatedAt: now,
           ),
         );
@@ -318,6 +323,214 @@ class StockRepository {
         summary: '${row.name}: ${formatQuantity(quantity, row.unit)} lost (${reason.name}), ${formatMoney(value)}',
         details: {'quantity': quantity, 'value': value, 'reason': reason.name},
       );
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Batches and expiry (INV-07)
+
+  /// Batches with what is left. What is in stock is the latest-expiring
+  /// stock: sales and waste are taken from the batch that expires first.
+  /// Batches with no date go last.
+  Future<List<BatchLeft>> batches({String? stockItemId}) async {
+    final query = _db.select(_db.stockBatches)..where((b) => b.deletedAt.isNull());
+    if (stockItemId != null) query.where((b) => b.stockItemId.equals(stockItemId));
+    final rows = await query.get();
+    if (rows.isEmpty) return const [];
+    final ids = {for (final r in rows) r.stockItemId};
+    final items = {for (final i in await (_db.select(_db.stockItems)..where((s) => s.id.isIn(ids))).get()) i.id: i};
+    final levels = await onHandAll();
+    final byItem = <String, List<StockBatchRow>>{};
+    for (final r in rows) {
+      byItem.putIfAbsent(r.stockItemId, () => []).add(r);
+    }
+    final out = <BatchLeft>[];
+    for (final MapEntry(key: itemId, value: list) in byItem.entries) {
+      final item = items[itemId];
+      if (item == null) continue;
+      // Latest expiry first: these are what is still on the shelf.
+      list.sort((a, b) {
+        final ea = a.expiresOn, eb = b.expiresOn;
+        if (ea == null || eb == null) return ea == null ? (eb == null ? 0 : -1) : 1;
+        final byDate = eb.compareTo(ea);
+        return byDate != 0 ? byDate : b.createdAt.compareTo(a.createdAt);
+      });
+      var stock = levels[itemId] ?? 0;
+      for (final b in list) {
+        final left = stock <= 0 ? 0 : (stock < b.quantity ? stock : b.quantity);
+        stock -= left;
+        out.add(BatchLeft(
+          id: b.id,
+          stockItemId: itemId,
+          itemName: item.name,
+          unit: item.unit,
+          quantity: b.quantity,
+          left: left,
+          receivedAt: b.createdAt,
+          batchNo: b.batchNo,
+          expiresOn: b.expiresOn,
+        ));
+      }
+    }
+    out.sort((a, b) {
+      final ea = a.expiresOn, eb = b.expiresOn;
+      if (ea == null || eb == null) return ea == null ? (eb == null ? 0 : 1) : -1;
+      return ea.compareTo(eb);
+    });
+    return out;
+  }
+
+  /// Batches still in stock that expire within [days] (or have expired).
+  Future<List<BatchLeft>> expiring({int days = 30, DateTime? now}) async {
+    final at = now ?? DateTime.now();
+    return [
+      for (final b in await batches())
+        if (b.left > 0 && (b.daysLeft(at) ?? days + 1) <= days) b,
+    ];
+  }
+
+  /// Records a batch received (inside the delivery's transaction).
+  Future<void> addBatch({
+    required String stockItemId,
+    required int quantity,
+    String? receiptId,
+    String? batchNo,
+    DateTime? expiresOn,
+  }) {
+    final now = DateTime.now();
+    final no = batchNo?.trim();
+    return _db.insertTracked(
+      _db.stockBatches,
+      StockBatchesCompanion.insert(
+        id: newId(),
+        createdAt: now,
+        updatedAt: now,
+        deviceId: _device.deviceId,
+        stockItemId: stockItemId,
+        receiptId: Value(receiptId),
+        batchNo: Value(no == null || no.isEmpty ? null : no),
+        expiresOn: Value(expiresOn),
+        quantity: quantity,
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Production (INV-09)
+
+  /// The batch recipe of an item made here, or null.
+  Future<ProductionRecipe?> productionRecipe(String madeItemId) async {
+    final item = await (_db.select(_db.stockItems)..where((s) => s.id.equals(madeItemId))).getSingleOrNull();
+    final batch = item?.batchYield;
+    if (batch == null) return null;
+    final rows = await (_db.select(_db.recipeItems)
+          ..where((r) => r.madeItemId.equals(madeItemId) & r.deletedAt.isNull())
+          ..orderBy([(r) => OrderingTerm(expression: r.createdAt), (r) => OrderingTerm(expression: r.id)]))
+        .get();
+    return ProductionRecipe(batchYield: batch, lines: [for (final r in rows) (r.stockItemId, r.quantity)]);
+  }
+
+  /// Makes [madeItemId] something made here: one batch of [lines] makes
+  /// [batchYield] base units. A null [batchYield] stops it being made here.
+  Future<void> saveProductionRecipe(
+    String madeItemId, {
+    required int? batchYield,
+    required List<(String, int)> lines,
+    required Staff by,
+  }) async {
+    if (batchYield != null && batchYield <= 0) throw const StockException('Enter how much one batch makes.');
+    if (lines.any((l) => l.$1 == madeItemId)) throw const StockException('An item cannot be made from itself.');
+    if (lines.any((l) => l.$2 <= 0)) throw const StockException('Each ingredient needs an amount.');
+    return _db.transaction(() async {
+      final now = DateTime.now();
+      final item = await (_db.select(_db.stockItems)..where((s) => s.id.equals(madeItemId))).getSingle();
+      await _db.updateTracked(_db.stockItems, item.copyWith(batchYield: Value(batchYield), updatedAt: now));
+      final old = await (_db.select(_db.recipeItems)..where((r) => r.madeItemId.equals(madeItemId) & r.deletedAt.isNull())).get();
+      for (final r in old) {
+        await _db.softDeleteTracked(_db.recipeItems, r.id);
+      }
+      if (batchYield != null) {
+        for (final (stockItemId, quantity) in lines) {
+          await _db.insertTracked(
+            _db.recipeItems,
+            RecipeItemsCompanion.insert(
+              id: newId(),
+              createdAt: now,
+              updatedAt: now,
+              deviceId: _device.deviceId,
+              stockItemId: stockItemId,
+              quantity: quantity,
+              madeItemId: Value(madeItemId),
+            ),
+          );
+        }
+      }
+      await _audit.record(
+        action: AuditAction.stockItemSaved,
+        actor: by,
+        entity: 'stock_items',
+        entityId: madeItemId,
+        summary: batchYield == null
+            ? '${item.name} is no longer made here'
+            : '${item.name}: one batch makes ${formatQuantity(batchYield, item.unit)} from ${lines.length} ingredients',
+      );
+    });
+  }
+
+  /// A production run: [amount] base units of [madeItemId] made. The
+  /// ingredients come off stock in proportion to the batch recipe, and the
+  /// made item goes up at what they cost. Returns that cost (pesewas).
+  Future<int> produce(String madeItemId, int amount, {String? note, required Staff by}) async {
+    if (amount <= 0) throw const StockException('Enter how much was made.');
+    final recipe = await productionRecipe(madeItemId);
+    if (recipe == null || recipe.lines.isEmpty) throw const StockException('Set what it is made from first.');
+    return _db.transaction(() async {
+      final now = DateTime.now();
+      final made = await (_db.select(_db.stockItems)..where((s) => s.id.equals(madeItemId))).getSingle();
+      final runId = newId();
+      var costMilliTotal = 0;
+      for (final (itemId, perBatch) in recipe.lines) {
+        final ingredient = await (_db.select(_db.stockItems)..where((s) => s.id.equals(itemId))).getSingle();
+        final take = (perBatch * amount + recipe.batchYield ~/ 2) ~/ recipe.batchYield;
+        if (take <= 0) continue;
+        costMilliTotal += take * ingredient.costMilli;
+        await record(
+          stockItemId: itemId,
+          quantityChange: -take,
+          reason: StockReason.production,
+          unitCostMilli: ingredient.costMilli,
+          refId: runId,
+          note: 'For ${formatQuantity(amount, made.unit)} ${made.name}',
+          byName: by.name,
+          at: now,
+        );
+      }
+      final unitCost = (costMilliTotal + amount ~/ 2) ~/ amount;
+      final before = await onHand(madeItemId);
+      await record(
+        stockItemId: madeItemId,
+        quantityChange: amount,
+        reason: StockReason.production,
+        unitCostMilli: unitCost,
+        refId: runId,
+        note: note?.trim().isEmpty ?? true ? null : note!.trim(),
+        byName: by.name,
+        at: now,
+      );
+      final average = Inventory.averageCost(onHand: before, oldCostMilli: made.costMilli, qty: amount, newCostMilli: unitCost);
+      if (average != made.costMilli) {
+        await _db.updateTracked(_db.stockItems, made.copyWith(costMilli: average, updatedAt: now));
+      }
+      final cost = (costMilliTotal + 500) ~/ 1000;
+      await _audit.record(
+        action: AuditAction.stockProduced,
+        actor: by,
+        entity: 'stock_items',
+        entityId: madeItemId,
+        summary: 'Made ${formatQuantity(amount, made.unit)} ${made.name} (${formatMoney(cost)} of ingredients)',
+        details: {'amount': amount, 'cost': cost},
+      );
+      return cost;
     });
   }
 }

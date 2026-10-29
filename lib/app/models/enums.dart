@@ -25,7 +25,12 @@ enum PaymentMethod {
 
 /// Why stock moved. `restock` is a delivery received; `count` is the
 /// correction a stock count posts.
-enum StockReason { sale, restock, waste, adjustment, count, returned }
+/// `production` is stock made here (or the ingredients it used).
+enum StockReason { sale, restock, waste, adjustment, count, returned, production }
+
+/// A purchase order: sent and waiting, partly delivered, all delivered, or
+/// called off.
+enum PurchaseOrderStatus { open, partial, received, cancelled }
 
 /// Base units for stock items. Quantities are whole numbers of these.
 enum StockUnit { piece, g, ml }

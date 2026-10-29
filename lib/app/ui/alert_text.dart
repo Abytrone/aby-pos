@@ -5,6 +5,7 @@ import 'l10n.dart';
 /// One line for an alert, on the dashboard and in notifications.
 String alertText(AppLocalizations l, Alert a) => switch (a.kind) {
       AlertKind.lowStock => l.alertLowStock(a.count, a.names.join(', ')),
+      AlertKind.expiring => l.alertExpiring(a.count, a.names.join(', ')),
       AlertKind.creditOverdue => l.alertCredit(a.count, formatMoney(a.amount)),
       AlertKind.backup => l.alertBackup,
       AlertKind.dayNotClosed => l.alertDayOpen(a.count),

@@ -8,6 +8,7 @@ import '../../../models/drafts.dart';
 import '../../../models/enums.dart';
 import '../../../models/stock.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
 import '../../../ui/l10n.dart';
 
@@ -22,6 +23,13 @@ class StockItemController extends GetxController {
   final item = Rxn<StockItem>();
   final movements = <StockMovement>[].obs;
   final usedBy = <String>[].obs;
+
+  /// Made here: its batch recipe; every stock item, to pick ingredients.
+  final production = Rxn<ProductionRecipe>();
+  final allItems = <StockItem>[].obs;
+
+  /// Batches with what is left (items that track expiry).
+  final batches = <BatchLeft>[].obs;
 
   /// Base units used by sales and waste in the last 28 days.
   final used28 = 0.obs;
@@ -41,6 +49,48 @@ class StockItemController extends GetxController {
     movements.assignAll(await _stock.movements(itemId));
     usedBy.assignAll(await _stock.usedBy(itemId));
     used28.value = (await _stock.usedSince(DateTime.now().subtract(const Duration(days: 28))))[itemId] ?? 0;
+    production.value = await _stock.productionRecipe(itemId);
+    allItems.assignAll(await _stock.items());
+    batches.assignAll(await _stock.batches(stockItemId: itemId));
+  }
+
+  String nameOf(String stockItemId) => allItems.where((i) => i.id == stockItemId).firstOrNull?.name ?? '?';
+  StockUnit unitOf(String stockItemId) => allItems.where((i) => i.id == stockItemId).firstOrNull?.unit ?? StockUnit.piece;
+
+  /// One batch of [lines] makes [batchYield]; null stops it being made here.
+  Future<bool> saveProduction(int? batchYield, List<(String, int)> lines) async {
+    final auth = await _permissions.authorize(Permission.editProducts, reason: appL10n().stockEditReason);
+    if (auth == null) return false;
+    try {
+      await _stock.saveProductionRecipe(itemId, batchYield: batchYield, lines: lines, by: auth.authority);
+      message.value = appL10n().settingsSaved;
+      await load();
+      return true;
+    } on StockException catch (e) {
+      message.value = e.message;
+      return false;
+    }
+  }
+
+  /// A production run of [amount] typed in [unit].
+  Future<bool> produce(String amount, DisplayUnit unit, {String? note}) async {
+    final l = appL10n();
+    final qty = parseQuantity(amount, unit);
+    if (qty == null || qty <= 0) {
+      message.value = l.stockQuantityInvalid;
+      return false;
+    }
+    final auth = await _permissions.authorize(Permission.adjustStock, reason: l.produceReason(item.value!.name));
+    if (auth == null) return false;
+    try {
+      final cost = await _stock.produce(itemId, qty, note: note, by: auth.authority);
+      message.value = l.produceDone(formatQuantity(qty, item.value!.unit), formatMoney(cost));
+      await load();
+      return true;
+    } on StockException catch (e) {
+      message.value = e.message;
+      return false;
+    }
   }
 
   /// [amount] typed in [unit]; [add] true for "found more", false for "less".
@@ -117,6 +167,7 @@ class StockItemController extends GetxController {
       reorderPoint: s,
       reorderQty: i.reorderQty ?? (used28.value / 4).ceil(),
       supplierId: i.supplierId,
+      tracksExpiry: i.tracksExpiry,
     ));
   }
 

@@ -18,6 +18,7 @@ import '../data/repositories/outbox_repository.dart';
 import '../data/repositories/parked_order_repository.dart';
 import '../data/repositories/pay_method_repository.dart';
 import '../data/repositories/promotion_repository.dart';
+import '../data/repositories/purchase_order_repository.dart';
 import '../data/repositories/receipt_repository.dart';
 import '../data/repositories/role_repository.dart';
 import '../data/repositories/sale_repository.dart';
@@ -68,7 +69,8 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => CatalogueRules(Get.find()), fenix: true);
     Get.lazyPut(() => StockRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => SupplierRepository(db, device, audit), fenix: true);
-    Get.lazyPut(() => ReceivingRepository(db, device, audit, Get.find(), Get.find()), fenix: true);
+    Get.lazyPut(() => PurchaseOrderRepository(db, device, audit, Get.find()), fenix: true);
+    Get.lazyPut(() => ReceivingRepository(db, device, audit, Get.find(), Get.find(), Get.find<PurchaseOrderRepository>()), fenix: true);
     Get.lazyPut(() => StockCountRepository(db, device, audit, Get.find()), fenix: true);
     Get.lazyPut(() => CatalogueIo(Get.find(), Get.find(), audit), fenix: true);
     Get.lazyPut(() => CashEventRepository(db, device, audit), fenix: true);

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../core/permissions.dart';
 import '../../../core/units.dart';
+import '../../../data/repositories/purchase_order_repository.dart';
 import '../../../data/repositories/receiving_repository.dart';
 import '../../../data/repositories/stock_repository.dart';
 import '../../../data/repositories/supplier_repository.dart';
@@ -23,12 +24,17 @@ class ReceiveLineForm {
   DisplayUnit? unit;
   final TextEditingController quantity;
 
+  /// For items that track expiry.
+  final batchNo = TextEditingController();
+  DateTime? expiresOn;
+
   /// What the line cost in all (GH₵), as on the supplier's invoice.
   final TextEditingController total;
 
   void dispose() {
     quantity.dispose();
     total.dispose();
+    batchNo.dispose();
   }
 }
 
@@ -73,11 +79,37 @@ class ReceiveController extends GetxController {
     super.onClose();
   }
 
+  /// Received against this purchase order (the route argument), if any.
+  final String? purchaseOrderId = Get.arguments as String?;
+  PurchaseOrder? order;
+
   Future<void> _load() async {
     items = (await _stock.items()).toList();
     suppliers = await _suppliers.list();
-    lines.add(ReceiveLineForm());
+    final id = purchaseOrderId;
+    order = id == null ? null : await Get.find<PurchaseOrderRepository>().find(id);
+    final o = order;
+    if (o != null) {
+      // What is still to come, at the cost expected.
+      supplierId = o.supplierId;
+      for (final ol in o.lines.where((x) => x.outstanding > 0)) {
+        final unit = DisplayUnit.bulk(ol.unit);
+        lines.add(ReceiveLineForm(
+          stockItemId: ol.stockItemId,
+          unit: unit,
+          quantity: quantityIn(ol.outstanding, unit),
+          total: _plain((ol.outstanding * ol.unitCostMilli + 500) ~/ 1000),
+        ));
+      }
+    }
+    if (lines.isEmpty) lines.add(ReceiveLineForm());
     loading = false;
+    if (o != null) paidNow.text = _plain(total);
+    update();
+  }
+
+  void setExpiry(ReceiveLineForm line, DateTime? day) {
+    line.expiresOn = day;
     update();
   }
 
@@ -172,7 +204,13 @@ class ReceiveController extends GetxController {
         update();
         return false;
       }
-      drafts.add(ReceiptLineDraft(stockItemId: line.stockItemId!, quantity: q, lineTotal: t));
+      drafts.add(ReceiptLineDraft(
+        stockItemId: line.stockItemId!,
+        quantity: q,
+        lineTotal: t,
+        batchNo: line.batchNo.text.trim().isEmpty ? null : line.batchNo.text.trim(),
+        expiresOn: line.expiresOn,
+      ));
     }
     final paid = paidNow.text.trim().isEmpty ? 0 : parseMoney(paidNow.text);
     if (paid == null) {
@@ -193,6 +231,7 @@ class ReceiveController extends GetxController {
           lines: drafts,
           paidNow: paid,
           paidWith: paidWith,
+          purchaseOrderId: purchaseOrderId,
         ),
         by: auth.authority,
       );

@@ -1,14 +1,19 @@
 import 'package:get/get.dart';
 
 import '../../../core/permissions.dart';
+import '../../../core/settings.dart';
+import '../../../data/repositories/purchase_order_repository.dart';
 import '../../../data/repositories/receiving_repository.dart';
 import '../../../data/repositories/stock_count_repository.dart';
 import '../../../data/repositories/stock_repository.dart';
 import '../../../data/repositories/supplier_repository.dart';
+import '../../../domain/purchase_order_pdf.dart';
 import '../../../models/purchasing.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/permission_service.dart';
+import '../../../services/settings_service.dart';
+import '../../../ui/files.dart';
 import '../../../ui/l10n.dart';
 
 /// The Stock section's other tabs: deliveries, counts and suppliers.
@@ -16,6 +21,7 @@ class PurchasingController extends GetxController {
   final ReceivingRepository _receiving = Get.find();
   final StockCountRepository _counts = Get.find();
   final SupplierRepository _suppliers = Get.find();
+  final PurchaseOrderRepository _orders = Get.find();
   final AuthService _auth = Get.find();
   final PermissionService _permissions = Get.find();
 
@@ -23,6 +29,7 @@ class PurchasingController extends GetxController {
   final counts = <StockCount>[].obs;
   final openCount = Rxn<StockCount>();
   final suppliers = <Supplier>[].obs;
+  final orders = <PurchaseOrder>[].obs;
   final message = RxnString();
 
   bool get canReceive => _auth.can(Permission.receiveStock);
@@ -39,6 +46,52 @@ class PurchasingController extends GetxController {
     counts.assignAll(await _counts.list());
     openCount.value = await _counts.open();
     suppliers.assignAll(await _suppliers.list(includeInactive: true));
+    orders.assignAll(await _orders.list());
+  }
+
+  // Purchase orders (INV-03)
+
+  Future<List<(String, int)>> suggestionsFor(String supplierId) => _orders.suggestions(supplierId);
+
+  /// Returns the new order, or null when refused or invalid ([message]).
+  Future<PurchaseOrder?> createOrder(PurchaseOrderDraft d) async {
+    final auth = await _permissions.authorize(Permission.receiveStock, reason: appL10n().poReason);
+    if (auth == null) return null;
+    try {
+      final o = await _orders.create(d, by: auth.authority);
+      await load();
+      return o;
+    } on StockException catch (e) {
+      message.value = e.message;
+      return null;
+    }
+  }
+
+  Future<void> cancelOrder(PurchaseOrder o) async {
+    final auth = await _permissions.authorize(Permission.receiveStock, reason: appL10n().poReason);
+    if (auth == null) return;
+    try {
+      await _orders.cancel(o.id, by: auth.authority);
+    } on StockException catch (e) {
+      message.value = e.message;
+    }
+    await load();
+  }
+
+  Future<void> receiveOrder(PurchaseOrder o) async {
+    await Get.toNamed<void>(Routes.receive, arguments: o.id);
+    await load();
+  }
+
+  Future<void> shareOrder(PurchaseOrder o) async {
+    final s = Get.find<SettingsService>();
+    final bytes = await PurchaseOrderPdf.build(
+      o,
+      shopName: s.get(AppSettings.shopName),
+      shopPhone: s.get(AppSettings.shopPhone),
+      shopAddress: s.get(AppSettings.shopAddress),
+    );
+    await shareOrSaveBytes('${o.displayNumber}.pdf', bytes, text: appL10n().poShareText(o.displayNumber));
   }
 
   /// Pesewas owed to all suppliers.

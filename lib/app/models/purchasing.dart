@@ -76,7 +76,13 @@ class SupplierDraft {
 
 /// One line of a delivery being entered.
 class ReceiptLineDraft {
-  const ReceiptLineDraft({required this.stockItemId, required this.quantity, required this.lineTotal});
+  const ReceiptLineDraft({
+    required this.stockItemId,
+    required this.quantity,
+    required this.lineTotal,
+    this.batchNo,
+    this.expiresOn,
+  });
 
   final String stockItemId;
 
@@ -85,6 +91,10 @@ class ReceiptLineDraft {
 
   /// Pesewas paid for the whole line.
   final int lineTotal;
+
+  /// For items that track expiry (INV-07).
+  final String? batchNo;
+  final DateTime? expiresOn;
 }
 
 class ReceiptDraft {
@@ -95,8 +105,11 @@ class ReceiptDraft {
     required this.lines,
     this.paidNow = 0,
     this.paidWith,
+    this.purchaseOrderId,
   });
 
+  /// Received against this purchase order (INV-03).
+  final String? purchaseOrderId;
   final String? supplierId;
   final String? invoiceRef;
   final String? note;
@@ -183,4 +196,81 @@ class StockCountLine {
   final String? countedByName;
 
   int? get difference => counted == null || expected == null ? null : counted! - expected!;
+}
+
+String formatPurchaseOrderNumber(int number) => 'PO-${number.toString().padLeft(4, '0')}';
+
+/// One item on a purchase order.
+class PurchaseOrderLine {
+  const PurchaseOrderLine({
+    required this.stockItemId,
+    required this.name,
+    required this.unit,
+    required this.quantity,
+    this.received = 0,
+    this.unitCostMilli = 0,
+  });
+
+  final String stockItemId;
+  final String name;
+  final StockUnit unit;
+
+  /// Base units ordered, and received so far.
+  final int quantity;
+  final int received;
+
+  /// Thousandths of a pesewa per base unit, expected.
+  final int unitCostMilli;
+
+  int get outstanding => quantity > received ? quantity - received : 0;
+
+  /// Pesewas expected for the whole line.
+  int get estimate => (quantity * unitCostMilli + 500) ~/ 1000;
+}
+
+/// An order to a supplier (INV-03).
+class PurchaseOrder {
+  const PurchaseOrder({
+    required this.id,
+    required this.number,
+    required this.supplierId,
+    required this.supplierName,
+    required this.status,
+    required this.at,
+    required this.byName,
+    required this.lines,
+    this.expectedOn,
+    this.note,
+    this.supplierPhone,
+  });
+
+  final String id;
+  final int number;
+  final String supplierId;
+  final String supplierName;
+  final String? supplierPhone;
+  final PurchaseOrderStatus status;
+  final DateTime at;
+  final String byName;
+  final DateTime? expectedOn;
+  final String? note;
+  final List<PurchaseOrderLine> lines;
+
+  String get displayNumber => formatPurchaseOrderNumber(number);
+
+  /// Pesewas expected.
+  int get estimate => lines.fold(0, (s, l) => s + l.estimate);
+
+  bool get isOpen => status == PurchaseOrderStatus.open || status == PurchaseOrderStatus.partial;
+}
+
+class PurchaseOrderDraft {
+  const PurchaseOrderDraft({required this.supplierId, required this.lines, this.expectedOn, this.note});
+
+  final String supplierId;
+
+  /// (stock item ID, base units).
+  final List<(String, int)> lines;
+  final DateTime? expectedOn;
+  final String? note;
 }

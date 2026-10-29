@@ -32,6 +32,8 @@ enum AuditAction {
   stockReceived,
   stockAdjusted,
   stockWasted,
+  stockProduced,
+  purchaseOrderSaved,
   stockCountPosted,
   supplierSaved,
   supplierPaid,
