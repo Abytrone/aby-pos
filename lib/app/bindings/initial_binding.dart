@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../data/database/app_database.dart';
 import '../data/repositories/audit_repository.dart';
+import '../data/repositories/branch_repository.dart';
 import '../data/repositories/cash_event_repository.dart';
 import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/customer_repository.dart';
@@ -30,6 +31,7 @@ import '../data/repositories/refund_repository.dart';
 import '../data/repositories/stock_count_repository.dart';
 import '../data/repositories/stock_repository.dart';
 import '../data/repositories/supplier_repository.dart';
+import '../data/repositories/transfer_repository.dart';
 import '../data/repositories/time_repository.dart';
 import '../data/repositories/voucher_repository.dart';
 import '../domain/catalogue_io.dart';
@@ -38,6 +40,8 @@ import '../modules/till/controllers/cart_controller.dart';
 import '../services/alert_service.dart';
 import '../services/auth_service.dart';
 import '../services/backup/backup_service.dart';
+import '../services/backup/branch_merge.dart';
+import '../services/branch_service.dart';
 import '../services/clock_service.dart';
 import '../services/device_service.dart';
 import '../services/insight_service.dart';
@@ -73,6 +77,9 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => CatalogRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => CatalogueRules(Get.find()), fenix: true);
     Get.lazyPut(() => StockRepository(db, device, audit), fenix: true);
+    final branchRepo = Get.put(BranchRepository(db, device, audit), permanent: true);
+    Get.put(BranchService(branchRepo), permanent: true);
+    Get.lazyPut(() => TransferRepository(db, device, audit, Get.find()), fenix: true);
     Get.lazyPut(() => SupplierRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => PurchaseOrderRepository(db, device, audit, Get.find()), fenix: true);
     Get.lazyPut(() => ReceivingRepository(db, device, audit, Get.find(), Get.find(), Get.find<PurchaseOrderRepository>()), fenix: true);
@@ -85,7 +92,11 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => MomoRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => ExpenseRepository(db, device, audit, Get.find<CashEventRepository>()), fenix: true);
     Get.lazyPut(() => ProfitRepository(db, Get.find<ExpenseRepository>()), fenix: true);
-    Get.lazyPut(() => ReportRepository(db, Get.find<StockRepository>(), Get.find<CustomerRepository>()), fenix: true);
+    Get.lazyPut(
+      () => ReportRepository(db, Get.find<StockRepository>(), Get.find<CustomerRepository>(),
+          branch: () => Get.isRegistered<BranchService>() ? Get.find<BranchService>().viewing.value : null),
+      fenix: true,
+    );
     Get.lazyPut(() => DayCloseRepository(
           db,
           device,
@@ -131,6 +142,7 @@ class InitialBinding extends Bindings {
     Get.put(HubService(db, device, sync: sync), permanent: true);
     Get.put(TrainingService(db), permanent: true);
     final backups = Get.put(BackupService(db, audit, settings), permanent: true);
+    Get.lazyPut(() => BranchMerge(db, audit, backups), fenix: true);
     Get.put(PriceScheduler(Get.find()), permanent: true);
     Get.put(PrintService(settings, ReceiptRepository(db), device), permanent: true);
     Get.put(StatusService(backups, audit, settings, sync), permanent: true);

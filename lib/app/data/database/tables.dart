@@ -829,6 +829,9 @@ class StaffMembers extends Table with SyncColumns {
   /// v15.
   IntColumn get workStart => integer().nullable()();
   IntColumn get workEnd => integer().nullable()();
+
+  /// The branch they work at; null for every branch (MDV-02). v17.
+  TextColumn get branchId => text().nullable()();
 }
 
 /// Staff photos, small and kept apart from staff rows so they stay out of
@@ -1105,4 +1108,49 @@ class HubDevices extends Table {
 
   @override
   Set<Column<Object>> get primaryKey => {deviceId};
+}
+
+/// A shop location (MDV-02). Every shop has the main branch ([mainBranchId]);
+/// a branch is the devices placed in it, so sales and stock movements belong
+/// to the branch of the device that made them. v17.
+@DataClassName('BranchRow')
+class Branches extends Table with SyncColumns {
+  TextColumn get name => text()();
+  TextColumn get address => text().nullable()();
+  TextColumn get phone => text().nullable()();
+  BoolColumn get active => boolean().withDefault(const Constant(true))();
+}
+
+/// Which branch a device is in; the ID is the device's. A device not listed
+/// is in the main branch. v17.
+@DataClassName('DeviceBranchRow')
+class DeviceBranches extends Table with SyncColumns {
+  TextColumn get branchId => text()();
+  TextColumn get deviceName => text().nullable()();
+}
+
+/// Stock sent from one branch to another (INV-10): in transit until the
+/// other branch receives it. v17.
+@DataClassName('StockTransferRow')
+class StockTransfers extends Table with SyncColumns {
+  TextColumn get fromBranch => text()();
+  TextColumn get toBranch => text()();
+  TextColumn get status => textEnum<TransferStatus>()();
+  TextColumn get sentBy => text()();
+  TextColumn get note => text().nullable()();
+  DateTimeColumn get receivedAt => dateTime().nullable()();
+  TextColumn get receivedBy => text().nullable()();
+}
+
+@DataClassName('StockTransferLineRow')
+class StockTransferLines extends Table with SyncColumns {
+  TextColumn get transferId => text().references(StockTransfers, #id)();
+  TextColumn get stockItemId => text().references(StockItems, #id)();
+  IntColumn get quantitySent => integer()();
+
+  /// Set when received; a difference from [quantitySent] is flagged.
+  IntColumn get quantityReceived => integer().nullable()();
+
+  /// Thousandths of a pesewa per base unit, when sent.
+  IntColumn get unitCostMilli => integer().withDefault(const Constant(0))();
 }

@@ -105,6 +105,9 @@ const builtInPayMethods = [
   ('voucher', 'Gift voucher', PaymentMethod.voucher, false, true),
 ];
 
+/// Every shop has this branch; devices not placed elsewhere are in it.
+const mainBranchId = 'main';
+
 @DriftDatabase(tables: [
   Categories,
   Products,
@@ -166,6 +169,10 @@ const builtInPayMethods = [
   Settings,
   Outbox,
   Meta,
+  Branches,
+  DeviceBranches,
+  StockTransfers,
+  StockTransferLines,
 ])
 class AppDatabase extends _$AppDatabase {
   /// Opens the on-device database. Pass [executor] in tests
@@ -183,7 +190,7 @@ class AppDatabase extends _$AppDatabase {
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -516,10 +523,18 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(schema.hubChanges);
             await m.createTable(schema.hubDevices);
           },
+          // v17: branches, devices in branches, staff per branch, transfers.
+          from16To17: (m, schema) async {
+            for (final table in [schema.branches, schema.deviceBranches, schema.stockTransfers, schema.stockTransferLines]) {
+              await m.createTable(table);
+            }
+            await m.addColumn(schema.staff, schema.staff.branchId);
+          },
         ),
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
           final deviceId = await _ensureDeviceId();
+          if (details.versionNow >= 17) await _ensureMainBranch(deviceId);
           if (details.wasCreated) {
             await _insertBuiltInRoles(deviceId);
             await _insertDefaultReasons(deviceId);
@@ -582,6 +597,14 @@ class AppDatabase extends _$AppDatabase {
       await customStatement('UPDATE sales SET customer_id = ? WHERE id = ?', [id, r.read<String>('sale')]);
     }
   }
+
+  /// The main branch, the same on every device. Dated 1970 so that a rename
+  /// anywhere wins over it.
+  Future<void> _ensureMainBranch(String deviceId) => customStatement(
+        'INSERT OR IGNORE INTO branches (id, created_at, updated_at, device_id, name, active) '
+        "VALUES ('$mainBranchId', 0, 0, ?, 'Main branch', 1)",
+        [deviceId],
+      );
 
   Future<String> _ensureDeviceId() async {
     final existing = await readMeta(MetaKeys.deviceId);

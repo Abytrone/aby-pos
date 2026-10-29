@@ -68,7 +68,13 @@ enum AuditAction {
   expenseAdded,
   expenseCategorySaved,
   ownerDrawing,
-  ownerCapital;
+  ownerCapital,
+  branchSaved,
+  deviceBranchChanged,
+  stockTransferSent,
+  stockTransferReceived,
+  stockTransferCancelled,
+  branchDataMerged;
 
   /// Actions an owner should notice first.
   bool get isSensitive => const {

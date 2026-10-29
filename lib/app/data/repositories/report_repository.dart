@@ -1,47 +1,65 @@
 import 'package:drift/drift.dart';
 
 import '../../core/period.dart';
+import '../../core/units.dart';
 import '../../models/customer.dart';
 import '../../models/enums.dart';
 import '../../models/report.dart';
+import '../branch_scope.dart';
 import '../database/app_database.dart';
 import 'customer_repository.dart';
 import 'stock_repository.dart';
 
-/// The reports, worked out offline from this device's database.
+/// The reports, worked out offline from this device's database: for one
+/// branch, or every branch together (MDV-02).
 class ReportRepository {
-  ReportRepository(this._db, this._stock, this._customers);
+  ReportRepository(this._db, this._stock, this._customers, {String? Function()? branch}) : _branch = branch ?? (() => null);
 
   final AppDatabase _db;
   final StockRepository _stock;
   final CustomerRepository _customers;
 
-  List<Variable<Object>> _range(DateRange r) => [Variable.withDateTime(r.from), Variable.withDateTime(r.to)];
+  /// The branch being looked at; null for every branch.
+  final String? Function() _branch;
 
-  static const _completed = "s.status = 'completed' AND s.deleted_at IS NULL AND s.created_at >= ? AND s.created_at < ?";
+  Future<BranchFilter> _scope() async {
+    final b = _branch();
+    return b == null ? BranchFilter.all : _db.branchFilter(b);
+  }
+
+  /// The period, then the branch: every query puts its branch condition
+  /// right after the period.
+  List<Variable<Object>> _range(DateRange r, BranchFilter f) =>
+      [Variable.withDateTime(r.from), Variable.withDateTime(r.to), ...f.variables];
+
+  static String _completed(BranchFilter f) =>
+      "s.status = 'completed' AND s.deleted_at IS NULL AND s.created_at >= ? AND s.created_at < ? AND ${f.sql('s.device_id')}";
 
   Future<SalesSummary> sales(DateRange r) async {
+    final f = await _scope();
     final totals = await _db.customSelect(
       'SELECT COALESCE(SUM(s.total + s.discount_total), 0) AS gross, COALESCE(SUM(s.discount_total), 0) AS discounts, '
-      'COALESCE(SUM(s.tax_total), 0) AS tax, COUNT(*) AS n FROM sales s WHERE $_completed',
-      variables: _range(r),
+      'COALESCE(SUM(s.tax_total), 0) AS tax, COUNT(*) AS n FROM sales s WHERE ${_completed(f)}',
+      variables: _range(r, f),
       readsFrom: {_db.sales},
     ).getSingle();
     final items = await _db.customSelect(
       "SELECT COALESCE(SUM(CASE WHEN l.sell_by = 'each' THEN l.quantity ELSE 1 END), 0) AS n, "
       'COALESCE(SUM(l.promotion), 0) AS promo '
-      'FROM sale_lines l JOIN sales s ON s.id = l.sale_id WHERE l.deleted_at IS NULL AND $_completed',
-      variables: _range(r),
+      'FROM sale_lines l JOIN sales s ON s.id = l.sale_id WHERE l.deleted_at IS NULL AND ${_completed(f)}',
+      variables: _range(r, f),
       readsFrom: {_db.sales, _db.saleLines},
     ).getSingle();
     final voided = await _db.customSelect(
-      "SELECT COUNT(*) AS n FROM sales WHERE status = 'voided' AND deleted_at IS NULL AND created_at >= ? AND created_at < ?",
-      variables: _range(r),
+      "SELECT COUNT(*) AS n FROM sales WHERE status = 'voided' AND deleted_at IS NULL AND created_at >= ? AND created_at < ? "
+      'AND ${f.sql('device_id')}',
+      variables: _range(r, f),
       readsFrom: {_db.sales},
     ).getSingle();
     final refunds = await _db.customSelect(
-      'SELECT COALESCE(SUM(total), 0) AS v FROM refunds WHERE deleted_at IS NULL AND created_at >= ? AND created_at < ?',
-      variables: _range(r),
+      'SELECT COALESCE(SUM(total), 0) AS v FROM refunds WHERE deleted_at IS NULL AND created_at >= ? AND created_at < ? '
+      'AND ${f.sql('device_id')}',
+      variables: _range(r, f),
       readsFrom: {_db.refunds},
     ).getSingle();
     return SalesSummary(
@@ -53,15 +71,15 @@ class ReportRepository {
       items: items.read<int>('n'),
       voided: voided.read<int>('n'),
       refunds: refunds.read<int>('v'),
-      series: await _series(r),
+      series: await _series(r, f),
     );
   }
 
   /// Net sales per day, or per week (over 62 days) or month (over a year).
-  Future<List<(DateTime, int)>> _series(DateRange r) async {
+  Future<List<(DateTime, int)>> _series(DateRange r, BranchFilter f) async {
     final rows = await _db.customSelect(
-      'SELECT s.created_at AS at, s.total AS total FROM sales s WHERE $_completed',
-      variables: _range(r),
+      'SELECT s.created_at AS at, s.total AS total FROM sales s WHERE ${_completed(f)}',
+      variables: _range(r, f),
       readsFrom: {_db.sales},
     ).get();
     DateTime bucket(DateTime d) {
@@ -92,10 +110,11 @@ class ReportRepository {
 
   /// Net sales by day of week (1 = Monday) and hour: [weekday-1][hour].
   Future<List<List<int>>> byHour(DateRange r) async {
+    final f = await _scope();
     final grid = List.generate(7, (_) => List.filled(24, 0));
     final rows = await _db.customSelect(
-      'SELECT s.created_at AS at, s.total AS total FROM sales s WHERE $_completed',
-      variables: _range(r),
+      'SELECT s.created_at AS at, s.total AS total FROM sales s WHERE ${_completed(f)}',
+      variables: _range(r, f),
       readsFrom: {_db.sales},
     ).get();
     for (final row in rows) {
@@ -107,14 +126,15 @@ class ReportRepository {
 
   /// Per product, biggest revenue first, graded A / B / C.
   Future<List<ProductFigures>> products(DateRange r) async {
+    final f = await _scope();
     final rows = await _db.customSelect(
       "SELECT l.product_id AS id, MAX(l.product_name) AS name, COALESCE(MAX(c.name), '') AS category, "
       "SUM(CASE WHEN l.sell_by = 'each' THEN l.quantity ELSE 1 END) AS qty, "
       'SUM(l.line_total - l.discount - l.order_discount_share) AS revenue, SUM(l.cost_total) AS cost '
       'FROM sale_lines l JOIN sales s ON s.id = l.sale_id LEFT JOIN products p ON p.id = l.product_id '
       'LEFT JOIN categories c ON c.id = p.category_id '
-      'WHERE l.deleted_at IS NULL AND $_completed GROUP BY l.product_id ORDER BY revenue DESC',
-      variables: _range(r),
+      'WHERE l.deleted_at IS NULL AND ${_completed(f)} GROUP BY l.product_id ORDER BY revenue DESC',
+      variables: _range(r, f),
       readsFrom: {_db.sales, _db.saleLines, _db.products, _db.categories},
     ).get();
     final list = [
@@ -148,8 +168,10 @@ class ReportRepository {
 
   /// Options picked (name → count) over the period.
   Future<Map<String, int>> options(DateRange r) async {
+    final f = await _scope();
     final rows = await (_db.select(_db.saleLines).join([innerJoin(_db.sales, _db.sales.id.equalsExp(_db.saleLines.saleId))])
           ..where(_db.sales.status.equalsValue(SaleStatus.completed) &
+              f.on(_db.sales.deviceId) &
               _db.sales.createdAt.isBiggerOrEqualValue(r.from) &
               _db.sales.createdAt.isSmallerThanValue(r.to) &
               _db.saleLines.deletedAt.isNull()))
@@ -187,15 +209,16 @@ class ReportRepository {
 
   /// Takings per payment method name (pesewas), and the cash rounding.
   Future<(Map<String, int>, int)> payments(DateRange r) async {
+    final f = await _scope();
     final rows = await _db.customSelect(
       'SELECT COALESCE(p.method_name, p.method) AS name, SUM(p.amount) AS v FROM payments p JOIN sales s ON s.id = p.sale_id '
-      "WHERE p.deleted_at IS NULL AND p.method <> 'exchange' AND $_completed GROUP BY name ORDER BY v DESC",
-      variables: _range(r),
+      "WHERE p.deleted_at IS NULL AND p.method <> 'exchange' AND ${_completed(f)} GROUP BY name ORDER BY v DESC",
+      variables: _range(r, f),
       readsFrom: {_db.payments, _db.sales},
     ).get();
     final rounding = await _db.customSelect(
-      'SELECT COALESCE(SUM(s.rounding), 0) AS v FROM sales s WHERE $_completed',
-      variables: _range(r),
+      'SELECT COALESCE(SUM(s.rounding), 0) AS v FROM sales s WHERE ${_completed(f)}',
+      variables: _range(r, f),
       readsFrom: {_db.sales},
     ).getSingle();
     return ({for (final row in rows) row.read<String>('name'): row.read<int>('v')}, rounding.read<int>('v'));
@@ -204,36 +227,38 @@ class ReportRepository {
   /// Per cashier: sales, items, voids, refunds, discounts, no-sales,
   /// shorts, hours on the time clock and commission (STF-07).
   Future<List<StaffFigures>> staff(DateRange r, {CommissionConfig commission = const CommissionConfig()}) async {
-    final vars = _range(r);
+    final f = await _scope();
+    final vars = _range(r, f);
     final sales = await _db.customSelect(
       // Discounts the cashier gave: promotions apply themselves.
       'SELECT s.cashier_name AS name, COUNT(*) AS n, SUM(s.total) AS total, '
       'SUM(s.discount_total - (SELECT COALESCE(SUM(l.promotion), 0) FROM sale_lines l WHERE l.sale_id = s.id)) AS discounts '
-      'FROM sales s WHERE $_completed GROUP BY s.cashier_name',
+      'FROM sales s WHERE ${_completed(f)} GROUP BY s.cashier_name',
       variables: vars,
       readsFrom: {_db.sales, _db.saleLines},
     ).get();
     final voids = await _db.customSelect(
       "SELECT voided_by AS name, COUNT(*) AS n FROM sales WHERE status = 'voided' AND created_at >= ? AND created_at < ? "
-      'GROUP BY voided_by',
+      "AND ${f.sql('device_id')} GROUP BY voided_by",
       variables: vars,
       readsFrom: {_db.sales},
     ).get();
     final refunds = await _db.customSelect(
-      'SELECT staff_name AS name, COUNT(*) AS n FROM refunds WHERE deleted_at IS NULL AND created_at >= ? AND created_at < ? GROUP BY staff_name',
+      'SELECT staff_name AS name, COUNT(*) AS n FROM refunds WHERE deleted_at IS NULL AND created_at >= ? AND created_at < ? '
+      'AND ${f.sql('device_id')} GROUP BY staff_name',
       variables: vars,
       readsFrom: {_db.refunds},
     ).get();
     final noSales = await _db.customSelect(
       "SELECT staff_name AS name, COUNT(*) AS n FROM cash_events WHERE kind = 'noSale' AND deleted_at IS NULL "
-      'AND created_at >= ? AND created_at < ? GROUP BY staff_name',
+      'AND created_at >= ? AND created_at < ? AND ${f.sql('device_id')} GROUP BY staff_name',
       variables: vars,
       readsFrom: {_db.cashEvents},
     ).get();
     final closes = await _db.customSelect(
       'SELECT closed_by_name AS name, SUM(CASE WHEN counted_cash < expected_cash THEN 1 ELSE 0 END) AS n, '
       'SUM(CASE WHEN counted_cash < expected_cash THEN expected_cash - counted_cash ELSE 0 END) AS v FROM day_closes '
-      'WHERE deleted_at IS NULL AND closed_at >= ? AND closed_at < ? GROUP BY closed_by_name',
+      'WHERE deleted_at IS NULL AND closed_at >= ? AND closed_at < ? AND ${f.sql('device_id')} GROUP BY closed_by_name',
       variables: vars,
       readsFrom: {_db.dayCloses},
     ).get();
@@ -241,14 +266,14 @@ class ReportRepository {
       "SELECT s.cashier_name AS name, SUM(CASE WHEN l.sell_by = 'each' THEN l.quantity ELSE 1 END) AS n, "
       "SUM(CASE WHEN l.sell_by = 'each' THEN l.quantity ELSE 1 END * COALESCE(p.commission, 0)) AS c "
       'FROM sale_lines l JOIN sales s ON s.id = l.sale_id LEFT JOIN products p ON p.id = l.product_id '
-      'WHERE l.deleted_at IS NULL AND $_completed GROUP BY s.cashier_name',
+      'WHERE l.deleted_at IS NULL AND ${_completed(f)} GROUP BY s.cashier_name',
       variables: vars,
       readsFrom: {_db.sales, _db.saleLines, _db.products},
     ).get();
     // Time stored as seconds: a stretch still open counts to now.
     final hours = await _db.customSelect(
       "SELECT staff_name AS name, SUM((COALESCE(clock_out, CAST(strftime('%s', 'now') AS INTEGER)) - clock_in) / 60 - break_minutes) AS n "
-      'FROM time_entries WHERE deleted_at IS NULL AND clock_in >= ? AND clock_in < ? GROUP BY staff_name',
+      'FROM time_entries WHERE deleted_at IS NULL AND clock_in >= ? AND clock_in < ? AND ${f.sql('device_id')} GROUP BY staff_name',
       variables: vars,
       readsFrom: {_db.timeEntries},
     ).get();
@@ -283,10 +308,11 @@ class ReportRepository {
   }
 
   Future<CustomerFigures> customers(DateRange r) async {
+    final f = await _scope();
     final top = await _db.customSelect(
       'SELECT c.name AS name, SUM(s.total) AS v FROM sales s JOIN customers c ON c.id = s.customer_id '
-      'WHERE $_completed GROUP BY c.id ORDER BY v DESC LIMIT 10',
-      variables: _range(r),
+      'WHERE ${_completed(f)} GROUP BY c.id ORDER BY v DESC LIMIT 10',
+      variables: _range(r, f),
       readsFrom: {_db.sales, _db.customers},
     ).get();
     final firsts = await _db.customSelect(
@@ -318,13 +344,16 @@ class ReportRepository {
   }
 
   Future<StockTaxFigures> stockAndTax(DateRange r) async {
+    final f = await _scope();
     final items = await _stock.items(includeInactive: true);
+    final levels = await _stock.onHandAll(scope: f);
     final moves = await _db.customSelect(
       'SELECT m.reason AS reason, COALESCE(s.name, \'\') AS item, '
       'SUM(m.quantity_change * COALESCE(m.unit_cost_milli, 0)) AS v FROM stock_movements m '
       'LEFT JOIN stock_items s ON s.id = m.stock_item_id '
-      'WHERE m.deleted_at IS NULL AND m.created_at >= ? AND m.created_at < ? GROUP BY m.reason, m.stock_item_id',
-      variables: _range(r),
+      'WHERE m.deleted_at IS NULL AND m.created_at >= ? AND m.created_at < ? AND ${f.sql('m.device_id')} '
+      'GROUP BY m.reason, m.stock_item_id',
+      variables: _range(r, f),
       readsFrom: {_db.stockMovements, _db.stockItems},
     ).get();
     int pesewas(int milli) => (milli + (milli >= 0 ? 500 : -500)) ~/ 1000;
@@ -341,12 +370,16 @@ class ReportRepository {
     waste.sort((a, b) => b.$2.compareTo(a.$2));
     final taxes = await _db.customSelect(
       'SELECT t.name AS name, t.rate_bp AS bp, SUM(t.amount) AS v FROM sale_taxes t JOIN sales s ON s.id = t.sale_id '
-      'WHERE t.deleted_at IS NULL AND $_completed GROUP BY t.name, t.rate_bp ORDER BY t.name',
-      variables: _range(r),
+      'WHERE t.deleted_at IS NULL AND ${_completed(f)} GROUP BY t.name, t.rate_bp ORDER BY t.name',
+      variables: _range(r, f),
       readsFrom: {_db.saleTaxes, _db.sales},
     ).get();
     return StockTaxFigures(
-      stockValue: items.where((i) => i.active).fold(0, (s, i) => s + i.value),
+      // Stock of the branch looked at, or of every branch.
+      stockValue: items.where((i) => i.active).fold(0, (s, i) {
+        final onHand = levels[i.id] ?? 0;
+        return s + (onHand <= 0 ? 0 : costOf(onHand, i.costMilli));
+      }),
       movements: byReason,
       waste: waste,
       countDifferences: counts,

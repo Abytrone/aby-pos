@@ -7,6 +7,7 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/alert_text.dart';
 import '../../../ui/charts.dart';
 import '../../../ui/insight_text.dart';
+import '../../../ui/branch_picker.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/section_page.dart';
 import '../../reports/views/reports_view.dart' show changeText;
@@ -31,6 +32,7 @@ class DashboardView extends GetView<DashboardController> {
     return SectionPage(
       title: l.navDashboard,
       actions: [
+        BranchPicker(onChanged: controller.load),
         IconButton(tooltip: l.dashRefresh, onPressed: controller.load, icon: const Icon(Icons.refresh)),
         IconButton(tooltip: l.dashArrange, onPressed: () => Get.dialog<void>(_Arrange(ctl: controller)), icon: const Icon(Icons.tune)),
       ],

@@ -25,6 +25,8 @@ String reasonLabel(AppLocalizations l, StockMovement m) => switch (m.reason) {
       StockReason.count => l.moveCount,
       StockReason.returned => l.moveReturned,
       StockReason.production => l.moveProduction,
+      StockReason.transferOut => l.moveTransferOut,
+      StockReason.transferIn => l.moveTransferIn,
     };
 
 String wasteLabel(AppLocalizations l, WasteReason r) => switch (r) {

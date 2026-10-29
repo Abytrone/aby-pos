@@ -40,9 +40,17 @@ class StaffRepository {
     return (await query.map((r) => r.read(count)).getSingle() ?? 0) > 0;
   }
 
-  /// Owners first, then by name. Includes inactive staff when asked.
-  Future<List<Staff>> list({bool includeInactive = false}) async {
-    final rows = await _joined(includeInactive: includeInactive);
+  /// Owners first, then by name. Includes inactive staff when asked. With
+  /// [atBranch], only those who work there (or at every branch); owners
+  /// work everywhere.
+  Future<List<Staff>> list({bool includeInactive = false, String? atBranch}) async {
+    var rows = await _joined(includeInactive: includeInactive);
+    if (atBranch != null) {
+      final placed = {
+        for (final r in await (_db.select(_db.staffMembers)..where((s) => s.branchId.isNotNull())).get()) r.id: r.branchId!,
+      };
+      rows = [for (final s in rows) if (s.isOwner || (placed[s.id] ?? atBranch) == atBranch) s];
+    }
     return rows
       ..sort((a, b) {
         if (a.isOwner != b.isOwner) return a.isOwner ? -1 : 1;
@@ -210,6 +218,7 @@ class StaffRepository {
       badgeCode: row.badgeCode,
       workStart: row.workStart,
       workEnd: row.workEnd,
+      branchId: row.branchId,
     );
   }
 
@@ -259,6 +268,21 @@ class StaffRepository {
         entity: 'staff',
         entityId: staffId,
         summary: 'Removed the sign-in badge of ${row.name}',
+      );
+    });
+  }
+
+  /// Where they work; null for every branch (MDV-02).
+  Future<void> setBranch(String staffId, String? branchId, {required Staff by}) async {
+    final row = await _requireRow(staffId);
+    await _db.transaction(() async {
+      await _db.updateTracked(_db.staffMembers, row.copyWith(branchId: Value(branchId), updatedAt: DateTime.now()));
+      await _audit.record(
+        action: AuditAction.staffDetailsChanged,
+        actor: by,
+        entity: 'staff',
+        entityId: staffId,
+        summary: 'Branch of ${row.name} changed',
       );
     });
   }

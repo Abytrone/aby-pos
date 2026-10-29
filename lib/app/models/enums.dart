@@ -26,7 +26,10 @@ enum PaymentMethod {
 /// Why stock moved. `restock` is a delivery received; `count` is the
 /// correction a stock count posts.
 /// `production` is stock made here (or the ingredients it used).
-enum StockReason { sale, restock, waste, adjustment, count, returned, production }
+enum StockReason { sale, restock, waste, adjustment, count, returned, production, transferOut, transferIn }
+
+/// Stock between branches: on its way, arrived, or called back.
+enum TransferStatus { sent, received, cancelled }
 
 /// A purchase order: sent and waiting, partly delivered, all delivered, or
 /// called off.

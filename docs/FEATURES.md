@@ -1588,6 +1588,36 @@ Decisions made on the way:
   already been selling keeps its sales.
 - 7b follows: branches (`MDV-02`), transfers (`INV-10`) and the offline transfer file.
 
+**Status (29 October 2026): 7b built** (branches, transfers, the branch data file). Schema 17.
+Phase 7 is done. Built:
+
+- `MDV-02` branches: Settings → Branches. Every shop has the main branch; add more with an
+  address and phone, rename, close or reopen them. A branch is the devices placed in it: each
+  device says which branch it is at, and its sales and stock movements count for that branch
+  (devices never placed are in the main branch, so a one-branch shop sees no change). Stock is
+  counted per branch. Reports and the dashboard show all branches together or one at a time
+  (the choice appears once there is a second branch). Staff can be limited to one branch: they
+  then sign in only there; owners sign in everywhere.
+- `INV-10` transfers: Stock → Transfers (with a second branch). Send stock: it leaves this
+  branch at once and is on its way until the other branch receives it, counting what arrived;
+  differences are flagged on the transfer and in the activity log. A transfer not yet received
+  can be called back.
+- `DAT-03` moving data between branches: the branch's backup file is the transfer file. *Send
+  this branch's data* makes the encrypted backup; at the other branch *Bring in a branch data
+  file* opens it (an older file is brought up to date first) and merges it row by row, the later
+  edit winning, after a safety backup. Nothing is replaced, bringing the same file twice changes
+  nothing, and what came in is queued for that branch's hub.
+
+Decisions made on the way:
+
+- Rows are not tagged with a branch: the branch comes from the device that wrote the row, so
+  old data needs no migration and the day's operations (drawer, close day, shifts) stay per
+  device as before. Moving a device to another branch moves its history with it; the app says
+  so before it does.
+- Product prices are the same at every branch for now (per-branch prices are optional in
+  `MDV-02`), and profit and loss covers all branches.
+- Receipts still show the shop's name and address, not the branch's.
+
 ### Phase 8: Aby Cloud and integrations
 
 - `INT-01` cloud sync and owner portal.

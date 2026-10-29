@@ -4383,6 +4383,184 @@ class AppLocalizationsEn extends AppLocalizations {
       'Training mode is on: this copy does not sync. Leave training mode to use the hub.';
 
   @override
+  String get moveTransferOut => 'Sent to another branch';
+
+  @override
+  String get moveTransferIn => 'From another branch';
+
+  @override
+  String get auditBranchSaved => 'Branch saved';
+
+  @override
+  String get auditDeviceBranchChanged => 'Device moved to a branch';
+
+  @override
+  String get auditTransferSent => 'Stock transfer sent';
+
+  @override
+  String get auditTransferReceived => 'Stock transfer received';
+
+  @override
+  String get auditTransferCancelled => 'Stock transfer called back';
+
+  @override
+  String get auditBranchDataMerged => 'Branch data brought in';
+
+  @override
+  String get branchesTitle => 'Branches';
+
+  @override
+  String get branchesSettingsHelp =>
+      'More than one shop location, each with its own stock.';
+
+  @override
+  String get branchesHelp =>
+      'Each branch has its own stock and its own devices. Reports show one branch or all of them. Devices on the same Wi-Fi sync through the hub; between branches far apart, carry the data in a file, or later through Aby Cloud.';
+
+  @override
+  String get branchThisDevice => 'This device is at';
+
+  @override
+  String get branchThisDeviceHelp =>
+      'Its sales and stock count for this branch.';
+
+  @override
+  String get branchMoveBody =>
+      'Its sales and stock movements, the earlier ones too, will count for that branch.';
+
+  @override
+  String get branchMove => 'Move';
+
+  @override
+  String get branchAdd => 'Add a branch';
+
+  @override
+  String get branchesList => 'Branches';
+
+  @override
+  String get branchMain => 'Main branch';
+
+  @override
+  String get branchClosed => 'Closed';
+
+  @override
+  String get branchClose => 'Close branch';
+
+  @override
+  String get branchReopen => 'Reopen branch';
+
+  @override
+  String get branchName => 'Branch name';
+
+  @override
+  String get branchAddress => 'Address or landmark';
+
+  @override
+  String get branchPhone => 'Phone';
+
+  @override
+  String get branchFiles => 'Data between branches';
+
+  @override
+  String get branchSendData => 'Send this branch data';
+
+  @override
+  String get branchSendDataHelp =>
+      'Makes a backup file (with the backup password) to carry or send to the other branch.';
+
+  @override
+  String get branchMerge => 'Bring in a branch data file';
+
+  @override
+  String get branchMergeHelp =>
+      'Adds the sales, stock and changes from another branch backup. Nothing here is replaced.';
+
+  @override
+  String get branchMergeConfirmTitle => 'Bring this data in?';
+
+  @override
+  String get branchMerging => 'Bringing the data in...';
+
+  @override
+  String get branchAll => 'All branches';
+
+  @override
+  String get branchPick => 'Branch';
+
+  @override
+  String get staffWorksAt => 'Works at';
+
+  @override
+  String get staffWorksAtHelp =>
+      'They can sign in only at this branch. Owners can sign in everywhere.';
+
+  @override
+  String get transfersTab => 'Transfers';
+
+  @override
+  String get transferNew => 'Send stock';
+
+  @override
+  String get transferNewHelp =>
+      'The stock leaves this branch now and shows as on its way until the other branch receives it.';
+
+  @override
+  String get transferToBranch => 'To branch';
+
+  @override
+  String get transferNote => 'Note';
+
+  @override
+  String get transferSend => 'Send';
+
+  @override
+  String get transferInTransit => 'On its way';
+
+  @override
+  String get transferReceived => 'Received';
+
+  @override
+  String get transferCancelled => 'Called back';
+
+  @override
+  String get transferNone =>
+      'No transfers yet. Use Send stock to move stock to another branch.';
+
+  @override
+  String get transferDifferences => 'differences';
+
+  @override
+  String get transferArrivedAll => 'All arrived';
+
+  @override
+  String get transferCallBack => 'Call back';
+
+  @override
+  String get transferCallBackTitle => 'Call this transfer back?';
+
+  @override
+  String get transferCallBackBody =>
+      'The stock comes back into this branch. Do this only if it never left.';
+
+  @override
+  String get transferReceive => 'Receive';
+
+  @override
+  String get transferReceiveHelp =>
+      'Count what arrived. Anything different from what was sent is flagged.';
+
+  @override
+  String get transferReceivedAll => 'Received. Everything arrived.';
+
+  @override
+  String get transferReceivedShort =>
+      'Received, with differences. They are in the activity log.';
+
+  @override
+  String get transferNoBranches =>
+      'Add another branch first, in Settings, Branches.';
+
+  @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
   }
@@ -6076,5 +6254,83 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String hubCannotStart(String error) {
     return 'The hub could not start: $error';
+  }
+
+  @override
+  String branchMoveTitle(String name) {
+    return 'Move this device to $name?';
+  }
+
+  @override
+  String branchDevices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count devices',
+      one: '1 device',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String branchMergeConfirmBody(String shop, int count, String last) {
+    return '$shop: $count sales, last sale $last. Everything in it is added to this device, newer changes winning. A backup of this device is made first.';
+  }
+
+  @override
+  String branchMerged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes brought in.',
+      one: '1 change brought in.',
+      zero: 'Nothing new in that file.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String transferFrom(String name) {
+    return 'from $name';
+  }
+
+  @override
+  String transferTo(String name) {
+    return 'to $name';
+  }
+
+  @override
+  String transferSentBy(String when, String name) {
+    return 'Sent $when by $name';
+  }
+
+  @override
+  String transferReceivedBy(String when, String name) {
+    return 'received $when by $name';
+  }
+
+  @override
+  String transferArrived(String qty) {
+    return 'Arrived: $qty';
+  }
+
+  @override
+  String transferReceiveTitle(String code) {
+    return 'Receive $code';
+  }
+
+  @override
+  String transferSentQty(String qty) {
+    return 'Sent: $qty';
+  }
+
+  @override
+  String transferSent(String code) {
+    return '$code sent.';
+  }
+
+  @override
+  String transferNotEnough(String item, String qty) {
+    return 'Only $qty of $item here.';
   }
 }

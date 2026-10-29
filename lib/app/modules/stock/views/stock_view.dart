@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../data/repositories/stock_repository.dart';
 import '../../../core/units.dart';
 import '../../../models/stock.dart';
+import '../../../services/branch_service.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
@@ -15,18 +16,23 @@ import '../controllers/stock_controller.dart';
 import '../widgets/purchase_orders_tab.dart';
 import '../widgets/purchasing_tabs.dart';
 import '../widgets/supplier_editor.dart';
+import '../widgets/transfers_tab.dart';
 import '../widgets/stock_item_editor.dart';
 
 /// Manage → Stock: items, deliveries, counts and suppliers.
 class StockView extends GetView<StockController> {
   const StockView({super.key});
 
+  /// Transfers only where there is another branch to send to.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Obx(() => _page(context, branches: Get.find<BranchService>().many));
+
+  Widget _page(BuildContext context, {required bool branches}) {
     final l = context.l10n;
     final purchasing = Get.find<PurchasingController>();
     return DefaultTabController(
-      length: 5,
+      key: ValueKey(branches),
+      length: branches ? 6 : 5,
       child: Builder(builder: (context) {
         final tabs = DefaultTabController.of(context);
         return AnimatedBuilder(
@@ -77,6 +83,14 @@ class StockView extends GetView<StockController> {
                             label: Text(purchasing.openCount.value == null ? l.countStart : l.countContinue),
                           )),
                   ],
+                5 => [
+                    if (canSendStock)
+                      FilledButton.icon(
+                        onPressed: showNewTransfer,
+                        icon: const Icon(Icons.local_shipping_outlined),
+                        label: Text(l.transferNew),
+                      ),
+                  ],
                 _ => [
                     if (purchasing.canReceive)
                       FilledButton.icon(
@@ -96,9 +110,17 @@ class StockView extends GetView<StockController> {
                 Tab(text: l.poTab),
                 Tab(text: l.countsTab),
                 Tab(text: l.suppliersTab),
+                if (branches) Tab(text: l.transfersTab),
               ],
             ),
-            child: const TabBarView(children: [_Items(), DeliveriesTab(), PurchaseOrdersTab(), CountsTab(), SuppliersTab()]),
+            child: TabBarView(children: [
+              const _Items(),
+              const DeliveriesTab(),
+              const PurchaseOrdersTab(),
+              const CountsTab(),
+              const SuppliersTab(),
+              if (branches) const TransfersTab(),
+            ]),
           ),
         );
       }),

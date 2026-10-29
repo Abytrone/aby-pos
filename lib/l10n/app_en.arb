@@ -1405,6 +1405,61 @@
   "hubErrRefused": "The hub refused the request.",
   "statusHubUnreachable": "Cannot reach the hub.",
   "hubTraining": "Training mode is on: this copy does not sync. Leave training mode to use the hub.",
+  "moveTransferOut": "Sent to another branch",
+  "moveTransferIn": "From another branch",
+  "auditBranchSaved": "Branch saved",
+  "auditDeviceBranchChanged": "Device moved to a branch",
+  "auditTransferSent": "Stock transfer sent",
+  "auditTransferReceived": "Stock transfer received",
+  "auditTransferCancelled": "Stock transfer called back",
+  "auditBranchDataMerged": "Branch data brought in",
+  "branchesTitle": "Branches",
+  "branchesSettingsHelp": "More than one shop location, each with its own stock.",
+  "branchesHelp": "Each branch has its own stock and its own devices. Reports show one branch or all of them. Devices on the same Wi-Fi sync through the hub; between branches far apart, carry the data in a file, or later through Aby Cloud.",
+  "branchThisDevice": "This device is at",
+  "branchThisDeviceHelp": "Its sales and stock count for this branch.",
+  "branchMoveBody": "Its sales and stock movements, the earlier ones too, will count for that branch.",
+  "branchMove": "Move",
+  "branchAdd": "Add a branch",
+  "branchesList": "Branches",
+  "branchMain": "Main branch",
+  "branchClosed": "Closed",
+  "branchClose": "Close branch",
+  "branchReopen": "Reopen branch",
+  "branchName": "Branch name",
+  "branchAddress": "Address or landmark",
+  "branchPhone": "Phone",
+  "branchFiles": "Data between branches",
+  "branchSendData": "Send this branch data",
+  "branchSendDataHelp": "Makes a backup file (with the backup password) to carry or send to the other branch.",
+  "branchMerge": "Bring in a branch data file",
+  "branchMergeHelp": "Adds the sales, stock and changes from another branch backup. Nothing here is replaced.",
+  "branchMergeConfirmTitle": "Bring this data in?",
+  "branchMerging": "Bringing the data in...",
+  "branchAll": "All branches",
+  "branchPick": "Branch",
+  "staffWorksAt": "Works at",
+  "staffWorksAtHelp": "They can sign in only at this branch. Owners can sign in everywhere.",
+  "transfersTab": "Transfers",
+  "transferNew": "Send stock",
+  "transferNewHelp": "The stock leaves this branch now and shows as on its way until the other branch receives it.",
+  "transferToBranch": "To branch",
+  "transferNote": "Note",
+  "transferSend": "Send",
+  "transferInTransit": "On its way",
+  "transferReceived": "Received",
+  "transferCancelled": "Called back",
+  "transferNone": "No transfers yet. Use Send stock to move stock to another branch.",
+  "transferDifferences": "differences",
+  "transferArrivedAll": "All arrived",
+  "transferCallBack": "Call back",
+  "transferCallBackTitle": "Call this transfer back?",
+  "transferCallBackBody": "The stock comes back into this branch. Do this only if it never left.",
+  "transferReceive": "Receive",
+  "transferReceiveHelp": "Count what arrived. Anything different from what was sent is flagged.",
+  "transferReceivedAll": "Received. Everything arrived.",
+  "transferReceivedShort": "Received, with differences. They are in the activity log.",
+  "transferNoBranches": "Add another branch first, in Settings, Branches.",
   "pinMustBeDigits": "The PIN must be {count} digits.",
   "@pinMustBeDigits": {
     "placeholders": {
@@ -3896,6 +3951,125 @@
   "@hubCannotStart": {
     "placeholders": {
       "error": {
+        "type": "String"
+      }
+    }
+  },
+  "branchMoveTitle": "Move this device to {name}?",
+  "@branchMoveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "branchDevices": "{count, plural, =1{1 device} other{{count} devices}}",
+  "@branchDevices": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "branchMergeConfirmBody": "{shop}: {count} sales, last sale {last}. Everything in it is added to this device, newer changes winning. A backup of this device is made first.",
+  "@branchMergeConfirmBody": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "last": {
+        "type": "String"
+      }
+    }
+  },
+  "branchMerged": "{count, plural, =0{Nothing new in that file.} =1{1 change brought in.} other{{count} changes brought in.}}",
+  "@branchMerged": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "transferFrom": "from {name}",
+  "@transferFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "transferTo": "to {name}",
+  "@transferTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "transferSentBy": "Sent {when} by {name}",
+  "@transferSentBy": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "transferReceivedBy": "received {when} by {name}",
+  "@transferReceivedBy": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "transferArrived": "Arrived: {qty}",
+  "@transferArrived": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "transferReceiveTitle": "Receive {code}",
+  "@transferReceiveTitle": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "transferSentQty": "Sent: {qty}",
+  "@transferSentQty": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "transferSent": "{code} sent.",
+  "@transferSent": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "transferNotEnough": "Only {qty} of {item} here.",
+  "@transferNotEnough": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      },
+      "qty": {
         "type": "String"
       }
     }

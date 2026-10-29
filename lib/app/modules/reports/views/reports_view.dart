@@ -9,6 +9,7 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/charts.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/branch_picker.dart';
 import '../../../ui/period_bar.dart';
 import '../../../ui/section_page.dart';
 import '../../staff/widgets/timesheets.dart' show hoursText;
@@ -41,6 +42,7 @@ class ReportsView extends GetView<ReportsController> {
       child: SectionPage(
         title: l.navReports,
         actions: [
+          BranchPicker(onChanged: controller.load),
           if (controller.canExport)
             OutlinedButton.icon(
               onPressed: controller.accountantPack,
@@ -327,6 +329,8 @@ class _StockTaxTab extends GetView<ReportsController> {
         StockReason.count => l.moveCount,
         StockReason.returned => l.moveReturned,
         StockReason.production => l.moveProduction,
+        StockReason.transferOut => l.moveTransferOut,
+        StockReason.transferIn => l.moveTransferIn,
         null => r,
       };
 

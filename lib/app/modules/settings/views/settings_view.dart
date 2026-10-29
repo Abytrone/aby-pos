@@ -11,6 +11,7 @@ import '../../../domain/loyalty.dart';
 import '../../../models/enums.dart';
 import '../../../models/receipt.dart';
 import '../../../models/scale.dart';
+import '../../../services/branch_service.dart';
 import '../../../services/hub/hub_service.dart';
 import '../../../services/money.dart';
 import '../../../services/display/display_service.dart';
@@ -31,6 +32,7 @@ import '../widgets/pay_methods_dialog.dart';
 import '../widgets/printer_setup.dart';
 import '../widgets/promotions_dialog.dart';
 import '../widgets/receipt_designer.dart';
+import '../widgets/branches_page.dart';
 import '../widgets/hub_devices.dart';
 import '../widgets/screens_dialog.dart';
 import '../widgets/selling_lists.dart';
@@ -191,6 +193,13 @@ class SettingsView extends GetView<SettingsController> {
         value: c.value(AppSettings.shopAddress).isEmpty ? l.settingsNotSet : c.value(AppSettings.shopAddress),
         onTap: () => editText(AppSettings.shopAddress, l.settingsShopAddress),
       ), keywords: ['location', 'landmark']),
+      _Entry(shop, InfoTile(
+        title: l.branchesTitle,
+        subtitle: l.branchesSettingsHelp,
+        value: Get.find<BranchService>().many ? Get.find<BranchService>().current.value?.name : null,
+        leading: const Icon(Icons.storefront_outlined),
+        onTap: () => showBranches(backups),
+      ), keywords: ['branch', 'location', 'shop', 'transfer', 'second shop']),
       _Entry(features, InfoTile(
         title: l.setupShopType,
         subtitle: l.settingsFeaturesHelp,

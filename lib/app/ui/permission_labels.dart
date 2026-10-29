@@ -120,4 +120,10 @@ String auditActionLabel(AppLocalizations l, AuditAction a) => switch (a) {
       AuditAction.expenseCategorySaved => l.auditExpenseCategorySaved,
       AuditAction.ownerDrawing => l.auditOwnerDrawing,
       AuditAction.ownerCapital => l.auditOwnerCapital,
+      AuditAction.branchSaved => l.auditBranchSaved,
+      AuditAction.deviceBranchChanged => l.auditDeviceBranchChanged,
+      AuditAction.stockTransferSent => l.auditTransferSent,
+      AuditAction.stockTransferReceived => l.auditTransferReceived,
+      AuditAction.stockTransferCancelled => l.auditTransferCancelled,
+      AuditAction.branchDataMerged => l.auditBranchDataMerged,
     };

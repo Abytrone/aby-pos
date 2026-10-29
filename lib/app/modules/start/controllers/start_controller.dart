@@ -12,6 +12,7 @@ import '../../../services/notification_service.dart';
 import '../../../services/backup/backup_service.dart';
 import '../../../services/device_service.dart';
 import '../../../services/price_scheduler.dart';
+import '../../../services/branch_service.dart';
 import '../../../services/hub/hub_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../services/training_service.dart';
@@ -35,6 +36,7 @@ class StartController extends GetxController {
   Future<void> _start() async {
     await _device.ready;
     await _settings.load();
+    await Get.find<BranchService>().load();
     await Get.find<TrainingService>().load();
     AppRestarter.applyTheme(_settings.get(AppSettings.themeMode));
     await _backups.finishPendingRestore();

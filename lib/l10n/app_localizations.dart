@@ -8524,6 +8524,336 @@ abstract class AppLocalizations {
   /// **'Training mode is on: this copy does not sync. Leave training mode to use the hub.'**
   String get hubTraining;
 
+  /// No description provided for @moveTransferOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to another branch'**
+  String get moveTransferOut;
+
+  /// No description provided for @moveTransferIn.
+  ///
+  /// In en, this message translates to:
+  /// **'From another branch'**
+  String get moveTransferIn;
+
+  /// No description provided for @auditBranchSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch saved'**
+  String get auditBranchSaved;
+
+  /// No description provided for @auditDeviceBranchChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Device moved to a branch'**
+  String get auditDeviceBranchChanged;
+
+  /// No description provided for @auditTransferSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock transfer sent'**
+  String get auditTransferSent;
+
+  /// No description provided for @auditTransferReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock transfer received'**
+  String get auditTransferReceived;
+
+  /// No description provided for @auditTransferCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock transfer called back'**
+  String get auditTransferCancelled;
+
+  /// No description provided for @auditBranchDataMerged.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch data brought in'**
+  String get auditBranchDataMerged;
+
+  /// No description provided for @branchesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Branches'**
+  String get branchesTitle;
+
+  /// No description provided for @branchesSettingsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'More than one shop location, each with its own stock.'**
+  String get branchesSettingsHelp;
+
+  /// No description provided for @branchesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Each branch has its own stock and its own devices. Reports show one branch or all of them. Devices on the same Wi-Fi sync through the hub; between branches far apart, carry the data in a file, or later through Aby Cloud.'**
+  String get branchesHelp;
+
+  /// No description provided for @branchThisDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'This device is at'**
+  String get branchThisDevice;
+
+  /// No description provided for @branchThisDeviceHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Its sales and stock count for this branch.'**
+  String get branchThisDeviceHelp;
+
+  /// No description provided for @branchMoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Its sales and stock movements, the earlier ones too, will count for that branch.'**
+  String get branchMoveBody;
+
+  /// No description provided for @branchMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get branchMove;
+
+  /// No description provided for @branchAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a branch'**
+  String get branchAdd;
+
+  /// No description provided for @branchesList.
+  ///
+  /// In en, this message translates to:
+  /// **'Branches'**
+  String get branchesList;
+
+  /// No description provided for @branchMain.
+  ///
+  /// In en, this message translates to:
+  /// **'Main branch'**
+  String get branchMain;
+
+  /// No description provided for @branchClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get branchClosed;
+
+  /// No description provided for @branchClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close branch'**
+  String get branchClose;
+
+  /// No description provided for @branchReopen.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen branch'**
+  String get branchReopen;
+
+  /// No description provided for @branchName.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch name'**
+  String get branchName;
+
+  /// No description provided for @branchAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address or landmark'**
+  String get branchAddress;
+
+  /// No description provided for @branchPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get branchPhone;
+
+  /// No description provided for @branchFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Data between branches'**
+  String get branchFiles;
+
+  /// No description provided for @branchSendData.
+  ///
+  /// In en, this message translates to:
+  /// **'Send this branch data'**
+  String get branchSendData;
+
+  /// No description provided for @branchSendDataHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Makes a backup file (with the backup password) to carry or send to the other branch.'**
+  String get branchSendDataHelp;
+
+  /// No description provided for @branchMerge.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring in a branch data file'**
+  String get branchMerge;
+
+  /// No description provided for @branchMergeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds the sales, stock and changes from another branch backup. Nothing here is replaced.'**
+  String get branchMergeHelp;
+
+  /// No description provided for @branchMergeConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring this data in?'**
+  String get branchMergeConfirmTitle;
+
+  /// No description provided for @branchMerging.
+  ///
+  /// In en, this message translates to:
+  /// **'Bringing the data in...'**
+  String get branchMerging;
+
+  /// No description provided for @branchAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All branches'**
+  String get branchAll;
+
+  /// No description provided for @branchPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch'**
+  String get branchPick;
+
+  /// No description provided for @staffWorksAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Works at'**
+  String get staffWorksAt;
+
+  /// No description provided for @staffWorksAtHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'They can sign in only at this branch. Owners can sign in everywhere.'**
+  String get staffWorksAtHelp;
+
+  /// No description provided for @transfersTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfers'**
+  String get transfersTab;
+
+  /// No description provided for @transferNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Send stock'**
+  String get transferNew;
+
+  /// No description provided for @transferNewHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The stock leaves this branch now and shows as on its way until the other branch receives it.'**
+  String get transferNewHelp;
+
+  /// No description provided for @transferToBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'To branch'**
+  String get transferToBranch;
+
+  /// No description provided for @transferNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get transferNote;
+
+  /// No description provided for @transferSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get transferSend;
+
+  /// No description provided for @transferInTransit.
+  ///
+  /// In en, this message translates to:
+  /// **'On its way'**
+  String get transferInTransit;
+
+  /// No description provided for @transferReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get transferReceived;
+
+  /// No description provided for @transferCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Called back'**
+  String get transferCancelled;
+
+  /// No description provided for @transferNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No transfers yet. Use Send stock to move stock to another branch.'**
+  String get transferNone;
+
+  /// No description provided for @transferDifferences.
+  ///
+  /// In en, this message translates to:
+  /// **'differences'**
+  String get transferDifferences;
+
+  /// No description provided for @transferArrivedAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All arrived'**
+  String get transferArrivedAll;
+
+  /// No description provided for @transferCallBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Call back'**
+  String get transferCallBack;
+
+  /// No description provided for @transferCallBackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Call this transfer back?'**
+  String get transferCallBackTitle;
+
+  /// No description provided for @transferCallBackBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The stock comes back into this branch. Do this only if it never left.'**
+  String get transferCallBackBody;
+
+  /// No description provided for @transferReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive'**
+  String get transferReceive;
+
+  /// No description provided for @transferReceiveHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Count what arrived. Anything different from what was sent is flagged.'**
+  String get transferReceiveHelp;
+
+  /// No description provided for @transferReceivedAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Received. Everything arrived.'**
+  String get transferReceivedAll;
+
+  /// No description provided for @transferReceivedShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Received, with differences. They are in the activity log.'**
+  String get transferReceivedShort;
+
+  /// No description provided for @transferNoBranches.
+  ///
+  /// In en, this message translates to:
+  /// **'Add another branch first, in Settings, Branches.'**
+  String get transferNoBranches;
+
   /// No description provided for @pinMustBeDigits.
   ///
   /// In en, this message translates to:
@@ -10251,6 +10581,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The hub could not start: {error}'**
   String hubCannotStart(String error);
+
+  /// No description provided for @branchMoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move this device to {name}?'**
+  String branchMoveTitle(String name);
+
+  /// No description provided for @branchDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 device} other{{count} devices}}'**
+  String branchDevices(int count);
+
+  /// No description provided for @branchMergeConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{shop}: {count} sales, last sale {last}. Everything in it is added to this device, newer changes winning. A backup of this device is made first.'**
+  String branchMergeConfirmBody(String shop, int count, String last);
+
+  /// No description provided for @branchMerged.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing new in that file.} =1{1 change brought in.} other{{count} changes brought in.}}'**
+  String branchMerged(int count);
+
+  /// No description provided for @transferFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'from {name}'**
+  String transferFrom(String name);
+
+  /// No description provided for @transferTo.
+  ///
+  /// In en, this message translates to:
+  /// **'to {name}'**
+  String transferTo(String name);
+
+  /// No description provided for @transferSentBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent {when} by {name}'**
+  String transferSentBy(String when, String name);
+
+  /// No description provided for @transferReceivedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'received {when} by {name}'**
+  String transferReceivedBy(String when, String name);
+
+  /// No description provided for @transferArrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrived: {qty}'**
+  String transferArrived(String qty);
+
+  /// No description provided for @transferReceiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive {code}'**
+  String transferReceiveTitle(String code);
+
+  /// No description provided for @transferSentQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent: {qty}'**
+  String transferSentQty(String qty);
+
+  /// No description provided for @transferSent.
+  ///
+  /// In en, this message translates to:
+  /// **'{code} sent.'**
+  String transferSent(String code);
+
+  /// No description provided for @transferNotEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {qty} of {item} here.'**
+  String transferNotEnough(String item, String qty);
 }
 
 class _AppLocalizationsDelegate

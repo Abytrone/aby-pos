@@ -75,9 +75,13 @@ class StaffProfile {
     this.badgeCode,
     this.workStart,
     this.workEnd,
+    this.branchId,
   });
 
   final Staff staff;
+
+  /// Where they work; null for every branch.
+  final String? branchId;
 
   /// The code on their badge, when they have one.
   final String? badgeCode;

@@ -106,6 +106,11 @@ App icons: `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml`.
   device* and scan its QR code (or type the address and code) on each other till. Sales, stock
   and customers sync over the shop's Wi-Fi with no internet; each till keeps selling if the
   Wi-Fi drops. The hub can rename devices or remove a lost one.
+- **Branches:** Settings → Branches. Add a branch and place each device in its branch; stock is
+  then counted per branch, reports show one branch or all, and staff can be limited to a branch.
+  Stock → Transfers sends stock to another branch, which receives it and flags any difference.
+  Between branches with no network, send the branch's backup file and *Bring in a branch data
+  file* at the other end: it is merged, nothing replaced.
 - **Business day:** starts at 05:00 by default, so late-night sales count on the evening's day.
 - **Close day:** Today → Close day counts the drawer (opening float + cash takings = expected) and
   locks those sales against voids.
@@ -130,6 +135,7 @@ lib/
                             PinPad, OptionChip, approval prompt, status dot, labels, formatting
     data/database/          drift tables, AppDatabase, step-by-step migrations, seed
     data/sync/              row store: reads and applies synced rows by table (last write wins)
+    data/branch_scope.dart  which rows belong to a branch (by the device that wrote them)
     data/repositories/      catalog, sale, refund, customer, shift, safe, MoMo, expense, profit, payment methods, cash events, discounts,
                             parked orders, promotion, receipt, voucher, order, purchase order, time, stock, supplier, receiving, stock count, staff, role,
                             day close, audit, settings, outbox:

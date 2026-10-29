@@ -6,10 +6,13 @@ import 'package:get/get.dart';
 
 import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
+import '../../../data/branch_scope.dart';
+import '../../../data/database/app_database.dart';
 import '../../../data/repositories/staff_repository.dart';
 import '../../../models/staff.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/device_service.dart';
 import '../../../services/session_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../services/status_service.dart';
@@ -129,7 +132,9 @@ class ShellController extends GetxController {
   void openMyProfile() => Get.toNamed<void>(Routes.staffProfile, arguments: auth.user.id);
 
   Future<List<Staff>> switchCandidates() async =>
-      (await _staff.list()).where((s) => s != auth.currentUser.value).toList();
+      (await _staff.list(atBranch: await Get.find<AppDatabase>().branchOf(Get.find<DeviceService>().deviceId)))
+          .where((s) => s != auth.currentUser.value)
+          .toList();
 
   /// Returns an error message, or null once switched.
   Future<String?> switchTo(Staff person, String pin) async {

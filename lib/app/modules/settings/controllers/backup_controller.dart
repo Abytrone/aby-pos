@@ -13,6 +13,7 @@ import '../../../models/staff.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/backup/backup_codec.dart';
 import '../../../services/backup/backup_service.dart';
+import '../../../services/backup/branch_merge.dart';
 import '../../../services/training_service.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
@@ -176,8 +177,43 @@ class BackupController extends GetxController {
       auth = await _permissions.authorize(Permission.restoreBackup, reason: l.backupRestore);
       if (auth == null) return;
     }
-    final picked = await FilePicker.pickFile(dialogTitle: l.backupPickFile);
-    if (picked == null) return;
+    final file = await _pick();
+    if (file == null) return;
+    await _inspectAndRestore(file, byStaff: auth?.authority);
+  }
+
+  /// Brings another branch's data in from its backup file (MDV-02): merged
+  /// row by row, nothing here replaced.
+  Future<void> mergeBranchFile() async {
+    if (_training) return showMessage(appL10n().trainingNoBackups);
+    final l = appL10n();
+    final auth = await _permissions.authorize(Permission.restoreBackup, reason: l.branchMerge);
+    if (auth == null) return;
+    final file = await _pick();
+    if (file == null) return;
+    final p = await _preview(file, title: l.branchMerge);
+    if (p == null) return;
+    final ok = await confirmDialog(
+      title: l.branchMergeConfirmTitle,
+      message: l.branchMergeConfirmBody(
+        p.shopName,
+        p.salesCount,
+        p.lastSaleAt == null ? l.backupNoSales : formatDateTime(p.lastSaleAt!),
+      ),
+      confirmLabel: l.branchMerge,
+    );
+    if (!ok) return;
+    MergeResult? result;
+    await _guard(() async {
+      result = await Get.find<BranchMerge>().merge(p, by: auth.authority);
+    }, progress: l.branchMerging);
+    final r = result;
+    if (r != null) showMessage(l.branchMerged(r.changed));
+  }
+
+  Future<File?> _pick() async {
+    final picked = await FilePicker.pickFile(dialogTitle: appL10n().backupPickFile);
+    if (picked == null) return null;
     // Android may hand back a content URI with no file path: copy it first.
     var path = picked.path;
     if (path == null) {
@@ -188,10 +224,11 @@ class BackupController extends GetxController {
       await sink.close();
       path = copy.path;
     }
-    await _inspectAndRestore(File(path), byStaff: auth?.authority);
+    return File(path);
   }
 
-  Future<void> _inspectAndRestore(File file, {Staff? byStaff}) async {
+  /// Asks for the password (when it is encrypted) until the file opens.
+  Future<BackupPreview?> _preview(File file, {required String title}) async {
     final l = appL10n();
     BackupPreview? preview;
     String? password;
@@ -200,12 +237,12 @@ class BackupController extends GetxController {
     while (preview == null) {
       if (encrypted) {
         password = await textInputDialog(
-          title: l.backupRestore,
+          title: title,
           label: l.backupPassword,
           obscure: true,
           confirmLabel: l.commonContinue,
         );
-        if (password == null) return;
+        if (password == null) return null;
       }
       try {
         await _guard(() async {
@@ -213,13 +250,19 @@ class BackupController extends GetxController {
         }, progress: l.backupChecking, rethrowErrors: true);
       } on BackupDecryptException catch (e) {
         showMessage(_decryptMessage(l, e));
-        if (!encrypted) return;
+        if (!encrypted) return null;
       } on BackupException catch (e) {
         showMessage(e.message);
-        return;
+        return null;
       }
     }
-    final p = preview!;
+    return preview;
+  }
+
+  Future<void> _inspectAndRestore(File file, {Staff? byStaff}) async {
+    final l = appL10n();
+    final p = await _preview(file, title: l.backupRestore);
+    if (p == null) return;
     final ok = await confirmDialog(
       title: l.backupRestoreConfirmTitle,
       message: l.backupRestoreConfirmBody(

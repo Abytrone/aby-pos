@@ -279,6 +279,11 @@ class StaffProfileController extends GetxController {
     await showBadgeDialog(doc, p.staff.name);
   }
 
+  Future<void> setBranch(String? branchId) => _run(() async {
+        await _staff.setBranch(staffId, branchId, by: me);
+        message.value = appL10n().settingsSaved;
+      });
+
   Future<void> setWorkHours(int? start, int? end) => _run(() async {
         await _staff.setWorkHours(staffId, start: start, end: end, by: me);
         message.value = appL10n().settingsSaved;

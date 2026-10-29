@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../../data/branch_scope.dart';
+import '../../../data/database/app_database.dart';
+
 import '../../../data/repositories/staff_repository.dart';
 import '../../../models/staff.dart';
 import '../../../routes/app_routes.dart';
@@ -79,7 +82,7 @@ class SignInController extends GetxController {
 
   Future<void> _load() async {
     await _device.ready;
-    staff.assignAll(await _staff.list());
+    staff.assignAll(await _staff.list(atBranch: await Get.find<AppDatabase>().branchOf(_device.deviceId)));
     if (staff.length == 1) selected.value = staff.first;
     loading.value = false;
   }

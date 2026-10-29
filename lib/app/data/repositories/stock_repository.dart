@@ -10,6 +10,7 @@ import '../../models/stock.dart';
 import '../../services/device_service.dart';
 import '../../services/ids.dart';
 import '../../services/money.dart';
+import '../branch_scope.dart';
 import '../database/app_database.dart';
 import 'audit_repository.dart';
 
@@ -155,12 +156,18 @@ class StockRepository {
   // ---------------------------------------------------------------------------
   // Levels and movements
 
-  /// Sum of a stock item's movements, in base units.
+  /// This device's branch: stock is counted per branch (MDV-02).
+  Future<BranchFilter> _here() => _db.branchFilterFor(_device.deviceId);
+
+  /// Sum of a stock item's movements at this branch, in base units.
   Future<int> onHand(String stockItemId) async {
+    final here = await _here();
     final sum = _db.stockMovements.quantityChange.sum();
     final query = _db.selectOnly(_db.stockMovements)
       ..addColumns([sum])
-      ..where(_db.stockMovements.stockItemId.equals(stockItemId) & _db.stockMovements.deletedAt.isNull());
+      ..where(_db.stockMovements.stockItemId.equals(stockItemId) &
+          _db.stockMovements.deletedAt.isNull() &
+          here.on(_db.stockMovements.deviceId));
     return (await query.map((r) => r.read(sum)).getSingle()) ?? 0;
   }
 
@@ -176,12 +183,15 @@ class StockRepository {
     return [for (final r in rows) (r.read<String>('item'), r.read<int>('qty'), r.read<int>('cost'))];
   }
 
-  /// On hand for every stock item that has moved.
-  Future<Map<String, int>> onHandAll() async {
+  /// On hand at this branch (or [scope]) for every stock item that has moved.
+  Future<Map<String, int>> onHandAll({BranchFilter? scope}) async {
+    final here = scope ?? await _here();
     final sum = _db.stockMovements.quantityChange.sum();
     final query = _db.selectOnly(_db.stockMovements)
       ..addColumns([_db.stockMovements.stockItemId, sum])
-      ..where(_db.stockMovements.stockItemId.isNotNull() & _db.stockMovements.deletedAt.isNull())
+      ..where(_db.stockMovements.stockItemId.isNotNull() &
+          _db.stockMovements.deletedAt.isNull() &
+          here.on(_db.stockMovements.deviceId))
       ..groupBy([_db.stockMovements.stockItemId]);
     return {for (final r in await query.get()) r.read(_db.stockMovements.stockItemId)!: r.read(sum) ?? 0};
   }
@@ -189,12 +199,13 @@ class StockRepository {
   /// Base units used by sales and waste since [since], per stock item (for
   /// reorder suggestions and days of stock left).
   Future<Map<String, int>> usedSince(DateTime since) async {
+    final here = await _here();
     final rows = await _db
         .customSelect(
           'SELECT stock_item_id AS item, -SUM(quantity_change) AS used FROM stock_movements '
           "WHERE stock_item_id IS NOT NULL AND deleted_at IS NULL AND reason IN ('sale', 'waste') "
-          'AND created_at >= ? GROUP BY stock_item_id',
-          variables: [Variable.withDateTime(since)],
+          'AND created_at >= ? AND ${here.sql('device_id')} GROUP BY stock_item_id',
+          variables: [Variable.withDateTime(since), ...here.variables],
           readsFrom: {_db.stockMovements},
         )
         .get();
@@ -203,9 +214,10 @@ class StockRepository {
 
   /// Newest first.
   Future<List<StockMovement>> movements(String stockItemId, {int limit = 100}) async {
+    final here = await _here();
     final rows =
         await (_db.select(_db.stockMovements)
-              ..where((m) => m.stockItemId.equals(stockItemId) & m.deletedAt.isNull())
+              ..where((m) => m.stockItemId.equals(stockItemId) & m.deletedAt.isNull() & here.on(m.deviceId))
               ..orderBy([
                 (m) => OrderingTerm(expression: m.createdAt, mode: OrderingMode.desc),
                 (m) => OrderingTerm(expression: m.id, mode: OrderingMode.desc),
@@ -333,7 +345,8 @@ class StockRepository {
   /// stock: sales and waste are taken from the batch that expires first.
   /// Batches with no date go last.
   Future<List<BatchLeft>> batches({String? stockItemId}) async {
-    final query = _db.select(_db.stockBatches)..where((b) => b.deletedAt.isNull());
+    final here = await _here();
+    final query = _db.select(_db.stockBatches)..where((b) => b.deletedAt.isNull() & here.on(b.deviceId));
     if (stockItemId != null) query.where((b) => b.stockItemId.equals(stockItemId));
     final rows = await query.get();
     if (rows.isEmpty) return const [];

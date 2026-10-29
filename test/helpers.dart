@@ -79,6 +79,9 @@ class Repos {
   static Future<Repos> open(AppDatabase db) async =>
       Repos._(db, FakeDevice((await db.readMeta(MetaKeys.deviceId))!));
 
+  /// Another device writing to the same database (a second till).
+  static Repos onDevice(AppDatabase db, String deviceId) => Repos._(db, FakeDevice(deviceId));
+
   final AppDatabase db;
   final FakeDevice device;
   final AuditRepository audit;

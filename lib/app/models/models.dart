@@ -1,4 +1,5 @@
 export 'audit.dart';
+export 'branch.dart';
 export 'cart_line.dart';
 export 'catalog.dart';
 export 'customer.dart';

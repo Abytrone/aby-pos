@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../../../data/repositories/staff_repository.dart';
 import '../../../core/validators.dart';
 import '../../../models/staff.dart';
+import '../../../services/branch_service.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
@@ -245,6 +246,23 @@ class _Details extends GetView<StaffProfileController> {
               ),
             ]),
           ),
+          if (Get.find<BranchService>().many && !profile.staff.isOwner)
+            InfoTile(
+              title: l.staffWorksAt,
+              subtitle: l.staffWorksAtHelp,
+              value: profile.branchId == null ? l.branchAll : Get.find<BranchService>().nameOf(profile.branchId!),
+              leading: const Icon(Icons.storefront_outlined),
+              onTap: () async {
+                final branches = Get.find<BranchService>().branches;
+                final pick = await choiceDialog<String>(
+                  title: l.staffWorksAt,
+                  options: ['', for (final b in branches) b.id],
+                  label: (id) => id.isEmpty ? l.branchAll : Get.find<BranchService>().nameOf(id),
+                  selected: profile.branchId ?? '',
+                );
+                if (pick != null) await controller.setBranch(pick.isEmpty ? null : pick);
+              },
+            ),
           InfoTile(
             title: l.workHours,
             subtitle: l.workHoursHelp,
