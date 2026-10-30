@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
@@ -12,9 +14,11 @@ import '../../../models/day_close.dart';
 import '../../../models/report.dart';
 import '../../../services/alert_service.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/backup/backup_service.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
+import '../../../services/status_service.dart';
 import '../../../ui/alert_text.dart';
 import '../../../ui/l10n.dart';
 import '../widgets/daily_summary.dart';
@@ -152,10 +156,23 @@ class CloseDayController extends GetxController {
       );
       history.assignAll(await _closes.history());
       summary.value = await _summary(closed.value!);
+      unawaited(_backUp());
     } catch (_) {
       error.value = appL10n().closeFailed;
     } finally {
       saving.value = false;
+    }
+  }
+
+  /// A snapshot of the closed day, so a till that is never restarted still
+  /// gets one. A failure shows in the status centre as "backup due".
+  Future<void> _backUp() async {
+    if (!Get.isRegistered<BackupService>()) return;
+    try {
+      await Get.find<BackupService>().createLocalBackup(by: _authorization?.authority ?? _auth.user);
+      if (Get.isRegistered<StatusService>()) await Get.find<StatusService>().refresh(checkChain: false);
+    } catch (e) {
+      debugPrint('Day close backup failed: $e');
     }
   }
 

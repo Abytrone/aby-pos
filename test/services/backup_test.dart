@@ -9,10 +9,13 @@ import 'package:aby_pos/app/models/models.dart';
 import 'package:aby_pos/app/services/backup/backup_codec.dart';
 import 'package:aby_pos/app/services/backup/backup_service.dart';
 import 'package:aby_pos/app/services/settings_service.dart';
+import 'package:aby_pos/app/services/training_service.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
+import 'package:sqlite3/sqlite3.dart';
 
 import '../helpers.dart';
 
@@ -43,6 +46,30 @@ void main() {
 
     test('other files are rejected', () async {
       await expectLater(BackupCodec.decrypt(data, 'pw'), throwsA(isA<BackupDecryptException>()));
+    });
+
+    test('a header with bad fields is reported as damaged, not a crash', () async {
+      Uint8List withHeader(Map<String, Object?> header) {
+        final h = utf8.encode(jsonEncode(header));
+        return (BytesBuilder()
+              ..add(ascii.encode('ABYBAK1\n'))
+              ..add((ByteData(4)..setUint32(0, h.length)).buffer.asUint8List())
+              ..add(h)
+              ..add(List.filled(32, 0)))
+            .toBytes();
+      }
+
+      const ok = {'alg': 'pbkdf2-hmac-sha256', 'iterations': 1000, 'salt': 'AAAAAAAAAAAAAAAAAAAAAA=='};
+      for (final header in [
+        {'format': 'aby-backup', 'version': 1},
+        {'format': 'aby-backup', 'version': 1, 'kdf': {...ok, 'salt': 'not base64!'}, 'cipher': {'nonce': 'AAAAAAAAAAAAAAAA'}},
+        {'format': 'aby-backup', 'version': 1, 'kdf': {...ok, 'iterations': 'many'}, 'cipher': {'nonce': 'AAAAAAAAAAAAAAAA'}},
+        {'format': 'aby-backup', 'version': 1, 'kdf': {...ok, 'iterations': 1 << 40}, 'cipher': {'nonce': 'AAAAAAAAAAAAAAAA'}},
+        {'format': 'aby-backup', 'version': 1, 'kdf': ok, 'cipher': {'nonce': 'AAAA'}},
+      ]) {
+        await expectLater(BackupCodec.decrypt(withHeader(header), 'pw'), throwsA(isA<BackupDecryptException>()),
+            reason: '$header');
+      }
     });
   });
 
@@ -175,6 +202,88 @@ void main() {
       expect(sales, hasLength(1));
       expect((await again.audit.verifyChain()).isIntact, isTrue);
       await reopened.close();
+    });
+
+    test('the oldest backup restores even when the safety copy prunes it', () async {
+      await db.writeSettingRow(AppSettings.backupsToKeep.key, AppSettings.backupsToKeep.scope, '2', r.device.deviceId);
+      final settings = SettingsService(SettingsRepository(db, r.device, r.audit));
+      await settings.load();
+      final keeping = BackupService(db, r.audit, settings,
+          backupsDirectory: () async => Directory(p.join(tmp.path, 'backups')),
+          tempDirectory: () async => tmp,
+          liveDatabaseFile: () async => live,
+          iterations: 1000);
+      await keeping.createLocalBackup(record: false);
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+      await keeping.createLocalBackup(record: false);
+      final oldest = (await keeping.listLocalBackups()).last;
+
+      await keeping.restore(await keeping.inspectFile(oldest.file), by: owner);
+      dbClosed = true;
+      expect(await oldest.file.exists(), isFalse, reason: 'pruned by the safety copy');
+      expect(keeping.closedForRestore, isTrue);
+      final restored = sqlite3.open(live.path, mode: OpenMode.readOnly);
+      try {
+        expect(restored.select('SELECT COUNT(*) AS n FROM sales').first['n'], 1);
+      } finally {
+        restored.close();
+      }
+      expect(await File('${live.path}.restoring').exists(), isFalse);
+    });
+
+    test('restore leaves the backup file as it was and drops training flags', () async {
+      await db.writeMeta(TrainingService.metaKey, '1'); // a training copy's backup
+      final backup = await backups.createLocalBackup(record: false);
+      final before = await backup.file.readAsBytes();
+
+      await backups.restore(await backups.inspectFile(backup.file), by: owner);
+      dbClosed = true;
+      expect(await backup.file.readAsBytes(), before);
+      final restored = sqlite3.open(live.path, mode: OpenMode.readOnly);
+      try {
+        expect(restored.select('SELECT 1 FROM meta WHERE key = ?', [TrainingService.metaKey]), isEmpty);
+      } finally {
+        restored.close();
+      }
+    });
+
+    test('a backup is dated by its name', () async {
+      final backup = await backups.createLocalBackup(record: false);
+      await backup.file.setLastModified(DateTime(2001));
+      final listed = (await backups.listLocalBackups()).single;
+      expect(listed.createdAt.difference(backup.createdAt).inSeconds.abs(), lessThan(1));
+    });
+
+    test('a decrypted copy is deleted when discarded, a local file is not', () async {
+      await backups.setBackupPassword('tamale-2026');
+      final exported = await backups.exportEncrypted(password: 'tamale-2026', shopName: 'Scoops Tamale', by: owner);
+      final preview = await backups.inspectFile(exported, password: 'tamale-2026');
+      expect(preview.temporary, isTrue);
+      await backups.discard(preview);
+      expect(await File(preview.databasePath).exists(), isFalse);
+
+      final local = (await backups.listLocalBackups()).first;
+      final plain = await backups.inspectFile(local.file);
+      await backups.discard(plain);
+      expect(await local.file.exists(), isTrue);
+    });
+
+    group('in training', () {
+      setUp(() => Get.put(TrainingService(db))..active.value = true);
+      tearDown(() => Get.delete<TrainingService>(force: true));
+
+      test('nothing is backed up or restored', () async {
+        expect(await backups.autoBackupIfDue(), isNull);
+        await expectLater(backups.createLocalBackup(), throwsA(isA<BackupException>()));
+        Get.find<TrainingService>().active.value = false;
+        final backup = await backups.createLocalBackup(record: false);
+        final preview = await backups.inspectFile(backup.file);
+        Get.find<TrainingService>().active.value = true;
+
+        await expectLater(backups.restore(preview, by: owner), throwsA(isA<BackupException>()));
+        expect(await live.exists(), isFalse, reason: 'the real data is untouched');
+        expect(backups.closedForRestore, isFalse);
+      });
     });
   });
 }

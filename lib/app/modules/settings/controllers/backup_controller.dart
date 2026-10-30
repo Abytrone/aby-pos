@@ -161,6 +161,7 @@ class BackupController extends GetxController {
 
   /// Restore one of this device's own backups.
   Future<void> restoreLocal(LocalBackup backup) async {
+    if (_training) return showMessage(appL10n().trainingNoBackups);
     final l = appL10n();
     final auth = await _permissions.authorize(Permission.restoreBackup, reason: l.backupRestore);
     if (auth == null) return;
@@ -193,22 +194,26 @@ class BackupController extends GetxController {
     if (file == null) return;
     final p = await _preview(file, title: l.branchMerge);
     if (p == null) return;
-    final ok = await confirmDialog(
-      title: l.branchMergeConfirmTitle,
-      message: l.branchMergeConfirmBody(
-        p.shopName,
-        p.salesCount,
-        p.lastSaleAt == null ? l.backupNoSales : formatDateTime(p.lastSaleAt!),
-      ),
-      confirmLabel: l.branchMerge,
-    );
-    if (!ok) return;
-    MergeResult? result;
-    await _guard(() async {
-      result = await Get.find<BranchMerge>().merge(p, by: auth.authority);
-    }, progress: l.branchMerging);
-    final r = result;
-    if (r != null) showMessage(l.branchMerged(r.changed));
+    try {
+      final ok = await confirmDialog(
+        title: l.branchMergeConfirmTitle,
+        message: l.branchMergeConfirmBody(
+          p.shopName,
+          p.salesCount,
+          p.lastSaleAt == null ? l.backupNoSales : formatDateTime(p.lastSaleAt!),
+        ),
+        confirmLabel: l.branchMerge,
+      );
+      if (!ok) return;
+      MergeResult? result;
+      await _guard(() async {
+        result = await Get.find<BranchMerge>().merge(p, by: auth.authority);
+      }, progress: l.branchMerging);
+      final r = result;
+      if (r != null) showMessage(l.branchMerged(r.changed));
+    } finally {
+      await _backups.discard(p);
+    }
   }
 
   Future<File?> _pick() async {
@@ -254,6 +259,9 @@ class BackupController extends GetxController {
       } on BackupException catch (e) {
         showMessage(e.message);
         return null;
+      } catch (_) {
+        showMessage(l.backupFailed);
+        return null;
       }
     }
     return preview;
@@ -263,19 +271,25 @@ class BackupController extends GetxController {
     final l = appL10n();
     final p = await _preview(file, title: l.backupRestore);
     if (p == null) return;
-    final ok = await confirmDialog(
-      title: l.backupRestoreConfirmTitle,
-      message: l.backupRestoreConfirmBody(
-        p.shopName,
-        p.salesCount,
-        p.lastSaleAt == null ? l.backupNoSales : formatDateTime(p.lastSaleAt!),
-      ),
-      confirmLabel: l.backupRestore,
-      danger: true,
-    );
-    if (!ok) return;
-    await _guard(() => _backups.restore(p, by: byStaff), progress: l.backupRestoring);
-    await AppRestarter.restart();
+    try {
+      final ok = await confirmDialog(
+        title: l.backupRestoreConfirmTitle,
+        message: l.backupRestoreConfirmBody(
+          p.shopName,
+          p.salesCount,
+          p.lastSaleAt == null ? l.backupNoSales : formatDateTime(p.lastSaleAt!),
+        ),
+        confirmLabel: l.backupRestore,
+        danger: true,
+      );
+      if (!ok) return;
+      await _guard(() => _backups.restore(p, by: byStaff), progress: l.backupRestoring);
+    } finally {
+      await _backups.discard(p);
+    }
+    // A restore that failed before closing the database leaves the shop as
+    // it was: stay, so the error can be read.
+    if (_backups.closedForRestore) await AppRestarter.restart();
   }
 
   String _decryptMessage(AppLocalizations l, BackupDecryptException e) =>

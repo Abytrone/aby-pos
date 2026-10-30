@@ -91,16 +91,25 @@ abstract final class BackupCodec {
     if (header['format'] != 'aby-backup' || header['version'] != 1) {
       throw const BackupDecryptException('This backup was made by a newer version of Aby.');
     }
-    final kdf = Map<String, dynamic>.from(header['kdf'] as Map);
-    final cipher = Map<String, dynamic>.from(header['cipher'] as Map);
-    final key = await _deriveKey(
-      password,
-      base64Decode(kdf['salt'] as String),
-      kdf['iterations'] as int,
-    );
+    final List<int> salt, nonce;
+    final int iterations;
+    try {
+      final kdf = Map<String, dynamic>.from(header['kdf'] as Map);
+      final cipher = Map<String, dynamic>.from(header['cipher'] as Map);
+      salt = base64Decode(kdf['salt'] as String);
+      nonce = base64Decode(cipher['nonce'] as String);
+      iterations = kdf['iterations'] as int;
+    } catch (_) {
+      throw const BackupDecryptException('The backup file is damaged.');
+    }
+    // Ours are 120 000; far more would just hang the till.
+    if (iterations < 1 || iterations > 10000000 || nonce.length != 12) {
+      throw const BackupDecryptException('The backup file is damaged.');
+    }
+    final key = await _deriveKey(password, salt, iterations);
     final box = SecretBox(
       file.sublist(bodyStart, file.length - _tagLength),
-      nonce: base64Decode(cipher['nonce'] as String),
+      nonce: nonce,
       mac: Mac(file.sublist(file.length - _tagLength)),
     );
     try {

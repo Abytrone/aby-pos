@@ -33,11 +33,16 @@ class BackupPreview {
     required this.salesCount,
     required this.schemaVersion,
     this.lastSaleAt,
+    this.temporary = false,
   });
 
   /// A plain SQLite copy, ready to restore (decrypted if it came from an
   /// `.abybak`).
   final String databasePath;
+
+  /// [databasePath] is a decrypted copy in the temp folder: delete it with
+  /// [BackupService.discard] once done.
+  final bool temporary;
   final String shopName;
   final int salesCount;
   final int schemaVersion;
@@ -85,12 +90,23 @@ class BackupService {
   static const _pendingRestoreKey = 'pending_restore_audit';
   static const minPasswordLength = 6;
 
+  /// Set once [restore] has closed the database: the app must restart.
+  bool closedForRestore = false;
+
+  /// Backups and restores belong to the real data, never the training copy.
+  static bool get _training => Get.isRegistered<TrainingService>() && Get.find<TrainingService>().active.value;
+
+  static void _refuseInTraining() {
+    if (_training) throw const BackupException('Backups are for the real shop. Leave training mode first.');
+  }
+
   // ---------------------------------------------------------------------------
   // Local snapshots
 
   /// Copies the live database (consistent, while open) and checks the copy.
   /// Keeps the newest [AppSettings.backupsToKeep].
   Future<LocalBackup> createLocalBackup({Staff? by, bool record = true}) async {
+    _refuseInTraining();
     final dir = await _backupsDirectory();
     await dir.create(recursive: true);
     final now = DateTime.now();
@@ -122,7 +138,7 @@ class BackupService {
   Future<LocalBackup?> autoBackupIfDue() async {
     if (!_settings.get(AppSettings.autoBackupDaily)) return null;
     // The training copy is never backed up.
-    if (Get.isRegistered<TrainingService>() && Get.find<TrainingService>().active.value) return null;
+    if (_training) return null;
     final last = await lastLocalBackupAt();
     if (last != null && DateTime.now().difference(last) < const Duration(hours: 20)) return null;
     return createLocalBackup();
@@ -137,7 +153,7 @@ class BackupService {
       final name = p.basename(entity.path);
       if (!name.startsWith(_localPrefix) || !name.endsWith('.sqlite')) continue;
       final stat = await entity.stat();
-      backups.add(LocalBackup(file: entity, createdAt: stat.modified, sizeBytes: stat.size));
+      backups.add(LocalBackup(file: entity, createdAt: _parseStamp(name) ?? stat.modified, sizeBytes: stat.size));
     }
     backups.sort((a, b) => b.file.path.compareTo(a.file.path));
     return backups;
@@ -226,11 +242,24 @@ class BackupService {
       final tmp = await _tempDirectory();
       path = p.join(tmp.path, 'restore-${_stamp(DateTime.now())}.sqlite');
       await File(path).writeAsBytes(clear, flush: true);
+      try {
+        return await _inspect(path, temporary: true);
+      } catch (_) {
+        await File(path).delete();
+        rethrow;
+      }
     }
     return _inspect(path);
   }
 
-  Future<BackupPreview> _inspect(String path) async {
+  /// Deletes a decrypted temp copy: the whole shop, unencrypted.
+  Future<void> discard(BackupPreview preview) async {
+    if (!preview.temporary) return;
+    final f = File(preview.databasePath);
+    if (await f.exists()) await f.delete();
+  }
+
+  Future<BackupPreview> _inspect(String path, {bool temporary = false}) async {
     final result = await Isolate.run(() => _readDatabaseSummary(path));
     if (result case {'error': final String error}) throw BackupException(error);
     final version = result['version'] as int;
@@ -245,6 +274,7 @@ class BackupService {
       lastSaleAt: result['lastSale'] == null
           ? null
           : DateTime.fromMillisecondsSinceEpoch((result['lastSale'] as int) * 1000),
+      temporary: temporary,
     );
   }
 
@@ -252,7 +282,15 @@ class BackupService {
   /// the current data first. The database is closed afterwards: the caller
   /// must restart the app (AppRestarter) to open the restored data.
   Future<void> restore(BackupPreview preview, {Staff? by}) async {
-    if (await _hasData()) await createLocalBackup(by: by);
+    _refuseInTraining();
+    final live = await _liveDatabaseFile();
+
+    // Staged next to the live file first: the backup itself is never
+    // changed, and the safety backup's pruning can't delete it from under
+    // us. Swapped in with a rename, so a failed copy leaves the live data.
+    final staged = File('${live.path}.restoring');
+    if (await staged.exists()) await staged.delete();
+    await File(preview.databasePath).copy(staged.path);
 
     // Leave a note in the restored file; the audit entry is written after
     // the restart, once the restored database is open and migrated.
@@ -263,26 +301,38 @@ class BackupService {
       'sales': preview.salesCount,
       'at': DateTime.now().toUtc().toIso8601String(),
     });
-    final restoredPath = preview.databasePath;
-    await Isolate.run(() {
-      final db = sqlite3.open(restoredPath);
-      try {
-        db.execute(
-          'INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)',
-          [_pendingRestoreKey, note],
-        );
-      } finally {
-        db.close();
-      }
-    });
+    final stagedPath = staged.path;
+    try {
+      await Isolate.run(() {
+        final db = sqlite3.open(stagedPath);
+        try {
+          db.execute(
+            'INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)',
+            [_pendingRestoreKey, note],
+          );
+          // A training copy restored as the real data would leave the shop
+          // stuck in training: no backups, no hub.
+          db.execute(
+            'DELETE FROM meta WHERE key IN (?, ?)',
+            [TrainingService.metaKey, TrainingService.dataKey],
+          );
+        } finally {
+          db.close();
+        }
+      });
+      if (await _hasData()) await createLocalBackup(by: by);
+    } catch (_) {
+      if (await staged.exists()) await staged.delete();
+      rethrow;
+    }
 
-    final live = await _liveDatabaseFile();
+    closedForRestore = true;
     await _db.close();
     for (final suffix in ['-wal', '-shm', '-journal']) {
       final f = File('${live.path}$suffix');
       if (await f.exists()) await f.delete();
     }
-    await File(preview.databasePath).copy(live.path);
+    await staged.rename(live.path);
   }
 
   /// Call once after start-up: records a restore that just happened.
@@ -302,8 +352,13 @@ class BackupService {
     });
   }
 
+  /// Anything a shop would miss: a catalogue or staff before the first
+  /// sale counts too.
   Future<bool> _hasData() async {
-    final row = await _db.customSelect('SELECT COUNT(*) AS n FROM sales').getSingle();
+    final row = await _db.customSelect(
+      'SELECT (SELECT COUNT(*) FROM sales) + (SELECT COUNT(*) FROM products) '
+      '+ (SELECT COUNT(*) FROM staff) + (SELECT COUNT(*) FROM customers) AS n',
+    ).getSingle();
     return row.read<int>('n') > 0;
   }
 
@@ -312,6 +367,15 @@ class BackupService {
     // Milliseconds too: a restore's safety copy can follow a snapshot within a second.
     return '${t.year}${two(t.month)}${two(t.day)}-${two(t.hour)}${two(t.minute)}${two(t.second)}'
         '-${t.millisecond.toString().padLeft(3, '0')}';
+  }
+
+  /// When a backup was made, from its name: the file's own date can change
+  /// when it is copied.
+  static DateTime? _parseStamp(String name) {
+    final m = RegExp(r'(\d{4})(\d\d)(\d\d)-(\d\d)(\d\d)(\d\d)(?:-(\d{3}))?').firstMatch(name);
+    if (m == null) return null;
+    final n = [for (var i = 1; i <= 7; i++) int.parse(m.group(i) ?? '0')];
+    return DateTime(n[0], n[1], n[2], n[3], n[4], n[5], n[6]);
   }
 }
 
