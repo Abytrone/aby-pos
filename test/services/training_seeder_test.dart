@@ -77,6 +77,18 @@ void main() {
     );
   });
 
+  test('something sold by weight comes back whole', () async {
+    await shopOf(BusinessType.provision);
+    await TrainingSeeder(db).run();
+    final rice = await db.customSelect(
+      "SELECT r.quantity AS back, l.quantity AS sold FROM refund_lines r JOIN sale_lines l ON l.id = r.sale_line_id WHERE r.sell_by = 'kg'",
+    ).get();
+    expect(rice, isNotEmpty);
+    for (final row in rice) {
+      expect(row.read<int>('back'), row.read<int>('sold'));
+    }
+  });
+
   for (final type in BusinessType.values) {
     test('a ${type.name} sample shop trades', () async {
       await shopOf(type);

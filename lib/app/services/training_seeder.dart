@@ -131,6 +131,8 @@ class TrainingSeeder {
   final _groupIds = <String, String>{};
   final _customerIds = <String>[];
   final _vouchers = <String>[];
+  /// Sales with a weighed line, for the refund that brings one back.
+  final _weighed = <String>[];
   final _reasons = <ReasonKind, String>{};
   late List<Promotion> _promotions;
   var _reference = 0;
@@ -537,7 +539,9 @@ class TrainingSeeder {
     if (d % 2 == 1) await _r.safe.drop(10000, actor: _manager, note: 'Afternoon drop');
 
     // Something sold earlier comes back, or is called off.
-    if (sold.length > 3 && d % 4 == 2) await _refund(sold[1], cashier);
+    if (sold.length > 3 && d % 4 == 2) await _refund(sold[1].saleId, cashier);
+    // Once, something sold by weight comes back (it must come back whole).
+    if (d == 6 && _weighed.isNotEmpty) await _refund(_weighed.last, cashier, weighed: true);
     if (sold.length > 3 && d % 5 == 3) {
       _at(_on(day, 16));
       await _r.sales.voidSale(sold.last.saleId, actor: cashier, approver: _manager, reason: _reasons[ReasonKind.voidSale]!);
@@ -575,7 +579,7 @@ class TrainingSeeder {
       }
       await _r.expenses.ownerMoney(kind: OwnerMoneyKind.drawing, amount: 30000, source: MoneySource.bank, note: 'Weekly drawing', actor: _owner);
       for (final s in await _r.suppliers.list()) {
-        if (s.balance > 0) {
+        if (s.balance > 1) {
           await _r.suppliers.recordPayment(s.id, amount: s.balance ~/ 2, method: SupplierPaymentMethod.momo, reference: 'SP${_between(10000, 99999)}', by: _manager);
         }
       }
@@ -683,7 +687,7 @@ class TrainingSeeder {
     var changeToWallet = false;
     final roll = _random.nextDouble();
     if (d == 9 && i == 1 && _vouchers.isNotEmpty) {
-      payments = [PaymentInput.from(_voucher, reference: _vouchers.first, amount: min(most ~/ 2, 5000)), PaymentInput.from(_cash, tendered: _roundUp(most))];
+      payments = [PaymentInput.from(_voucher, reference: _vouchers.first, amount: max(1, min(most ~/ 2, 5000))), PaymentInput.from(_cash, tendered: _roundUp(most))];
     } else if (customer != null && customer.wallet > most && roll < 0.3) {
       payments = [PaymentInput.from(_wallet)];
     } else if (customer != null && customer.creditLimit != null && roll < 0.35) {
@@ -732,6 +736,7 @@ class TrainingSeeder {
           await _r.kitchen.setStatus(sale.saleId, s);
         }
       }
+      if (lines.any((l) => l.weighed)) _weighed.add(sale.saleId);
       return sale;
     } on SaleException {
       // A pretend customer whose payment the till turned down: skip them.
@@ -746,13 +751,18 @@ class TrainingSeeder {
 
   String _nextReference() => '${5200000000 + ++_reference * 7919}';
 
-  Future<void> _refund(CompletedSale sale, Staff cashier) async {
-    final refundable = await _r.refunds.refundable(sale.saleId);
-    final line = refundable?.lines.firstOrNull;
+  Future<void> _refund(String saleId, Staff cashier, {bool weighed = false}) async {
+    final refundable = await _r.refunds.refundable(saleId);
+    final line = refundable?.lines.where((l) => !weighed || l.weighed).firstOrNull;
     if (refundable == null || line == null || refundable.voided) return;
+    // Weighed lines come back whole; counted ones one at a time.
+    final quantity = line.weighed ? line.left : min(1, line.left);
+    if (quantity <= 0) return;
     final draft = RefundDraft(
-      saleId: sale.saleId,
-      lines: [RefundLineDraft(saleLineId: line.saleLineId, name: line.title, quantity: 1, restock: _chance(0.7))],
+      saleId: saleId,
+      lines: [
+        RefundLineDraft(saleLineId: line.saleLineId, name: line.title, quantity: quantity, sellBy: line.sellBy, restock: _chance(0.7)),
+      ],
       reason: _reasons[ReasonKind.refund]!,
       note: 'Customer brought it back',
     );
@@ -772,7 +782,7 @@ class TrainingSeeder {
       final momo = _chance(0.5);
       await _r.customers.repay(
         c.id,
-        amount: max(100, c.owed ~/ 2 ~/ 100 * 100),
+        amount: min(c.owed, max(100, c.owed ~/ 2 ~/ 100 * 100)),
         method: momo ? _momo.first : _cash,
         reference: momo ? _nextReference() : null,
         note: 'Part payment',
