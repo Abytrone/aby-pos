@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../core/permissions.dart';
@@ -88,7 +89,7 @@ class StaffRepository {
       if (await _activePinTaken(pin)) {
         throw const StaffException('Someone already uses that PIN. Pick another.');
       }
-      final now = DateTime.now();
+      final now = clock.now();
       final row = await _db.insertTracked(
         _db.staffMembers,
         StaffMembersCompanion.insert(
@@ -142,7 +143,7 @@ class StaffRepository {
       }
       await _db.updateTracked(
         _db.staffMembers,
-        row.copyWith(pinHash: PinHasher.hash(pin), updatedAt: DateTime.now()),
+        row.copyWith(pinHash: PinHasher.hash(pin), updatedAt: clock.now()),
       );
       await _audit.record(
         action: AuditAction.staffPinChanged,
@@ -162,7 +163,7 @@ class StaffRepository {
       final row = await _requireRow(staffId);
       await _db.updateTracked(
         _db.staffMembers,
-        row.copyWith(roleId: roleId, updatedAt: DateTime.now()),
+        row.copyWith(roleId: roleId, updatedAt: clock.now()),
       );
       final after = (await find(staffId))!;
       await _audit.record(
@@ -187,7 +188,7 @@ class StaffRepository {
       if (!active && person.isOwner) await _requireAnotherOwner(staffId);
       await _db.updateTracked(
         _db.staffMembers,
-        row.copyWith(active: active, updatedAt: DateTime.now()),
+        row.copyWith(active: active, updatedAt: clock.now()),
       );
       await _audit.record(
         action: active ? AuditAction.staffReactivated : AuditAction.staffDeactivated,
@@ -246,7 +247,7 @@ class StaffRepository {
     final code = List.generate(14, (_) => chars[random.nextInt(chars.length)]).join();
     final row = await _requireRow(staffId);
     await _db.transaction(() async {
-      await _db.updateTracked(_db.staffMembers, row.copyWith(badgeCode: Value(code), updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.staffMembers, row.copyWith(badgeCode: Value(code), updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.staffDetailsChanged,
         actor: by,
@@ -261,7 +262,7 @@ class StaffRepository {
   Future<void> removeBadge(String staffId, {required Staff by}) async {
     final row = await _requireRow(staffId);
     await _db.transaction(() async {
-      await _db.updateTracked(_db.staffMembers, row.copyWith(badgeCode: const Value(null), updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.staffMembers, row.copyWith(badgeCode: const Value(null), updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.staffDetailsChanged,
         actor: by,
@@ -276,7 +277,7 @@ class StaffRepository {
   Future<void> setBranch(String staffId, String? branchId, {required Staff by}) async {
     final row = await _requireRow(staffId);
     await _db.transaction(() async {
-      await _db.updateTracked(_db.staffMembers, row.copyWith(branchId: Value(branchId), updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.staffMembers, row.copyWith(branchId: Value(branchId), updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.staffDetailsChanged,
         actor: by,
@@ -291,7 +292,7 @@ class StaffRepository {
   Future<void> setWorkHours(String staffId, {int? start, int? end, required Staff by}) async {
     final row = await _requireRow(staffId);
     await _db.transaction(() async {
-      await _db.updateTracked(_db.staffMembers, row.copyWith(workStart: Value(start), workEnd: Value(end), updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.staffMembers, row.copyWith(workStart: Value(start), workEnd: Value(end), updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.staffDetailsChanged,
         actor: by,
@@ -327,7 +328,7 @@ class StaffRepository {
       final after = _auditView(updated);
       final changed = [for (final k in after.keys) if (before[k] != after[k]) k];
       if (changed.isEmpty) return;
-      await _db.updateTracked(_db.staffMembers, updated.copyWith(updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.staffMembers, updated.copyWith(updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.staffDetailsChanged,
         actor: by,
@@ -382,7 +383,7 @@ class StaffRepository {
         await (_db.delete(_db.staffPhotos)..where((p) => p.staffId.equals(staffId))).go();
       } else {
         await _db.into(_db.staffPhotos).insertOnConflictUpdate(
-              StaffPhotosCompanion.insert(staffId: staffId, image: image, updatedAt: DateTime.now()),
+              StaffPhotosCompanion.insert(staffId: staffId, image: image, updatedAt: clock.now()),
             );
       }
       await _audit.record(

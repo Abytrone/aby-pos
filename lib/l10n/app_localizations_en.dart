@@ -4161,20 +4161,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trainingHelp =>
-      'Practise on a copy of the shop. Nothing reaches the real sales, stock, reports or backups.';
+      'Practise on a sample shop or a copy of this one. Nothing reaches the real sales, stock, reports or backups.';
 
   @override
   String get trainingBand => 'TRAINING: NOT REAL SALES';
 
   @override
-  String get trainingStartTitle => 'Start training mode?';
+  String get trainingWith => 'Practise with';
 
   @override
-  String get trainingStartBody =>
-      'Aby restarts on a copy of the shop. Sales and stock changes stay in the copy.';
+  String get trainingSample =>
+      'A sample shop: made-up products, stock, suppliers, customers and a month of sales';
 
   @override
-  String get trainingStart => 'Start training';
+  String get trainingCopy =>
+      'A copy of this shop: its own products and sales as they are now';
+
+  @override
+  String get trainingPreparing => 'Getting the practice shop ready…';
 
   @override
   String get trainingStopTitle => 'Leave training mode?';
@@ -4191,7 +4195,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trainingResetHelp =>
-      'Throw the practice away and start again from the real shop as it is now.';
+      'Throw the practice away and start again, from a fresh sample shop or the real shop as it is now.';
 
   @override
   String get trainingNoBackups =>

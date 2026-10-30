@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../models/audit.dart';
@@ -58,7 +59,7 @@ class PayMethodRepository {
     if (kind == PaymentMethod.exchange) throw const PayMethodException('Pick what kind of payment it is.');
     final number = merchantNumber?.trim().isEmpty ?? true ? null : merchantNumber!.trim();
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final rowId = id ?? newId();
       if (id == null) {
         final max = _db.payMethods.sortOrder.max();
@@ -108,7 +109,7 @@ class PayMethodRepository {
     return _db.transaction(() async {
       final row = await (_db.select(_db.payMethods)..where((m) => m.id.equals(id))).getSingle();
       if (!active && row.builtIn == 'cash') throw const PayMethodException('Cash is always on.');
-      await _db.updateTracked(_db.payMethods, row.copyWith(active: active, updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.payMethods, row.copyWith(active: active, updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.payMethodSaved,
         actor: by,

@@ -20,7 +20,10 @@ class SetupController extends GetxController {
   final AuthService _auth = Get.find();
   final SettingsService _settings = Get.find();
 
-  late final shopField = TextEditingController(text: _settings.get(AppSettings.shopName));
+  /// Blank until the shop is named ("My shop" is only the fallback).
+  late final shopField = TextEditingController(
+    text: _settings.get(AppSettings.shopName) == AppSettings.shopName.defaultValue ? '' : _settings.get(AppSettings.shopName),
+  );
   final nameField = TextEditingController();
   final pinField = TextEditingController();
   final confirmField = TextEditingController();
@@ -31,11 +34,7 @@ class SetupController extends GetxController {
   /// The kind of shop (APP-04): sets up categories and features.
   final type = BusinessType.iceCream.obs;
 
-  void pickType(BusinessType t) {
-    type.value = t;
-    // The sample shop's name only fits the sample ice cream shop.
-    if (t != BusinessType.iceCream && shopField.text == 'Scoops Tamale') shopField.clear();
-  }
+  void pickType(BusinessType t) => type.value = t;
 
   @override
   void onClose() {
@@ -75,7 +74,7 @@ class SetupController extends GetxController {
         pin: pin,
       );
       await _settings.set(AppSettings.shopName, shopField.text.trim(), by: owner);
-      await TemplateService(Get.find(), Get.find<CatalogRepository>(), _settings).apply(type.value, by: owner);
+      await TemplateService(Get.find<CatalogRepository>(), _settings).apply(type.value, by: owner);
       _auth.signInAsNew(owner);
       await Get.offAllNamed<void>(Routes.shell);
     } on StaffException catch (e) {

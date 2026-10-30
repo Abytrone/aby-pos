@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../domain/promotions.dart';
@@ -45,7 +46,7 @@ class PromotionRepository {
     final name = p.name.trim();
     if (name.isEmpty) throw ArgumentError('A promotion needs a name.');
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final existing = p.id.isEmpty
           ? null
           : await (_db.select(_db.promotions)..where((x) => x.id.equals(p.id))).getSingleOrNull();
@@ -101,7 +102,7 @@ class PromotionRepository {
 
   Future<void> delete(String id, {required Staff by}) => _db.transaction(() async {
         final row = await (_db.select(_db.promotions)..where((x) => x.id.equals(id))).getSingle();
-        final now = DateTime.now();
+        final now = clock.now();
         await _db.updateTracked(_db.promotions, row.copyWith(deletedAt: Value(now), updatedAt: now));
         await _audit.record(
           action: AuditAction.promotionSaved,

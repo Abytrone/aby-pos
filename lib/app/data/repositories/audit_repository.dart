@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:clock/clock.dart';
 import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart';
 
@@ -39,7 +40,7 @@ class AuditRepository {
             ..orderBy([(a) => OrderingTerm(expression: a.seq, mode: OrderingMode.desc)])
             ..limit(1))
           .getSingleOrNull();
-      final now = DateTime.now();
+      final now = clock.now();
       final fields = _HashFields(
         seq: (last?.seq ?? 0) + 1,
         deviceId: _device.deviceId,

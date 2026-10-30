@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../core/units.dart';
@@ -170,7 +171,7 @@ class RefundRepository {
       if (paid != total) throw RefundException('The refund is ${formatMoney(total)}; ${formatMoney(paid)} is set to go back.');
       if (payments.any((p) => p.amount <= 0)) throw const RefundException('Each refund payment must be more than nothing.');
 
-      final now = DateTime.now();
+      final now = clock.now();
       final id = newId();
       final max = _db.refunds.number.max();
       final q = _db.selectOnly(_db.refunds)

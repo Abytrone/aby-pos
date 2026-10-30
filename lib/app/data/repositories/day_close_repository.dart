@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../core/denominations.dart';
@@ -142,7 +143,7 @@ class DayCloseRepository {
       final period = await openPeriod();
       final last = await closedUpTo();
       final lastRefund = (await _lastClose())?.lastRefundNumber ?? 0;
-      final now = DateTime.now();
+      final now = clock.now();
       final trimmedNote = note?.trim();
       final row = await _db.insertTracked(
         _db.dayCloses,
@@ -243,7 +244,7 @@ class DayCloseRepository {
   /// Over and short closes per person over the last [days] (owners only see
   /// this): (number short, pesewas short, number over).
   Future<Map<String, (int, int, int)>> varianceByPerson({int days = 30}) async {
-    final since = DateTime.now().subtract(Duration(days: days));
+    final since = clock.now().subtract(Duration(days: days));
     final rows = await (_db.select(_db.dayCloses)
           ..where((d) => d.deletedAt.isNull() & d.closedAt.isBiggerOrEqualValue(since)))
         .get();

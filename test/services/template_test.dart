@@ -2,7 +2,6 @@ import 'package:aby_pos/app/core/settings.dart';
 import 'package:aby_pos/app/data/database/app_database.dart';
 import 'package:aby_pos/app/data/repositories/settings_repository.dart';
 import 'package:aby_pos/app/domain/business_templates.dart';
-import 'package:aby_pos/app/models/models.dart';
 import 'package:aby_pos/app/services/settings_service.dart';
 import 'package:aby_pos/app/services/template_service.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,11 +15,11 @@ void main() {
   late TemplateService templates;
 
   setUp(() async {
-    db = memoryDb();
+    db = memoryDb(seed: false);
     r = await Repos.open(db);
     settings = SettingsService(SettingsRepository(db, r.device, r.audit));
     await settings.load();
-    templates = TemplateService(db, r.catalog, settings);
+    templates = TemplateService(r.catalog, settings);
   });
   tearDown(() => db.close());
 
@@ -45,20 +44,15 @@ void main() {
     expect(settings.get(AppSettings.commissionPercent), 10);
   });
 
-  test('the ice cream shop keeps the sample menu; nothing is cleared once something is sold', () async {
+  test('every kind of shop starts empty but for its categories; existing ones are kept', () async {
     await templates.apply(BusinessType.iceCream, by: owner);
-    final menu = await r.catalog.load();
-    expect(menu.products.map((p) => p.name), contains('Vanilla cone'));
+    final menu = await r.catalog.load(includeInactive: true);
+    expect(menu.products, isEmpty);
+    expect(menu.categories.map((c) => c.name), containsAll(['Cones', 'Cups']));
     expect(settings.get(AppSettings.loyaltyStyle), 'stamps');
 
-    await r.sales.completeSale(
-      lines: [CartLine(product: menu.products.firstWhere((p) => p.name == 'Waffle'))],
-      payments: [const PaymentInput.cash(tendered: 2000)],
-      cashier: cashier,
-    );
     await templates.apply(BusinessType.boutique, by: owner);
     final after = await r.catalog.load(includeInactive: true);
-    expect(after.products.map((p) => p.name), contains('Waffle'), reason: 'a shop with sales keeps its menu');
-    expect(after.categories.map((c) => c.name), containsAll(['Women', 'Men']));
+    expect(after.categories.map((c) => c.name), containsAll(['Cones', 'Women', 'Men']));
   });
 }

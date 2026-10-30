@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../models/audit.dart';
@@ -104,7 +105,7 @@ class MomoRepository {
       final existing = await (_db.select(_db.momoChecks)
             ..where((c) => c.source.equals(item.source) & c.itemId.equals(item.id)))
           .getSingleOrNull();
-      final now = DateTime.now();
+      final now = clock.now();
       if (existing == null) {
         if (matched == null) return;
         await _db.insertTracked(
@@ -159,7 +160,7 @@ class MomoRepository {
     return _db.transaction(() async {
       final d = _day(day);
       final row = await (_db.select(_db.momoCharges)..where((c) => c.day.equals(d) & c.deletedAt.isNull())).getSingleOrNull();
-      final now = DateTime.now();
+      final now = clock.now();
       if (row == null) {
         await _db.insertTracked(
           _db.momoCharges,

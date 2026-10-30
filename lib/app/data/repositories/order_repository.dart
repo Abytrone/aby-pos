@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../models/enums.dart';
@@ -19,7 +20,7 @@ class OrderRepository {
         s.status.equalsValue(SaleStatus.completed) &
         s.deletedAt.isNull() &
         // An order left open for more than a day is not shown.
-        s.createdAt.isBiggerThanValue(DateTime.now().subtract(const Duration(days: 1))))
+        s.createdAt.isBiggerThanValue(clock.now().subtract(const Duration(days: 1))))
     ..orderBy([(s) => OrderingTerm(expression: s.createdAt), (s) => OrderingTerm(expression: s.id)]);
 
   Future<List<OpenOrder>> _withLines(List<SaleRow> rows) async {
@@ -71,7 +72,7 @@ class OrderRepository {
   Future<void> setStatus(String saleId, OrderStatus status) async {
     final row = await (_db.select(_db.sales)..where((s) => s.id.equals(saleId))).getSingleOrNull();
     if (row == null || row.orderNumber == null) return;
-    final now = DateTime.now();
+    final now = clock.now();
     await _db.updateTracked(_db.sales, row.copyWith(orderStatus: Value(status), orderStatusAt: Value(now), updatedAt: now));
   }
 }

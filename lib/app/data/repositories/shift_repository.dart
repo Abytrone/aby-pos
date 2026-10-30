@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../core/denominations.dart';
@@ -58,7 +59,7 @@ class ShiftRepository {
     if (float < 0) throw ArgumentError('The float cannot be negative.');
     if (await current() != null) throw StateError('A shift is already open on this till.');
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final id = newId();
       await _db.insertTracked(
         _db.shifts,
@@ -90,7 +91,7 @@ class ShiftRepository {
     final row = await (_db.select(_db.shifts)..where((s) => s.id.equals(shiftId))).getSingle();
     await _db.updateTracked(
       _db.shifts,
-      row.copyWith(status: ShiftStatus.closed, closeId: Value(closeId), updatedAt: DateTime.now()),
+      row.copyWith(status: ShiftStatus.closed, closeId: Value(closeId), updatedAt: clock.now()),
     );
   }
 }

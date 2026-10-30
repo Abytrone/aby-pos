@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../models/audit.dart';
@@ -84,7 +85,7 @@ class PurchaseOrderRepository {
     if (lines.isEmpty) throw const StockException('Add what to order.');
     if ({for (final l in lines) l.$1}.length != lines.length) throw const StockException('An item is on the order twice.');
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final id = newId();
       final max = _db.purchaseOrders.number.max();
       final number = ((await (_db.selectOnly(_db.purchaseOrders)
@@ -140,7 +141,7 @@ class PurchaseOrderRepository {
   Future<void> cancel(String id, {required Staff by}) => _db.transaction(() async {
         final row = await (_db.select(_db.purchaseOrders)..where((o) => o.id.equals(id))).getSingle();
         if (row.status == PurchaseOrderStatus.received) throw const StockException('This order has been received.');
-        final now = DateTime.now();
+        final now = clock.now();
         await _db.updateTracked(_db.purchaseOrders, row.copyWith(status: PurchaseOrderStatus.cancelled, updatedAt: now));
         await _audit.record(
           action: AuditAction.purchaseOrderSaved,
@@ -157,7 +158,7 @@ class PurchaseOrderRepository {
   Future<void> applyDelivery(String orderId, Map<String, int> received) async {
     final row = await (_db.select(_db.purchaseOrders)..where((o) => o.id.equals(orderId))).getSingleOrNull();
     if (row == null) return;
-    final now = DateTime.now();
+    final now = clock.now();
     final lines = await (_db.select(_db.purchaseOrderLines)..where((l) => l.orderId.equals(orderId) & l.deletedAt.isNull())).get();
     var complete = true;
     for (final l in lines) {

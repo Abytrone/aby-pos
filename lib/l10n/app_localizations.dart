@@ -8119,7 +8119,7 @@ abstract class AppLocalizations {
   /// No description provided for @trainingHelp.
   ///
   /// In en, this message translates to:
-  /// **'Practise on a copy of the shop. Nothing reaches the real sales, stock, reports or backups.'**
+  /// **'Practise on a sample shop or a copy of this one. Nothing reaches the real sales, stock, reports or backups.'**
   String get trainingHelp;
 
   /// No description provided for @trainingBand.
@@ -8128,23 +8128,29 @@ abstract class AppLocalizations {
   /// **'TRAINING: NOT REAL SALES'**
   String get trainingBand;
 
-  /// No description provided for @trainingStartTitle.
+  /// No description provided for @trainingWith.
   ///
   /// In en, this message translates to:
-  /// **'Start training mode?'**
-  String get trainingStartTitle;
+  /// **'Practise with'**
+  String get trainingWith;
 
-  /// No description provided for @trainingStartBody.
+  /// No description provided for @trainingSample.
   ///
   /// In en, this message translates to:
-  /// **'Aby restarts on a copy of the shop. Sales and stock changes stay in the copy.'**
-  String get trainingStartBody;
+  /// **'A sample shop: made-up products, stock, suppliers, customers and a month of sales'**
+  String get trainingSample;
 
-  /// No description provided for @trainingStart.
+  /// No description provided for @trainingCopy.
   ///
   /// In en, this message translates to:
-  /// **'Start training'**
-  String get trainingStart;
+  /// **'A copy of this shop: its own products and sales as they are now'**
+  String get trainingCopy;
+
+  /// No description provided for @trainingPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting the practice shop ready…'**
+  String get trainingPreparing;
 
   /// No description provided for @trainingStopTitle.
   ///
@@ -8173,7 +8179,7 @@ abstract class AppLocalizations {
   /// No description provided for @trainingResetHelp.
   ///
   /// In en, this message translates to:
-  /// **'Throw the practice away and start again from the real shop as it is now.'**
+  /// **'Throw the practice away and start again, from a fresh sample shop or the real shop as it is now.'**
   String get trainingResetHelp;
 
   /// No description provided for @trainingNoBackups.

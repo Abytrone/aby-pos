@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../core/validators.dart';
@@ -96,7 +97,7 @@ class CustomerRepository {
   /// Stamps or points held, and what was spent in the last 90 days. Points
   /// not used for [LoyaltyConfig.expireDays] without a purchase expire first.
   Future<LoyaltyStatus> loyaltyStatus(String customerId, LoyaltyConfig c, {DateTime? now, String byName = 'Aby'}) async {
-    final at = now ?? DateTime.now();
+    final at = now ?? clock.now();
     var balance = (await _balances(customerId))[customerId]?.$3 ?? 0;
     if (c.style == LoyaltyStyle.points && c.expireDays > 0 && balance > 0) {
       final last = await (_db.select(_db.customerLedger)
@@ -182,7 +183,7 @@ class CustomerRepository {
           throw CustomerException('${Validators.formatPhone(main)} is already ${taken.name}.');
         }
       }
-      final now = DateTime.now();
+      final now = clock.now();
       final id = d.id ?? newId();
       if (d.id == null) {
         await _db.insertTracked(
@@ -248,7 +249,7 @@ class CustomerRepository {
   Future<void> setActive(String id, {required bool active, required Staff by}) {
     return _db.transaction(() async {
       final row = await (_db.select(_db.customers)..where((c) => c.id.equals(id))).getSingle();
-      await _db.updateTracked(_db.customers, row.copyWith(active: active, updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.customers, row.copyWith(active: active, updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.customerSaved,
         actor: by,
@@ -360,7 +361,7 @@ class CustomerRepository {
   }
 
   Future<CreditAging> aging(String customerId, {DateTime? now}) async =>
-      CreditAging.of(await openDebts(customerId), now ?? DateTime.now());
+      CreditAging.of(await openDebts(customerId), now ?? clock.now());
 
   Future<CustomerStats> stats(String customerId) async {
     final totals = await _db.customSelect(
@@ -398,7 +399,8 @@ class CustomerRepository {
     return [for (final s in rows) (s.id, s.number, s.createdAt, s.total, s.status)];
   }
 
-  /// Writes an entry inside the caller's transaction (sales and refunds).
+  /// Writes an entry inside the caller's transaction (sales and refunds),
+  /// at [at] when it belongs to a sale made then.
   Future<void> addEntry({
     required String customerId,
     required CustomerAccount account,
@@ -414,8 +416,9 @@ class CustomerRepository {
     String? reference,
     String? note,
     String? approverName,
+    DateTime? at,
   }) async {
-    final now = DateTime.now();
+    final now = at ?? clock.now();
     await _db.insertTracked(
       _db.customerLedger,
       CustomerLedgerCompanion.insert(

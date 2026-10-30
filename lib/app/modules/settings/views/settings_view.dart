@@ -134,23 +134,42 @@ Future<void> editPrepItems(SettingsController c) async {
   if (picked != null) await c.save(AppSettings.orderPrepTarget, jsonEncode(picked.toJson()));
 }
 
-/// Training mode on or off, or a fresh copy (owner, or with a PIN).
+/// Training mode on (with a sample shop or a copy of this one) or off, or
+/// a fresh start (owner, or with a PIN).
 Future<void> setTraining(SettingsController c, bool on, {bool reset = false}) async {
   final l = appL10n();
-  final ok = await confirmDialog(
-    title: reset ? l.trainingReset : (on ? l.trainingStartTitle : l.trainingStopTitle),
-    message: reset ? l.trainingResetHelp : (on ? l.trainingStartBody : l.trainingStopBody),
-    confirmLabel: reset ? l.trainingReset : (on ? l.trainingStart : l.trainingStop),
-  );
-  if (!ok) return;
+  TrainingData? data;
+  if (on && !reset) {
+    data = await choiceDialog<TrainingData>(
+      title: l.trainingWith,
+      options: TrainingData.values,
+      label: (d) => switch (d) {
+        TrainingData.sample => l.trainingSample,
+        TrainingData.shop => l.trainingCopy,
+      },
+    );
+    if (data == null) return;
+  } else {
+    final ok = await confirmDialog(
+      title: reset ? l.trainingReset : l.trainingStopTitle,
+      message: reset ? l.trainingResetHelp : l.trainingStopBody,
+      confirmLabel: reset ? l.trainingReset : l.trainingStop,
+    );
+    if (!ok) return;
+  }
   if (!await c.authorizeChange()) return;
   final training = Get.find<TrainingService>();
-  if (reset) {
-    await training.reset();
-  } else if (on) {
-    await training.enter(by: Get.find<AuthService>().currentUser.value);
-  } else {
-    await training.leave();
+  if (!on) return training.leave();
+  // Building a sample shop takes a few seconds; the app restarts after.
+  showProgress(l.trainingPreparing);
+  try {
+    if (reset) {
+      await training.reset();
+    } else {
+      await training.enter(by: Get.find<AuthService>().currentUser.value, data: data!);
+    }
+  } finally {
+    hideProgress();
   }
 }
 

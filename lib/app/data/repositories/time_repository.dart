@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../core/period.dart';
@@ -54,16 +55,18 @@ class TimesheetEntry {
 
   /// Minutes worked, breaks taken off (to now while still in).
   int workedMinutes([DateTime? now]) {
-    final end = clockOut ?? now ?? DateTime.now();
+    final end = clockOut ?? now ?? clock.now();
     final m = end.difference(clockIn).inMinutes - breakMinutes;
     return m < 0 ? 0 : m;
   }
 }
 
+DateTime _now() => clock.now();
+
 /// Clocking in and out, with breaks (STF-04). Each stretch of work is one
 /// entry; timesheets and hours are worked out from them.
 class TimeRepository {
-  TimeRepository(this._db, this._device, {DateTime Function()? clock}) : _clock = clock ?? DateTime.now;
+  TimeRepository(this._db, this._device, {DateTime Function()? clock}) : _clock = clock ?? _now;
 
   final AppDatabase _db;
   final DeviceInfo _device;

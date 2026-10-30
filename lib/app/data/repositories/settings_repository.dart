@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:clock/clock.dart';
 import '../../core/settings.dart';
 import '../../models/audit.dart';
 import '../../models/enums.dart';
@@ -39,7 +40,7 @@ class SettingsRepository {
       final encoded = jsonEncode(value);
       // Saving the value already in effect (stored, or the default) is no change.
       if ((existing?.value ?? jsonEncode(setting.defaultValue)) == encoded) return;
-      final now = DateTime.now();
+      final now = clock.now();
       if (existing == null) {
         await _db.insertTracked(
           _db.settings,

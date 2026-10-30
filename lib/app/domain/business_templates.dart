@@ -7,7 +7,7 @@ enum BusinessType { iceCream, provision, chopBar, pharmacy, salon, phones, bouti
 /// What a kind of shop starts with: categories to fill in, and which
 /// features are on. Everything can be changed later (Settings → Features).
 class BusinessTemplate {
-  const BusinessTemplate({required this.categories, this.settings = const [], this.keepSampleMenu = false});
+  const BusinessTemplate({required this.categories, this.settings = const []});
 
   /// (name, colour) of the starting categories.
   final List<(String, CategoryTone)> categories;
@@ -15,13 +15,15 @@ class BusinessTemplate {
   /// Settings switched on (or set) for this kind of shop.
   final List<(Setting<Object>, Object)> settings;
 
-  /// The ice cream shop keeps the full sample menu, stock and recipes.
-  final bool keepSampleMenu;
-
   static BusinessTemplate of(BusinessType t) => switch (t) {
         BusinessType.iceCream => const BusinessTemplate(
-            keepSampleMenu: true,
-            categories: [],
+            categories: [
+              ('Cones', CategoryTone.coral),
+              ('Cups', CategoryTone.blue),
+              ('Tubs', CategoryTone.midnight),
+              ('Drinks', CategoryTone.lime),
+              ('Snacks', CategoryTone.amber),
+            ],
             settings: [(AppSettings.loyaltyStyle, 'stamps'), (AppSettings.expiryByDefault, true)],
           ),
         BusinessType.provision => const BusinessTemplate(

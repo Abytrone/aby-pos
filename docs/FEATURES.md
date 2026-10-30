@@ -108,8 +108,10 @@ Owners can reorder or hide cards. The layout is saved per user.
 - A yellow "Training" band shows on every screen.
 - Sales, refunds and stock movements go to a separate training database, never to the real
   books, reports or sync.
-- Used to train new cashiers on real products without polluting the numbers. "Reset training data"
-  clears it.
+- Used to train new cashiers without polluting the numbers. Starting it asks what to practise
+  on: a sample shop of the same kind (made-up products, stock, suppliers, customers, staff and
+  a month of trading, under the shop's own name), or a copy of the shop itself. "Reset training
+  data" starts again the same way.
 
 ### APP-06 Languages [Beyond]
 
@@ -1674,6 +1676,41 @@ Put aside for the backend, to be built with it:
 - `INT-04` GRA E-VAT (submits invoices online; check the legal requirements first).
 - The API for accounting tools in `INT-05`.
 - `INT-06` online ordering.
+
+**Status (30 October 2026): fresh installs and sample shops for training.** Schema unchanged
+(18). Done:
+
+- A new install starts empty: no sample ice cream menu, stock or shop name. It still has the
+  built-in roles, reasons, payment methods, expense categories and the NHIL, GETFund and VAT
+  presets. The ice cream template now gives categories like every other kind of shop.
+- `APP-05` training mode asks *Practise with*: **a sample shop** or **a copy of this shop**.
+  The sample shop is made for the shop's kind (one of the nine templates): suppliers, stock
+  items (with recipes, a made-here item and expiry batches where they fit), categories,
+  options, products with barcodes, saved discounts, four promotions, customers, four sample
+  staff (each one's PIN is in their profile notes), a second branch and monthly expenses.
+  Then four weeks are played through the real repositories: shifts, sales with each payment
+  method the shop has on, refunds, voids, credit and repayments, wallet top-ups, gift vouchers, deliveries
+  against purchase orders (one partly delivered, one cancelled, one still open), supplier
+  payments, a stock count, waste, production, a price change (and one still scheduled),
+  transfers (one received short, one in transit), pay-ins, expenses with receipt photos, safe
+  drops and bank deposits, MoMo checks and charges, clock-ins with breaks, a write-off and a
+  day close every evening. Today has two parked carts. Every number is connected: stock moves
+  only by deliveries, sales, refunds, waste, counts and transfers, and the closes, the supplier and customer accounts
+  and the activity log all add up.
+- The copy keeps the shop's name, staff, roles, settings, payment methods, taxes and reasons,
+  so sign-in and the till behave as they do for real. Everything else in it is replaced. "Reset
+  training data" makes a fresh sample shop (or a fresh copy) the way the current one was made.
+- Building the sample shop takes a few seconds, in the background, behind a progress message.
+
+Decisions made on the way:
+
+- Repositories read the time through `package:clock`, which is `DateTime.now()` in normal use,
+  so the seeder can play the month back at the right times.
+- Sales follow the shop's own settings: with tax off, the products carry the tax rates but no
+  sale tax is charged. Order numbers, order types and loyalty work the same way.
+- Only the ice cream shop has product photos (the brand kit's drawings in `assets/samples/`).
+  The other kinds show category icons until the shop adds photos.
+- The hub's tables stay empty: a training copy never runs the hub.
 
 ---
 

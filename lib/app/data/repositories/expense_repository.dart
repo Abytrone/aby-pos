@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../models/audit.dart';
@@ -52,7 +53,7 @@ class ExpenseRepository {
             ..limit(1))
           .getSingleOrNull();
       if (taken != null && taken.id != id) throw const ExpenseException('That category is already on the list.');
-      final now = DateTime.now();
+      final now = clock.now();
       final rowId = id ?? newId();
       if (id == null) {
         final max = _db.expenseCategories.sortOrder.max();
@@ -86,7 +87,7 @@ class ExpenseRepository {
   Future<void> setCategoryActive(String id, {required bool active, required Staff by}) {
     return _db.transaction(() async {
       final row = await (_db.select(_db.expenseCategories)..where((c) => c.id.equals(id))).getSingle();
-      await _db.updateTracked(_db.expenseCategories, row.copyWith(active: active, updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.expenseCategories, row.copyWith(active: active, updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.expenseCategorySaved,
         actor: by,
@@ -115,7 +116,7 @@ class ExpenseRepository {
               approver: approver,
             )
           : null;
-      final now = DateTime.now();
+      final now = clock.now();
       final id = newId();
       await _db.insertTracked(
         _db.expenses,
@@ -238,7 +239,7 @@ class ExpenseRepository {
     if (amount <= 0) throw const ExpenseException('Enter the amount.');
     if (dayOfMonth < 1 || dayOfMonth > 28) throw const ExpenseException('Pick a day from 1 to 28.');
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final rowId = id ?? newId();
       if (id == null) {
         await _db.insertTracked(
@@ -286,7 +287,7 @@ class ExpenseRepository {
     return _db.transaction(() async {
       final row = await (_db.select(_db.recurringExpenses)..where((r) => r.id.equals(id))).getSingle();
       if (row.active == active) return;
-      await _db.updateTracked(_db.recurringExpenses, row.copyWith(active: active, updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.recurringExpenses, row.copyWith(active: active, updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.expenseCategorySaved,
         actor: by,
@@ -299,13 +300,13 @@ class ExpenseRepository {
 
   /// Reminders due this month and not yet confirmed or skipped.
   Future<List<RecurringExpense>> due({DateTime? now}) async {
-    final at = now ?? DateTime.now();
+    final at = now ?? clock.now();
     return (await recurring()).where((r) => r.dueOn(at)).toList();
   }
 
   /// Records this month's expense from the reminder ([amount] may differ).
   Future<void> confirm(RecurringExpense r, {int? amount, required Staff actor, Staff? approver, DateTime? now}) {
-    final at = now ?? DateTime.now();
+    final at = now ?? clock.now();
     return _db.transaction(() async {
       await add(
         ExpenseDraft(
@@ -324,13 +325,13 @@ class ExpenseRepository {
   }
 
   /// Not this month.
-  Future<void> skip(RecurringExpense r, {DateTime? now}) => _db.transaction(() => _markDone(r.id, now ?? DateTime.now()));
+  Future<void> skip(RecurringExpense r, {DateTime? now}) => _db.transaction(() => _markDone(r.id, now ?? clock.now()));
 
   Future<void> _markDone(String id, DateTime at) async {
     final row = await (_db.select(_db.recurringExpenses)..where((x) => x.id.equals(id))).getSingle();
     await _db.updateTracked(
       _db.recurringExpenses,
-      row.copyWith(doneUpTo: Value(RecurringExpense.monthKey(at)), updatedAt: DateTime.now()),
+      row.copyWith(doneUpTo: Value(RecurringExpense.monthKey(at)), updatedAt: clock.now()),
     );
   }
 
@@ -359,7 +360,7 @@ class ExpenseRepository {
               approver: approver,
             )
           : null;
-      final now = DateTime.now();
+      final now = clock.now();
       final id = newId();
       await _db.insertTracked(
         _db.ownerMoney,

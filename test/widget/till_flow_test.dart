@@ -1061,18 +1061,18 @@ void main() {
     await _dispose(tester);
   });
 
-  testWidgets('tablet, first run as a chop bar: its categories, order numbers on, no sample ice cream', (tester) async {
+  testWidgets('tablet, first run as a chop bar: its categories, order numbers on, nothing else', (tester) async {
     tester.view.physicalSize = const Size(1280, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(AbyApp(openDatabase: memoryDb));
+    await tester.pumpWidget(AbyApp(openDatabase: () => memoryDb(seed: false)));
     await _settle(tester);
     expect(find.text('What kind of shop?'), findsOneWidget);
     await tester.tap(find.text('Chop bar / restaurant'));
     await _settle(tester);
     final fields = find.byType(TextField);
-    expect(tester.widget<TextField>(fields.at(0)).controller!.text, isEmpty, reason: 'not the sample shop name');
+    expect(tester.widget<TextField>(fields.at(0)).controller!.text, isEmpty, reason: 'not the fallback name');
     await tester.enterText(fields.at(0), 'Auntie Mercy Chop Bar');
     await tester.enterText(fields.at(1), 'Mercy');
     await tester.enterText(fields.at(2), '2468');

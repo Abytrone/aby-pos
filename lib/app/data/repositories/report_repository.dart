@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../core/period.dart';
@@ -189,7 +190,7 @@ class ReportRepository {
 
   /// Products on the till that have not sold for [days] days.
   Future<List<(String name, DateTime? last)>> slowMovers({int days = 14, DateTime? now}) async {
-    final since = (now ?? DateTime.now()).subtract(Duration(days: days));
+    final since = (now ?? clock.now()).subtract(Duration(days: days));
     final rows = await _db.customSelect(
       'SELECT p.name AS name, (SELECT MAX(s.created_at) FROM sale_lines l JOIN sales s ON s.id = l.sale_id '
       "WHERE l.product_id = p.id AND s.status = 'completed') AS last "
@@ -329,7 +330,7 @@ class ReportRepository {
     }
     final all = await _customers.list(includeInactive: true);
     var overdue = 0;
-    final now = DateTime.now();
+    final now = clock.now();
     for (final c in all.where((c) => c.owed > 0)) {
       overdue += CreditAging.of(await _customers.openDebts(c.id), now).overdue;
     }

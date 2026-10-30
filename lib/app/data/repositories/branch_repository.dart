@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../models/audit.dart';
@@ -55,7 +56,7 @@ class BranchRepository {
       throw const BranchException('There is already a branch with that name.');
     }
     String? clean(String? s) => s == null || s.trim().isEmpty ? null : s.trim();
-    final now = DateTime.now();
+    final now = clock.now();
     return _db.transaction(() async {
       final id = d.id ?? newId();
       final existing = d.id == null ? null : await (_db.select(_db.branches)..where((b) => b.id.equals(id))).getSingleOrNull();
@@ -97,7 +98,7 @@ class BranchRepository {
     if (!active && devices.isNotEmpty) throw const BranchException('Move its devices to another branch first.');
     await _db.transaction(() async {
       final row = await (_db.select(_db.branches)..where((b) => b.id.equals(id))).getSingle();
-      await _db.updateTracked(_db.branches, row.copyWith(active: active, updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.branches, row.copyWith(active: active, updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.branchSaved,
         actor: by,
@@ -114,7 +115,7 @@ class BranchRepository {
     final device = deviceId ?? _device.deviceId;
     final branch = await (_db.select(_db.branches)..where((b) => b.id.equals(branchId))).getSingleOrNull();
     if (branch == null || !branch.active) throw const BranchException('Choose an open branch.');
-    final now = DateTime.now();
+    final now = clock.now();
     await _db.transaction(() async {
       final existing = await (_db.select(_db.deviceBranches)..where((d) => d.id.equals(device))).getSingleOrNull();
       if (existing == null) {

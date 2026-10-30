@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../models/audit.dart';
@@ -51,7 +52,7 @@ class DiscountRepository {
     }
     if (kind == DiscountKind.amount && value <= 0) throw const DiscountException('Enter an amount.');
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final rowId = id ?? newId();
       if (id == null) {
         await _db.insertTracked(
@@ -89,7 +90,7 @@ class DiscountRepository {
   Future<void> setDiscountActive(String id, {required bool active, required Staff by}) {
     return _db.transaction(() async {
       final row = await (_db.select(_db.discounts)..where((d) => d.id.equals(id))).getSingle();
-      await _db.updateTracked(_db.discounts, row.copyWith(active: active, updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.discounts, row.copyWith(active: active, updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.discountSaved,
         actor: by,
@@ -118,7 +119,7 @@ class DiscountRepository {
             ..limit(1))
           .getSingleOrNull();
       if (taken != null && taken.id != id) throw const DiscountException('That reason is already on the list.');
-      final now = DateTime.now();
+      final now = clock.now();
       final rowId = id ?? newId();
       if (id == null) {
         final max = _db.reasons.sortOrder.max();
@@ -156,7 +157,7 @@ class DiscountRepository {
   Future<void> setReasonActive(String id, {required bool active, required Staff by}) {
     return _db.transaction(() async {
       final row = await (_db.select(_db.reasons)..where((r) => r.id.equals(id))).getSingle();
-      await _db.updateTracked(_db.reasons, row.copyWith(active: active, updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.reasons, row.copyWith(active: active, updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.reasonSaved,
         actor: by,

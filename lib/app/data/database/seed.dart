@@ -8,7 +8,7 @@ import '../../services/ids.dart';
 import '../../services/money.dart';
 import 'app_database.dart';
 
-/// Fills a new database with the first customer's menu: an ice cream shop,
+/// Test fixture: fills a new database with the first customer's menu: an ice cream shop,
 /// with stock items, recipes and some opening stock so the till shows what
 /// is left from day one.
 ///
@@ -113,24 +113,6 @@ Future<void> seedScoopsTamale(AppDatabase db, {required String deviceId, Map<Str
             sortOrder: Value(order++),
           ));
       await recipe([(item, qty)], optionId: id);
-    }
-
-    // ---- Taxes (presets; tax is off until the owner turns it on) -----------
-    for (final (name, bp, compound) in [
-      ('NHIL', 250, false),
-      ('GETFund levy', 250, false),
-      ('VAT', 1500, true),
-    ]) {
-      await db.into(db.taxRates).insert(TaxRatesCompanion.insert(
-            id: newId(),
-            createdAt: now,
-            updatedAt: now,
-            deviceId: deviceId,
-            name: name,
-            rateBp: bp,
-            compound: Value(compound),
-            sortOrder: Value(order++),
-          ));
     }
 
     // ---- Menu ------------------------------------------------------------------

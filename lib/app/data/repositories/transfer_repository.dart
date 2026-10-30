@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../models/audit.dart';
@@ -97,7 +98,7 @@ class TransferRepository {
     final wanted = {for (final e in lines.entries) if (e.value > 0) e.key: e.value};
     if (wanted.isEmpty) throw const StockException('Add what to send.');
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final id = newId();
       final items = {
         for (final i in await (_db.select(_db.stockItems)..where((s) => s.id.isIn(wanted.keys))).get()) i.id: i,
@@ -165,7 +166,7 @@ class TransferRepository {
       throw const StockException('Only the branch it was sent to can receive it.');
     }
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       for (final l in t.lines) {
         final got = received[l.id] ?? l.quantitySent;
         if (got < 0) throw const StockException('A quantity cannot be negative.');
@@ -212,7 +213,7 @@ class TransferRepository {
       throw const StockException('Only the branch that sent it can call it back.');
     }
     await _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       for (final l in t.lines) {
         await _stock.record(
           stockItemId: l.stockItemId,

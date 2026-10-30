@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../models/audit.dart';
@@ -117,7 +118,7 @@ class CashEventRepository {
     required Staff actor,
     Staff? approver,
   }) async {
-    final now = DateTime.now();
+    final now = clock.now();
     final id = newId();
     await _db.insertTracked(
       _db.cashEvents,
@@ -139,7 +140,7 @@ class CashEventRepository {
   }
 
   Future<void> savePhoto(String ownerId, Uint8List image) => _db.into(_db.receiptPhotos).insertOnConflictUpdate(
-        ReceiptPhotosCompanion.insert(ownerId: ownerId, image: image, updatedAt: DateTime.now()),
+        ReceiptPhotosCompanion.insert(ownerId: ownerId, image: image, updatedAt: clock.now()),
       );
 
   Future<Uint8List?> photo(String ownerId) async =>

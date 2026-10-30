@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../core/business_day.dart';
@@ -112,7 +113,7 @@ class SaleRepository {
     final status = loyalty.on && customer != null && _customers != null
         ? await _customers.loyaltyStatus(customer.id, loyalty, byName: cashier.name)
         : null;
-    final promoted = Loyalty.apply(lines, promotions, DateTime.now(), loyalty, status);
+    final promoted = Loyalty.apply(lines, promotions, clock.now(), loyalty, status);
     final pricing = CartPricing.of(lines, orderDiscount: orderDiscount, taxMode: taxMode, promotions: promoted);
     final subtotal = pricing.subtotal;
     final taxTotal = pricing.taxTotal;
@@ -182,7 +183,7 @@ class SaleRepository {
       }
       // Change kept in the wallet stays in the drawer.
       final kept = changeToWallet && account != null ? settlement.change : 0;
-      final now = DateTime.now();
+      final now = clock.now();
       final saleId = newId();
       final number = await _nextSaleNumber();
       final orderNumber = orders != null && orders.needsPrep(lines) ? await _nextOrderNumber(orders, now) : null;
@@ -383,6 +384,7 @@ class SaleRepository {
               amount: p.amount,
               byName: cashier.name,
               saleId: saleId,
+              at: now,
               dueOn: account.dueDays == null ? null : now.add(Duration(days: account.dueDays!)),
               methodName: p.input.label,
               approverName: creditApprover?.name,
@@ -395,6 +397,7 @@ class SaleRepository {
               amount: -p.amount,
               byName: cashier.name,
               saleId: saleId,
+              at: now,
               methodName: p.input.label,
             );
           }
@@ -407,6 +410,7 @@ class SaleRepository {
             amount: kept,
             byName: cashier.name,
             saleId: saleId,
+            at: now,
             method: PaymentMethod.cash,
             methodName: 'Cash',
           );
@@ -421,6 +425,7 @@ class SaleRepository {
               amount: -used,
               byName: cashier.name,
               saleId: saleId,
+              at: now,
             );
           }
           final got = Loyalty.earned(loyalty, lines, promoted, total);
@@ -432,6 +437,7 @@ class SaleRepository {
               amount: got,
               byName: cashier.name,
               saleId: saleId,
+              at: now,
             );
           }
         }
@@ -552,7 +558,7 @@ class SaleRepository {
       'AND p.deleted_at IS NULL AND s.deleted_at IS NULL AND p.created_at >= ? LIMIT 1',
       variables: [
         Variable.withString(ref),
-        Variable.withDateTime(p.shortReference ? DateTime.now().subtract(shortReferenceWindow) : DateTime(2000)),
+        Variable.withDateTime(p.shortReference ? clock.now().subtract(shortReferenceWindow) : DateTime(2000)),
       ],
       readsFrom: {_db.payments, _db.sales},
     ).get();
@@ -608,7 +614,7 @@ class SaleRepository {
             "This sale is in a closed day, so it can't be voided.");
       }
 
-      final now = DateTime.now();
+      final now = clock.now();
       await _db.updateTracked(
         _db.sales,
         sale.copyWith(
@@ -675,7 +681,7 @@ class SaleRepository {
 
   /// Sales in the current business day (see BusinessDay).
   Stream<List<Sale>> watchToday({required int dayStartMinutes}) {
-    final day = BusinessDay.containing(DateTime.now(), startMinutes: dayStartMinutes);
+    final day = BusinessDay.containing(clock.now(), startMinutes: dayStartMinutes);
     return watchSales(from: day.start, to: day.end);
   }
 

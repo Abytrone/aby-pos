@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../models/audit.dart';
@@ -137,7 +138,7 @@ class VoucherRepository {
       while (await find(code) != null) {
         code = newCode(shopName);
       }
-      final now = DateTime.now();
+      final now = clock.now();
       final id = newId();
       await _db.insertTracked(
         _db.giftVouchers,
@@ -182,7 +183,7 @@ class VoucherRepository {
     PayMethod? method,
     String? reference,
   }) {
-    final now = DateTime.now();
+    final now = clock.now();
     final ref = reference?.trim();
     return _db.insertTracked(
       _db.voucherEntries,
@@ -207,7 +208,7 @@ class VoucherRepository {
   Future<GiftVoucher> check(String code, int amount, {DateTime? at}) async {
     final v = await find(code);
     if (v == null) throw VoucherException('No gift voucher ${normalise(code)}.');
-    if (v.expiredAt(at ?? DateTime.now())) throw VoucherException('Gift voucher ${v.code} has expired.');
+    if (v.expiredAt(at ?? clock.now())) throw VoucherException('Gift voucher ${v.code} has expired.');
     if (v.balance < amount) throw VoucherException('Gift voucher ${v.code} has ${formatMoney(v.balance)} left.');
     return v;
   }

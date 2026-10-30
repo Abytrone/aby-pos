@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../core/units.dart';
@@ -73,7 +74,7 @@ class StockCountRepository {
   /// One open count at a time.
   Future<String> start({required bool blind, String? note, required Staff by}) async {
     if (await open() != null) throw const StockException('A stock count is already open.');
-    final now = DateTime.now();
+    final now = clock.now();
     final id = newId();
     await _db.insertTracked(
       _db.stockCounts,
@@ -125,7 +126,7 @@ class StockCountRepository {
     await _db.transaction(() async {
       final count = await find(countId);
       if (count?.status != StockCountStatus.open) throw const StockException('This count is closed.');
-      final now = DateTime.now();
+      final now = clock.now();
       final existing =
           await (_db.select(_db.stockCountLines)
                 ..where((l) => l.countId.equals(countId) & l.stockItemId.equals(stockItemId) & l.deletedAt.isNull()))
@@ -163,7 +164,7 @@ class StockCountRepository {
       if (row.status != StockCountStatus.open) throw const StockException('This count is closed.');
       final lines = (await this.lines(countId)).where((l) => l.counted != null).toList();
       if (lines.isEmpty) throw const StockException('Nothing has been counted yet.');
-      final now = DateTime.now();
+      final now = clock.now();
       var value = 0;
       var changed = 0;
       for (final l in lines) {
@@ -212,7 +213,7 @@ class StockCountRepository {
     if (row.status != StockCountStatus.open) return;
     await _db.updateTracked(
       _db.stockCounts,
-      row.copyWith(status: StockCountStatus.cancelled, updatedAt: DateTime.now()),
+      row.copyWith(status: StockCountStatus.cancelled, updatedAt: clock.now()),
     );
       await _audit.record(
         action: AuditAction.stockCountCancelled,

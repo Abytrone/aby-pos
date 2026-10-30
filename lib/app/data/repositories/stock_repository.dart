@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../core/units.dart';
@@ -72,7 +73,7 @@ class StockRepository {
     if (name.isEmpty) throw const StockException('Enter a name.');
     if (d.costMilli < 0) throw const StockException('The cost cannot be negative.');
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final id = d.id ?? newId();
       if (d.id == null) {
         await _db.insertTracked(
@@ -124,7 +125,7 @@ class StockRepository {
   Future<void> setItemActive(String id, {required bool active, required Staff by}) {
     return _db.transaction(() async {
       final row = await (_db.select(_db.stockItems)..where((s) => s.id.equals(id))).getSingle();
-      await _db.updateTracked(_db.stockItems, row.copyWith(active: active, updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.stockItems, row.copyWith(active: active, updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.stockItemSaved,
         actor: by,
@@ -257,7 +258,7 @@ class StockRepository {
     String? byName,
     DateTime? at,
   }) async {
-    final now = at ?? DateTime.now();
+    final now = at ?? clock.now();
     await _db.insertTracked(
       _db.stockMovements,
       StockMovementsCompanion.insert(
@@ -395,7 +396,7 @@ class StockRepository {
 
   /// Batches still in stock that expire within [days] (or have expired).
   Future<List<BatchLeft>> expiring({int days = 30, DateTime? now}) async {
-    final at = now ?? DateTime.now();
+    final at = now ?? clock.now();
     return [
       for (final b in await batches())
         if (b.left > 0 && (b.daysLeft(at) ?? days + 1) <= days) b,
@@ -410,7 +411,7 @@ class StockRepository {
     String? batchNo,
     DateTime? expiresOn,
   }) {
-    final now = DateTime.now();
+    final now = clock.now();
     final no = batchNo?.trim();
     return _db.insertTracked(
       _db.stockBatches,
@@ -455,7 +456,7 @@ class StockRepository {
     if (lines.any((l) => l.$1 == madeItemId)) throw const StockException('An item cannot be made from itself.');
     if (lines.any((l) => l.$2 <= 0)) throw const StockException('Each ingredient needs an amount.');
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final item = await (_db.select(_db.stockItems)..where((s) => s.id.equals(madeItemId))).getSingle();
       await _db.updateTracked(_db.stockItems, item.copyWith(batchYield: Value(batchYield), updatedAt: now));
       final old = await (_db.select(_db.recipeItems)..where((r) => r.madeItemId.equals(madeItemId) & r.deletedAt.isNull())).get();
@@ -498,7 +499,7 @@ class StockRepository {
     final recipe = await productionRecipe(madeItemId);
     if (recipe == null || recipe.lines.isEmpty) throw const StockException('Set what it is made from first.');
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final made = await (_db.select(_db.stockItems)..where((s) => s.id.equals(madeItemId))).getSingle();
       final runId = newId();
       var costMilliTotal = 0;

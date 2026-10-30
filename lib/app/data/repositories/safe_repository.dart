@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../models/audit.dart';
@@ -85,7 +86,7 @@ class SafeRepository {
   }
 
   Future<String> _add(SafeEntryKind kind, int amount, Staff by, {String? bank, String? reference, String? note}) async {
-    final now = DateTime.now();
+    final now = clock.now();
     final id = newId();
     String? clean(String? v) => v == null || v.trim().isEmpty ? null : v.trim();
     await _db.insertTracked(

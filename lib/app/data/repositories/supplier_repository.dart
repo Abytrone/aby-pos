@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../models/audit.dart';
@@ -87,7 +88,7 @@ class SupplierRepository {
     if (name.isEmpty) throw const StockException('Enter the supplier name.');
     String? clean(String? v) => v == null || v.trim().isEmpty ? null : v.trim();
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final id = d.id ?? newId();
       if (d.id == null) {
         await _db.insertTracked(
@@ -134,7 +135,7 @@ class SupplierRepository {
   Future<void> setActive(String id, {required bool active, required Staff by}) {
     return _db.transaction(() async {
       final row = await (_db.select(_db.suppliers)..where((s) => s.id.equals(id))).getSingle();
-      await _db.updateTracked(_db.suppliers, row.copyWith(active: active, updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.suppliers, row.copyWith(active: active, updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.supplierSaved,
         actor: by,
@@ -156,7 +157,7 @@ class SupplierRepository {
     String? reference,
     String? note,
   }) async {
-    final now = DateTime.now();
+    final now = clock.now();
     await _db.insertTracked(
       _db.supplierLedger,
       SupplierLedgerCompanion.insert(

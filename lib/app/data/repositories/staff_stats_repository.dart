@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../models/audit.dart';
@@ -13,7 +14,7 @@ class StaffStatsRepository {
 
   /// [todayStart] is the start of the current business day.
   Future<StaffStats> stats(String staffId, {required DateTime todayStart, DateTime? now}) async {
-    final at = now ?? DateTime.now();
+    final at = now ?? clock.now();
     final monthAgo = at.subtract(const Duration(days: 30));
 
     Future<(int, int)> sales(DateTime from) async {

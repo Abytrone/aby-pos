@@ -72,7 +72,7 @@ void main() {
       final real = File('${dir.path}/real.sqlite');
       final copy = File('${dir.path}/training.sqlite');
       final marker = File('${dir.path}/marker');
-      final db = AppDatabase(DatabaseConnection(NativeDatabase(real)));
+      final db = AppDatabase(DatabaseConnection(NativeDatabase(real)), true);
       final r = await Repos.open(db);
       expect((await r.catalog.load()).products, isNotEmpty);
       var restarts = 0;
@@ -86,7 +86,7 @@ void main() {
       await training.load();
       expect(training.active.value, isFalse);
 
-      await training.enter();
+      await training.enter(data: TrainingData.shop);
       expect(await marker.exists(), isTrue);
       expect(restarts, 1);
       final opened = sqlite3.open(copy.path);
@@ -97,7 +97,7 @@ void main() {
       opened.close();
 
       // Open the copy as the app would, practise, then reset.
-      final practice = AppDatabase(DatabaseConnection(NativeDatabase(copy)));
+      final practice = AppDatabase(DatabaseConnection(NativeDatabase(copy)), true);
       final t2 = TrainingService(
         practice,
         realFile: () async => real,
@@ -114,7 +114,7 @@ void main() {
       expect(fresh.select("SELECT value FROM meta WHERE key = 'training_mode'").single['value'], '1');
       fresh.close();
 
-      final back = AppDatabase(DatabaseConnection(NativeDatabase(copy)));
+      final back = AppDatabase(DatabaseConnection(NativeDatabase(copy)), true);
       final t3 = TrainingService(
         back,
         realFile: () async => real,
@@ -125,6 +125,54 @@ void main() {
       await t3.leave();
       expect(await marker.exists(), isFalse);
       expect(restarts, 3);
+    });
+
+    test('a sample shop is seeded into the copy before it is marked, and again on reset', () async {
+      final real = File('${dir.path}/real.sqlite');
+      final copy = File('${dir.path}/training.sqlite');
+      final marker = File('${dir.path}/marker');
+      final db = AppDatabase(DatabaseConnection(NativeDatabase(real)));
+      await db.readMeta('device_id');
+      var seeded = 0;
+      Future<void> seed(File f) async {
+        seeded++;
+        final s = sqlite3.open(f.path);
+        // What the seeder's repositories queue is dropped with the outbox.
+        s.execute("INSERT INTO outbox (entity, record_id, operation, payload, created_at) VALUES ('x', 'x', 'insert', '{}', 0)");
+        s.close();
+      }
+
+      final training = TrainingService(
+        db,
+        realFile: () async => real,
+        trainingFile: () async => copy,
+        markerFile: () async => marker,
+        restart: () async {},
+        seed: seed,
+      );
+      await training.enter();
+      expect(seeded, 1);
+      var opened = sqlite3.open(copy.path);
+      expect(opened.select("SELECT value FROM meta WHERE key = 'training_data'").single['value'], 'sample');
+      expect(opened.select('SELECT COUNT(*) AS n FROM outbox').single['n'], 0);
+      opened.close();
+
+      final practice = AppDatabase(DatabaseConnection(NativeDatabase(copy)));
+      final t2 = TrainingService(
+        practice,
+        realFile: () async => real,
+        trainingFile: () async => copy,
+        markerFile: () async => marker,
+        restart: () async {},
+        seed: seed,
+      );
+      await t2.load();
+      expect(t2.data.value, TrainingData.sample);
+      await t2.reset();
+      expect(seeded, 2, reason: 'a reset makes a fresh sample shop');
+      opened = sqlite3.open(copy.path);
+      expect(opened.select("SELECT value FROM meta WHERE key = 'training_data'").single['value'], 'sample');
+      opened.close();
     });
   });
 }

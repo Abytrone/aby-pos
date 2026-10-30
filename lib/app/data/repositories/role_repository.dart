@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../core/permissions.dart';
@@ -48,7 +49,7 @@ class RoleRepository {
   }) async {
     final trimmed = _checkName(name);
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final row = await _db.insertTracked(
         _db.roles,
         RolesCompanion.insert(
@@ -94,7 +95,7 @@ class RoleRepository {
           name: trimmed,
           permissions: permissions,
           maxDiscountPercent: maxDiscountPercent.clamp(0, 100),
-          updatedAt: DateTime.now(),
+          updatedAt: clock.now(),
         ),
       );
       await _audit.record(
@@ -122,7 +123,7 @@ class RoleRepository {
         throw StaffException('$n ${n == 1 ? 'person has' : 'people have'} this role. '
             'Give them another role first.');
       }
-      final now = DateTime.now();
+      final now = clock.now();
       await _db.updateTracked(_db.roles, row.copyWith(deletedAt: Value(now), updatedAt: now));
       await _audit.record(
         action: AuditAction.roleDeleted,

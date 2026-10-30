@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../models/audit.dart';
@@ -89,7 +90,7 @@ class ParkedOrderRepository {
   }) {
     final clean = name.trim();
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final id = newId();
       await _db.insertTracked(
         _db.parkedOrders,
@@ -124,7 +125,7 @@ class ParkedOrderRepository {
     return _db.transaction(() async {
       final row = await (_db.select(_db.parkedOrders)..where((o) => o.id.equals(id))).getSingleOrNull();
       if (row == null || row.status != ParkedOrderStatus.parked) return false;
-      final now = DateTime.now();
+      final now = clock.now();
       await _db.updateTracked(
         _db.parkedOrders,
         row.copyWith(status: ParkedOrderStatus.resumed, closedAt: Value(now), updatedAt: now),
@@ -138,7 +139,7 @@ class ParkedOrderRepository {
     if (clean.isEmpty) return;
     await _db.transaction(() async {
       final row = await (_db.select(_db.parkedOrders)..where((o) => o.id.equals(id))).getSingle();
-      await _db.updateTracked(_db.parkedOrders, row.copyWith(name: clean, updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.parkedOrders, row.copyWith(name: clean, updatedAt: clock.now()));
     });
   }
 
@@ -147,7 +148,7 @@ class ParkedOrderRepository {
     return _db.transaction(() async {
       final row = await (_db.select(_db.parkedOrders)..where((o) => o.id.equals(id))).getSingle();
       if (row.status != ParkedOrderStatus.parked) return;
-      final now = DateTime.now();
+      final now = clock.now();
       await _db.updateTracked(
         _db.parkedOrders,
         row.copyWith(status: ParkedOrderStatus.discarded, closedAt: Value(now), updatedAt: now),
@@ -165,7 +166,7 @@ class ParkedOrderRepository {
 
   /// Parked orders waiting longer than [age] (close day warns about them).
   Future<int> olderThan(Duration age) async {
-    final cutoff = DateTime.now().subtract(age);
+    final cutoff = clock.now().subtract(age);
     return (await _parked().get()).where((r) => r.createdAt.isBefore(cutoff)).length;
   }
 }

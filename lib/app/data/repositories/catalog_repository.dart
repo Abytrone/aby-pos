@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../models/audit.dart';
@@ -272,7 +273,7 @@ class CatalogRepository {
   /// option groups and taxes. Returns the product ID.
   Future<String> saveProduct(ProductDraft d, {required Staff by}) {
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final isNew = d.id == null;
       final productId = d.id ?? newId();
       String? clean(String? v) => v == null || v.trim().isEmpty ? null : v.trim();
@@ -437,7 +438,7 @@ class CatalogRepository {
         readsFrom: {_db.barcodes},
       ).getSingle();
       var next = last.read<int>('n');
-      final now = DateTime.now();
+      final now = clock.now();
       for (final variantId in need) {
         next++;
         await _db.insertTracked(
@@ -473,7 +474,7 @@ class CatalogRepository {
     for (final r in rows.where((r) => !want.contains(r.code))) {
       await _db.softDeleteTracked(_db.barcodes, r.id);
     }
-    final now = DateTime.now();
+    final now = clock.now();
     for (final code in want.difference(have)) {
       await _db.insertTracked(
         _db.barcodes,
@@ -506,7 +507,7 @@ class CatalogRepository {
     for (final r in rows) {
       await _db.softDeleteTracked(_db.recipeItems, r.id);
     }
-    final now = DateTime.now();
+    final now = clock.now();
     for (final l in lines.where((l) => l.quantity > 0)) {
       await _db.insertTracked(
         _db.recipeItems,
@@ -535,7 +536,7 @@ class CatalogRepository {
     for (final r in rows) {
       await _db.softDeleteTracked(_db.productOptionGroups, r.id);
     }
-    final now = DateTime.now();
+    final now = clock.now();
     for (final (i, groupId) in groupIds.indexed) {
       await _db.insertTracked(
         _db.productOptionGroups,
@@ -563,7 +564,7 @@ class CatalogRepository {
     for (final r in rows.where((r) => !want.contains(r.taxRateId))) {
       await _db.softDeleteTracked(_db.productTaxes, r.id);
     }
-    final now = DateTime.now();
+    final now = clock.now();
     for (final id in want.difference(have)) {
       await _db.insertTracked(
         _db.productTaxes,
@@ -585,7 +586,7 @@ class CatalogRepository {
   Future<void> setArchived(String productId, {required bool archived, required Staff by}) {
     return _db.transaction(() async {
       final row = await (_db.select(_db.products)..where((p) => p.id.equals(productId))).getSingle();
-      final now = DateTime.now();
+      final now = clock.now();
       await _db.updateTracked(_db.products, row.copyWith(archivedAt: Value(archived ? now : null), updatedAt: now));
       await _audit.record(
         action: archived ? AuditAction.productArchived : AuditAction.productRestored,
@@ -604,14 +605,14 @@ class CatalogRepository {
       await _db
           .into(_db.productPhotos)
           .insertOnConflictUpdate(
-            ProductPhotosCompanion.insert(productId: productId, image: image, updatedAt: DateTime.now()),
+            ProductPhotosCompanion.insert(productId: productId, image: image, updatedAt: clock.now()),
           );
     }
   }
 
   Future<String> saveCategory(CategoryDraft d, {required Staff by}) {
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final id = d.id ?? newId();
       if (d.id == null) {
         await _db.insertTracked(
@@ -649,7 +650,7 @@ class CatalogRepository {
   Future<void> setCategoryActive(String id, {required bool active, required Staff by}) {
     return _db.transaction(() async {
       final row = await (_db.select(_db.categories)..where((c) => c.id.equals(id))).getSingle();
-      await _db.updateTracked(_db.categories, row.copyWith(active: active, updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.categories, row.copyWith(active: active, updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.categorySaved,
         actor: by,
@@ -675,7 +676,7 @@ class CatalogRepository {
 
   Future<String> saveOptionGroup(OptionGroupDraft d, {required Staff by}) {
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final groupId = d.id ?? newId();
       if (d.id == null) {
         await _db.insertTracked(
@@ -757,7 +758,7 @@ class CatalogRepository {
   Future<void> setOptionGroupActive(String id, {required bool active, required Staff by}) {
     return _db.transaction(() async {
       final row = await (_db.select(_db.optionGroups)..where((g) => g.id.equals(id))).getSingle();
-      await _db.updateTracked(_db.optionGroups, row.copyWith(active: active, updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.optionGroups, row.copyWith(active: active, updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.optionGroupSaved,
         actor: by,
@@ -774,13 +775,13 @@ class CatalogRepository {
   /// A new price from the start of [effectiveOn] (a business-day start).
   Future<String> schedulePrice(String variantId, int newPrice, DateTime effectiveOn, {required Staff by}) async {
     if (newPrice < 0) throw const CatalogueException('Enter a price from GH₵ 0.00.');
-    if (!effectiveOn.isAfter(DateTime.now())) {
+    if (!effectiveOn.isAfter(clock.now())) {
       throw const CatalogueException('Pick a day after today. To change it now, edit the price.');
     }
     return _db.transaction(() async {
       final v = await (_db.select(_db.productVariants)..where((x) => x.id.equals(variantId))).getSingle();
       final p = await (_db.select(_db.products)..where((x) => x.id.equals(v.productId))).getSingle();
-      final now = DateTime.now();
+      final now = clock.now();
       final id = newId();
       await _db.insertTracked(
         _db.priceChanges,
@@ -815,7 +816,7 @@ class CatalogRepository {
     if (row.appliedAt != null || row.cancelledAt != null) return;
     await _db.updateTracked(
       _db.priceChanges,
-      row.copyWith(cancelledAt: Value(DateTime.now()), updatedAt: DateTime.now()));
+      row.copyWith(cancelledAt: Value(clock.now()), updatedAt: clock.now()));
       final label = (await variantLabels([row.variantId]))[row.variantId];
       await _audit.record(
         action: AuditAction.priceScheduleCancelled,
@@ -862,7 +863,7 @@ class CatalogRepository {
   /// Puts scheduled prices that are due into effect. Returns how many.
   Future<int> applyDuePrices({DateTime? now}) {
     return _db.transaction(() async {
-      final at = now ?? DateTime.now();
+      final at = now ?? clock.now();
       var applied = 0;
       for (final s in await scheduledPrices()) {
         if (s.effectiveOn.isAfter(at)) continue;
@@ -910,7 +911,7 @@ class CatalogRepository {
   /// Many prices at once (one audit entry listing them all).
   Future<void> bulkSetPrices(Map<String, int> newPrices, {required String description, required Staff by}) {
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final labels = await variantLabels(newPrices.keys);
       final changes = <Map<String, Object?>>[];
       for (final MapEntry(key: variantId, value: price) in newPrices.entries) {
@@ -933,7 +934,7 @@ class CatalogRepository {
   /// Puts the Quick tab in this order; products left out come off it.
   Future<void> setQuickTab(List<String> productIds) {
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final rows = await (_db.select(_db.products)..where((p) => p.quickOrder.isNotNull() | p.id.isIn(productIds))).get();
       for (final row in rows) {
         final index = productIds.indexOf(row.id);
@@ -950,7 +951,7 @@ class CatalogRepository {
 
   Future<String> saveTaxRate(TaxRateDraft d, {required Staff by}) {
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final id = d.id ?? newId();
       Map<String, Object?>? before;
       if (d.id == null) {
@@ -992,7 +993,7 @@ class CatalogRepository {
   Future<void> setTaxRateActive(String id, {required bool active, required Staff by}) {
     return _db.transaction(() async {
       final row = await (_db.select(_db.taxRates)..where((t) => t.id.equals(id))).getSingle();
-      await _db.updateTracked(_db.taxRates, row.copyWith(active: active, updatedAt: DateTime.now()));
+      await _db.updateTracked(_db.taxRates, row.copyWith(active: active, updatedAt: clock.now()));
       await _audit.record(
         action: AuditAction.taxRateSaved,
         actor: by,

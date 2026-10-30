@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path/path.dart' as p;
@@ -176,9 +177,9 @@ const mainBranchId = 'main';
 ])
 class AppDatabase extends _$AppDatabase {
   /// Opens the on-device database. Pass [executor] in tests
-  /// (`NativeDatabase.memory()`). [seedDemoShop] fills a brand-new database
-  /// with the Scoops Tamale menu.
-  AppDatabase([QueryExecutor? executor, this.seedDemoShop = true])
+  /// (`NativeDatabase.memory()`). A brand-new database starts empty;
+  /// [seedDemoShop] fills it with the Scoops Tamale menu (tests only).
+  AppDatabase([QueryExecutor? executor, this.seedDemoShop = false])
       : super(executor ??
             driftDatabase(
               name: 'aby_pos',
@@ -188,10 +189,6 @@ class AppDatabase extends _$AppDatabase {
             ));
 
   final bool seedDemoShop;
-
-  /// Pictures for the demo menu by product name, read when the demo shop
-  /// is first seeded (the app reads them from its assets).
-  Future<Map<String, Uint8List>> Function()? demoPhotos;
 
   @override
   int get schemaVersion => 18;
@@ -482,6 +479,7 @@ class AppDatabase extends _$AppDatabase {
               await m.createTable(table);
             }
             await _insertExpenseCategories(deviceId);
+            await _insertTaxPresets(deviceId);
             await _grantToManager(Permission.manageExpenses);
           },
           // v11: automatic promotions, promotion amounts on sale lines, and
@@ -548,7 +546,8 @@ class AppDatabase extends _$AppDatabase {
             await _insertDefaultReasons(deviceId);
             await _insertBuiltInPayMethods(deviceId);
             await _insertExpenseCategories(deviceId);
-            if (seedDemoShop) await seedScoopsTamale(this, deviceId: deviceId, photos: await demoPhotos?.call() ?? const {});
+            await _insertTaxPresets(deviceId);
+            if (seedDemoShop) await seedScoopsTamale(this, deviceId: deviceId);
           }
         },
       );
@@ -677,6 +676,23 @@ class AppDatabase extends _$AppDatabase {
     }
   }
 
+  /// Ghana's taxes as presets; tax is off until the owner turns it on.
+  /// Raw SQL, like the built-in roles. Not written to the outbox.
+  Future<void> _insertTaxPresets(String deviceId) async {
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    for (final (i, (name, bp, compound)) in const [
+      ('NHIL', 250, false),
+      ('GETFund levy', 250, false),
+      ('VAT', 1500, true),
+    ].indexed) {
+      await customStatement(
+        'INSERT INTO tax_rates (id, created_at, updated_at, device_id, name, rate_bp, compound, active, sort_order) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)',
+        [newId(), now, now, deviceId, name, bp, compound ? 1 : 0, i],
+      );
+    }
+  }
+
   /// Raw SQL, like the built-in roles. Not written to the outbox.
   Future<void> _insertDefaultReasons(String deviceId) async {
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
@@ -748,7 +764,7 @@ class AppDatabase extends _$AppDatabase {
     TableInfo<T, D> table,
     String id,
   ) async {
-    final now = DateTime.now();
+    final now = clock.now();
     await customUpdate(
       'UPDATE ${table.actualTableName} SET deleted_at = ?, updated_at = ? WHERE id = ?',
       variables: [Variable.withDateTime(now), Variable.withDateTime(now), Variable.withString(id)],
@@ -776,7 +792,7 @@ class AppDatabase extends _$AppDatabase {
       recordId: json['id'] as String,
       operation: operation,
       payload: jsonEncode(json),
-      createdAt: DateTime.now(),
+      createdAt: clock.now(),
     ));
   }
 }

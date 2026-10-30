@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../core/units.dart';
@@ -44,7 +45,7 @@ class ReceivingRepository {
     }
 
     return _db.transaction(() async {
-      final now = DateTime.now();
+      final now = clock.now();
       final id = newId();
       final max = _db.stockReceipts.number.max();
       final numberQuery = _db.selectOnly(_db.stockReceipts)
