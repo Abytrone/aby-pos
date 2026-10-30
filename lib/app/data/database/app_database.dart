@@ -191,7 +191,7 @@ class AppDatabase extends _$AppDatabase {
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -536,6 +536,10 @@ class AppDatabase extends _$AppDatabase {
       from17To18: (m, schema) async {
         await m.addColumn(schema.categories, schema.categories.icon);
       },
+      // v19: managing devices and the hub is its own permission.
+      from18To19: (m, schema) async {
+        await _grantToManager(Permission.manageDevices);
+      },
     ),
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
@@ -728,11 +732,16 @@ class AppDatabase extends _$AppDatabase {
     String deviceId,
   ) async {
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    await customStatement(
+    // customUpdate, not customStatement, so SettingsService sees it.
+    await customUpdate(
       'INSERT INTO settings (id, created_at, updated_at, device_id, key, scope, value) '
       'VALUES (?, ?, ?, ?, ?, ?, ?) '
       'ON CONFLICT(id) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at',
-      [settingRowId(key, scope, deviceId), now, now, deviceId, key, scope.name, valueJson],
+      variables: [
+        for (final v in [settingRowId(key, scope, deviceId), now, now, deviceId, key, scope.name, valueJson])
+          v is int ? Variable.withInt(v) : Variable.withString(v as String),
+      ],
+      updates: {settings},
     );
   }
 

@@ -107,6 +107,10 @@ class SettingsController extends GetxController {
     await refreshBackupTimes();
   }
 
+  /// Reactive: whether the signed-in person sees the whole of Settings
+  /// rather than only their comfort choices.
+  bool get seesShopSettings => _auth.can(Permission.changeSettings) || _auth.can(Permission.manageDevices);
+
   T value<T extends Object>(Setting<T> s) => _settings.get(s);
 
   String get deviceId => _device.deviceId;

@@ -3,11 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/permissions.dart';
 import '../../../data/database/app_database.dart';
 import '../../../data/repositories/branch_repository.dart';
 import '../../../models/branch.dart';
-import '../../../services/auth_service.dart';
 import '../../../services/branch_service.dart';
+import '../../../services/permission_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
@@ -68,10 +69,19 @@ class _BranchesPageState extends State<_BranchesPage> {
     final l = appL10n();
     final draft = await Get.dialog<BranchDraft>(_BranchDialog(branch: b));
     if (draft == null) return;
+    final auth = await Get.find<PermissionService>().authorize(Permission.changeSettings, reason: l.settingsApprovalReason);
+    if (auth == null) return;
     await _run(() async {
-      await _repo.save(draft, by: Get.find<AuthService>().user);
+      await _repo.save(draft, by: auth.authority);
       showMessage(l.settingsSaved);
     });
+  }
+
+  Future<void> _setActive(Branch b) async {
+    final auth = await Get.find<PermissionService>()
+        .authorize(Permission.changeSettings, reason: appL10n().settingsApprovalReason);
+    if (auth == null) return;
+    await _run(() => _repo.setActive(b.id, active: !b.active, by: auth.authority));
   }
 
   Future<void> _moveDevice() async {
@@ -90,7 +100,9 @@ class _BranchesPageState extends State<_BranchesPage> {
       confirmLabel: l.branchMove,
     );
     if (!ok) return;
-    await _run(() => _repo.placeDevice(to, by: Get.find<AuthService>().user));
+    final auth = await Get.find<PermissionService>().authorize(Permission.manageDevices, reason: l.hubApprovalReason);
+    if (auth == null) return;
+    await _run(() => _repo.placeDevice(to, by: auth.authority));
   }
 
   @override
@@ -137,7 +149,7 @@ class _BranchesPageState extends State<_BranchesPage> {
                     : PopupMenuButton<String>(
                         onSelected: (v) => v == 'edit'
                             ? _edit(b)
-                            : _run(() => _repo.setActive(b.id, active: !b.active, by: Get.find<AuthService>().user)),
+                            : _setActive(b),
                         itemBuilder: (_) => [
                           PopupMenuItem(value: 'edit', child: Text(l.commonEdit)),
                           PopupMenuItem(value: 'active', child: Text(b.active ? l.branchClose : l.branchReopen)),

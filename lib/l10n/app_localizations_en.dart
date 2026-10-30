@@ -329,6 +329,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get permChangeSettings => 'Change settings';
 
   @override
+  String get permManageDevices => 'Manage devices and the hub';
+
+  @override
   String get permViewActivityLog => 'See the activity log';
 
   @override
@@ -4274,6 +4277,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Sales and changes here go to the hub every few seconds, and changes from the other tills come back.';
 
   @override
+  String get hubApprovalReason => 'Manage this shop\'s devices.';
+
+  @override
   String get hubBecome => 'Make this the hub';
 
   @override
@@ -4291,7 +4297,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hubJoinBody =>
-      'Everything on this device is merged into the hub, and the hub data comes here. Products or customers on both may then appear twice and can be tidied up.';
+      'Everything on this device is merged into the hub, and the hub data comes here. This device takes the shop settings from the hub. Products or customers on both may then appear twice and can be tidied up.';
 
   @override
   String get hubJoined => 'Joined the hub. Syncing now.';

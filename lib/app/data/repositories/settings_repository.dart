@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:clock/clock.dart';
+import 'package:drift/drift.dart';
 import '../../core/settings.dart';
 import '../../models/audit.dart';
 import '../../models/enums.dart';
@@ -19,8 +20,15 @@ class SettingsRepository {
   final AuditRepository _audit;
 
   /// Current values by key: every shop setting, plus this device's settings.
-  Future<Map<String, Object?>> loadAll() async {
-    final rows = await (_db.select(_db.settings)..where((s) => s.deletedAt.isNull())).get();
+  Future<Map<String, Object?>> loadAll() async => _values(await _query().get());
+
+  /// [loadAll] again whenever a setting changes, here or from the hub.
+  Stream<Map<String, Object?>> watchAll() => _query().watch().map(_values);
+
+  SimpleSelectStatement<$SettingsTable, SettingRow> _query() =>
+      _db.select(_db.settings)..where((s) => s.deletedAt.isNull());
+
+  Map<String, Object?> _values(List<SettingRow> rows) {
     final values = <String, Object?>{};
     for (final r in rows) {
       final mine = r.scope == SettingScope.shop ||

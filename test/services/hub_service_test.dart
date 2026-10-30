@@ -1,8 +1,11 @@
+import 'package:aby_pos/app/core/settings.dart';
 import 'package:aby_pos/app/data/database/app_database.dart';
+import 'package:aby_pos/app/data/repositories/settings_repository.dart';
 import 'package:drift/drift.dart' show Variable;
 import 'package:aby_pos/app/models/models.dart';
 import 'package:aby_pos/app/services/hub/hub_service.dart';
 import 'package:aby_pos/app/services/hub/sealed_box.dart';
+import 'package:aby_pos/app/services/settings_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers.dart';
@@ -81,6 +84,30 @@ void main() {
     expect(await rb.audit.verifyChain(), isA<AuditChainStatus>().having((c) => c.isIntact, 'intact', isTrue));
     expect(await ra.audit.verifyChain(), isA<AuditChainStatus>().having((c) => c.isIntact, 'intact', isTrue),
         reason: 'each device keeps its own chain on the hub');
+  });
+
+  test("a joining device takes the hub's shop settings, keeps its own device settings, and sees later changes live", () async {
+    final mine = SettingsService(SettingsRepository(b, rb.device, rb.audit));
+    await mine.load();
+    // Set up after the hub, so these are the newer values.
+    await mine.set(AppSettings.shopName, 'Other shop', by: owner);
+    await mine.set(AppSettings.deviceName, 'Till 2', by: owner);
+    await hub.becomeHub();
+    final offer = await hub.offerPairing();
+
+    await member.join(await local(), offer.code, hubId: offer.hubId);
+    await pumpEventQueue();
+    expect(mine.get(AppSettings.shopName), 'Scoops Tamale', reason: 'no restart needed');
+    expect(mine.get(AppSettings.deviceName), 'Till 2');
+    final onHub = SettingsService(SettingsRepository(a, ra.device, ra.audit));
+    await onHub.load();
+    expect(onHub.get(AppSettings.shopName), 'Scoops Tamale', reason: "the member's did not win");
+
+    await onHub.set(AppSettings.autoLockMinutes, 10, by: owner);
+    await hub.drainOwnOutbox();
+    await member.syncNow();
+    await pumpEventQueue();
+    expect(mine.get(AppSettings.autoLockMinutes), 10);
   });
 
   test('a wrong code is refused; a removed device can no longer sync', () async {

@@ -25,11 +25,11 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  for (final from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]) {
-    test('v$from to v18 gives exactly the v18 schema', () async {
+  for (final from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]) {
+    test('v$from to v19 gives exactly the v19 schema', () async {
       final schema = await verifier.schemaAt(from);
       final db = AppDatabase(schema.newConnection(), false);
-      await verifier.migrateAndValidate(db, 18);
+      await verifier.migrateAndValidate(db, 19);
       await db.close();
     });
   }
@@ -309,6 +309,20 @@ void main() {
     final db = AppDatabase(schema.newConnection(), false);
     final row = await (db.select(db.categories)..where((c) => c.id.equals('c1'))).getSingle();
     expect((row.name, row.icon), ('Drinks', null));
+    await db.close();
+  });
+
+  test('v18 to v19 lets managers manage devices', () async {
+    final schema = await verifier.schemaAt(18);
+    final raw = schema.rawDatabase;
+    const t = 1761000000;
+    raw.execute("INSERT INTO meta (key, value) VALUES ('device_id', 'dev-1')");
+    raw.execute('INSERT INTO roles (id, created_at, updated_at, device_id, name, built_in, permissions, max_discount_percent, sort_order) '
+        "VALUES ('${BuiltInRole.manager.id}', $t, $t, 'dev-1', 'Manager', 'manager', '[\"sell\"]', 50, 1)");
+
+    final db = AppDatabase(schema.newConnection(), false);
+    final role = await (db.select(db.roles)..where((x) => x.id.equals(BuiltInRole.manager.id))).getSingle();
+    expect(role.permissions, containsAll({Permission.sell, Permission.manageDevices}));
     await db.close();
   });
 }

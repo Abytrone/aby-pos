@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:drift/drift.dart' show OrderingTerm, Value, Variable;
+import 'package:drift/drift.dart' show OrderingTerm, UpdateKind, Value, Variable;
 import 'package:get/get.dart' hide Value;
 
 import '../../data/database/app_database.dart';
@@ -386,7 +386,9 @@ class HubService extends GetxService {
 
   /// Joins the hub at one of [urls] with its one-time [code]. Everything on
   /// this device is then sent to the hub (merge), and the hub's data comes
-  /// back. Returns nothing, or throws [HubException].
+  /// back, except shop settings: the shop's are the hub's, so this device's
+  /// own are dropped rather than sent. Returns nothing, or throws
+  /// [HubException].
   Future<void> join(List<String> urls, String code, {String? hubId, String? deviceName}) async {
     if (role.value != HubRole.none) throw const HubException(HubError.alreadyLinked);
     final client = HttpClient()..connectionTimeout = const Duration(seconds: 5);
@@ -411,6 +413,8 @@ class HubService extends GetxService {
       final (status, text) = await _post(client, '$url/pair', body, deviceId: _device.deviceId);
       if (status != 200) throw HubException.from(text);
       final reply = (await SealedBox.open(text, key))! as Map<String, dynamic>;
+      // Set up more recently, they would otherwise win over the hub's.
+      await _db.customUpdate("DELETE FROM settings WHERE scope = 'shop'", updates: {_db.settings}, updateKind: UpdateKind.delete);
       await store.enqueueEverything();
       await _db.writeMeta(_kUrl, url);
       await _db.writeMeta(_kId, id);

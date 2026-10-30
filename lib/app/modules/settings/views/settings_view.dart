@@ -46,11 +46,15 @@ typedef _Group = (String, SettingsTab);
 
 /// One searchable row. [keywords] widen what search finds.
 class _Entry {
-  const _Entry(this.place, this.tile, {this.keywords = const []});
+  const _Entry(this.place, this.tile, {this.keywords = const [], this.personal = false});
 
   final _Group place;
   final InfoTile tile;
   final List<String> keywords;
+
+  /// A comfort choice anyone may make for themselves (theme, text size).
+  /// People without "Change settings" see only these.
+  final bool personal;
 
   String get group => place.$1;
   SettingsTab get tab => place.$2;
@@ -193,7 +197,8 @@ String _tabIcon(SettingsTab t) => switch (t) {
   SettingsTab.data => AbyIcons.cloudUpload,
 };
 
-/// Manage → Settings, in tabs, grouped and searchable.
+/// Manage → Settings, in tabs, grouped and searchable. Without "Change
+/// settings" or "Manage devices", only the comfort choices.
 class SettingsView extends GetView<SettingsController> {
   const SettingsView({super.key});
 
@@ -204,7 +209,23 @@ class SettingsView extends GetView<SettingsController> {
   static const parkedHours = [4, 8, 12, 24, 48];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Obx(() => controller.seesShopSettings ? _shopSettings(context) : _personal(context));
+
+  /// Only the comfort choices, for people who may not change the shop's
+  /// settings: how the shop is set up is not theirs to read.
+  Widget _personal(BuildContext context) {
+    final l = context.l10n;
+    final backups = Get.find<BackupController>();
+    return SectionPage(
+      title: l.navSettings,
+      child: Obx(() => _Groups(entries: [
+            for (final e in _entries(l, backups))
+              if (e.personal) e,
+          ])),
+    );
+  }
+
+  Widget _shopSettings(BuildContext context) {
     final l = context.l10n;
     final c = Theme.of(context).extension<AbyColors>()!;
     final backups = Get.find<BackupController>();
@@ -686,13 +707,13 @@ class SettingsView extends GetView<SettingsController> {
         title: l.settingsNotifications,
         subtitle: l.settingsNotificationsHelp,
         trailing: Switch(value: c.value(AppSettings.notifications), onChanged: (v) => c.save(AppSettings.notifications, v)),
-      ), keywords: ['notifications', 'alerts', 'reminders']),
+      ), keywords: ['notifications', 'alerts', 'reminders'], personal: true),
       if (c.value(AppSettings.notifications))
         _Entry(device, InfoTile(
           title: l.notifyTitle,
           leading: const Icon(Icons.notifications_outlined),
           onTap: showNotificationChoices,
-        ), keywords: ['notifications', 'alerts', 'low stock', 'credit']),
+        ), keywords: ['notifications', 'alerts', 'low stock', 'credit'], personal: true),
       _Entry(
         screen, InfoTile(
         title: l.settingsTheme,
@@ -707,6 +728,7 @@ class SettingsView extends GetView<SettingsController> {
           if (v != null) await c.save(AppSettings.themeMode, v);
         },
       ), keywords: ['dark', 'light', 'colour', 'colors', 'theme', 'appearance', 'night'],
+        personal: true,
       ),
       _Entry(
         screen,
@@ -725,6 +747,7 @@ class SettingsView extends GetView<SettingsController> {
           },
         ),
         keywords: ['grid', 'list', 'photos', 'till', 'tiles', 'rows'],
+        personal: true,
       ),
       _Entry(
         screen, InfoTile(
@@ -739,7 +762,7 @@ class SettingsView extends GetView<SettingsController> {
           );
           if (v != null) await c.save(AppSettings.tileSize, v);
         },
-      ), keywords: ['till', 'tiles', 'size', 'grid']),
+      ), keywords: ['till', 'tiles', 'size', 'grid'], personal: true),
       _Entry(
         screen, InfoTile(
         title: l.settingsLargeText,
@@ -747,13 +770,13 @@ class SettingsView extends GetView<SettingsController> {
           value: c.value(AppSettings.largeText),
           onChanged: (v) => c.save(AppSettings.largeText, v),
         ),
-      ), keywords: ['font', 'size', 'accessibility']),
+      ), keywords: ['font', 'size', 'accessibility'], personal: true),
       _Entry(
         screen, InfoTile(
         title: l.settingsLanguage,
         subtitle: l.settingsLanguageMore,
         value: 'English',
-      ), keywords: ['twi', 'dagbani', 'hausa', 'ewe', 'ga']),
+      ), keywords: ['twi', 'dagbani', 'hausa', 'ewe', 'ga'], personal: true),
       _Entry(data, InfoTile(
         title: l.trainingTitle,
         subtitle: l.trainingHelp,

@@ -36,6 +36,10 @@ enum Permission {
   manageStaff(PermissionGroup.admin),
   manageRoles(PermissionGroup.admin),
   changeSettings(PermissionGroup.admin),
+
+  /// Pair, rename and remove devices, run or join the hub, and place this
+  /// device in a branch. Managers have it unless the owner turns it off.
+  manageDevices(PermissionGroup.admin),
   viewActivityLog(PermissionGroup.admin),
   exportData(PermissionGroup.admin),
   restoreBackup(PermissionGroup.admin);

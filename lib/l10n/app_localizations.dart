@@ -718,6 +718,12 @@ abstract class AppLocalizations {
   /// **'Change settings'**
   String get permChangeSettings;
 
+  /// No description provided for @permManageDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage devices and the hub'**
+  String get permManageDevices;
+
   /// No description provided for @permViewActivityLog.
   ///
   /// In en, this message translates to:
@@ -8320,6 +8326,12 @@ abstract class AppLocalizations {
   /// **'Sales and changes here go to the hub every few seconds, and changes from the other tills come back.'**
   String get hubMemberHelp;
 
+  /// No description provided for @hubApprovalReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage this shop\'s devices.'**
+  String get hubApprovalReason;
+
   /// No description provided for @hubBecome.
   ///
   /// In en, this message translates to:
@@ -8353,7 +8365,7 @@ abstract class AppLocalizations {
   /// No description provided for @hubJoinBody.
   ///
   /// In en, this message translates to:
-  /// **'Everything on this device is merged into the hub, and the hub data comes here. Products or customers on both may then appear twice and can be tidied up.'**
+  /// **'Everything on this device is merged into the hub, and the hub data comes here. This device takes the shop settings from the hub. Products or customers on both may then appear twice and can be tidied up.'**
   String get hubJoinBody;
 
   /// No description provided for @hubJoined.

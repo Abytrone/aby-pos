@@ -5,9 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
 import '../../../data/database/app_database.dart';
 import '../../../services/hub/hub_service.dart';
+import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../services/sync_service.dart';
 import '../../../services/training_service.dart';
@@ -90,7 +92,13 @@ class _HubPageState extends State<_HubPage> {
     }
   }
 
+  /// Every change here needs "Manage devices", or an approver's PIN: a
+  /// paired device receives all of the shop's data.
+  Future<bool> _allowed() async =>
+      await Get.find<PermissionService>().authorize(Permission.manageDevices, reason: appL10n().hubApprovalReason) != null;
+
   Future<void> _becomeHub() async {
+    if (!await _allowed()) return;
     final l = appL10n();
     final ok = await confirmDialog(title: l.hubBecomeTitle, message: l.hubBecomeBody, confirmLabel: l.hubBecome);
     if (ok) await _run(_hub.becomeHub);
@@ -99,6 +107,7 @@ class _HubPageState extends State<_HubPage> {
   /// Type the code (the hub is found on the Wi-Fi), scan its QR code, or
   /// give its address when the network hides it.
   Future<void> _join() async {
+    if (!await _allowed()) return;
     final l = appL10n();
     final target = await Get.to<JoinTarget>(() => _JoinPage(hub: _hub));
     if (target == null) return;
@@ -112,6 +121,7 @@ class _HubPageState extends State<_HubPage> {
   }
 
   Future<void> _addDevice() async {
+    if (!await _allowed()) return;
     final offer = await _hub.offerPairing();
     await Get.dialog<void>(_OfferDialog(offer: offer, hub: _hub));
     await _load();
@@ -128,6 +138,7 @@ class _HubPageState extends State<_HubPage> {
         _ => l.hubRevoke,
       },
     );
+    if (action == null || !await _allowed()) return;
     switch (action) {
       case 'rename':
         final name = await textInputDialog(title: l.hubRename, label: l.settingsDeviceName, initial: d.name);
@@ -152,6 +163,7 @@ class _HubPageState extends State<_HubPage> {
   }
 
   Future<void> _leave() async {
+    if (!await _allowed()) return;
     final l = appL10n();
     final hub = _hub.role.value == HubRole.hub;
     final ok = await confirmDialog(

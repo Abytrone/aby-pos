@@ -27,6 +27,7 @@ String permissionLabel(AppLocalizations l, Permission p) => switch (p) {
       Permission.manageStaff => l.permManageStaff,
       Permission.manageRoles => l.permManageRoles,
       Permission.changeSettings => l.permChangeSettings,
+      Permission.manageDevices => l.permManageDevices,
       Permission.viewActivityLog => l.permViewActivityLog,
       Permission.exportData => l.permExportData,
       Permission.restoreBackup => l.permRestoreBackup,
