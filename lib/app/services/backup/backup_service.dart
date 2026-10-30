@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:drift/drift.dart' show Variable;
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -12,6 +13,7 @@ import '../../data/database/app_database.dart';
 import '../../data/repositories/audit_repository.dart';
 import '../../models/audit.dart';
 import '../../models/staff.dart';
+import '../hub/hub_service.dart';
 import '../pin_hasher.dart';
 import '../settings_service.dart';
 import '../training_service.dart';
@@ -34,6 +36,8 @@ class BackupPreview {
     required this.schemaVersion,
     this.lastSaleAt,
     this.temporary = false,
+    this.fromThisDevice = true,
+    this.linked = false,
   });
 
   /// A plain SQLite copy, ready to restore (decrypted if it came from an
@@ -43,6 +47,14 @@ class BackupPreview {
   /// [databasePath] is a decrypted copy in the temp folder: delete it with
   /// [BackupService.discard] once done.
   final bool temporary;
+
+  /// Made on this device (same device ID). When not, a restore asks whether
+  /// this device replaces the one it came from.
+  final bool fromThisDevice;
+
+  /// The device it came from was the hub, or synced with one.
+  final bool linked;
+
   final String shopName;
   final int salesCount;
   final int schemaVersion;
@@ -266,7 +278,10 @@ class BackupService {
     if (version > _db.schemaVersion) {
       throw const BackupException('This backup is from a newer version of Aby. Update the app first.');
     }
+    final device = result['device'] as String?;
     return BackupPreview(
+      fromThisDevice: device == null || device == await _db.readMeta(MetaKeys.deviceId),
+      linked: result['linked'] == true,
       databasePath: path,
       shopName: result['shop'] as String,
       salesCount: result['sales'] as int,
@@ -281,9 +296,18 @@ class BackupService {
   /// Replaces the live database with [preview]. Makes a safety backup of
   /// the current data first. The database is closed afterwards: the caller
   /// must restart the app (AppRestarter) to open the restored data.
-  Future<void> restore(BackupPreview preview, {Staff? by}) async {
+  ///
+  /// The data comes from the backup; who this device is does not. It keeps
+  /// its own device ID, hub link and (as the hub) paired devices, with
+  /// their revocations, unless [replacing] the device a backup from
+  /// elsewhere came from: then it becomes that device. Either way a linked
+  /// device sends everything again on restart, so newer edits elsewhere
+  /// win back (HubService).
+  Future<void> restore(BackupPreview preview, {Staff? by, bool replacing = false}) async {
     _refuseInTraining();
     final live = await _liveDatabaseFile();
+    final adopt = replacing && !preview.fromThisDevice;
+    final keep = adopt ? null : await _identity();
 
     // Staged next to the live file first: the backup itself is never
     // changed, and the safety backup's pruning can't delete it from under
@@ -316,6 +340,8 @@ class BackupService {
             'DELETE FROM meta WHERE key IN (?, ?)',
             [TrainingService.metaKey, TrainingService.dataKey],
           );
+          if (keep != null) _keepIdentity(db, keep);
+          _markForResync(db);
         } finally {
           db.close();
         }
@@ -352,6 +378,20 @@ class BackupService {
     });
   }
 
+  /// This device's ID, hub link and paired devices, to carry into a restore.
+  Future<_Identity> _identity() async {
+    final link = await _db.customSelect(
+      'SELECT key, value FROM meta WHERE key IN (${List.filled(HubService.linkKeys.length, '?').join(', ')})',
+      variables: [for (final k in HubService.linkKeys) Variable.withString(k)],
+    ).get();
+    final devices = await _db.customSelect('SELECT * FROM hub_devices').get();
+    return _Identity(
+      deviceId: (await _db.readMeta(MetaKeys.deviceId))!,
+      link: {for (final r in link) r.read<String>('key'): r.read<String>('value')},
+      devices: [for (final r in devices) r.data],
+    );
+  }
+
   /// Anything a shop would miss: a catalogue or staff before the first
   /// sale counts too.
   Future<bool> _hasData() async {
@@ -377,6 +417,54 @@ class BackupService {
     final n = [for (var i = 1; i <= 7; i++) int.parse(m.group(i) ?? '0')];
     return DateTime(n[0], n[1], n[2], n[3], n[4], n[5], n[6]);
   }
+}
+
+/// Who a device is, apart from its data.
+class _Identity {
+  const _Identity({required this.deviceId, required this.link, required this.devices});
+
+  final String deviceId;
+  final Map<String, String> link;
+  final List<Map<String, Object?>> devices;
+}
+
+/// Runs in an isolate, on the staged restore: makes it this device again.
+void _keepIdentity(Database db, _Identity keep) {
+  String? meta(String key) => db.select('SELECT value FROM meta WHERE key = ?', [key]).firstOrNull?['value'] as String?;
+  final tables = {for (final r in db.select("SELECT name FROM sqlite_master WHERE type = 'table'")) r['name'] as String};
+  if (meta(MetaKeys.deviceId) != keep.deviceId) {
+    db.execute('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)', [MetaKeys.deviceId, keep.deviceId]);
+    // Another hub's log.
+    if (tables.contains('hub_changes')) db.execute('DELETE FROM hub_changes');
+  }
+  db.execute('DELETE FROM meta WHERE key IN (${List.filled(HubService.linkKeys.length, '?').join(', ')})', HubService.linkKeys);
+  for (final e in keep.link.entries) {
+    db.execute('INSERT INTO meta (key, value) VALUES (?, ?)', [e.key, e.value]);
+  }
+  // An older backup may not have the table yet: migrating creates it empty.
+  if (!tables.contains('hub_devices')) return;
+  final columns = {for (final r in db.select('PRAGMA table_info(hub_devices)')) r['name'] as String};
+  db.execute('DELETE FROM hub_devices');
+  for (final d in keep.devices) {
+    final cols = [for (final c in d.keys) if (columns.contains(c)) c];
+    db.execute(
+      'INSERT INTO hub_devices (${cols.join(', ')}) VALUES (${List.filled(cols.length, '?').join(', ')})',
+      [for (final c in cols) d[c]],
+    );
+  }
+}
+
+/// Runs in an isolate, on the staged restore: a linked device sends (and a
+/// member pulls) everything again, and a hub starts a new log generation.
+void _markForResync(Database db) {
+  final role = db.select('SELECT value FROM meta WHERE key = ?', [HubService.roleKey]).firstOrNull?['value'];
+  db.execute('DELETE FROM meta WHERE key = ?', [HubService.epochKey]);
+  if (role == null || role == HubRole.none.name) {
+    db.execute('DELETE FROM meta WHERE key = ?', [HubService.resyncKey]);
+    return;
+  }
+  db.execute('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)', [HubService.cursorKey, '0']);
+  db.execute('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)', [HubService.resyncKey, '1']);
 }
 
 /// Runs in an isolate. Checks the file is a healthy Aby database and reads
@@ -407,7 +495,11 @@ Map<String, Object?> _readDatabaseSummary(String path) {
       if (rows.isNotEmpty) shop = rows.first['value'] as String;
     }
     final sales = db.select('SELECT COUNT(*) AS n, MAX(created_at) AS last FROM sales').first;
+    String? meta(String key) => db.select('SELECT value FROM meta WHERE key = ?', [key]).firstOrNull?['value'] as String?;
+    final role = meta(HubService.roleKey);
     return {
+      'device': meta(MetaKeys.deviceId),
+      'linked': role != null && role != HubRole.none.name,
       'version': db.userVersion,
       'shop': shop,
       'sales': sales['n'] as int,

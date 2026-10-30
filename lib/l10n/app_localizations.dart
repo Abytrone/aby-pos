@@ -1378,6 +1378,30 @@ abstract class AppLocalizations {
   /// **'Replace everything on this device?'**
   String get backupRestoreConfirmTitle;
 
+  /// No description provided for @backupRestoreReplacing.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup is from another device. Is this device replacing it?'**
+  String get backupRestoreReplacing;
+
+  /// No description provided for @backupRestoreReplacingYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, it replaces that device'**
+  String get backupRestoreReplacingYes;
+
+  /// No description provided for @backupRestoreReplacingNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No, keep this as a separate device'**
+  String get backupRestoreReplacingNo;
+
+  /// No description provided for @backupRestoreLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'This device syncs with other tills. Changes made on them since this backup will come back after restoring.'**
+  String get backupRestoreLinked;
+
   /// No description provided for @backupNoSales.
   ///
   /// In en, this message translates to:

@@ -9,6 +9,7 @@ import 'package:get/get.dart' hide Value;
 import '../../data/database/app_database.dart';
 import '../../data/sync/row_store.dart';
 import '../device_service.dart';
+import '../ids.dart';
 import '../sync_service.dart';
 import 'sealed_box.dart';
 
@@ -114,6 +115,22 @@ class HubService extends GetxService {
   static const _kRole = 'hub.role', _kUrl = 'hub.url', _kSecret = 'hub.secret', _kId = 'hub.id', _kCursor = 'hub.cursor';
   static const _kName = 'hub.name';
 
+  /// The hub's change log generation: a new one after a restore tells
+  /// members their place in the log no longer holds.
+  static const _kEpoch = 'hub.epoch';
+
+  /// The generation a member last saw.
+  static const _kSeen = 'hub.seenEpoch';
+
+  /// Set by a restore ('1'): send everything again and, as a member, pull
+  /// everything again, this device's own changes too ('pull' while doing so).
+  static const resyncKey = 'hub.resync';
+
+  /// What links this device to a hub. A restore keeps this device's, not
+  /// the backup's (BackupService).
+  static const linkKeys = [_kRole, _kUrl, _kSecret, _kId, _kCursor, _kName, _kSeen];
+  static const epochKey = _kEpoch, cursorKey = _kCursor, roleKey = _kRole;
+
   final role = HubRole.none.obs;
   final online = false.obs;
   final lastSync = Rxn<DateTime>();
@@ -156,6 +173,7 @@ class HubService extends GetxService {
   /// On app start: carries on as hub or member.
   Future<void> start() async {
     role.value = HubRole.values.asNameMap()[await _db.readMeta(_kRole)] ?? HubRole.none;
+    if (role.value != HubRole.none && await _db.readMeta(resyncKey) == '1') await _resync();
     if (role.value == HubRole.hub) await _startHub();
     if (role.value == HubRole.member) _startMember();
   }
@@ -167,6 +185,20 @@ class HubService extends GetxService {
     _beacon = null;
     await _server?.close(force: true);
     _server = null;
+  }
+
+  /// After a restore, or when the hub's log was restored: everything here
+  /// is sent again (the later edit still wins), so what the others had
+  /// since the backup comes back. A hub logs it all; a member also pulls
+  /// the whole log again.
+  Future<void> _resync() async {
+    await store.enqueueEverything();
+    if (role.value == HubRole.hub) {
+      await _db.deleteMeta(resyncKey);
+    } else {
+      await _db.writeMeta(_kCursor, '0');
+      await _db.writeMeta(resyncKey, 'pull');
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -190,6 +222,7 @@ class HubService extends GetxService {
       await _db.delete(_db.outbox).go();
       await _db.writeMeta(_kRole, HubRole.hub.name);
       await _db.writeMeta(_kId, _device.deviceId);
+      await _db.writeMeta(_kEpoch, newId());
     });
     role.value = HubRole.hub;
     await _startHub();
@@ -346,6 +379,8 @@ class HubService extends GetxService {
     final req = (await SealedBox.open(body, d.secret))! as Map<String, dynamic>;
     final push = [for (final j in (req['push'] as List? ?? const [])) WireRow.fromJson((j as Map).cast<String, dynamic>())];
     final since = req['since'] as int? ?? 0;
+    // A restored member takes back its own changes too.
+    final own = req['own'] == true;
     final now = DateTime.now();
     var rejected = 0;
     await _db.transaction(() async {
@@ -373,12 +408,25 @@ class HubService extends GetxService {
     ).get();
     final pull = [
       for (final r in rows)
-        if (r.read<String>('origin_device') != deviceId)
+        if (own || r.read<String>('origin_device') != deviceId)
           WireRow(r.read<String>('entity'), r.read<String>('record_id'), (jsonDecode(r.read<String>('row')) as Map).cast<String, Object?>())
               .toJson(),
     ];
     final cursor = rows.isEmpty ? since : rows.last.read<int>('seq');
-    return SealedBox.seal({'pull': pull, 'cursor': cursor, 'more': rows.length == 400, 'rejected': rejected}, d.secret);
+    return SealedBox.seal(
+      {'pull': pull, 'cursor': cursor, 'more': rows.length == 400, 'rejected': rejected, 'epoch': await _epoch()},
+      d.secret,
+    );
+  }
+
+  /// This hub's log generation, made on first use (hubs from before it, or
+  /// just restored).
+  Future<String> _epoch() async {
+    final e = await _db.readMeta(_kEpoch);
+    if (e != null) return e;
+    final made = newId();
+    await _db.writeMeta(_kEpoch, made);
+    return made;
   }
 
   // ---------------------------------------------------------------------------
@@ -472,11 +520,19 @@ class HubService extends GetxService {
       while (more) {
         final batch = await store.pending();
         final since = int.tryParse(await _db.readMeta(_kCursor) ?? '0') ?? 0;
-        final body = await SealedBox.seal({'push': [for (final w in batch.rows) w.toJson()], 'since': since, 'v': appVersion}, secret);
+        final own = await _db.readMeta(resyncKey) != null;
+        final body = await SealedBox.seal(
+          {'push': [for (final w in batch.rows) w.toJson()], 'since': since, 'own': own, 'v': appVersion},
+          secret,
+        );
         final (status, text) = await _post(client, '$url/sync', body, deviceId: _device.deviceId);
         if (status != 200) throw HubException.from(text);
         final reply = (await SealedBox.open(text, secret))! as Map<String, dynamic>;
         final pull = [for (final j in reply['pull'] as List) WireRow.fromJson((j as Map).cast<String, dynamic>())];
+        // The hub's log was restored: our place in it no longer holds.
+        final epoch = reply['epoch'] as String?;
+        final seen = await _db.readMeta(_kSeen);
+        final restarted = epoch != null && seen != null && epoch != seen;
         await _db.transaction(() async {
           for (final w in pull) {
             try {
@@ -487,8 +543,11 @@ class HubService extends GetxService {
           }
           await store.acknowledge(batch.outboxSeqs);
           await _db.writeMeta(_kCursor, '${reply['cursor']}');
+          if (epoch != null) await _db.writeMeta(_kSeen, epoch);
+          if (restarted) await _resync();
         });
-        more = reply['more'] == true || batch.outboxSeqs.length >= 300;
+        more = restarted || reply['more'] == true || batch.outboxSeqs.length >= 300;
+        if (!more && own) await _db.deleteMeta(resyncKey);
       }
       online.value = true;
       problem.value = null;
@@ -589,7 +648,7 @@ class HubService extends GetxService {
   /// Stops syncing. This device keeps its data and works alone.
   Future<void> leave() async {
     await stop();
-    for (final k in [_kRole, _kUrl, _kSecret, _kId, _kCursor, _kName]) {
+    for (final k in [...linkKeys, _kEpoch, resyncKey]) {
       await _db.deleteMeta(k);
     }
     role.value = HubRole.none;

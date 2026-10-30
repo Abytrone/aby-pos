@@ -14,6 +14,7 @@ import '../../../services/auth_service.dart';
 import '../../../services/backup/backup_codec.dart';
 import '../../../services/backup/backup_service.dart';
 import '../../../services/backup/branch_merge.dart';
+import '../../../services/hub/hub_service.dart';
 import '../../../services/training_service.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
@@ -178,9 +179,13 @@ class BackupController extends GetxController {
       auth = await _permissions.authorize(Permission.restoreBackup, reason: l.backupRestore);
       if (auth == null) return;
     }
-    final file = await _pick();
-    if (file == null) return;
-    await _inspectAndRestore(file, byStaff: auth?.authority);
+    final picked = await _pick();
+    if (picked == null) return;
+    try {
+      await _inspectAndRestore(picked.$1, byStaff: auth?.authority);
+    } finally {
+      if (picked.$2) await _deleteQuietly(picked.$1);
+    }
   }
 
   /// Brings another branch's data in from its backup file (MDV-02): merged
@@ -190,8 +195,17 @@ class BackupController extends GetxController {
     final l = appL10n();
     final auth = await _permissions.authorize(Permission.restoreBackup, reason: l.branchMerge);
     if (auth == null) return;
-    final file = await _pick();
-    if (file == null) return;
+    final picked = await _pick();
+    if (picked == null) return;
+    try {
+      await _merge(picked.$1, auth);
+    } finally {
+      if (picked.$2) await _deleteQuietly(picked.$1);
+    }
+  }
+
+  Future<void> _merge(File file, Authorization auth) async {
+    final l = appL10n();
     final p = await _preview(file, title: l.branchMerge);
     if (p == null) return;
     try {
@@ -216,20 +230,27 @@ class BackupController extends GetxController {
     }
   }
 
-  Future<File?> _pick() async {
+  /// The picked file, and whether it is a temp copy to delete after.
+  Future<(File, bool)?> _pick() async {
     final picked = await FilePicker.pickFile(dialogTitle: appL10n().backupPickFile);
     if (picked == null) return null;
+    final path = picked.path;
+    if (path != null) return (File(path), false);
     // Android may hand back a content URI with no file path: copy it first.
-    var path = picked.path;
-    if (path == null) {
-      final tmp = await getTemporaryDirectory();
-      final copy = File('${tmp.path}${Platform.pathSeparator}${picked.name}');
-      final sink = copy.openWrite();
-      await sink.addStream(picked.readAsByteStream());
-      await sink.close();
-      path = copy.path;
+    final tmp = await getTemporaryDirectory();
+    final copy = File('${tmp.path}${Platform.pathSeparator}${picked.name}');
+    final sink = copy.openWrite();
+    await sink.addStream(picked.readAsByteStream());
+    await sink.close();
+    return (copy, true);
+  }
+
+  static Future<void> _deleteQuietly(File f) async {
+    try {
+      if (await f.exists()) await f.delete();
+    } on FileSystemException {
+      // Left in the temp folder; the system clears it.
     }
-    return File(path);
   }
 
   /// Asks for the password (when it is encrypted) until the file opens.
@@ -272,18 +293,34 @@ class BackupController extends GetxController {
     final p = await _preview(file, title: l.backupRestore);
     if (p == null) return;
     try {
+      // Another device's backup: become that device, or stay this one?
+      var replacing = false;
+      if (!p.fromThisDevice) {
+        final answer = await choiceDialog<bool>(
+          title: l.backupRestoreReplacing,
+          options: const [true, false],
+          label: (yes) => yes ? l.backupRestoreReplacingYes : l.backupRestoreReplacingNo,
+        );
+        if (answer == null) return;
+        replacing = answer;
+      }
+      final hub = Get.isRegistered<HubService>() ? Get.find<HubService>().role.value : HubRole.none;
+      final linked = hub != HubRole.none || (replacing && p.linked);
       final ok = await confirmDialog(
         title: l.backupRestoreConfirmTitle,
-        message: l.backupRestoreConfirmBody(
-          p.shopName,
-          p.salesCount,
-          p.lastSaleAt == null ? l.backupNoSales : formatDateTime(p.lastSaleAt!),
-        ),
+        message: [
+          l.backupRestoreConfirmBody(
+            p.shopName,
+            p.salesCount,
+            p.lastSaleAt == null ? l.backupNoSales : formatDateTime(p.lastSaleAt!),
+          ),
+          if (linked) l.backupRestoreLinked,
+        ].join('\n\n'),
         confirmLabel: l.backupRestore,
         danger: true,
       );
       if (!ok) return;
-      await _guard(() => _backups.restore(p, by: byStaff), progress: l.backupRestoring);
+      await _guard(() => _backups.restore(p, by: byStaff, replacing: replacing), progress: l.backupRestoring);
     } finally {
       await _backups.discard(p);
     }

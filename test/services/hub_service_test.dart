@@ -151,6 +151,64 @@ void main() {
     expect(await b.readMeta('hub.secret'), isNull);
   });
 
+  group('after a restore', () {
+    Future<void> paired() async {
+      await hub.becomeHub();
+      final offer = await hub.offerPairing();
+      await member.join(await local(), offer.code, hubId: offer.hubId);
+    }
+
+    /// What BackupService leaves in a restored linked device, then a restart.
+    Future<HubService> restarted(AppDatabase db, Repos r, HubService old) async {
+      await old.stop();
+      await db.deleteMeta(HubService.epochKey);
+      await db.writeMeta(HubService.cursorKey, '0');
+      await db.writeMeta(HubService.resyncKey, '1');
+      final again = HubService(db, r.device, port: 0, beaconPort: 0, every: never);
+      await again.start();
+      return again;
+    }
+
+    test('a restored hub loses nothing the members had, and they miss nothing new', () async {
+      await paired();
+      final later = await rb.customers.save(const CustomerDraft(name: 'After the backup'), by: owner);
+      await member.syncNow();
+      expect((await ra.customers.find(later))?.name, 'After the backup');
+
+      // The hub goes back to before that change, log included.
+      final logged = await a.customSelect('SELECT MIN(seq) AS s FROM hub_changes WHERE record_id = ?',
+          variables: [Variable.withString(later)]).getSingle();
+      await a.customStatement('DELETE FROM hub_changes WHERE seq >= ?', [logged.read<int>('s')]);
+      await a.customStatement('DELETE FROM customers WHERE id = ?', [later]);
+      hub = await restarted(a, ra, hub);
+      await hub.drainOwnOutbox();
+      await b.writeMeta('hub.url', 'http://127.0.0.1:${hub.boundPort}');
+
+      // Its next change reuses log numbers the member has already passed.
+      final fresh = await ra.customers.save(const CustomerDraft(name: 'New on the hub'), by: owner);
+      await hub.drainOwnOutbox();
+      await member.syncNow();
+      expect(member.online.value, isTrue, reason: '${member.problem.value}');
+
+      expect((await ra.customers.find(later))?.name, 'After the backup', reason: 'sent again by the member');
+      expect((await rb.customers.find(fresh))?.name, 'New on the hub', reason: 'not skipped');
+      expect(await b.readMeta(HubService.resyncKey), isNull, reason: 'done');
+    });
+
+    test('a restored member takes back its own changes from the hub', () async {
+      await paired();
+      final mine = await rb.customers.save(const CustomerDraft(name: 'Mine'), by: owner);
+      await member.syncNow();
+
+      await b.customStatement('DELETE FROM customers WHERE id = ?', [mine]);
+      member = await restarted(b, rb, member);
+      await member.syncNow();
+      expect(member.online.value, isTrue, reason: '${member.problem.value}');
+      expect((await rb.customers.find(mine))?.name, 'Mine');
+      expect(await b.readMeta(HubService.resyncKey), isNull);
+    });
+  });
+
   test('names that appear twice after a merge are listed', () async {
     await rb.customers.save(const CustomerDraft(name: 'Ama'), by: owner);
     await ra.customers.save(const CustomerDraft(name: 'ama '), by: owner);

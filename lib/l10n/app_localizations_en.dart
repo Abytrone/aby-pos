@@ -668,6 +668,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backupRestoreConfirmTitle => 'Replace everything on this device?';
 
   @override
+  String get backupRestoreReplacing =>
+      'This backup is from another device. Is this device replacing it?';
+
+  @override
+  String get backupRestoreReplacingYes => 'Yes, it replaces that device';
+
+  @override
+  String get backupRestoreReplacingNo => 'No, keep this as a separate device';
+
+  @override
+  String get backupRestoreLinked =>
+      'This device syncs with other tills. Changes made on them since this backup will come back after restoring.';
+
+  @override
   String get backupNoSales => 'none';
 
   @override

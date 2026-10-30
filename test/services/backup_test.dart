@@ -8,12 +8,13 @@ import 'package:aby_pos/app/data/repositories/settings_repository.dart';
 import 'package:aby_pos/app/models/models.dart';
 import 'package:aby_pos/app/services/backup/backup_codec.dart';
 import 'package:aby_pos/app/services/backup/backup_service.dart';
+import 'package:aby_pos/app/services/hub/hub_service.dart';
 import 'package:aby_pos/app/services/settings_service.dart';
 import 'package:aby_pos/app/services/training_service.dart';
-import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:drift/drift.dart' show Value, driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Value;
 import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
 
@@ -266,6 +267,73 @@ void main() {
       final plain = await backups.inspectFile(local.file);
       await backups.discard(plain);
       expect(await local.file.exists(), isTrue);
+    });
+
+    group("another device's backup", () {
+      late File backup;
+
+      setUp(() async {
+        // A backup made on another device, which synced with a hub.
+        backup = (await backups.createLocalBackup(record: false)).file;
+        final other = sqlite3.open(backup.path);
+        try {
+          other.execute("UPDATE meta SET value = 'other-device' WHERE key = ?", [MetaKeys.deviceId]);
+          for (final (k, v) in [('hub.role', 'member'), ('hub.secret', 'theirs'), ('hub.cursor', '99'), ('hub.epoch', 'e1')]) {
+            other.execute('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)', [k, v]);
+          }
+        } finally {
+          other.close();
+        }
+        // This device is the hub, and has revoked a lost till.
+        await db.writeMeta('hub.role', 'hub');
+        await db.into(db.hubDevices).insert(HubDevicesCompanion.insert(
+              deviceId: 'lost-till',
+              name: 'Lost till',
+              secret: 's',
+              pairedAt: DateTime(2026),
+              revokedAt: Value(DateTime(2026, 2)),
+            ));
+      });
+
+      String? meta(Database d, String key) =>
+          d.select('SELECT value FROM meta WHERE key = ?', [key]).firstOrNull?['value'] as String?;
+
+      test('is asked about, and by default this device stays itself', () async {
+        final preview = await backups.inspectFile(backup);
+        expect(preview.fromThisDevice, isFalse);
+        expect(preview.linked, isTrue);
+
+        await backups.restore(preview, by: owner);
+        dbClosed = true;
+        final restored = sqlite3.open(live.path, mode: OpenMode.readOnly);
+        try {
+          expect(meta(restored, MetaKeys.deviceId), r.device.deviceId);
+          expect(meta(restored, 'hub.role'), 'hub');
+          expect(meta(restored, 'hub.secret'), isNull, reason: 'not the backup link');
+          expect(meta(restored, HubService.epochKey), isNull, reason: 'a new log generation');
+          expect(meta(restored, HubService.resyncKey), '1');
+          final devices = restored.select('SELECT device_id, revoked_at FROM hub_devices');
+          expect(devices.single['device_id'], 'lost-till');
+          expect(devices.single['revoked_at'], isNotNull, reason: 'still revoked');
+        } finally {
+          restored.close();
+        }
+      });
+
+      test('replacing that device takes its identity and hub link', () async {
+        await backups.restore(await backups.inspectFile(backup), by: owner, replacing: true);
+        dbClosed = true;
+        final restored = sqlite3.open(live.path, mode: OpenMode.readOnly);
+        try {
+          expect(meta(restored, MetaKeys.deviceId), 'other-device');
+          expect(meta(restored, 'hub.role'), 'member');
+          expect(meta(restored, 'hub.secret'), 'theirs');
+          expect(meta(restored, HubService.cursorKey), '0', reason: 'pulls everything again');
+          expect(meta(restored, HubService.resyncKey), '1');
+        } finally {
+          restored.close();
+        }
+      });
     });
 
     group('in training', () {
