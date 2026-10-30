@@ -84,6 +84,7 @@ class SettingsController extends GetxController {
   Future<void> chooseAccountsFolder() async {
     final path = await pickFolder(appL10n().accountsFolder);
     if (path == null) return;
+    await _accounts.remember(path);
     await save(AppSettings.accountsFolder, path);
     // A pack that failed to save goes to the new folder now.
     await _exportNow();

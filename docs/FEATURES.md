@@ -1659,10 +1659,11 @@ Built:
   saves last month's straight away. It is checked at start and every hour, so a till left on
   over the month end still makes it. Each month is saved once. A device that was off catches
   up the missed months, oldest first (at most 12). Training mode never saves one.
-- Where: on Windows any folder can be chosen (a USB stick or a shared drive); the default is
-  Documents\Aby accounts. On Android, macOS and iOS the app may not write to a chosen folder
-  again after a restart, so packs stay in the app and *Share the latest pack* sends one
-  (WhatsApp, email, Drive).
+- Where: on Windows and macOS any folder can be chosen (a USB stick or a shared drive); the
+  default is Documents\Aby accounts. On macOS the app keeps a bookmark to the folder (in this
+  device's meta, not the settings) so the sandbox lets it write there after a restart. On
+  Android and iOS the app may not write to a chosen folder again after a restart, so packs stay
+  in the app and *Share the latest pack* sends one (WhatsApp, email, Drive).
 - If the chosen folder is not there (the USB stick is out), no folder is made in its place: the
   status centre shows *Accountant pack* in amber with *Try again*, and it is tried again every
   hour. Choosing another folder saves it there at once. Each saved pack is in the activity log

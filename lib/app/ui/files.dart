@@ -60,5 +60,5 @@ Future<String?> pickTextFile() async {
   return utf8.decode(bytes, allowMalformed: true);
 }
 
-/// Picks a folder (Windows). Null when cancelled.
+/// Picks a folder (Windows and macOS). Null when cancelled.
 Future<String?> pickFolder(String title) => FilePicker.getDirectoryPath(dialogTitle: title);

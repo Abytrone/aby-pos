@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -14,6 +15,7 @@ import '../data/repositories/profit_repository.dart';
 import '../data/repositories/report_repository.dart';
 import '../domain/accountant_pack.dart';
 import '../models/audit.dart';
+import 'folder_access.dart';
 import 'pdf_brand_loader.dart';
 import 'settings_service.dart';
 import 'training_service.dart';
@@ -51,10 +53,17 @@ class AccountsExportService extends GetxService {
   static Future<Directory> _documentsFolder() async =>
       Directory(p.join((await getApplicationDocumentsDirectory()).path, 'Aby accounts'));
 
-  /// A folder can be chosen only on Windows: elsewhere the app may not
-  /// write to it again after a restart, so packs stay in [folder] and are
+  /// A folder can be chosen on Windows and macOS (where [remember] keeps
+  /// the right to write to it). On phones packs stay in [folder] and are
   /// shared from Settings.
-  static bool get canChooseFolder => Platform.isWindows;
+  static bool get canChooseFolder => Platform.isWindows || Platform.isMacOS;
+
+  /// The chosen folder's macOS bookmark, with the path it is for (meta:
+  /// it only works on this computer).
+  static const _bookmarkKey = 'accounts_folder_bookmark';
+
+  /// The chosen folder as opened this run (macOS), by its setting.
+  final _opened = <String, String>{};
 
   Timer? _timer;
   Future<List<File>>? _running;
@@ -76,7 +85,26 @@ class AccountsExportService extends GetxService {
 
   Future<Directory> folder() async {
     final chosen = _settings.get(AppSettings.accountsFolder);
-    return chosen.isEmpty ? _defaultFolder() : Directory(chosen);
+    if (chosen.isEmpty) return _defaultFolder();
+    if (FolderAccess.needed && !_opened.containsKey(chosen)) {
+      final saved = await _db.readMeta(_bookmarkKey);
+      final json = saved == null ? null : jsonDecode(saved) as Map<String, dynamic>;
+      if (json != null && json['path'] == chosen) {
+        final path = await FolderAccess.open(base64Decode(json['bookmark'] as String));
+        if (path != null) _opened[chosen] = path;
+      }
+    }
+    return Directory(_opened[chosen] ?? chosen);
+  }
+
+  /// Keeps the right to write to [path], just picked, after a restart
+  /// (macOS). Call before saving it as the folder.
+  Future<void> remember(String path) async {
+    final bookmark = await FolderAccess.bookmark(path);
+    if (bookmark == null) return;
+    await _db.writeMeta(_bookmarkKey, jsonEncode({'path': path, 'bookmark': base64Encode(bookmark)}));
+    // Picking it opened it for this run.
+    _opened[path] = path;
   }
 
   Future<DateTime?> lastExportAt() async => DateTime.tryParse(await _db.readMeta(_atKey) ?? '')?.toLocal();
