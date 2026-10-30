@@ -1,0 +1,124 @@
+ABY POINT OF SALE
+END USER LICENCE AGREEMENT
+
+Abytrone Technologies ("Abytrone", "we", "us") makes the Aby point of sale
+software ("Aby"). This agreement is between Abytrone and the business that
+installs or uses Aby ("you"). By installing or using Aby you agree to it.
+If you do not agree, do not install or use Aby.
+
+
+1. WHAT YOU MAY DO
+
+1.1 Free use. Without a licence you may install Aby, look at your data,
+    export it, back it up, and use training mode to try Aby out. Selling
+    and changing stock, customers or cash need a licence.
+
+1.2 With a licence. A licence lets you use Aby in full for one shop, on
+    the device it was issued for and on as many devices linked to it as
+    the licence states. A licence is a one-time purchase and does not
+    expire.
+
+1.3 Updates. We may offer updates to Aby. Your licence covers the updates
+    we choose to make available for it, unless we tell you otherwise when
+    you buy it.
+
+
+2. WHAT YOU MAY NOT DO
+
+You may not:
+  (a) copy, share or sell your licence key, or use one licence in more
+      than one shop;
+  (b) get around, disable or change the licence check, or help anyone
+      else do so;
+  (c) copy, change, decompile or reverse engineer Aby, except where the
+      law allows it despite this agreement;
+  (d) rent, lease or resell Aby, or offer it as a service to others,
+      without our written permission;
+  (e) remove our name, logo or copyright notices from Aby.
+
+If you move to a new computer or replace your hub, contact us and we will
+help you move your licence.
+
+
+3. OWNERSHIP
+
+Aby is licensed to you, not sold. Abytrone keeps all rights in Aby, its
+name and its design. Only the rights written in this agreement are given
+to you.
+
+
+4. YOUR DATA
+
+4.1 Your data is yours. Your sales, products, customers, staff and other
+    records stay on your own devices. Aby works without the internet and
+    does not send your data to Abytrone.
+
+4.2 Your data leaves your devices only when you choose: for example when
+    you share a receipt, send a backup or export a report. Where it goes
+    then is up to you.
+
+4.3 You are responsible for keeping your backups and your backup password
+    safe. Aby makes a daily backup on the device and can send encrypted
+    backups elsewhere, but if a device is lost or damaged and there is no
+    backup, or the backup password is forgotten, we cannot recover your
+    data.
+
+4.4 You are responsible for how you collect and use your customers' and
+    staff's personal information, including under Ghana's Data Protection
+    Act, 2012 (Act 843).
+
+
+5. YOUR BUSINESS
+
+Aby is a tool to help you run your shop. You remain responsible for your
+own records, prices, taxes, receipts and accounts, and for meeting the
+requirements of the Ghana Revenue Authority and any other authority. Check
+that Aby's settings (such as tax rates) are right for your business.
+
+
+6. NO WARRANTY
+
+We work hard to make Aby reliable, but it is provided "as is". To the
+extent the law allows, Abytrone gives no warranty that Aby will be free of
+errors, work without interruption, or suit every business, and gives no
+other warranties, whether express or implied.
+
+
+7. LIMIT OF LIABILITY
+
+To the extent the law allows, Abytrone is not liable for any loss of
+profit, sales, data or business, or any indirect or consequential loss,
+arising from the use of Aby or being unable to use it. In any case our
+total liability to you will not be more than the amount you paid for your
+licence. Nothing in this agreement limits any liability that cannot be
+limited by law.
+
+
+8. ENDING THIS AGREEMENT
+
+This agreement lasts until it is ended. If you break it, in particular
+section 2, your licence ends and you must stop using Aby except to export
+and back up your data. You may end it at any time by uninstalling Aby.
+Sections 3 to 7 and 9 continue after it ends.
+
+
+9. GENERAL
+
+9.1 This agreement is governed by the laws of the Republic of Ghana, and
+    the courts of Ghana deal with any dispute about it.
+
+9.2 If any part of this agreement cannot be enforced, the rest still
+    applies.
+
+9.3 This agreement, together with any written terms you agreed when you
+    bought your licence, is the whole agreement between you and Abytrone
+    about Aby. If they differ, the written terms of your purchase apply.
+
+9.4 We may update this agreement for future versions of Aby. The version
+    shown when you install a version is the one that applies to it.
+
+
+Abytrone Technologies
+Contact: abytrone@gmail.com
+
+Copyright (C) 2026 Abytrone Technologies. All rights reserved.

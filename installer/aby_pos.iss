@@ -12,7 +12,7 @@
 #endif
 
 #define AppName "Aby"
-#define AppPublisher "Aby"
+#define AppPublisher "Abytrone Technologies"
 #define AppExe "aby_pos.exe"
 
 [Setup]
@@ -42,8 +42,9 @@ SolidCompression=yes
 WizardStyle=modern
 ; Closes a running Aby before upgrading it.
 CloseApplications=yes
-; Shown before installing once there is a license agreement:
-; LicenseFile=eula.txt
+; The licence agreement, accepted before installing.
+LicenseFile=eula.txt
+AppCopyright=Copyright (C) 2026 Abytrone Technologies
 ; Signs the installer and uninstaller once there is a code-signing
 ; certificate (Tools > Configure Sign Tools in the Inno Setup IDE):
 ; SignTool=signtool
