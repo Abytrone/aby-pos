@@ -59,7 +59,7 @@ class _PayMethodsState extends State<_PayMethods> {
     try {
       await _repo.setActive(m.id, active: on, by: auth.authority);
     } on PayMethodException catch (e) {
-      showMessage(e.message);
+      showMessage(e.message, tone: MessageTone.error);
     }
     await _load();
   }

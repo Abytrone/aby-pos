@@ -56,6 +56,6 @@ class OrdersController extends GetxController {
             note: o.note, orderType: o.orderType, customerName: o.customerName) ??
         false;
     final l = appL10n();
-    showMessage(ok ? l.printSent : l.printNoPrinter);
+    showMessage(ok ? l.printSent : l.printNoPrinter, tone: ok ? MessageTone.success : MessageTone.error);
   }
 }

@@ -181,7 +181,7 @@ class _Details extends GetView<StaffProfileController> {
                   icon: const Icon(Icons.copy, size: 18),
                   onPressed: () async {
                     await Clipboard.setData(ClipboardData(text: value));
-                    showMessage(l.commonCopied);
+                    showMessage(l.commonCopied, tone: MessageTone.success);
                   },
                 ),
         );

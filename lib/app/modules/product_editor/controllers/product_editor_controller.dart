@@ -259,7 +259,7 @@ class ProductEditorController extends GetxController {
     if (bytes == null) return;
     final square = await squareProductPhoto(bytes);
     if (square == null) {
-      showMessage(appL10n().editorPhotoNotPicture);
+      showMessage(appL10n().editorPhotoNotPicture, tone: MessageTone.error);
       return;
     }
     photo = square;

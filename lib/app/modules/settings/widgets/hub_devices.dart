@@ -87,7 +87,7 @@ class _HubPageState extends State<_HubPage> {
     try {
       await work();
     } on HubException catch (e) {
-      showMessage(hubErrorText(appL10n(), e.error));
+      showMessage(hubErrorText(appL10n(), e.error), tone: MessageTone.error);
     } on Object catch (e) {
       showMessage(appL10n().hubCannotStart('$e'));
     } finally {
@@ -120,7 +120,7 @@ class _HubPageState extends State<_HubPage> {
     final name = Get.find<SettingsService>().get(AppSettings.deviceName);
     await _run(() async {
       await _hub.join(target.urls, target.code, hubId: target.hubId, deviceName: name.isEmpty ? null : name);
-      showMessage(l.hubJoined);
+      showMessage(l.hubJoined, tone: MessageTone.success);
     });
   }
 
@@ -448,7 +448,7 @@ class _JoinPageState extends State<_JoinPage> {
     if (scanned == null) return;
     final offer = PairingOffer.parse(scanned);
     if (offer == null) {
-      showMessage(appL10n().hubNotACode);
+      showMessage(appL10n().hubNotACode, tone: MessageTone.error);
       return;
     }
     final (urls, code, hubId) = offer;

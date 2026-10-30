@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:aby_pos/app/app.dart';
 import 'package:aby_pos/app/core/permissions.dart';
 import 'package:aby_pos/app/data/database/app_database.dart';
+import 'package:aby_pos/app/ui/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -120,6 +121,8 @@ void main() {
     expect(find.text('Voided'), findsOneWidget);
 
     // Cashiers may close the day.
+    hideMessage(); // it covers the top right of the page
+    await tester.pump();
     await tester.tap(find.widgetWithText(FilledButton, 'Close day'));
     await _settle(tester);
     expect(find.text('Since the first sale'), findsOneWidget);
@@ -621,6 +624,8 @@ void main() {
     await _settle(tester);
     expect(find.textContaining('Shift opened by Kofi'), findsOneWidget);
 
+    hideMessage(); // it covers the top right of the page
+    await tester.pump();
     await tester.tap(find.byTooltip('Cash'));
     await _settle(tester);
     await tester.tap(find.text('Take cash out'));
@@ -631,6 +636,8 @@ void main() {
     await tester.tap(find.text('Save'));
     await _settle(tester);
 
+    hideMessage();
+    await tester.pump();
     await tester.tap(find.widgetWithText(FilledButton, 'Close day'));
     await _settle(tester);
     expect(find.textContaining('Shift opened by Kofi with GH₵ 50.00'), findsOneWidget);

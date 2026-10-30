@@ -365,7 +365,7 @@ class _CategoriesState extends State<_Categories> {
     final name = await textInputDialog(title: cat == null ? l.expenseCategoryNew : l.commonEdit, label: l.expenseCategory, initial: cat?.name ?? '');
     if (name == null) return;
     final error = await widget.ctl.saveCategory(id: cat?.id, name: name);
-    if (error != null) showMessage(error);
+    if (error != null) showMessage(error, tone: MessageTone.error);
     await _load();
   }
 

@@ -46,7 +46,7 @@ Future<bool> sendBytes(String fileName, Uint8List bytes, FileDestination where, 
   await file.writeAsBytes(bytes, flush: true);
   final result = await SharePlus.instance.share(ShareParams(files: [XFile(file.path)], subject: fileName, text: text));
   if (result.status == ShareResultStatus.unavailable) {
-    showMessage(l.backupShareUnavailable);
+    showMessage(l.backupShareUnavailable, tone: MessageTone.error);
     return false;
   }
   return result.status == ShareResultStatus.success;

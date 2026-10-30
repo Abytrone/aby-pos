@@ -271,7 +271,7 @@ class CartPanel extends StatelessWidget {
     );
     if (name == null) return;
     await till.park(name);
-    showMessage(l.parkDone(name.trim().isEmpty ? till.suggestedParkName : name.trim()));
+    showMessage(l.parkDone(name.trim().isEmpty ? till.suggestedParkName : name.trim()), tone: MessageTone.success);
   }
 
   Future<void> _orderDiscount(TillController till, CartController cart) async {

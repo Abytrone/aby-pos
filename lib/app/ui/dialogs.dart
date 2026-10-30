@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
@@ -7,10 +8,11 @@ import 'package:get/get.dart';
 import '../theme/aby_colors.dart';
 import '../theme/aby_theme.dart';
 import 'l10n.dart';
+import 'layout.dart';
 
 /// Closes the top dialog, sheet or page with [result]. Use this, not
-/// Get.back: while a message from [showMessage] is up, Get.back closes the
-/// message and leaves the dialog open.
+/// Get.back: while a GetX snackbar is up, Get.back closes the snackbar and
+/// leaves the dialog open.
 void goBack<T>({T? result}) {
   final navigator = Get.key.currentState;
   if (navigator != null && navigator.canPop()) navigator.pop<T>(result);
@@ -47,15 +49,185 @@ Future<bool> confirmDialog({
   return result ?? false;
 }
 
-/// A one-line message at the bottom of the screen.
-void showMessage(String message) {
-  if (Get.isSnackbarOpen) Get.closeCurrentSnackbar();
-  Get.showSnackbar(GetSnackBar(
-    message: message,
-    duration: const Duration(seconds: 3),
-    margin: const EdgeInsets.all(12),
-    borderRadius: 14,
-  ));
+/// What a message from [showMessage] is about: sets its icon and colour.
+enum MessageTone { info, success, error }
+
+OverlayEntry? _messageEntry;
+
+/// A short message that slides in at the top: across the top on phones, in
+/// the top right corner on wider screens and on desktops. It closes itself
+/// after a few seconds (it waits while the pointer rests on it), or on a
+/// swipe or its close button. A new message replaces the one showing.
+void showMessage(String message, {MessageTone tone = MessageTone.info}) {
+  final overlay = Get.key.currentState?.overlay;
+  if (overlay == null) return;
+  final old = _messageEntry;
+  if (old != null && old.mounted) old.remove();
+  late final OverlayEntry entry;
+  entry = OverlayEntry(
+    builder: (_) => _Message(
+      message: message,
+      tone: tone,
+      onGone: () {
+        if (_messageEntry == entry) _messageEntry = null;
+        if (entry.mounted) entry.remove();
+      },
+    ),
+  );
+  _messageEntry = entry;
+  overlay.insert(entry);
+}
+
+/// Takes down the message from [showMessage] at once, if one is up.
+void hideMessage() {
+  final entry = _messageEntry;
+  _messageEntry = null;
+  if (entry != null && entry.mounted) entry.remove();
+}
+
+class _Message extends StatefulWidget {
+  const _Message({required this.message, required this.tone, required this.onGone});
+
+  final String message;
+  final MessageTone tone;
+  final VoidCallback onGone;
+
+  @override
+  State<_Message> createState() => _MessageState();
+}
+
+class _MessageState extends State<_Message> with TickerProviderStateMixin {
+  late final _show = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 260),
+    reverseDuration: const Duration(milliseconds: 180),
+  )..forward();
+  // Errors stay a little longer: they usually need reading.
+  late final _life = AnimationController(
+    vsync: this,
+    duration: Duration(seconds: widget.tone == MessageTone.error ? 5 : 3),
+  )
+    ..addStatusListener((s) {
+      if (s == AnimationStatus.completed) _close();
+    })
+    ..forward();
+
+  static bool get _desktop => switch (defaultTargetPlatform) {
+        TargetPlatform.windows || TargetPlatform.macOS || TargetPlatform.linux => true,
+        _ => false,
+      };
+
+  @override
+  void dispose() {
+    _show.dispose();
+    _life.dispose();
+    super.dispose();
+  }
+
+  Future<void> _close() async {
+    _life.stop();
+    await _show.reverse();
+    if (mounted) widget.onGone();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final c = theme.extension<AbyColors>() ?? (theme.brightness == Brightness.dark ? AbyColors.dark : AbyColors.light);
+    final compact = !_desktop && MediaQuery.sizeOf(context).width < AbyBreakpoints.narrow;
+    final (icon, accent, soft) = switch (widget.tone) {
+      MessageTone.info => (Icons.info_outline_rounded, c.blue, c.blueSoft),
+      MessageTone.success => (Icons.check_circle_outline_rounded, c.success, c.successSoft),
+      MessageTone.error => (Icons.error_outline_rounded, c.danger, c.dangerSoft),
+    };
+    final curve = CurvedAnimation(parent: _show, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
+
+    final card = DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AbyRadius.md),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 24, offset: const Offset(0, 8)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 4, offset: const Offset(0, 1)),
+        ],
+      ),
+      child: Material(
+        color: c.surfaceRaised,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AbyRadius.md),
+          side: BorderSide(color: c.line),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(AbySpace.s3, AbySpace.s3, AbySpace.s1, AbySpace.s3),
+            child: Row(children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(color: soft, shape: BoxShape.circle),
+                child: Icon(icon, size: 20, color: accent),
+              ),
+              const SizedBox(width: AbySpace.s3),
+              Expanded(
+                child: Text(
+                  widget.message,
+                  style: AbyText.body.copyWith(color: c.ink, fontWeight: FontWeight.w600, height: 20 / 16),
+                ),
+              ),
+              IconButton(
+                onPressed: _close,
+                tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                icon: Icon(Icons.close_rounded, size: 18, color: c.inkMuted),
+              ),
+            ]),
+          ),
+          // Time left before it closes.
+          AnimatedBuilder(
+            animation: _life,
+            builder: (_, _) => Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: FractionallySizedBox(
+                widthFactor: 1 - _life.value,
+                child: Container(height: 3, color: accent),
+              ),
+            ),
+          ),
+        ]),
+      ),
+    );
+
+    return SafeArea(
+      child: Align(
+        alignment: compact ? Alignment.topCenter : AlignmentDirectional.topEnd,
+        child: Padding(
+          // Wider screens: just under the shell header (and page app bars),
+          // so it never covers the user menu or a page's actions.
+          padding: compact
+              ? const EdgeInsets.all(AbySpace.s3)
+              : const EdgeInsets.fromLTRB(AbySpace.s4, AbySize.tapPos + AbySpace.s4 + AbySpace.s2, AbySpace.s4, AbySpace.s4),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: compact ? double.infinity : 400),
+            child: FadeTransition(
+              opacity: curve,
+              child: SlideTransition(
+                position: Tween(begin: compact ? const Offset(0, -0.6) : const Offset(0.25, 0), end: Offset.zero).animate(curve),
+                child: Dismissible(
+                  key: const ValueKey('message'),
+                  direction: compact ? DismissDirection.up : DismissDirection.startToEnd,
+                  onDismissed: (_) => widget.onGone(),
+                  child: MouseRegion(
+                    onEnter: (_) => _life.stop(),
+                    onExit: (_) => _life.forward(),
+                    child: Semantics(liveRegion: true, container: true, child: card),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Asks for a single line of text. Returns null when cancelled.

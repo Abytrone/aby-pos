@@ -12,7 +12,8 @@ void main() {
     final result = Get.dialog<String>(
       AlertDialog(actions: [TextButton(onPressed: () => goBack(result: 'done'), child: const Text('Done'))]),
     );
-    await tester.pumpAndSettle(const Duration(milliseconds: 100));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
 
     await tester.tap(find.text('Done'));
     await tester.pump();
@@ -22,6 +23,39 @@ void main() {
     expect(find.text('Saved'), findsOneWidget, reason: 'the message stays until it times out');
 
     await tester.pumpAndSettle(const Duration(seconds: 4));
+  });
+
+  testWidgets('messages show across the top on phones and top right on wider screens', (tester) async {
+    addTearDown(tester.view.reset);
+    tester.view.devicePixelRatio = 1;
+
+    tester.view.physicalSize = const Size(400, 800);
+    await tester.pumpWidget(const GetMaterialApp(home: Scaffold()));
+    var text = 'Saved';
+    showMessage(text, tone: MessageTone.success);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    var box = tester.getRect(find.ancestor(of: find.text(text), matching: find.byType(Material)).first);
+    expect(box.top, lessThan(40));
+    expect(box.left, 12);
+    expect(box.right, 388);
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    expect(find.text('Saved'), findsNothing, reason: 'it closes by itself');
+
+    tester.view.physicalSize = const Size(1280, 800);
+    await tester.pumpWidget(const GetMaterialApp(home: Scaffold()));
+    text = 'Printer not found';
+    showMessage(text, tone: MessageTone.error);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    box = tester.getRect(find.ancestor(of: find.text(text), matching: find.byType(Material)).first);
+    expect(box.top, 80, reason: 'just below the shell header');
+    expect(box.right, 1280 - 16);
+    expect(box.width, 400);
+
+    await tester.tap(find.byIcon(Icons.close_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('Printer not found'), findsNothing);
   });
 
   testWidgets('dialog buttons sit side by side: one row when they fit, two to a row when not', (tester) async {

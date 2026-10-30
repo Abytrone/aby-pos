@@ -90,7 +90,7 @@ class _LabelsState extends State<_Labels> {
         r.code = codes[r.variantId];
       }
     });
-    showMessage(l.labelsBarcodesMade(made));
+    showMessage(l.labelsBarcodesMade(made), tone: MessageTone.success);
   }
 
   Future<void> _print() async {
@@ -103,7 +103,7 @@ class _LabelsState extends State<_Labels> {
         for (final doc in Labels.paper(items)) {
           print.printDoc(doc);
         }
-        showMessage(context.l10n.printSent);
+        showMessage(context.l10n.printSent, tone: MessageTone.success);
       } else {
         // No receipt printer: the same stickers, one per page, for a label
         // printer or the share sheet.

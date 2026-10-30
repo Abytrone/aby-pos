@@ -59,7 +59,7 @@ class _ScreenLinksState extends State<_ScreenLinks> {
                 icon: const Icon(Icons.copy),
                 onPressed: () async {
                   await Clipboard.setData(ClipboardData(text: url));
-                  showMessage(l.commonCopied);
+                  showMessage(l.commonCopied, tone: MessageTone.success);
                 },
               ),
             ]),
@@ -101,7 +101,7 @@ class _ScreenLinksState extends State<_ScreenLinks> {
               onPressed: () async {
                 await d.newToken();
                 setState(() {});
-                showMessage(l.screensNewLinksDone);
+                showMessage(l.screensNewLinksDone, tone: MessageTone.success);
               },
               child: Text(l.screensNewLinks),
             ),

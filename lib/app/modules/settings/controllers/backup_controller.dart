@@ -60,7 +60,7 @@ class BackupController extends GetxController {
         await _backups.createLocalBackup(by: _auth.currentUser.value);
         await refreshList();
         await _status.refresh(checkChain: false);
-        showMessage(appL10n().backupDone);
+        showMessage(appL10n().backupDone, tone: MessageTone.success);
       });
 
   /// Set or change the backup password. Old backup files keep the password
@@ -88,7 +88,7 @@ class BackupController extends GetxController {
     if (again == null) return false;
     await _backups.setBackupPassword(first);
     hasPassword.value = true;
-    showMessage(l.backupPasswordSaved);
+    showMessage(l.backupPasswordSaved, tone: MessageTone.success);
     return true;
   }
 
@@ -109,7 +109,7 @@ class BackupController extends GetxController {
     );
     if (password == null) return;
     if (!await _backups.checkBackupPassword(password)) {
-      showMessage(l.backupPasswordWrong);
+      showMessage(l.backupPasswordWrong, tone: MessageTone.error);
       return;
     }
 
@@ -134,7 +134,7 @@ class BackupController extends GetxController {
     if (sent) {
       await _backups.markOffsiteDone(where: where.name, by: auth.authority);
       await _status.refresh(checkChain: false);
-      showMessage(l.backupSent);
+      showMessage(l.backupSent, tone: MessageTone.success);
     }
   }
 
@@ -145,7 +145,7 @@ class BackupController extends GetxController {
       subject: l.backupShareSubject(_settings.get(AppSettings.shopName)),
     ));
     if (result.status == ShareResultStatus.unavailable) {
-      showMessage(l.backupShareUnavailable);
+      showMessage(l.backupShareUnavailable, tone: MessageTone.error);
       return false;
     }
     return result.status == ShareResultStatus.success;
@@ -224,7 +224,7 @@ class BackupController extends GetxController {
         result = await Get.find<BranchMerge>().merge(p, by: auth.authority);
       }, progress: l.branchMerging);
       final r = result;
-      if (r != null) showMessage(l.branchMerged(r.changed));
+      if (r != null) showMessage(l.branchMerged(r.changed), tone: MessageTone.success);
     } finally {
       await _backups.discard(p);
     }
@@ -275,13 +275,13 @@ class BackupController extends GetxController {
           preview = await _backups.inspectFile(file, password: password);
         }, progress: l.backupChecking, rethrowErrors: true);
       } on BackupDecryptException catch (e) {
-        showMessage(_decryptMessage(l, e));
+        showMessage(_decryptMessage(l, e), tone: MessageTone.error);
         if (!encrypted) return null;
       } on BackupException catch (e) {
-        showMessage(e.message);
+        showMessage(e.message, tone: MessageTone.error);
         return null;
       } catch (_) {
-        showMessage(l.backupFailed);
+        showMessage(l.backupFailed, tone: MessageTone.error);
         return null;
       }
     }
@@ -344,7 +344,7 @@ class BackupController extends GetxController {
       await action();
     } catch (e) {
       if (rethrowErrors) rethrow;
-      showMessage(e is BackupException ? e.message : appL10n().backupFailed);
+      showMessage(e is BackupException ? e.message : appL10n().backupFailed, tone: MessageTone.error);
     } finally {
       if (progress != null) hideProgress();
       busy.value = false;

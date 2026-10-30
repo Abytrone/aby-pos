@@ -901,7 +901,7 @@ class SettingsView extends GetView<SettingsController> {
           icon: const Icon(Icons.copy),
           onPressed: () async {
             await Clipboard.setData(ClipboardData(text: c.deviceId));
-            showMessage(l.commonCopied);
+            showMessage(l.commonCopied, tone: MessageTone.success);
           },
         ),
       )),

@@ -57,7 +57,7 @@ class _BranchesPageState extends State<_BranchesPage> {
     try {
       await work();
     } on BranchException catch (e) {
-      showMessage(e.message);
+      showMessage(e.message, tone: MessageTone.error);
     }
     await _load();
   }
@@ -73,7 +73,7 @@ class _BranchesPageState extends State<_BranchesPage> {
     if (auth == null) return;
     await _run(() async {
       await _repo.save(draft, by: auth.authority);
-      showMessage(l.settingsSaved);
+      showMessage(l.settingsSaved, tone: MessageTone.success);
     });
   }
 

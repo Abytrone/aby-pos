@@ -76,7 +76,7 @@ class _LicenseDialogState extends State<_LicenseDialog> {
       final linked = _hub.role.value == HubRole.hub ? await _hub.deviceCount() : 1;
       await _licenses.activate(_key.text, linkedDevices: linked, by: Get.find<AuthService>().currentUser.value);
       goBack<void>();
-      showMessage(l.licenseActivated);
+      showMessage(l.licenseActivated, tone: MessageTone.success);
     } on LicenseException catch (e) {
       setState(() => _error = licenseProblemText(l, e.problem));
     } finally {
@@ -124,7 +124,7 @@ class _LicenseDialogState extends State<_LicenseDialog> {
                     icon: const Icon(Icons.copy),
                     onPressed: () async {
                       await Clipboard.setData(ClipboardData(text: code));
-                      showMessage(l.commonCopied);
+                      showMessage(l.commonCopied, tone: MessageTone.success);
                     },
                   ),
               ]),

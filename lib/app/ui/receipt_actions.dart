@@ -20,11 +20,11 @@ import 'l10n.dart';
 Future<void> printSaleReceipt(String saleId, {bool reprint = true}) async {
   final print = Get.find<PrintService>();
   if (!print.hasPrinter) {
-    showMessage(appL10n().printNoPrinter);
+    showMessage(appL10n().printNoPrinter, tone: MessageTone.error);
     return sendSaleReceipt(saleId);
   }
   final ok = await print.printSale(saleId, reprint: reprint);
-  showMessage(ok ? appL10n().printSent : appL10n().printNoPrinter);
+  showMessage(ok ? appL10n().printSent : appL10n().printNoPrinter, tone: ok ? MessageTone.success : MessageTone.error);
 }
 
 /// The refund slip on the printer, or as a PDF when there is none.
@@ -36,7 +36,7 @@ Future<void> printRefundSlip(String refundId) async {
     return;
   }
   final ok = await print.printRefund(refundId);
-  showMessage(ok ? appL10n().printSent : appL10n().printNoPrinter);
+  showMessage(ok ? appL10n().printSent : appL10n().printNoPrinter, tone: ok ? MessageTone.success : MessageTone.error);
 }
 
 enum _PaperWay { printer, pdf }
@@ -59,7 +59,10 @@ Future<void> printOnPaper(ReceiptDoc doc, {bool askPdf = true}) async {
           label: (w) => w == _PaperWay.printer ? l.printOnPrinter : l.printAsPdf,
         )
       : _PaperWay.printer;
-  if (way == _PaperWay.printer) showMessage(print.printDoc(doc) ? l.printSent : l.printNoPrinter);
+  if (way == _PaperWay.printer) {
+    final ok = print.printDoc(doc);
+    showMessage(ok ? l.printSent : l.printNoPrinter, tone: ok ? MessageTone.success : MessageTone.error);
+  }
   if (way == _PaperWay.pdf) await shareReceiptPdf(doc);
 }
 

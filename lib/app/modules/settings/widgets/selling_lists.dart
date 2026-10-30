@@ -262,7 +262,7 @@ class _ReasonsState extends State<_Reasons> {
       await _repo.saveReason(id: r?.id, kind: widget.kind, name: name, by: auth.authority);
       await _load();
     } on DiscountException catch (e) {
-      showMessage(e.message);
+      showMessage(e.message, tone: MessageTone.error);
     }
   }
 

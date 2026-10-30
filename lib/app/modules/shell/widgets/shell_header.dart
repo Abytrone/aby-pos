@@ -61,7 +61,10 @@ class ShellHeader extends StatelessWidget {
             final l = context.l10n;
             return IconButton(
               tooltip: l.printReprintLast,
-              onPressed: () async => showMessage(await print.reprintLast() ? l.printSent : l.printNothingYet),
+              onPressed: () async {
+                final ok = await print.reprintLast();
+                showMessage(ok ? l.printSent : l.printNothingYet, tone: ok ? MessageTone.success : MessageTone.info);
+              },
               icon: Badge(
                 isLabelVisible: print.queue.isNotEmpty,
                 label: Text('${print.queue.length}'),
@@ -221,12 +224,12 @@ Future<void> _clock(ClockService clock, bool clockIn) async {
   try {
     if (clockIn) {
       await clock.clockIn();
-      showMessage(l.clockedIn);
+      showMessage(l.clockedIn, tone: MessageTone.success);
     } else {
       await clock.clockOut();
-      showMessage(l.clockedOut);
+      showMessage(l.clockedOut, tone: MessageTone.success);
     }
   } on TimeClockException catch (e) {
-    showMessage(e.message);
+    showMessage(e.message, tone: MessageTone.error);
   }
 }

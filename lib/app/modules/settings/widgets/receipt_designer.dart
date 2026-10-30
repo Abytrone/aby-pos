@@ -90,7 +90,7 @@ class _ReceiptDesignerState extends State<_ReceiptDesigner> {
     final bytes = await pickPhotoBytes(ImageSource.gallery);
     if (bytes == null) return;
     final png = receiptLogo(bytes);
-    if (png == null) return showMessage(appL10n().receiptLogoUnreadable);
+    if (png == null) return showMessage(appL10n().receiptLogoUnreadable, tone: MessageTone.error);
     setState(() => _logo = base64Encode(png));
   }
 

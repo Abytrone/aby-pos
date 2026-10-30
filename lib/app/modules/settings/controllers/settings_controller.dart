@@ -101,9 +101,9 @@ class SettingsController extends GetxController {
     final l = appL10n();
     final saved = await _accounts.exportIfDue();
     if (saved.isNotEmpty) {
-      showMessage(l.accountsSaved(p.basename(saved.last.path)));
+      showMessage(l.accountsSaved(p.basename(saved.last.path)), tone: MessageTone.success);
     } else if (await _accounts.problem() != null) {
-      showMessage(l.statusAccountsFailed);
+      showMessage(l.statusAccountsFailed, tone: MessageTone.error);
     }
     await refreshBackupTimes();
   }
@@ -127,7 +127,7 @@ class SettingsController extends GetxController {
     if (by == null) return;
     await _settings.set(setting, newValue, by: by);
     if (setting.key == AppSettings.themeMode.key) AppRestarter.applyTheme(newValue as String);
-    showMessage(l.settingsSaved);
+    showMessage(l.settingsSaved, tone: MessageTone.success);
   }
 
   /// Several settings with one approval (printer setup, receipt design).
@@ -145,7 +145,7 @@ class SettingsController extends GetxController {
     return true;
   }
 
-  void saved() => showMessage(appL10n().settingsSaved);
+  void saved() => showMessage(appL10n().settingsSaved, tone: MessageTone.success);
 
   /// "Change settings", or an approver's PIN.
   Future<bool> authorizeChange() async =>

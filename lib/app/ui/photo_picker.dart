@@ -12,7 +12,7 @@ Future<Uint8List?> pickPhotoBytes(ImageSource source) async {
     final file = await ImagePicker().pickImage(source: source, maxWidth: 1024, imageQuality: 85);
     return file == null ? null : await file.readAsBytes();
   } on PlatformException {
-    showMessage(appL10n().photoPickerUnavailable);
+    showMessage(appL10n().photoPickerUnavailable, tone: MessageTone.error);
     return null;
   }
 }

@@ -176,7 +176,7 @@ Future<void> _guard(Future<void> Function() action) async {
   try {
     await action();
   } on StockException catch (e) {
-    showMessage(e.message);
+    showMessage(e.message, tone: MessageTone.error);
   }
 }
 
@@ -242,7 +242,7 @@ Future<void> showReceiveTransfer(StockTransfer t) async {
   if (received == null) return;
   await _guard(() async {
     final done = await Get.find<TransferRepository>().receive(t.id, received: received, by: Get.find<AuthService>().user);
-    showMessage(done.hasDifferences ? appL10n().transferReceivedShort : appL10n().transferReceivedAll);
+    showMessage(done.hasDifferences ? appL10n().transferReceivedShort : appL10n().transferReceivedAll, tone: done.hasDifferences ? MessageTone.info : MessageTone.success);
   });
 }
 
@@ -255,7 +255,7 @@ Future<void> showNewTransfer() async {
   final items = Get.find<StockController>().items.where((i) => i.active).toList();
   final sent = await Get.dialog<StockTransfer>(_NewTransfer(targets: targets, items: items));
   if (sent != null) {
-    showMessage(appL10n().transferSent(sent.code));
+    showMessage(appL10n().transferSent(sent.code), tone: MessageTone.success);
   }
 }
 

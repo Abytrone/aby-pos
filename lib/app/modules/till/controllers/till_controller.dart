@@ -693,7 +693,7 @@ class TillController extends GetxController {
       try {
         await clock.clockIn();
       } on TimeClockException catch (e) {
-        showMessage(e.message);
+        showMessage(e.message, tone: MessageTone.error);
         return;
       }
     }

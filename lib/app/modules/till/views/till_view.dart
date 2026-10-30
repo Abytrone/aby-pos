@@ -139,7 +139,7 @@ Future<void> submitCode(BuildContext context, TillController controller) async {
         );
         if (create) controller.newProductWithBarcode(code);
       } else {
-        showMessage(l.tillCodeNotFound(code));
+        showMessage(l.tillCodeNotFound(code), tone: MessageTone.error);
       }
     case CodeReceipt(:final saleId):
       await Get.toNamed<void>(Routes.refund, arguments: saleId);

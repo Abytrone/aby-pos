@@ -211,7 +211,7 @@ class _Summary extends GetView<CustomerController> {
     final reason = await textInputDialog(title: l.customerWriteOff, label: l.customerWriteOffWhy);
     if (reason == null) return;
     final error = await controller.writeOff(amount, reason);
-    if (error != null) showMessage(error);
+    if (error != null) showMessage(error, tone: MessageTone.error);
     view.flush();
   }
 }
