@@ -389,7 +389,11 @@ class HubService extends GetxService {
   /// back, except shop settings: the shop's are the hub's, so this device's
   /// own are dropped rather than sent. Returns nothing, or throws
   /// [HubException].
-  Future<void> join(List<String> urls, String code, {String? hubId, String? deviceName}) async {
+  ///
+  /// [fresh]: a new install joining from its first screen. It has only the
+  /// starting defaults, which would otherwise win over the hub's edits (they
+  /// are newer) or appear twice, so they are cleared and nothing is sent.
+  Future<void> join(List<String> urls, String code, {String? hubId, String? deviceName, bool fresh = false}) async {
     if (role.value != HubRole.none) throw const HubException(HubError.alreadyLinked);
     final client = HttpClient()..connectionTimeout = const Duration(seconds: 5);
     try {
@@ -415,7 +419,11 @@ class HubService extends GetxService {
       final reply = (await SealedBox.open(text, key))! as Map<String, dynamic>;
       // Set up more recently, they would otherwise win over the hub's.
       await _db.customUpdate("DELETE FROM settings WHERE scope = 'shop'", updates: {_db.settings}, updateKind: UpdateKind.delete);
-      await store.enqueueEverything();
+      if (fresh) {
+        await _clearDefaults();
+      } else {
+        await store.enqueueEverything();
+      }
       await _db.writeMeta(_kUrl, url);
       await _db.writeMeta(_kId, id);
       await _db.writeMeta(_kSecret, reply['s'] as String);
@@ -428,6 +436,22 @@ class HubService extends GetxService {
     }
     _startMember();
     await syncNow();
+  }
+
+  /// Empties every synced table but this device's own settings, so the hub's
+  /// rows come in as they are.
+  Future<void> _clearDefaults() async {
+    await _db.customStatement('PRAGMA foreign_keys = OFF');
+    try {
+      await _db.transaction(() async {
+        for (final name in store.synced.keys) {
+          if (name != _db.settings.actualTableName) await _db.customStatement('DELETE FROM $name');
+        }
+        await _db.delete(_db.outbox).go();
+      });
+    } finally {
+      await _db.customStatement('PRAGMA foreign_keys = ON');
+    }
   }
 
   void _startMember() {

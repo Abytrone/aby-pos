@@ -98,6 +98,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setupRestore => 'Restore from a backup';
 
   @override
+  String get setupJoinHelp =>
+      'Adding a till to a shop that already uses Aby? Join the shop\'s hub and everything comes across.';
+
+  @override
+  String get setupJoinHub => 'Join the shop\'s hub';
+
+  @override
+  String get setupJoinRetry => 'Sync with the hub again';
+
+  @override
+  String get setupJoinNoStaff =>
+      'Joined the hub, but the shop\'s staff have not come across yet. Keep the hub on and sync again.';
+
+  @override
   String get userMenu => 'Signed in';
 
   @override
@@ -4324,7 +4338,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hubAddHelp =>
-      'On the new device open Settings, This device, Devices and hub, then Join a hub and type this code. It finds this hub on the Wi-Fi by itself.';
+      'On a new device, tap Join the shop\'s hub on its first screen (or, if it is already set up, Settings, This device, Devices and hub, then Join a hub) and type this code. It finds this hub on the Wi-Fi by itself.';
 
   @override
   String get hubPaired => 'Device added. It is syncing now.';

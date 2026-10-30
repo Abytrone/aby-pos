@@ -268,6 +268,30 @@ abstract class AppLocalizations {
   /// **'Restore from a backup'**
   String get setupRestore;
 
+  /// No description provided for @setupJoinHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Adding a till to a shop that already uses Aby? Join the shop\'s hub and everything comes across.'**
+  String get setupJoinHelp;
+
+  /// No description provided for @setupJoinHub.
+  ///
+  /// In en, this message translates to:
+  /// **'Join the shop\'s hub'**
+  String get setupJoinHub;
+
+  /// No description provided for @setupJoinRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync with the hub again'**
+  String get setupJoinRetry;
+
+  /// No description provided for @setupJoinNoStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined the hub, but the shop\'s staff have not come across yet. Keep the hub on and sync again.'**
+  String get setupJoinNoStaff;
+
   /// No description provided for @userMenu.
   ///
   /// In en, this message translates to:
@@ -8413,7 +8437,7 @@ abstract class AppLocalizations {
   /// No description provided for @hubAddHelp.
   ///
   /// In en, this message translates to:
-  /// **'On the new device open Settings, This device, Devices and hub, then Join a hub and type this code. It finds this hub on the Wi-Fi by itself.'**
+  /// **'On a new device, tap Join the shop\'s hub on its first screen (or, if it is already set up, Settings, This device, Devices and hub, then Join a hub) and type this code. It finds this hub on the Wi-Fi by itself.'**
   String get hubAddHelp;
 
   /// No description provided for @hubPaired.

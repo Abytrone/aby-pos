@@ -1,3 +1,4 @@
+import 'package:aby_pos/app/core/permissions.dart';
 import 'package:aby_pos/app/core/settings.dart';
 import 'package:aby_pos/app/data/database/app_database.dart';
 import 'package:aby_pos/app/data/repositories/settings_repository.dart';
@@ -108,6 +109,25 @@ void main() {
     await member.syncNow();
     await pumpEventQueue();
     expect(mine.get(AppSettings.autoLockMinutes), 10);
+  });
+
+  test("a new install joining from its first screen takes the hub's data as it is and sends nothing", () async {
+    await ra.staff.create(name: 'Kofi', roleId: BuiltInRole.owner.id, pin: '1111');
+    await hub.becomeHub();
+    final offer = await hub.offerPairing();
+
+    await member.join(await local(), offer.code, hubId: offer.hubId, fresh: true);
+    expect(member.online.value, isTrue, reason: '${member.problem.value}');
+    Future<int> count(AppDatabase db, String table) async =>
+        (await db.customSelect('SELECT COUNT(*) AS n FROM $table').getSingle()).read<int>('n');
+    expect(await count(b, 'tax_rates'), await count(a, 'tax_rates'), reason: 'its own starting tax presets do not appear twice');
+    expect(await rb.staff.hasStaff(), isTrue);
+    expect((await rb.catalog.load()).products.map((p) => p.name), contains('Vanilla cone'));
+    final sent = await a.customSelect(
+      'SELECT COUNT(*) AS n FROM hub_changes WHERE origin_device = ?',
+      variables: [Variable.withString(rb.device.deviceId)],
+    ).getSingle();
+    expect(sent.read<int>('n'), 0);
   });
 
   test('a wrong code is refused; a removed device can no longer sync', () async {

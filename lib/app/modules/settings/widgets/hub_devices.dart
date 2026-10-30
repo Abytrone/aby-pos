@@ -48,6 +48,9 @@ String deviceRoleText(AppLocalizations l, String r) => switch (r) {
 /// Settings → Devices: this device's place in the shop's local hub.
 Future<void> showHubDevices() => Get.to<void>(() => const _HubPage())!;
 
+/// The join page on its own (first run): where to join and with which code.
+Future<JoinTarget?> pickHubToJoin() => Get.to<JoinTarget>(() => _JoinPage(hub: Get.find()))!;
+
 class _HubPage extends StatefulWidget {
   const _HubPage();
 
@@ -109,7 +112,7 @@ class _HubPageState extends State<_HubPage> {
   Future<void> _join() async {
     if (!await _allowed()) return;
     final l = appL10n();
-    final target = await Get.to<JoinTarget>(() => _JoinPage(hub: _hub));
+    final target = await pickHubToJoin();
     if (target == null) return;
     final ok = await confirmDialog(title: l.hubJoinTitle, message: l.hubJoinBody, confirmLabel: l.hubJoin);
     if (!ok) return;
