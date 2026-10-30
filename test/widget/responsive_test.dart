@@ -68,7 +68,7 @@ void main() {
         final r = await Repos.open(db);
         await r.staff.create(name: 'Kofi', roleId: BuiltInRole.owner.id, pin: '1234');
       });
-      await tester.pumpWidget(AbyApp(openDatabase: () => db));
+      await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
       await _settle(tester);
       await tester.tap(find.text('Kofi'));
       await _settle(tester);

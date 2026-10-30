@@ -109,6 +109,7 @@ enum ActivityFilter {
       AuditAction.deviceBranchChanged,
       AuditAction.branchDataMerged,
       AuditAction.trainingStarted,
+      AuditAction.licenseActivated,
     },
       };
 }

@@ -6886,4 +6886,105 @@ class AppLocalizationsEn extends AppLocalizations {
   String activitySettingChangedTo(String setting, String before, String after) {
     return '$setting: $before to $after';
   }
+
+  @override
+  String get licenseTitle => 'License';
+
+  @override
+  String get licenseActivateTitle => 'Activate Aby';
+
+  @override
+  String get licenseSettingsHelp =>
+      'Aby is a one-time purchase for your shop: one license on the hub covers its devices.';
+
+  @override
+  String get licenseNotActivated => 'Not activated';
+
+  @override
+  String licenseLicensedTo(String shop, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count devices',
+      one: '1 device',
+    );
+    return '$shop · $_temp0';
+  }
+
+  @override
+  String licenseViaHub(String license) {
+    return 'Through the hub: $license';
+  }
+
+  @override
+  String get licenseFromHub => 'This device uses the hub\'s license.';
+
+  @override
+  String get licenseHowTo =>
+      'To buy Aby, send this device code to Aby. You get a license key back: paste it below or open the file.';
+
+  @override
+  String get licenseMemberHelp =>
+      'This device is linked to a hub. Activate Aby on the hub and every linked device can sell.';
+
+  @override
+  String get licenseDeviceCode => 'Device code';
+
+  @override
+  String get licenseKey => 'License key';
+
+  @override
+  String get licenseReplace => 'New license key (for more devices)';
+
+  @override
+  String get licenseOpenFile => 'Open a license file';
+
+  @override
+  String get licenseActivate => 'Activate';
+
+  @override
+  String get licenseActivated => 'Aby is activated. Thank you!';
+
+  @override
+  String get licenseShop => 'Shop';
+
+  @override
+  String get licenseDevices => 'Devices';
+
+  @override
+  String get licenseIssued => 'Issued';
+
+  @override
+  String get licenseApprovalReason => 'Activate Aby';
+
+  @override
+  String get licenseErrUnreadable =>
+      'That isn\'t a complete license key. Copy all of it and try again.';
+
+  @override
+  String get licenseErrForged =>
+      'That license key wasn\'t made by Aby, or it was changed.';
+
+  @override
+  String get licenseErrOtherDevice =>
+      'That license is for another device. Check the device code you sent.';
+
+  @override
+  String get licenseErrTooFewDevices =>
+      'That license covers fewer devices than are linked to this hub. Remove devices you no longer use under Hub first.';
+
+  @override
+  String get licenseBanner =>
+      'Aby isn\'t activated on this device. You can look at reports, export and back up, but not sell or change stock, customers or cash.';
+
+  @override
+  String get licenseBannerMember =>
+      'The hub this device is linked to isn\'t activated. Activate Aby on the hub to sell here.';
+
+  @override
+  String get hubErrNoSeats =>
+      'The shop\'s license has no room for another device. Remove a device you no longer use, or get a license for more devices.';
+
+  @override
+  String get auditLicenseActivated => 'Aby activated';
 }

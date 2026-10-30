@@ -14,6 +14,7 @@ import '../../../models/scale.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/branch_service.dart';
 import '../../../services/hub/hub_service.dart';
+import '../../../services/license_service.dart';
 import '../../../services/money.dart';
 import '../../../services/display/display_service.dart';
 import '../../../services/printing/print_service.dart';
@@ -38,6 +39,7 @@ import '../widgets/promotions_dialog.dart';
 import '../widgets/receipt_designer.dart';
 import '../widgets/branches_page.dart';
 import '../widgets/hub_devices.dart';
+import '../widgets/license_dialog.dart';
 import '../widgets/screens_dialog.dart';
 import '../widgets/selling_lists.dart';
 
@@ -884,6 +886,13 @@ class SettingsView extends GetView<SettingsController> {
         ), keywords: ['accountant', 'share', 'whatsapp', 'email']),
       ],
       _Entry(about, InfoTile(title: l.settingsVersion, value: '1.0.0')),
+      _Entry(about, InfoTile(
+        title: l.licenseTitle,
+        subtitle: l.licenseSettingsHelp,
+        value: licenseSummary(l, Get.find<LicenseService>()),
+        leading: const Icon(Icons.key_outlined),
+        onTap: showLicense,
+      ), keywords: ['license', 'licence', 'activate', 'buy', 'key', 'device code']),
       _Entry(about, InfoTile(
         title: l.settingsDeviceId,
         subtitle: c.deviceId,

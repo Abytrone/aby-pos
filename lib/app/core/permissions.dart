@@ -50,6 +50,22 @@ enum Permission {
 
 enum PermissionGroup { sell, catalogue, customers, cash, reports, admin }
 
+extension PermissionLicensing on Permission {
+  /// Allowed without a license: looking at the shop's data, exporting and
+  /// backing it up, and the admin side (staff, settings, devices), so the
+  /// owner is never locked out of their own books. Selling, stock,
+  /// customers and cash need a license.
+  bool get worksUnlicensed => group == PermissionGroup.reports || group == PermissionGroup.admin;
+}
+
+/// What anyone on this device may do at all, whatever their role. Everything
+/// until LicenseService narrows it.
+abstract final class PermissionGate {
+  static bool Function(Permission permission) allows = everything;
+
+  static bool everything(Permission _) => true;
+}
+
 /// Roles every shop starts with. Their IDs are fixed so that devices of the
 /// same shop create the same rows and sync never duplicates them.
 enum BuiltInRole {

@@ -10,6 +10,7 @@ import '../../data/database/app_database.dart';
 import '../../data/sync/row_store.dart';
 import '../device_service.dart';
 import '../ids.dart';
+import '../license_service.dart';
 import '../sync_service.dart';
 import 'sealed_box.dart';
 
@@ -70,7 +71,7 @@ class FoundHub {
 
 /// What went wrong between a device and its hub; shown in the device's
 /// language, so it goes over the wire by name.
-enum HubError { alreadyLinked, noCode, tooManyTries, wrongCode, notPaired, revoked, unreachable, refused }
+enum HubError { alreadyLinked, noCode, tooManyTries, wrongCode, notPaired, revoked, unreachable, refused, noSeats }
 
 class HubException implements Exception {
   const HubException(this.error);
@@ -96,11 +97,15 @@ class HubException implements Exception {
 /// device carries on and catches up later.
 class HubService extends GetxService {
   HubService(this._db, this._device,
-      {this.sync, this.port = 8787, this.beaconPort = 47878, this.every = const Duration(seconds: 3)})
+      {this.sync, this.licenses, this.port = 8787, this.beaconPort = 47878, this.every = const Duration(seconds: 3)})
       : store = RowStore(_db);
 
   /// Shown in the header and status centre.
   final SyncService? sync;
+
+  /// The hub hands its license to its members and pairs no more devices
+  /// than it covers; a member keeps the hub's.
+  final LicenseService? licenses;
 
   final AppDatabase _db;
   final DeviceInfo _device;
@@ -128,7 +133,7 @@ class HubService extends GetxService {
 
   /// What links this device to a hub. A restore keeps this device's, not
   /// the backup's (BackupService).
-  static const linkKeys = [_kRole, _kUrl, _kSecret, _kId, _kCursor, _kName, _kSeen];
+  static const linkKeys = [_kRole, _kUrl, _kSecret, _kId, _kCursor, _kName, _kSeen, LicenseService.hubLicenseKey];
   static const epochKey = _kEpoch, cursorKey = _kCursor, roleKey = _kRole;
 
   final role = HubRole.none.obs;
@@ -300,6 +305,10 @@ class HubService extends GetxService {
             if (!a.isLoopback) a.address,
       ];
 
+  /// Devices sharing this hub's license: itself and every member not
+  /// removed.
+  Future<int> deviceCount() async => 1 + (await devices()).where((d) => d.revokedAt == null).length;
+
   Future<List<HubDeviceRow>> devices() => (_db.select(_db.hubDevices)..orderBy([(d) => OrderingTerm(expression: d.pairedAt)])).get();
 
   Future<void> updateDevice(String deviceId, {String? name, String? role}) async {
@@ -357,6 +366,11 @@ class HubService extends GetxService {
       throw const HubException(HubError.wrongCode);
     }
     if (hello['d'] != deviceId) throw const HubException(HubError.wrongCode);
+    final seats = licenses?.seats;
+    if (seats != null) {
+      final others = (await devices()).where((d) => d.revokedAt == null && d.deviceId != deviceId).length;
+      if (1 + others >= seats) throw const HubException(HubError.noSeats);
+    }
     final secret = SealedBox.newSecret();
     final now = DateTime.now();
     await _db.into(_db.hubDevices).insertOnConflictUpdate(HubDevicesCompanion.insert(
@@ -414,7 +428,14 @@ class HubService extends GetxService {
     ];
     final cursor = rows.isEmpty ? since : rows.last.read<int>('seq');
     return SealedBox.seal(
-      {'pull': pull, 'cursor': cursor, 'more': rows.length == 400, 'rejected': rejected, 'epoch': await _epoch()},
+      {
+        'pull': pull,
+        'cursor': cursor,
+        'more': rows.length == 400,
+        'rejected': rejected,
+        'epoch': await _epoch(),
+        if (licenses?.seats != null) 'license': licenses!.ownKey,
+      },
       d.secret,
     );
   }
@@ -546,6 +567,7 @@ class HubService extends GetxService {
           if (epoch != null) await _db.writeMeta(_kSeen, epoch);
           if (restarted) await _resync();
         });
+        await licenses?.fromHub(reply['license'] as String?);
         more = restarted || reply['more'] == true || batch.outboxSeqs.length >= 300;
         if (!more && own) await _db.deleteMeta(resyncKey);
       }
@@ -555,6 +577,8 @@ class HubService extends GetxService {
     } on HubException catch (e) {
       online.value = false;
       problem.value = e.error;
+      // Removed from the hub: its license no longer covers this device.
+      if (e.error == HubError.revoked || e.error == HubError.notPaired) await licenses?.fromHub(null);
     } on Object {
       online.value = false;
       problem.value = HubError.unreachable;
@@ -648,6 +672,7 @@ class HubService extends GetxService {
   /// Stops syncing. This device keeps its data and works alone.
   Future<void> leave() async {
     await stop();
+    await licenses?.fromHub(null);
     for (final k in [...linkKeys, _kEpoch, resyncKey]) {
       await _db.deleteMeta(k);
     }

@@ -30,6 +30,7 @@ String hubErrorText(AppLocalizations l, HubError e) => switch (e) {
       HubError.revoked => l.hubErrRevoked,
       HubError.unreachable => l.hubErrUnreachable,
       HubError.refused => l.hubErrRefused,
+      HubError.noSeats => l.hubErrNoSeats,
     };
 
 String hubRoleText(AppLocalizations l, HubRole r) => switch (r) {

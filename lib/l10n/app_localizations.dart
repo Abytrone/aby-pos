@@ -11643,6 +11643,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{setting}: {before} to {after}'**
   String activitySettingChangedTo(String setting, String before, String after);
+
+  /// No description provided for @licenseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'License'**
+  String get licenseTitle;
+
+  /// No description provided for @licenseActivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate Aby'**
+  String get licenseActivateTitle;
+
+  /// No description provided for @licenseSettingsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Aby is a one-time purchase for your shop: one license on the hub covers its devices.'**
+  String get licenseSettingsHelp;
+
+  /// No description provided for @licenseNotActivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Not activated'**
+  String get licenseNotActivated;
+
+  /// No description provided for @licenseLicensedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'{shop} · {count, plural, =1{1 device} other{{count} devices}}'**
+  String licenseLicensedTo(String shop, int count);
+
+  /// No description provided for @licenseViaHub.
+  ///
+  /// In en, this message translates to:
+  /// **'Through the hub: {license}'**
+  String licenseViaHub(String license);
+
+  /// No description provided for @licenseFromHub.
+  ///
+  /// In en, this message translates to:
+  /// **'This device uses the hub\'s license.'**
+  String get licenseFromHub;
+
+  /// No description provided for @licenseHowTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To buy Aby, send this device code to Aby. You get a license key back: paste it below or open the file.'**
+  String get licenseHowTo;
+
+  /// No description provided for @licenseMemberHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'This device is linked to a hub. Activate Aby on the hub and every linked device can sell.'**
+  String get licenseMemberHelp;
+
+  /// No description provided for @licenseDeviceCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Device code'**
+  String get licenseDeviceCode;
+
+  /// No description provided for @licenseKey.
+  ///
+  /// In en, this message translates to:
+  /// **'License key'**
+  String get licenseKey;
+
+  /// No description provided for @licenseReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'New license key (for more devices)'**
+  String get licenseReplace;
+
+  /// No description provided for @licenseOpenFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a license file'**
+  String get licenseOpenFile;
+
+  /// No description provided for @licenseActivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate'**
+  String get licenseActivate;
+
+  /// No description provided for @licenseActivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Aby is activated. Thank you!'**
+  String get licenseActivated;
+
+  /// No description provided for @licenseShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop'**
+  String get licenseShop;
+
+  /// No description provided for @licenseDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices'**
+  String get licenseDevices;
+
+  /// No description provided for @licenseIssued.
+  ///
+  /// In en, this message translates to:
+  /// **'Issued'**
+  String get licenseIssued;
+
+  /// No description provided for @licenseApprovalReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate Aby'**
+  String get licenseApprovalReason;
+
+  /// No description provided for @licenseErrUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'That isn\'t a complete license key. Copy all of it and try again.'**
+  String get licenseErrUnreadable;
+
+  /// No description provided for @licenseErrForged.
+  ///
+  /// In en, this message translates to:
+  /// **'That license key wasn\'t made by Aby, or it was changed.'**
+  String get licenseErrForged;
+
+  /// No description provided for @licenseErrOtherDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'That license is for another device. Check the device code you sent.'**
+  String get licenseErrOtherDevice;
+
+  /// No description provided for @licenseErrTooFewDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'That license covers fewer devices than are linked to this hub. Remove devices you no longer use under Hub first.'**
+  String get licenseErrTooFewDevices;
+
+  /// No description provided for @licenseBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Aby isn\'t activated on this device. You can look at reports, export and back up, but not sell or change stock, customers or cash.'**
+  String get licenseBanner;
+
+  /// No description provided for @licenseBannerMember.
+  ///
+  /// In en, this message translates to:
+  /// **'The hub this device is linked to isn\'t activated. Activate Aby on the hub to sell here.'**
+  String get licenseBannerMember;
+
+  /// No description provided for @hubErrNoSeats.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop\'s license has no room for another device. Remove a device you no longer use, or get a license for more devices.'**
+  String get hubErrNoSeats;
+
+  /// No description provided for @auditLicenseActivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Aby activated'**
+  String get auditLicenseActivated;
 }
 
 class _AppLocalizationsDelegate

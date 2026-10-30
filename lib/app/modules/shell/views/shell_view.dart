@@ -11,6 +11,7 @@ import '../../money/views/money_view.dart';
 import '../../orders/views/orders_view.dart';
 import '../../products/views/products_view.dart';
 import '../../settings/views/settings_view.dart';
+import '../../settings/widgets/license_dialog.dart';
 import '../../stock/views/stock_view.dart';
 import '../../staff/views/staff_view.dart';
 import '../../till/views/till_view.dart';
@@ -51,6 +52,7 @@ class ShellView extends GetView<ShellController> {
           final body = Column(
             children: [
               ShellHeader(controller: controller, showMark: !wide),
+              const LicenseBanner(),
               Expanded(
                 child: IndexedStack(
                   index: ShellSection.values.indexOf(current),

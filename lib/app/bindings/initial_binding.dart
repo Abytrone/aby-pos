@@ -46,6 +46,7 @@ import '../services/branch_service.dart';
 import '../services/clock_service.dart';
 import '../services/device_service.dart';
 import '../services/insight_service.dart';
+import '../services/license_service.dart';
 import '../services/display/display_service.dart';
 import '../services/notification_service.dart';
 import '../services/permission_service.dart';
@@ -64,10 +65,13 @@ import '../ui/approval_prompt.dart';
 /// App-wide services: the composition root. Runs once per app start (and
 /// again after a restore restarts the app).
 class InitialBinding extends Bindings {
-  InitialBinding({this.database});
+  InitialBinding({this.database, this.requireLicense = true});
 
   /// Tests pass an in-memory database; the app opens the on-device one.
   final AppDatabase? database;
+
+  /// False in tests of the whole app, which have no license.
+  final bool requireLicense;
 
   @override
   void dependencies() {
@@ -140,7 +144,17 @@ class InitialBinding extends Bindings {
     final times = Get.put(TimeRepository(db, device), permanent: true);
     Get.put(ClockService(times, auth, settings), permanent: true);
     final sync = Get.put(SyncService(Get.find()), permanent: true);
-    Get.put(HubService(db, device, sync: sync), permanent: true);
+    final licenses = Get.put(
+      LicenseService(
+        db,
+        training: () => Get.isRegistered<TrainingService>() && Get.find<TrainingService>().active.value,
+        audit: audit,
+        changed: auth.currentUser.refresh,
+        enforce: requireLicense,
+      ),
+      permanent: true,
+    );
+    Get.put(HubService(db, device, sync: sync, licenses: licenses), permanent: true);
     Get.put(TrainingService(db, audit: audit), permanent: true);
     final backups = Get.put(BackupService(db, audit, settings), permanent: true);
     Get.lazyPut(() => BranchMerge(db, audit, backups), fenix: true);

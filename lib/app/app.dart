@@ -15,10 +15,13 @@ import 'ui/l10n.dart';
 /// The app root. Can rebuild itself from scratch (new services, database
 /// reopened) after a restore: see [AppRestarter].
 class AbyApp extends StatefulWidget {
-  const AbyApp({super.key, this.openDatabase});
+  const AbyApp({super.key, this.openDatabase, this.requireLicense = true});
 
   /// Tests open an in-memory database; called again on every restart.
   final AppDatabase Function()? openDatabase;
+
+  /// False in tests, which run without a license.
+  final bool requireLicense;
 
   @override
   State<AbyApp> createState() => _AbyAppState();
@@ -68,7 +71,7 @@ class _AbyAppState extends State<AbyApp> {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: const Locale('en'),
-      initialBinding: InitialBinding(database: widget.openDatabase?.call()),
+      initialBinding: InitialBinding(database: widget.openDatabase?.call(), requireLicense: widget.requireLicense),
       initialRoute: AppPages.initial,
       getPages: AppPages.routes,
       builder: (context, child) => Listener(

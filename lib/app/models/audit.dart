@@ -80,7 +80,8 @@ enum AuditAction {
   stockCountCancelled,
   receiptReprinted,
   trainingStarted,
-  momoChargesSet;
+  momoChargesSet,
+  licenseActivated;
 
   /// Actions an owner should notice first.
   bool get isSensitive => const {

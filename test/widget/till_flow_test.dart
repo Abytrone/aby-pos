@@ -60,7 +60,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final db = await _shopWithStaff(tester);
-    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
 
     // Sign in as the cashier.
@@ -228,7 +228,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final db = await _shopWithStaff(tester);
-    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
     await tester.tap(find.text('Kofi'));
     await _settle(tester);
@@ -309,7 +309,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final db = await _shopWithStaff(tester);
-    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
     await tester.tap(find.text('Kofi'));
     await _settle(tester);
@@ -404,7 +404,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final db = await _shopWithStaff(tester);
-    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
     await tester.tap(find.text('Ama'));
     await _settle(tester);
@@ -475,7 +475,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final db = await _shopWithStaff(tester);
-    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
     await tester.tap(find.text('Ama'));
     await _settle(tester);
@@ -549,7 +549,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final db = await _shopWithStaff(tester);
-    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
     await tester.tap(find.text('Kofi'));
     await _settle(tester);
@@ -604,7 +604,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final db = await _shopWithStaff(tester);
-    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
     await tester.tap(find.text('Kofi'));
     await _settle(tester);
@@ -664,7 +664,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final db = await _shopWithStaff(tester);
-    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
     await tester.tap(find.text('Kofi'));
     await _settle(tester);
@@ -706,7 +706,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final db = await _shopWithStaff(tester);
-    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
     await tester.tap(find.text('Kofi'));
     await _settle(tester);
@@ -794,7 +794,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final db = await _shopWithStaff(tester);
-    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
     await tester.tap(find.text('Kofi'));
     await _settle(tester);
@@ -834,7 +834,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final db = await _shopWithStaff(tester);
-    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
     await tester.tap(find.text('Kofi'));
     await _settle(tester);
@@ -878,7 +878,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final db = await _shopWithStaff(tester);
-    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
     await tester.tap(find.text('Kofi'));
     await _settle(tester);
@@ -928,7 +928,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final db = await _shopWithStaff(tester);
-    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
     await tester.tap(find.text('Kofi'));
     await _settle(tester);
@@ -974,7 +974,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final db = await _shopWithStaff(tester);
-    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
     await tester.tap(find.text('Kofi'));
     await _settle(tester);
@@ -1028,7 +1028,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final db = await _shopWithStaff(tester);
-    await tester.pumpWidget(AbyApp(openDatabase: () => db));
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
     await tester.tap(find.text('Kofi'));
     await _settle(tester);
@@ -1066,7 +1066,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(AbyApp(openDatabase: () => memoryDb(seed: false)));
+    await tester.pumpWidget(AbyApp(openDatabase: () => memoryDb(seed: false), requireLicense: false));
     await _settle(tester);
     expect(find.text('What kind of shop?'), findsOneWidget);
     await tester.tap(find.text('Chop bar / restaurant'));
@@ -1093,7 +1093,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(AbyApp(openDatabase: memoryDb));
+    await tester.pumpWidget(AbyApp(openDatabase: memoryDb, requireLicense: false));
     await _settle(tester);
 
     expect(find.text('Set up your shop'), findsOneWidget);

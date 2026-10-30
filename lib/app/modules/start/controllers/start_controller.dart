@@ -15,6 +15,7 @@ import '../../../services/device_service.dart';
 import '../../../services/price_scheduler.dart';
 import '../../../services/branch_service.dart';
 import '../../../services/hub/hub_service.dart';
+import '../../../services/license_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../services/training_service.dart';
 import '../../../services/status_service.dart';
@@ -40,6 +41,7 @@ class StartController extends GetxController {
     await _settings.load();
     await Get.find<BranchService>().load();
     await Get.find<TrainingService>().load();
+    await Get.find<LicenseService>().load();
     AppRestarter.applyTheme(_settings.get(AppSettings.themeMode));
     await _backups.finishPendingRestore();
     await Get.find<PriceScheduler>().run();

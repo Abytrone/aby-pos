@@ -46,7 +46,7 @@ class Staff {
 
   bool get isOwner => role.isOwner;
 
-  bool can(Permission permission) => active && role.allows(permission);
+  bool can(Permission permission) => active && PermissionGate.allows(permission) && role.allows(permission);
 
   /// A manual discount of [percent] is within this person's limit.
   bool canDiscount(int percent) => can(Permission.sell) && (isOwner || role.maxDiscountPercent >= percent);
