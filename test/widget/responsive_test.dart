@@ -70,8 +70,7 @@ void main() {
       });
       await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
       await _settle(tester);
-      await tester.tap(find.text('Kofi'));
-      await _settle(tester);
+      // The only person here: straight to the PIN.
       for (final digit in '1234'.split('')) {
         await tester.tap(find.widgetWithText(InkWell, digit).last);
         await tester.pump();

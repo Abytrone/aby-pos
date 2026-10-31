@@ -93,23 +93,45 @@ void main() {
       expect((await r.audit.list()).single.action, AuditAction.staffAdded);
     });
 
-    test('active staff cannot share a PIN', () async {
-      await r.staff.create(name: 'Kofi', roleId: BuiltInRole.owner.id, pin: '1234');
-      await expectLater(
-        r.staff.create(name: 'Ama', roleId: BuiltInRole.cashier.id, pin: '1234', by: owner),
-        throwsA(isA<StaffException>()),
-      );
+    test('each person gets the next free staff number; PINs may be shared', () async {
+      final kofi = await r.staff.create(name: 'Kofi', roleId: BuiltInRole.owner.id, pin: '1234');
+      final ama = await r.staff.create(name: 'Ama', roleId: BuiltInRole.cashier.id, pin: '1234', by: kofi);
+      expect([kofi.number, ama.number], ['101', '102']);
+      await r.staff.setActive(ama.id, active: false, by: kofi);
+      final esi = await r.staff.create(name: 'Esi', roleId: BuiltInRole.manager.id, pin: '1234', by: kofi);
+      expect(esi.number, '103', reason: 'deactivated staff keep their number');
+      await r.staff.changePin(esi.id, '1234', by: kofi);
+    });
+
+    test('withNumber needs the number and PIN of one active person', () async {
+      final kofi = await r.staff.create(name: 'Kofi', roleId: BuiltInRole.owner.id, pin: '1234');
+      final ama = await r.staff.create(name: 'Ama', roleId: BuiltInRole.cashier.id, pin: '1234', by: kofi);
+      expect(await r.staff.withNumber('101', '1234'), kofi);
+      expect(await r.staff.withNumber('102', '1234'), ama);
+      expect(await r.staff.withNumber('102', '0000'), isNull);
+      expect(await r.staff.withNumber('999', '1234'), isNull);
+      await r.staff.setActive(ama.id, active: false, by: kofi);
+      expect(await r.staff.withNumber('102', '1234'), isNull);
     });
 
     test('approverWithPin finds active people who hold the permission', () async {
       final kofi = await r.staff.create(name: 'Kofi', roleId: BuiltInRole.owner.id, pin: '1234');
       final esi = await r.staff.create(name: 'Esi', roleId: BuiltInRole.manager.id, pin: '2222', by: kofi);
-      await r.staff.create(name: 'Ama', roleId: BuiltInRole.cashier.id, pin: '5678', by: kofi);
-      expect(await r.staff.approverWithPin('1234', Permission.voidSale), kofi);
-      expect(await r.staff.approverWithPin('2222', Permission.voidSale), esi);
-      expect(await r.staff.approverWithPin('2222', Permission.restoreBackup), isNull,
+      await r.staff.create(name: 'Ama', roleId: BuiltInRole.cashier.id, pin: '1234', by: kofi);
+      expect(await r.staff.approverWithPin('101', '1234', Permission.voidSale), kofi);
+      expect(await r.staff.approverWithPin('102', '2222', Permission.voidSale), esi);
+      expect(await r.staff.approverWithPin('102', '2222', Permission.restoreBackup), isNull,
           reason: 'managers cannot restore by default');
-      expect(await r.staff.approverWithPin('5678', Permission.voidSale), isNull, reason: 'cashier');
+      expect(await r.staff.approverWithPin('103', '1234', Permission.voidSale), isNull,
+          reason: "a cashier with the owner's PIN still cannot approve");
+    });
+
+    test('ensureNumbers numbers staff synced from an older till', () async {
+      final kofi = await r.staff.create(name: 'Kofi', roleId: BuiltInRole.owner.id, pin: '1234');
+      final ama = await r.staff.create(name: 'Ama', roleId: BuiltInRole.cashier.id, pin: '5678', by: kofi);
+      await db.customStatement('UPDATE staff SET staff_number = NULL WHERE id = ?', [ama.id]);
+      await r.staff.ensureNumbers();
+      expect((await r.staff.find(ama.id))!.number, '102');
     });
 
     test('the last active owner stays an owner and stays active', () async {
@@ -144,14 +166,15 @@ void main() {
       final ama = await r.staff.create(name: 'Ama', roleId: BuiltInRole.cashier.id, pin: '5678', by: kofi);
 
       for (var i = 1; i < AuthService.maxAttempts; i++) {
-        expect(await auth.signIn(ama, '0000'), SignInResult.wrongPin);
+        expect(await auth.signIn('102', '0000'), SignInResult.wrongPin);
       }
-      expect(await auth.signIn(ama, '0000'), SignInResult.lockedOut);
-      expect(await auth.signIn(ama, '5678'), SignInResult.lockedOut,
+      expect(await auth.signIn('102', '0000'), SignInResult.lockedOut);
+      expect(await auth.signIn('102', '5678'), SignInResult.lockedOut,
           reason: 'even the right PIN waits out the lockout');
+      expect(await auth.signInAs(ama, '5678'), SignInResult.lockedOut, reason: 'a badge shares the lockout');
 
       now = now.add(AuthService.lockout);
-      expect(await auth.signIn(ama, '5678'), SignInResult.ok);
+      expect(await auth.signIn('102', '5678'), SignInResult.ok);
       expect(auth.user, ama);
       expect(auth.can(Permission.voidSale), isFalse);
       expect(auth.can(Permission.sell), isTrue);
@@ -164,15 +187,23 @@ void main() {
       expect(auth.isSignedIn, isFalse);
     });
 
-    test('approval takes the PIN of someone with the permission and locks out guessing', () async {
+    test('a wrong staff number is a failed sign-in like a wrong PIN', () async {
+      final auth = AuthService(r.staff, r.audit);
+      await r.staff.create(name: 'Kofi', roleId: BuiltInRole.owner.id, pin: '1234');
+      expect(await auth.signIn('555', '1234'), SignInResult.wrongPin);
+      expect(auth.isSignedIn, isFalse);
+      expect((await r.audit.list()).map((e) => e.action), contains(AuditAction.signInFailed));
+    });
+
+    test('approval takes the number and PIN of someone with the permission and locks out guessing', () async {
       final auth = AuthService(r.staff, r.audit);
       final kofi = await r.staff.create(name: 'Kofi', roleId: BuiltInRole.owner.id, pin: '1234');
-      expect(await auth.approveWithPin('1234', Permission.voidSale), kofi);
+      expect(await auth.approveWithPin('101', '1234', Permission.voidSale), kofi);
       for (var i = 1; i < AuthService.maxAttempts; i++) {
-        expect(await auth.approveWithPin('0000', Permission.voidSale), isNull);
+        expect(await auth.approveWithPin('101', '0000', Permission.voidSale), isNull);
       }
-      await expectLater(auth.approveWithPin('0000', Permission.voidSale), throwsA(isA<LockedOutException>()));
-      await expectLater(auth.approveWithPin('1234', Permission.voidSale), throwsA(isA<LockedOutException>()));
+      await expectLater(auth.approveWithPin('101', '0000', Permission.voidSale), throwsA(isA<LockedOutException>()));
+      await expectLater(auth.approveWithPin('101', '1234', Permission.voidSale), throwsA(isA<LockedOutException>()));
     });
   });
 

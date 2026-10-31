@@ -104,7 +104,8 @@ To **set up your shop**:
    like voids. Don't share it.
 4. Tap **Create owner and start**.
 
-Aby opens on **Who's on the till?** with your name on it. Sign in with your PIN.
+You are **staff number 101**. While you are the only person, Aby asks just for your PIN. Once
+you add staff, everyone signs in with their staff number and then their PIN.
 
 > **Your shop starts empty.** There are no sample products. Aby already has the payment methods,
 > reasons lists, expense categories and Ghana tax rates (NHIL, GETFund and VAT, switched off until
@@ -165,11 +166,17 @@ Do these once, in this order. Each takes a few minutes.
 
 ### 2.1 Signing in
 
-**Who's on the till?** shows everyone who works here. Tap your name and type your PIN.
+**Who's on the till?** asks for your **staff number** (three digits, like 104), then your
+**PIN**. No names are shown, so customers and other staff can't see who works here.
 
+- **Your staff number** is on your page (your name at the top → **My profile**) and in the Staff
+  list. Forgot it? A manager can look it up.
+- **Two people may have the same PIN.** The staff number says who you are, so PINs don't need to
+  be different.
 - **Badge:** if you have a staff badge, scan it with the barcode scanner (or the camera on
-  Android) to pick your name, then type your PIN.
-- **Wrong PIN five times** locks that name for 30 seconds. This stops someone guessing.
+  Android) instead of typing your number, then type your PIN.
+- **Five wrong tries** lock that staff number for 30 seconds. This stops someone guessing. Aby
+  never says whether the number or the PIN was wrong.
 - **PIN pad:** Settings → This device → **PIN keypad** can shuffle the numbers every time, so no
   one learns a PIN by watching where your finger goes. Or it can hide the keypad and use the
   keyboard.
@@ -208,14 +215,15 @@ From left to right:
 - **Lock** when you step away. The cart is kept exactly as it was.
 - Aby **locks by itself** when nobody has touched it for 3 minutes. Change this in Settings →
   This device → **Lock the till after**.
-- **Switch user** lets the next person sign in without losing the cart.
+- **Switch user** lets the next person sign in with their staff number and PIN without losing
+  the cart.
 - Closing Aby signs everyone out.
 
 ### 2.5 When someone else must approve
 
 Some actions need a permission you may not have: a big discount, a void, a refund without a
-receipt, opening the drawer. Aby asks: *someone allowed to do this enters their PIN*. A manager or
-the owner types their PIN on your till and the action goes ahead.
+receipt, opening the drawer. Aby asks: *someone allowed to do this enters their staff number and
+PIN*. A manager or the owner types theirs on your till and the action goes ahead.
 
 Both names, yours and the approver's, go in the activity log. Nobody needs to share their PIN, and
 nobody has to sign you out.
@@ -939,8 +947,9 @@ Manage → **Staff**. Needs *Manage staff*.
 ### 14.1 Adding staff
 
 **Add** a person: name, **role**, and a 4-digit **PIN** they choose. You can also add their phone,
-photo, Ghana Card number, usual hours and notes. Each person has their **own** PIN. Never share
-PINs: the activity log trusts them.
+photo, Ghana Card number, usual hours and notes. Aby gives each person a **staff number** (101,
+102 and so on) and shows it when you add them. They type it before their PIN. Two people can
+choose the same PIN. Never share PINs: the activity log trusts them.
 
 You can **change a PIN**, **change the role**, or **deactivate** someone who has left. Their sales
 and history stay.
@@ -969,7 +978,8 @@ Each role is a list of these:
 | Reports | See reports · See costs and profit |
 | Admin | Manage staff · Manage roles · Change settings · Manage devices and the hub · See the activity log · Export data and backups · Restore a backup |
 
-When someone lacks a permission, anyone who has it can approve with their PIN (2.5).
+When someone lacks a permission, anyone who has it can approve with their staff number and PIN
+(2.5).
 
 ### 14.4 Staff at one branch
 
@@ -979,7 +989,7 @@ Owners sign in everywhere.
 ### 14.5 Badges and the time clock
 
 - **Make a badge** on a person's page: a card with a QR code, printed on the receipt printer or
-  shared as a PDF. Scanning it at sign-in picks their name. They still type their PIN. **New
+  shared as a PDF. Scanning it at sign-in stands in for their staff number. They still type their PIN. **New
   badge** stops the old one working.
 - **Clock in and out** from your name at the top: **Clock in**, **Start a break**, **End the
   break**, **Clock out**.
@@ -1431,7 +1441,7 @@ or getting your licence key.
 | Roles | ✓ | | | |
 | Restore a backup | ✓ | | | |
 
-*PIN: someone allowed enters their PIN to approve.*
+*PIN: someone allowed enters their staff number and PIN to approve.*
 
 ### Every day
 

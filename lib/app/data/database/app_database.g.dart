@@ -40302,6 +40302,17 @@ class $StaffMembersTable extends StaffMembers
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _staffNumberMeta = const VerificationMeta(
+    'staffNumber',
+  );
+  @override
+  late final GeneratedColumn<String> staffNumber = GeneratedColumn<String>(
+    'staff_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -40327,6 +40338,7 @@ class $StaffMembersTable extends StaffMembers
     workStart,
     workEnd,
     branchId,
+    staffNumber,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -40498,6 +40510,15 @@ class $StaffMembersTable extends StaffMembers
         branchId.isAcceptableOrUnknown(data['branch_id']!, _branchIdMeta),
       );
     }
+    if (data.containsKey('staff_number')) {
+      context.handle(
+        _staffNumberMeta,
+        staffNumber.isAcceptableOrUnknown(
+          data['staff_number']!,
+          _staffNumberMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -40599,6 +40620,10 @@ class $StaffMembersTable extends StaffMembers
         DriftSqlType.string,
         data['${effectivePrefix}branch_id'],
       ),
+      staffNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}staff_number'],
+      ),
     );
   }
 
@@ -40648,6 +40673,10 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
 
   /// The branch they work at; null for every branch (MDV-02). v17.
   final String? branchId;
+
+  /// Typed before the PIN at sign-in ("101"), so the screen never lists
+  /// names and two people may share a PIN. Not secret. v20.
+  final String? staffNumber;
   const StaffRow({
     required this.id,
     required this.createdAt,
@@ -40672,6 +40701,7 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
     this.workStart,
     this.workEnd,
     this.branchId,
+    this.staffNumber,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -40728,6 +40758,9 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
     }
     if (!nullToAbsent || branchId != null) {
       map['branch_id'] = Variable<String>(branchId);
+    }
+    if (!nullToAbsent || staffNumber != null) {
+      map['staff_number'] = Variable<String>(staffNumber);
     }
     return map;
   }
@@ -40787,6 +40820,9 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
       branchId: branchId == null && nullToAbsent
           ? const Value.absent()
           : Value(branchId),
+      staffNumber: staffNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(staffNumber),
     );
   }
 
@@ -40819,6 +40855,7 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
       workStart: serializer.fromJson<int?>(json['workStart']),
       workEnd: serializer.fromJson<int?>(json['workEnd']),
       branchId: serializer.fromJson<String?>(json['branchId']),
+      staffNumber: serializer.fromJson<String?>(json['staffNumber']),
     );
   }
   @override
@@ -40848,6 +40885,7 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
       'workStart': serializer.toJson<int?>(workStart),
       'workEnd': serializer.toJson<int?>(workEnd),
       'branchId': serializer.toJson<String?>(branchId),
+      'staffNumber': serializer.toJson<String?>(staffNumber),
     };
   }
 
@@ -40875,6 +40913,7 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
     Value<int?> workStart = const Value.absent(),
     Value<int?> workEnd = const Value.absent(),
     Value<String?> branchId = const Value.absent(),
+    Value<String?> staffNumber = const Value.absent(),
   }) => StaffRow(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -40903,6 +40942,7 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
     workStart: workStart.present ? workStart.value : this.workStart,
     workEnd: workEnd.present ? workEnd.value : this.workEnd,
     branchId: branchId.present ? branchId.value : this.branchId,
+    staffNumber: staffNumber.present ? staffNumber.value : this.staffNumber,
   );
   StaffRow copyWithCompanion(StaffMembersCompanion data) {
     return StaffRow(
@@ -40935,6 +40975,9 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
       workStart: data.workStart.present ? data.workStart.value : this.workStart,
       workEnd: data.workEnd.present ? data.workEnd.value : this.workEnd,
       branchId: data.branchId.present ? data.branchId.value : this.branchId,
+      staffNumber: data.staffNumber.present
+          ? data.staffNumber.value
+          : this.staffNumber,
     );
   }
 
@@ -40963,7 +41006,8 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
           ..write('badgeCode: $badgeCode, ')
           ..write('workStart: $workStart, ')
           ..write('workEnd: $workEnd, ')
-          ..write('branchId: $branchId')
+          ..write('branchId: $branchId, ')
+          ..write('staffNumber: $staffNumber')
           ..write(')'))
         .toString();
   }
@@ -40993,6 +41037,7 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
     workStart,
     workEnd,
     branchId,
+    staffNumber,
   ]);
   @override
   bool operator ==(Object other) =>
@@ -41020,7 +41065,8 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
           other.badgeCode == this.badgeCode &&
           other.workStart == this.workStart &&
           other.workEnd == this.workEnd &&
-          other.branchId == this.branchId);
+          other.branchId == this.branchId &&
+          other.staffNumber == this.staffNumber);
 }
 
 class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
@@ -41047,6 +41093,7 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
   final Value<int?> workStart;
   final Value<int?> workEnd;
   final Value<String?> branchId;
+  final Value<String?> staffNumber;
   final Value<int> rowid;
   const StaffMembersCompanion({
     this.id = const Value.absent(),
@@ -41072,6 +41119,7 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
     this.workStart = const Value.absent(),
     this.workEnd = const Value.absent(),
     this.branchId = const Value.absent(),
+    this.staffNumber = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   StaffMembersCompanion.insert({
@@ -41098,6 +41146,7 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
     this.workStart = const Value.absent(),
     this.workEnd = const Value.absent(),
     this.branchId = const Value.absent(),
+    this.staffNumber = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -41130,6 +41179,7 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
     Expression<int>? workStart,
     Expression<int>? workEnd,
     Expression<String>? branchId,
+    Expression<String>? staffNumber,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -41156,6 +41206,7 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
       if (workStart != null) 'work_start': workStart,
       if (workEnd != null) 'work_end': workEnd,
       if (branchId != null) 'branch_id': branchId,
+      if (staffNumber != null) 'staff_number': staffNumber,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -41184,6 +41235,7 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
     Value<int?>? workStart,
     Value<int?>? workEnd,
     Value<String?>? branchId,
+    Value<String?>? staffNumber,
     Value<int>? rowid,
   }) {
     return StaffMembersCompanion(
@@ -41210,6 +41262,7 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
       workStart: workStart ?? this.workStart,
       workEnd: workEnd ?? this.workEnd,
       branchId: branchId ?? this.branchId,
+      staffNumber: staffNumber ?? this.staffNumber,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -41286,6 +41339,9 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
     if (branchId.present) {
       map['branch_id'] = Variable<String>(branchId.value);
     }
+    if (staffNumber.present) {
+      map['staff_number'] = Variable<String>(staffNumber.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -41318,6 +41374,7 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
           ..write('workStart: $workStart, ')
           ..write('workEnd: $workEnd, ')
           ..write('branchId: $branchId, ')
+          ..write('staffNumber: $staffNumber, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -75479,6 +75536,7 @@ typedef $$StaffMembersTableCreateCompanionBuilder =
       Value<int?> workStart,
       Value<int?> workEnd,
       Value<String?> branchId,
+      Value<String?> staffNumber,
       Value<int> rowid,
     });
 typedef $$StaffMembersTableUpdateCompanionBuilder =
@@ -75506,6 +75564,7 @@ typedef $$StaffMembersTableUpdateCompanionBuilder =
       Value<int?> workStart,
       Value<int?> workEnd,
       Value<String?> branchId,
+      Value<String?> staffNumber,
       Value<int> rowid,
     });
 
@@ -75665,6 +75724,11 @@ class $$StaffMembersTableFilterComposer
 
   ColumnFilters<String> get branchId => $composableBuilder(
     column: $table.branchId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get staffNumber => $composableBuilder(
+    column: $table.staffNumber,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -75836,6 +75900,11 @@ class $$StaffMembersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get staffNumber => $composableBuilder(
+    column: $table.staffNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$RolesTableOrderingComposer get roleId {
     final $$RolesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -75941,6 +76010,11 @@ class $$StaffMembersTableAnnotationComposer
   GeneratedColumn<String> get branchId =>
       $composableBuilder(column: $table.branchId, builder: (column) => column);
 
+  GeneratedColumn<String> get staffNumber => $composableBuilder(
+    column: $table.staffNumber,
+    builder: (column) => column,
+  );
+
   $$RolesTableAnnotationComposer get roleId {
     final $$RolesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -76041,6 +76115,7 @@ class $$StaffMembersTableTableManager
                 Value<int?> workStart = const Value.absent(),
                 Value<int?> workEnd = const Value.absent(),
                 Value<String?> branchId = const Value.absent(),
+                Value<String?> staffNumber = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StaffMembersCompanion(
                 id: id,
@@ -76066,6 +76141,7 @@ class $$StaffMembersTableTableManager
                 workStart: workStart,
                 workEnd: workEnd,
                 branchId: branchId,
+                staffNumber: staffNumber,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -76093,6 +76169,7 @@ class $$StaffMembersTableTableManager
                 Value<int?> workStart = const Value.absent(),
                 Value<int?> workEnd = const Value.absent(),
                 Value<String?> branchId = const Value.absent(),
+                Value<String?> staffNumber = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StaffMembersCompanion.insert(
                 id: id,
@@ -76118,6 +76195,7 @@ class $$StaffMembersTableTableManager
                 workStart: workStart,
                 workEnd: workEnd,
                 branchId: branchId,
+                staffNumber: staffNumber,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

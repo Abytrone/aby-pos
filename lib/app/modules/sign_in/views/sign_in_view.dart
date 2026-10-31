@@ -6,10 +6,7 @@ import '../../../theme/aby_mark.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/barcode_scanner.dart';
 import '../../../ui/l10n.dart';
-import '../../../ui/option_chip.dart';
-import '../../../ui/permission_labels.dart';
-import '../../../ui/pin_pad.dart';
-import '../../../ui/staff_avatar.dart';
+import '../../../ui/staff_pin_entry.dart';
 import '../controllers/sign_in_controller.dart';
 
 class SignInView extends GetView<SignInController> {
@@ -24,8 +21,10 @@ class SignInView extends GetView<SignInController> {
           if (controller.loading.value) {
             return const Center(child: CircularProgressIndicator());
           }
-          final selected = controller.selected.value;
-          final people = Column(
+          final known = controller.known.value;
+          final fromBadge = controller.fromBadge.value;
+          final muted = AbyText.body.copyWith(color: c.inkMuted);
+          final intro = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -42,33 +41,31 @@ class SignInView extends GetView<SignInController> {
                 Expanded(child: Text(context.l10n.signInWho, style: AbyText.heading.copyWith(color: c.ink))),
                 ?cameraScanButton(controller.scannedBadge),
               ]),
+              const SizedBox(height: AbySpace.s2),
+              if (fromBadge)
+                Text(context.l10n.signInBadgeRead, style: muted)
+              else if (known == null) ...[
+                Text(context.l10n.signInHow, style: muted),
+                const SizedBox(height: AbySpace.s2),
+                Text(context.l10n.signInForgotNumber, style: AbyText.caption.copyWith(color: c.inkMuted)),
+              ],
               if (controller.badgeError.value != null)
                 Text(controller.badgeError.value!, style: AbyText.caption.copyWith(color: c.danger)),
-              const SizedBox(height: AbySpace.s3),
-              Wrap(
-                spacing: AbySpace.s2,
-                runSpacing: AbySpace.s2,
-                children: [
-                  for (final person in controller.staff)
-                    OptionChip(
-                      leading: StaffAvatar(staff: person, radius: 14),
-                      label: person.name,
-                      trailing: roleName(context.l10n, person.role),
-                      selected: selected == person,
-                      onTap: () => controller.select(person),
-                    ),
-                ],
-              ),
             ],
           );
-          final pad = selected == null
-              ? Text(context.l10n.signInPickName, style: AbyText.body.copyWith(color: c.inkMuted))
-              : PinPad(
-                  // A new pad (cleared digits) for each person.
-                  key: ValueKey('${selected.id}-${controller.padKey.value}'),
-                  title: context.l10n.pinFor(selected.name),
-                  onSubmit: controller.submitPin,
-                );
+          final pad = Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              StaffPinEntry(
+                // A fresh pad (cleared digits) after each badge scan.
+                key: ValueKey('${known?.id}-${controller.padKey.value}'),
+                knownPerson: known != null,
+                onSubmit: controller.submit,
+              ),
+              if (fromBadge)
+                TextButton(onPressed: controller.useNumber, child: Text(context.l10n.signInUseNumber)),
+            ],
+          );
           return LayoutBuilder(builder: (context, constraints) {
             final wide = constraints.maxWidth >= 720;
             return SingleChildScrollView(
@@ -79,7 +76,7 @@ class SignInView extends GetView<SignInController> {
                 child: wide
                     ? Row(
                         children: [
-                          Expanded(child: people),
+                          Expanded(child: intro),
                           const SizedBox(width: AbySpace.s8),
                           Expanded(child: Center(child: pad)),
                         ],
@@ -87,7 +84,7 @@ class SignInView extends GetView<SignInController> {
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          people,
+                          intro,
                           const SizedBox(height: AbySpace.s6),
                           Center(child: pad),
                         ],

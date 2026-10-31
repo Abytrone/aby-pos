@@ -20,7 +20,6 @@
   "pinWrong": "Wrong PIN. Try again.",
   "pinMismatch": "The PINs don't match.",
   "signInWho": "Who's on the till?",
-  "signInPickName": "Pick your name.",
   "setupTitle": "Set up your shop",
   "setupShopName": "Shop name",
   "setupYourName": "Your name",
@@ -37,10 +36,9 @@
   "userSwitch": "Switch user",
   "userLock": "Lock",
   "userSwitchTitle": "Hand over the till",
-  "userSwitchNobody": "There is nobody else to switch to.",
   "approvalTitle": "Approval needed",
-  "approvalPinTitle": "PIN of the person approving",
-  "approvalWrongPin": "That PIN can't approve this.",
+  "approvalPinTitle": "Their PIN",
+  "approvalWrongPin": "That number and PIN can't approve this.",
   "statusCentreTitle": "Is everything safe?",
   "statusAllSafe": "All safe",
   "statusNeedsAttention": "Needs attention",
@@ -1287,12 +1285,12 @@
   "badgeTitle": "Badge and hours",
   "badgeNone": "No sign-in badge",
   "badgeHas": "Has a sign-in badge",
-  "badgeHelp": "A QR code to scan at sign-in, instead of picking the name. The PIN is still needed.",
+  "badgeHelp": "A QR code to scan at sign-in, instead of typing the staff number. The PIN is still needed.",
   "badgeMake": "Make a badge",
   "badgeNew": "New badge",
   "badgeRemove": "Remove the badge",
   "badgeRemoved": "Badge removed. It no longer works.",
-  "badgeUnknown": "That badge is not known. Pick your name instead.",
+  "badgeUnknown": "That badge is not known. Type your staff number instead.",
   "workHours": "Usual hours",
   "workHoursHelp": "For late arrivals and early leaves on the timesheet.",
   "workStarts": "Starts at",
@@ -1502,14 +1500,6 @@
       }
     }
   },
-  "pinFor": "PIN for {name}",
-  "@pinFor": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "setupIntro": "You're the owner. Pick a {digits}-digit PIN to sign in and to approve things like voids. You can add staff later.",
   "@setupIntro": {
     "placeholders": {
@@ -1598,10 +1588,13 @@
       }
     }
   },
-  "staffAdded": "{name} added.",
+  "staffAdded": "{name} added. Their staff number is {number}: they type it, then their PIN, to sign in.",
   "@staffAdded": {
     "placeholders": {
       "name": {
+        "type": "String"
+      },
+      "number": {
         "type": "String"
       }
     }
@@ -4329,5 +4322,39 @@
   "licenseBanner": "Aby isn't activated on this device. You can look at reports, export and back up, but not sell or change stock, customers or cash.",
   "licenseBannerMember": "The hub this device is linked to isn't activated. Activate Aby on the hub to sell here.",
   "hubErrNoSeats": "The shop's license has no room for another device. Remove a device you no longer use, or get a license for more devices.",
-  "auditLicenseActivated": "Aby activated"
+  "auditLicenseActivated": "Aby activated",
+  "signInHow": "Type your staff number, then your PIN.",
+  "signInForgotNumber": "Forgot your number? A manager can see it under Staff.",
+  "signInWrong": "That number and PIN don't match.",
+  "signInBadgeRead": "Badge read. Now your PIN.",
+  "signInUseNumber": "Use my staff number",
+  "signInPinTitle": "Your PIN",
+  "staffNumberTitle": "Your staff number",
+  "approvalNumberTitle": "Staff number of the person approving",
+  "staffNumberChange": "Staff no. {number} · Change",
+  "@staffNumberChange": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "staffNumberLabel": "Staff no. {number}",
+  "@staffNumberLabel": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "setupNumberNote": "You will be staff number {number}. You sign in with it and your PIN.",
+  "@setupNumberNote": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "digitsTypeOnKeyboard": "Type it on the keyboard",
+  "digitsKeyboardWorks": "You can also type it on the keyboard"
 }

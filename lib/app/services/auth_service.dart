@@ -43,7 +43,7 @@ class AuthService extends GetxService {
 
   bool can(Permission permission) => currentUser.value?.can(permission) ?? false;
 
-  /// Time left before [key] (a staff ID) may try again, or null.
+  /// Time left before [key] (a staff number) may try again, or null.
   Duration? lockedFor(String key) {
     final until = _lockedUntil[key];
     if (until == null) return null;
@@ -55,33 +55,51 @@ class AuthService extends GetxService {
     return left;
   }
 
-  /// [maxAttempts] wrong PINs in a row lock that person out for [lockout].
-  Future<SignInResult> signIn(Staff staff, String pin) async {
-    if (lockedFor(staff.id) != null) return SignInResult.lockedOut;
-    if (await _staff.verifyPin(staff.id, pin)) {
-      _failures.remove(staff.id);
-      // Reload so a role changed on another screen takes effect.
-      currentUser.value = await _staff.find(staff.id) ?? staff;
-      await _audit.record(action: AuditAction.signedIn, actor: staff, summary: '${staff.name} signed in');
-      return SignInResult.ok;
-    }
-    final locked = _fail(staff.id);
+  /// Signs in whoever has this staff number and PIN (at [atBranch], when
+  /// given). A wrong number and a wrong PIN look the same, so the screen
+  /// gives away nothing about who works here. [maxAttempts] wrong tries in
+  /// a row lock that number for [lockout].
+  Future<SignInResult> signIn(String number, String pin, {String? atBranch}) async {
+    if (lockedFor(number) != null) return SignInResult.lockedOut;
+    final person = await _staff.withNumber(number, pin, atBranch: atBranch);
+    if (person != null) return _signedIn(number, person);
+    final owner = (await _staff.list()).where((s) => s.number == number).firstOrNull;
+    return _wrongPin(number, owner, owner?.name ?? 'staff number $number');
+  }
+
+  /// Signs in [staff], already known (a badge, or the only person on this
+  /// till). Shares the lockout of their staff number.
+  Future<SignInResult> signInAs(Staff staff, String pin) async {
+    final key = staff.number ?? staff.id;
+    if (lockedFor(key) != null) return SignInResult.lockedOut;
+    if (await _staff.verifyPin(staff.id, pin)) return _signedIn(key, staff);
+    return _wrongPin(key, staff, staff.name);
+  }
+
+  Future<SignInResult> _signedIn(String key, Staff staff) async {
+    _failures.remove(key);
+    // Reload so a role changed on another screen takes effect.
+    currentUser.value = await _staff.find(staff.id) ?? staff;
+    await _audit.record(action: AuditAction.signedIn, actor: staff, summary: '${staff.name} signed in');
+    return SignInResult.ok;
+  }
+
+  Future<SignInResult> _wrongPin(String key, Staff? staff, String who) async {
+    final locked = _fail(key);
     await _audit.record(
       action: locked ? AuditAction.lockedOut : AuditAction.signInFailed,
       actor: staff,
-      summary: locked
-          ? '${staff.name} locked out after $maxAttempts wrong PINs'
-          : 'Wrong PIN for ${staff.name}',
+      summary: locked ? '$who locked out after $maxAttempts wrong PINs' : 'Wrong PIN for $who',
     );
     return locked ? SignInResult.lockedOut : SignInResult.wrongPin;
   }
 
-  /// The person with this PIN who may do [permission], or null for a wrong
-  /// PIN. Throws [LockedOutException] after [maxAttempts] wrong PINs.
-  Future<Staff?> approveWithPin(String pin, Permission permission, {int? discountPercent}) async {
+  /// The person with this staff number and PIN who may do [permission], or
+  /// null. Throws [LockedOutException] after [maxAttempts] wrong tries.
+  Future<Staff?> approveWithPin(String number, String pin, Permission permission, {int? discountPercent}) async {
     final wait = lockedFor(_approvalKey);
     if (wait != null) throw LockedOutException(wait);
-    final approver = await _staff.approverWithPin(pin, permission, discountPercent: discountPercent);
+    final approver = await _staff.approverWithPin(number, pin, permission, discountPercent: discountPercent);
     if (approver != null) {
       _failures.remove(_approvalKey);
       return approver;

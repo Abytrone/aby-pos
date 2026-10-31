@@ -70,9 +70,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInWho => 'Who\'s on the till?';
 
   @override
-  String get signInPickName => 'Pick your name.';
-
-  @override
   String get setupTitle => 'Set up your shop';
 
   @override
@@ -124,16 +121,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userSwitchTitle => 'Hand over the till';
 
   @override
-  String get userSwitchNobody => 'There is nobody else to switch to.';
-
-  @override
   String get approvalTitle => 'Approval needed';
 
   @override
-  String get approvalPinTitle => 'PIN of the person approving';
+  String get approvalPinTitle => 'Their PIN';
 
   @override
-  String get approvalWrongPin => 'That PIN can\'t approve this.';
+  String get approvalWrongPin => 'That number and PIN can\'t approve this.';
 
   @override
   String get statusCentreTitle => 'Is everything safe?';
@@ -4005,7 +3999,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get badgeHelp =>
-      'A QR code to scan at sign-in, instead of picking the name. The PIN is still needed.';
+      'A QR code to scan at sign-in, instead of typing the staff number. The PIN is still needed.';
 
   @override
   String get badgeMake => 'Make a badge';
@@ -4020,7 +4014,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get badgeRemoved => 'Badge removed. It no longer works.';
 
   @override
-  String get badgeUnknown => 'That badge is not known. Pick your name instead.';
+  String get badgeUnknown =>
+      'That badge is not known. Type your staff number instead.';
 
   @override
   String get workHours => 'Usual hours';
@@ -4657,11 +4652,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String pinFor(String name) {
-    return 'PIN for $name';
-  }
-
-  @override
   String setupIntro(int digits) {
     return 'You\'re the owner. Pick a $digits-digit PIN to sign in and to approve things like voids. You can add staff later.';
   }
@@ -4741,8 +4731,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String staffAdded(String name) {
-    return '$name added.';
+  String staffAdded(String name, String number) {
+    return '$name added. Their staff number is $number: they type it, then their PIN, to sign in.';
   }
 
   @override
@@ -6987,4 +6977,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auditLicenseActivated => 'Aby activated';
+
+  @override
+  String get signInHow => 'Type your staff number, then your PIN.';
+
+  @override
+  String get signInForgotNumber =>
+      'Forgot your number? A manager can see it under Staff.';
+
+  @override
+  String get signInWrong => 'That number and PIN don\'t match.';
+
+  @override
+  String get signInBadgeRead => 'Badge read. Now your PIN.';
+
+  @override
+  String get signInUseNumber => 'Use my staff number';
+
+  @override
+  String get signInPinTitle => 'Your PIN';
+
+  @override
+  String get staffNumberTitle => 'Your staff number';
+
+  @override
+  String get approvalNumberTitle => 'Staff number of the person approving';
+
+  @override
+  String staffNumberChange(String number) {
+    return 'Staff no. $number · Change';
+  }
+
+  @override
+  String staffNumberLabel(String number) {
+    return 'Staff no. $number';
+  }
+
+  @override
+  String setupNumberNote(String number) {
+    return 'You will be staff number $number. You sign in with it and your PIN.';
+  }
+
+  @override
+  String get digitsTypeOnKeyboard => 'Type it on the keyboard';
+
+  @override
+  String get digitsKeyboardWorks => 'You can also type it on the keyboard';
 }

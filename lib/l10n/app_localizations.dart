@@ -214,12 +214,6 @@ abstract class AppLocalizations {
   /// **'Who\'s on the till?'**
   String get signInWho;
 
-  /// No description provided for @signInPickName.
-  ///
-  /// In en, this message translates to:
-  /// **'Pick your name.'**
-  String get signInPickName;
-
   /// No description provided for @setupTitle.
   ///
   /// In en, this message translates to:
@@ -316,12 +310,6 @@ abstract class AppLocalizations {
   /// **'Hand over the till'**
   String get userSwitchTitle;
 
-  /// No description provided for @userSwitchNobody.
-  ///
-  /// In en, this message translates to:
-  /// **'There is nobody else to switch to.'**
-  String get userSwitchNobody;
-
   /// No description provided for @approvalTitle.
   ///
   /// In en, this message translates to:
@@ -331,13 +319,13 @@ abstract class AppLocalizations {
   /// No description provided for @approvalPinTitle.
   ///
   /// In en, this message translates to:
-  /// **'PIN of the person approving'**
+  /// **'Their PIN'**
   String get approvalPinTitle;
 
   /// No description provided for @approvalWrongPin.
   ///
   /// In en, this message translates to:
-  /// **'That PIN can\'t approve this.'**
+  /// **'That number and PIN can\'t approve this.'**
   String get approvalWrongPin;
 
   /// No description provided for @statusCentreTitle.
@@ -7813,7 +7801,7 @@ abstract class AppLocalizations {
   /// No description provided for @badgeHelp.
   ///
   /// In en, this message translates to:
-  /// **'A QR code to scan at sign-in, instead of picking the name. The PIN is still needed.'**
+  /// **'A QR code to scan at sign-in, instead of typing the staff number. The PIN is still needed.'**
   String get badgeHelp;
 
   /// No description provided for @badgeMake.
@@ -7843,7 +7831,7 @@ abstract class AppLocalizations {
   /// No description provided for @badgeUnknown.
   ///
   /// In en, this message translates to:
-  /// **'That badge is not known. Pick your name instead.'**
+  /// **'That badge is not known. Type your staff number instead.'**
   String get badgeUnknown;
 
   /// No description provided for @workHours.
@@ -9016,12 +9004,6 @@ abstract class AppLocalizations {
   /// **'Too many tries. Wait {seconds} seconds.'**
   String pinTooManyTries(int seconds);
 
-  /// No description provided for @pinFor.
-  ///
-  /// In en, this message translates to:
-  /// **'PIN for {name}'**
-  String pinFor(String name);
-
   /// No description provided for @setupIntro.
   ///
   /// In en, this message translates to:
@@ -9091,8 +9073,8 @@ abstract class AppLocalizations {
   /// No description provided for @staffAdded.
   ///
   /// In en, this message translates to:
-  /// **'{name} added.'**
-  String staffAdded(String name);
+  /// **'{name} added. Their staff number is {number}: they type it, then their PIN, to sign in.'**
+  String staffAdded(String name, String number);
 
   /// No description provided for @staffPinChanged.
   ///
@@ -11805,6 +11787,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Aby activated'**
   String get auditLicenseActivated;
+
+  /// No description provided for @signInHow.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your staff number, then your PIN.'**
+  String get signInHow;
+
+  /// No description provided for @signInForgotNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your number? A manager can see it under Staff.'**
+  String get signInForgotNumber;
+
+  /// No description provided for @signInWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That number and PIN don\'t match.'**
+  String get signInWrong;
+
+  /// No description provided for @signInBadgeRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge read. Now your PIN.'**
+  String get signInBadgeRead;
+
+  /// No description provided for @signInUseNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my staff number'**
+  String get signInUseNumber;
+
+  /// No description provided for @signInPinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your PIN'**
+  String get signInPinTitle;
+
+  /// No description provided for @staffNumberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your staff number'**
+  String get staffNumberTitle;
+
+  /// No description provided for @approvalNumberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff number of the person approving'**
+  String get approvalNumberTitle;
+
+  /// No description provided for @staffNumberChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff no. {number} · Change'**
+  String staffNumberChange(String number);
+
+  /// No description provided for @staffNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff no. {number}'**
+  String staffNumberLabel(String number);
+
+  /// No description provided for @setupNumberNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You will be staff number {number}. You sign in with it and your PIN.'**
+  String setupNumberNote(String number);
+
+  /// No description provided for @digitsTypeOnKeyboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Type it on the keyboard'**
+  String get digitsTypeOnKeyboard;
+
+  /// No description provided for @digitsKeyboardWorks.
+  ///
+  /// In en, this message translates to:
+  /// **'You can also type it on the keyboard'**
+  String get digitsKeyboardWorks;
 }
 
 class _AppLocalizationsDelegate

@@ -151,7 +151,10 @@ class _People extends GetView<StaffController> {
                     Text(isMe ? l.staffYou(person.name) : person.name,
                         style: AbyText.tile.copyWith(color: person.active ? c.ink : c.inkMuted)),
                     Text(
-                      person.active ? roleName(l, person.role) : l.staffDeactivatedRole(roleName(l, person.role)),
+                      [
+                        if (person.number != null) l.staffNumberLabel(person.number!),
+                        person.active ? roleName(l, person.role) : l.staffDeactivatedRole(roleName(l, person.role)),
+                      ].join(' · '),
                       style: AbyText.caption.copyWith(color: c.inkMuted),
                     ),
                   ],

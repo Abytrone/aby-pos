@@ -65,6 +65,8 @@ class ProfileHeader extends GetView<StaffProfileController> {
               runSpacing: AbySpace.s2,
               children: [
                 _Pill(text: roleName(l, staff.role), color: c.blue, background: c.blueSoft),
+                if (staff.number != null)
+                  _Pill(text: l.staffNumberLabel(staff.number!), color: c.ink, background: c.surfaceSunken),
                 staff.active
                     ? _Pill(text: l.profileActive, color: c.success, background: c.successSoft)
                     : _Pill(text: l.profileDeactivated, color: c.danger, background: c.dangerSoft),

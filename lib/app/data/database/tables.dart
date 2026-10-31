@@ -836,6 +836,10 @@ class StaffMembers extends Table with SyncColumns {
 
   /// The branch they work at; null for every branch (MDV-02). v17.
   TextColumn get branchId => text().nullable()();
+
+  /// Typed before the PIN at sign-in ("101"), so the screen never lists
+  /// names and two people may share a PIN. Not secret. v20.
+  TextColumn get staffNumber => text().nullable()();
 }
 
 /// Staff photos, small and kept apart from staff rows so they stay out of

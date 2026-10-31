@@ -191,7 +191,7 @@ class AppDatabase extends _$AppDatabase {
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 19;
+  int get schemaVersion => 20;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -540,6 +540,11 @@ class AppDatabase extends _$AppDatabase {
       from18To19: (m, schema) async {
         await _grantToManager(Permission.manageDevices);
       },
+      // v20: staff numbers, typed before the PIN instead of picking a name.
+      from19To20: (m, schema) async {
+        await m.addColumn(schema.staff, schema.staff.staffNumber);
+        await _numberStaff();
+      },
     ),
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
@@ -558,6 +563,16 @@ class AppDatabase extends _$AppDatabase {
 
   /// Adds a new permission to the built-in Manager role (raw SQL, so it
   /// works in any migration step).
+  /// Numbers staff from 101 in the order they were added. Every device
+  /// has the same staff, so every device gives the same numbers; nothing
+  /// goes in the outbox.
+  Future<void> _numberStaff() async {
+    final rows = await customSelect('SELECT id FROM staff ORDER BY created_at, id').get();
+    for (final (i, row) in rows.indexed) {
+      await customStatement('UPDATE staff SET staff_number = ? WHERE id = ?', ['${101 + i}', row.read<String>('id')]);
+    }
+  }
+
   Future<void> _grantToManager(Permission permission) async {
     final manager = await customSelect(
       'SELECT permissions FROM roles WHERE id = ?',

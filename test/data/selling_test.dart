@@ -297,10 +297,10 @@ void main() {
     });
 
     test('approver PINs only count when their limit covers the discount', () async {
-      expect(await r.staff.approverWithPin('2222', Permission.sell, discountPercent: 40), esi);
-      expect(await r.staff.approverWithPin('2222', Permission.sell, discountPercent: 60), isNull, reason: 'managers stop at 50%');
-      expect(await r.staff.approverWithPin('1234', Permission.sell, discountPercent: 100), kofi);
-      expect(await r.staff.approverWithPin('5678', Permission.sell, discountPercent: 20), isNull);
+      expect(await r.staff.approverWithPin(esi.number!, '2222', Permission.sell, discountPercent: 40), esi);
+      expect(await r.staff.approverWithPin(esi.number!, '2222', Permission.sell, discountPercent: 60), isNull, reason: 'managers stop at 50%');
+      expect(await r.staff.approverWithPin(kofi.number!, '1234', Permission.sell, discountPercent: 100), kofi);
+      expect(await r.staff.approverWithPin(ama.number!, '5678', Permission.sell, discountPercent: 20), isNull);
     });
   });
 

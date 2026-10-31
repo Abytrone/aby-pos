@@ -21,8 +21,9 @@ class StaffException implements Exception {
   String toString() => 'StaffException: $message';
 }
 
-/// Staff and their PINs. Every change writes the outbox and the audit log
-/// in the same transaction.
+/// Staff, their numbers and their PINs. Sign-in takes a staff number and a
+/// PIN, so PINs need not be unique and no screen lists who works here.
+/// Every change writes the outbox and the audit log in the same transaction.
 ///
 /// TODO(sync): the PIN hash syncs so staff can sign in on every till. Decide
 /// with the API whether the server stores or re-hashes it.
@@ -86,9 +87,6 @@ class StaffRepository {
     if (trimmed.isEmpty) throw const StaffException('Enter a name.');
     _checkPin(pin);
     return _db.transaction(() async {
-      if (await _activePinTaken(pin)) {
-        throw const StaffException('Someone already uses that PIN. Pick another.');
-      }
       final now = clock.now();
       final row = await _db.insertTracked(
         _db.staffMembers,
@@ -100,6 +98,7 @@ class StaffRepository {
           name: trimmed,
           roleId: roleId,
           pinHash: PinHasher.hash(pin),
+          staffNumber: Value(await _nextNumber()),
         ),
       );
       final staff = (await find(row.id))!;
@@ -120,27 +119,32 @@ class StaffRepository {
     return row != null && row.active && PinHasher.verify(pin, row.pinHash);
   }
 
-  /// The active person with this PIN who is allowed [permission], for
-  /// approving something the signed-in person cannot do.
-  /// The active person with this PIN who may do [permission] (and give a
-  /// discount of [discountPercent], when asked).
-  Future<Staff?> approverWithPin(String pin, Permission permission, {int? discountPercent}) async {
-    final need = ApprovalNeed(permission, discountPercent: discountPercent);
-    for (final s in await list()) {
-      if (!need.allows(s)) continue;
+  /// The active person with this staff number and PIN, or null. With
+  /// [atBranch], only someone who works there. Two tills offline can give
+  /// out the same number, so every match is tried.
+  Future<Staff?> withNumber(String number, String pin, {String? atBranch}) async {
+    for (final s in await list(atBranch: atBranch)) {
+      if (s.number != number.trim()) continue;
       final row = await _row(s.id);
       if (row != null && PinHasher.verify(pin, row.pinHash)) return s;
     }
     return null;
   }
 
+  /// The active person with this staff number and PIN who may do
+  /// [permission] (and give a discount of [discountPercent], when asked),
+  /// for approving something the signed-in person cannot do. PINs are not
+  /// unique, so the number says who is approving.
+  Future<Staff?> approverWithPin(String number, String pin, Permission permission, {int? discountPercent}) async {
+    final person = await withNumber(number, pin);
+    final need = ApprovalNeed(permission, discountPercent: discountPercent);
+    return person != null && need.allows(person) ? person : null;
+  }
+
   Future<void> changePin(String staffId, String pin, {required Staff by}) async {
     _checkPin(pin);
     await _db.transaction(() async {
       final row = await _requireRow(staffId);
-      if (await _activePinTaken(pin, except: staffId)) {
-        throw const StaffException('Someone already uses that PIN. Pick another.');
-      }
       await _db.updateTracked(
         _db.staffMembers,
         row.copyWith(pinHash: PinHasher.hash(pin), updatedAt: clock.now()),
@@ -178,8 +182,6 @@ class StaffRepository {
   }
 
   /// Deactivated staff cannot sign in. The last active owner stays active.
-  /// Reactivating does not re-check for a shared PIN (only hashes are
-  /// stored); change the PIN afterwards if it may have been reused.
   Future<void> setActive(String staffId, {required bool active, required Staff by}) async {
     await _db.transaction(() async {
       final row = await _requireRow(staffId);
@@ -407,12 +409,35 @@ class StaffRepository {
     }
   }
 
-  /// PINs identify approvers, so active staff must not share one.
-  Future<bool> _activePinTaken(String pin, {String? except}) async {
+  /// Staff numbers are [numberLength] digits, from [firstNumber].
+  static const numberLength = 3;
+  static const firstNumber = 101;
+
+  /// The lowest number nobody has (deactivated staff keep theirs).
+  Future<String> _nextNumber() async {
+    final rows = await (_db.select(_db.staffMembers)..where((s) => s.deletedAt.isNull())).get();
+    final taken = {for (final r in rows) r.staffNumber};
+    for (var n = firstNumber; n < 1000; n++) {
+      if (!taken.contains('$n')) return '$n';
+    }
+    throw const StaffException('Every staff number is in use.');
+  }
+
+  /// Numbers anyone who has none: staff added on a till that had not been
+  /// updated yet, and synced here.
+  Future<void> ensureNumbers() async {
     final rows = await (_db.select(_db.staffMembers)
-          ..where((s) => s.deletedAt.isNull() & s.active.equals(true)))
+          ..where((s) => s.deletedAt.isNull() & s.staffNumber.isNull())
+          ..orderBy([(s) => OrderingTerm(expression: s.createdAt)]))
         .get();
-    return rows.any((r) => r.id != except && PinHasher.verify(pin, r.pinHash));
+    for (final row in rows) {
+      await _db.transaction(() async {
+        await _db.updateTracked(
+          _db.staffMembers,
+          row.copyWith(staffNumber: Value(await _nextNumber()), updatedAt: clock.now()),
+        );
+      });
+    }
   }
 
   Future<StaffRow?> _row(String id) =>
@@ -426,5 +451,5 @@ class StaffRepository {
   }
 
   Staff _toStaff(StaffRow r, Role role) =>
-      Staff(id: r.id, name: r.name, role: role, active: r.active);
+      Staff(id: r.id, name: r.name, role: role, active: r.active, number: r.staffNumber);
 }

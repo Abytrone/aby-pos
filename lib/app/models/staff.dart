@@ -37,12 +37,17 @@ class Staff {
     required this.name,
     required this.role,
     this.active = true,
+    this.number,
   });
 
   final String id;
   final String name;
   final Role role;
   final bool active;
+
+  /// Typed before the PIN at sign-in. Null only until the till numbers
+  /// someone added on an older version.
+  final String? number;
 
   bool get isOwner => role.isOwner;
 

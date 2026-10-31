@@ -302,7 +302,7 @@ class TrainingSeeder {
           idNumber: 'GHA-7000000${10 + i}-${i + 1}',
           dateOfBirth: DateTime(1992 + i, 3 + i, 10 + i),
           startedOn: first.subtract(Duration(days: 200 + 90 * i)),
-          notes: 'Sample staff for training. PIN $pin.',
+          notes: 'Sample staff for training. Staff number ${s.number}, PIN $pin.',
         ),
         by: _owner,
       );

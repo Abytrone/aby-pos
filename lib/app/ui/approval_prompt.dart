@@ -6,12 +6,13 @@ import '../services/auth_service.dart';
 import '../theme/aby_colors.dart';
 import '../theme/aby_theme.dart';
 import 'l10n.dart';
-import 'pin_pad.dart';
+import 'staff_pin_entry.dart';
 import 'permission_labels.dart';
 import 'dialogs.dart';
 
 /// The approval ("manager override") prompt: someone allowed to do
-/// [permission] enters their PIN. Registered as PermissionService.prompter.
+/// [permission] enters their staff number and PIN. Registered as
+/// PermissionService.prompter.
 Future<Staff?> showApprovalPrompt(ApprovalNeed need, String reason) {
   final permission = need.permission;
   final auth = Get.find<AuthService>();
@@ -35,12 +36,13 @@ Future<Staff?> showApprovalPrompt(ApprovalNeed need, String reason) {
                 style: AbyText.caption.copyWith(color: c.inkMuted),
               ),
               const SizedBox(height: AbySpace.s4),
-              PinPad(
-                title: l10n.approvalPinTitle,
-                onSubmit: (pin) async {
+              StaffPinEntry(
+                numberTitle: l10n.approvalNumberTitle,
+                pinTitle: l10n.approvalPinTitle,
+                onSubmit: (number, pin) async {
                   final Staff? approver;
                   try {
-                    approver = await auth.approveWithPin(pin, permission, discountPercent: need.discountPercent);
+                    approver = await auth.approveWithPin(number!, pin, permission, discountPercent: need.discountPercent);
                   } on LockedOutException catch (e) {
                     return l10n.pinTooManyTries(e.wait.inSeconds);
                   }

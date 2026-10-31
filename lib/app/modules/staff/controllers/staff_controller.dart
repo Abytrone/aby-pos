@@ -86,7 +86,7 @@ class StaffController extends GetxController {
           pin: pinField.text,
           by: me,
         );
-        message.value = appL10n().staffAdded(person.name);
+        message.value = appL10n().staffAdded(person.name, person.number ?? '');
       });
 
   Future<bool> changePin(Staff person) => _save(() async {

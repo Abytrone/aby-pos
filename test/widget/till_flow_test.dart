@@ -27,6 +27,12 @@ Future<void> _typePin(WidgetTester tester, String pin) async {
   await _settle(tester);
 }
 
+/// Staff number, then PIN (sign-in, switching user, approvals).
+Future<void> _signIn(WidgetTester tester, String number, String pin) async {
+  await _typePin(tester, number);
+  await _typePin(tester, pin);
+}
+
 /// Unmounts the app and disposes every service, so their timers and drift
 /// streams stop before the test ends.
 Future<void> _dispose(WidgetTester tester) async {
@@ -64,12 +70,12 @@ void main() {
     await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
 
-    // Sign in as the cashier.
+    // Sign in as the cashier: staff number, then PIN. No names are listed.
     expect(find.text("Who's on the till?"), findsOneWidget);
-    await tester.tap(find.text('Ama'));
-    await _settle(tester);
-    await _typePin(tester, '0000');
-    expect(find.text('Wrong PIN. Try again.'), findsOneWidget);
+    expect(find.text('Ama'), findsNothing);
+    expect(find.text('Kofi'), findsNothing);
+    await _signIn(tester, '102', '0000');
+    expect(find.text("That number and PIN don't match."), findsOneWidget);
     await _typePin(tester, '5678');
 
     // The shell: a cashier sees Sell, Today and Settings, not Staff or Activity.
@@ -114,9 +120,11 @@ void main() {
     await tester.tap(find.text('Void sale'));
     await _settle(tester);
     expect(find.text('Approval needed'), findsOneWidget);
-    await _typePin(tester, '5678');
-    expect(find.text("That PIN can't approve this."), findsOneWidget);
-    await _typePin(tester, '1234');
+    await _signIn(tester, '102', '5678');
+    expect(find.text("That number and PIN can't approve this."), findsOneWidget);
+    await tester.tap(find.text('Staff no. 102 · Change'));
+    await _settle(tester);
+    await _signIn(tester, '101', '1234');
     expect(find.text('Approval needed'), findsNothing);
     expect(find.text('Voided'), findsOneWidget);
 
@@ -146,9 +154,7 @@ void main() {
     await tester.tap(find.text('Lock'));
     await _settle(tester);
     expect(find.text("Who's on the till?"), findsOneWidget);
-    await tester.tap(find.text('Kofi'));
-    await _settle(tester);
-    await _typePin(tester, '1234');
+    await _signIn(tester, '101', '1234');
 
     // The owner sees everything, including who voided and who approved.
     expect(find.text('Staff'), findsOneWidget);
@@ -233,9 +239,7 @@ void main() {
     final db = await _shopWithStaff(tester);
     await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
-    await tester.tap(find.text('Kofi'));
-    await _settle(tester);
-    await _typePin(tester, '1234');
+    await _signIn(tester, '101', '1234');
 
     // Products: the list, then a new product.
     await tester.tap(find.text('Products'));
@@ -314,9 +318,7 @@ void main() {
     final db = await _shopWithStaff(tester);
     await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
-    await tester.tap(find.text('Kofi'));
-    await _settle(tester);
-    await _typePin(tester, '1234');
+    await _signIn(tester, '101', '1234');
     await tester.tap(find.text('Stock'));
     await _settle(tester);
 
@@ -409,9 +411,7 @@ void main() {
     final db = await _shopWithStaff(tester);
     await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
-    await tester.tap(find.text('Ama'));
-    await _settle(tester);
-    await _typePin(tester, '5678');
+    await _signIn(tester, '102', '5678');
 
     // "3" then a tap adds three.
     final search = find.widgetWithText(TextField, 'Search, scan, or type a code');
@@ -480,9 +480,7 @@ void main() {
     final db = await _shopWithStaff(tester);
     await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
-    await tester.tap(find.text('Ama'));
-    await _settle(tester);
-    await _typePin(tester, '5678');
+    await _signIn(tester, '102', '5678');
 
     // Two waffles: GH₵ 10 by MTN MoMo, the rest in cash.
     final search = find.widgetWithText(TextField, 'Search, scan, or type a code');
@@ -525,7 +523,7 @@ void main() {
     await tester.tap(find.text('Refund GH₵ 12.00'));
     await _settle(tester);
     expect(find.text('Approval needed'), findsOneWidget);
-    await _typePin(tester, '1234');
+    await _signIn(tester, '101', '1234');
     expect(find.text('Refund R-0001 saved'), findsOneWidget);
     await tester.tap(find.text('Done'));
     await _settle(tester);
@@ -554,9 +552,7 @@ void main() {
     final db = await _shopWithStaff(tester);
     await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
-    await tester.tap(find.text('Kofi'));
-    await _settle(tester);
-    await _typePin(tester, '1234');
+    await _signIn(tester, '101', '1234');
 
     // A new customer from the till, with just a name and phone.
     await tester.tap(find.text('Waffle'));
@@ -609,9 +605,7 @@ void main() {
     final db = await _shopWithStaff(tester);
     await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
-    await tester.tap(find.text('Kofi'));
-    await _settle(tester);
-    await _typePin(tester, '1234');
+    await _signIn(tester, '101', '1234');
 
     await tester.tap(find.text('Today'));
     await _settle(tester);
@@ -673,9 +667,7 @@ void main() {
     final db = await _shopWithStaff(tester);
     await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
-    await tester.tap(find.text('Kofi'));
-    await _settle(tester);
-    await _typePin(tester, '1234');
+    await _signIn(tester, '101', '1234');
 
     await tester.tap(find.text('Waffle'));
     await _settle(tester);
@@ -715,9 +707,7 @@ void main() {
     final db = await _shopWithStaff(tester);
     await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
-    await tester.tap(find.text('Kofi'));
-    await _settle(tester);
-    await _typePin(tester, '1234');
+    await _signIn(tester, '101', '1234');
 
     await tester.tap(find.text('Waffle'));
     await _settle(tester);
@@ -803,9 +793,7 @@ void main() {
     final db = await _shopWithStaff(tester);
     await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
-    await tester.tap(find.text('Kofi'));
-    await _settle(tester);
-    await _typePin(tester, '1234');
+    await _signIn(tester, '101', '1234');
 
     await tester.tap(find.text('Settings'));
     await _settle(tester);
@@ -843,9 +831,7 @@ void main() {
     final db = await _shopWithStaff(tester);
     await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
-    await tester.tap(find.text('Kofi'));
-    await _settle(tester);
-    await _typePin(tester, '1234');
+    await _signIn(tester, '101', '1234');
 
     await tester.tap(find.text('Settings'));
     await _settle(tester);
@@ -887,9 +873,7 @@ void main() {
     final db = await _shopWithStaff(tester);
     await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
-    await tester.tap(find.text('Kofi'));
-    await _settle(tester);
-    await _typePin(tester, '1234');
+    await _signIn(tester, '101', '1234');
 
     await tester.tap(find.text('Settings'));
     await _settle(tester);
@@ -937,9 +921,7 @@ void main() {
     final db = await _shopWithStaff(tester);
     await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
-    await tester.tap(find.text('Kofi'));
-    await _settle(tester);
-    await _typePin(tester, '1234');
+    await _signIn(tester, '101', '1234');
 
     await tester.tap(find.text('Stock'));
     await _settle(tester);
@@ -983,9 +965,7 @@ void main() {
     final db = await _shopWithStaff(tester);
     await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
-    await tester.tap(find.text('Kofi'));
-    await _settle(tester);
-    await _typePin(tester, '1234');
+    await _signIn(tester, '101', '1234');
 
     await tester.tap(find.text('Settings'));
     await _settle(tester);
@@ -1037,9 +1017,7 @@ void main() {
     final db = await _shopWithStaff(tester);
     await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
     await _settle(tester);
-    await tester.tap(find.text('Kofi'));
-    await _settle(tester);
-    await _typePin(tester, '1234');
+    await _signIn(tester, '101', '1234');
 
     await tester.tap(find.text('Settings'));
     await _settle(tester);

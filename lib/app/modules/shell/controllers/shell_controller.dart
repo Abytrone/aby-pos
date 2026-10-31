@@ -8,7 +8,6 @@ import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
 import '../../../data/branch_scope.dart';
 import '../../../data/database/app_database.dart';
-import '../../../data/repositories/staff_repository.dart';
 import '../../../models/staff.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
@@ -73,7 +72,6 @@ class ShellController extends GetxController {
   final StatusService status = Get.find();
   final SyncService sync = Get.find();
   final SessionService _session = Get.find();
-  final StaffRepository _staff = Get.find();
 
   final section = ShellSection.sell.obs;
 
@@ -131,21 +129,18 @@ class ShellController extends GetxController {
 
   void openMyProfile() => Get.toNamed<void>(Routes.staffProfile, arguments: auth.user.id);
 
-  Future<List<Staff>> switchCandidates() async =>
-      (await _staff.list(atBranch: await Get.find<AppDatabase>().branchOf(Get.find<DeviceService>().deviceId)))
-          .where((s) => s != auth.currentUser.value)
-          .toList();
-
-  /// Returns an error message, or null once switched.
-  Future<String?> switchTo(Staff person, String pin) async {
+  /// Hands the till to whoever has this staff number and PIN. Returns an
+  /// error message, or null once switched.
+  Future<String?> switchTo(String number, String pin) async {
     final l = appL10n();
-    switch (await auth.signIn(person, pin)) {
+    final branch = await Get.find<AppDatabase>().branchOf(Get.find<DeviceService>().deviceId);
+    switch (await auth.signIn(number, pin, atBranch: branch)) {
       case SignInResult.ok:
         return null;
       case SignInResult.wrongPin:
-        return l.pinWrong;
+        return l.signInWrong;
       case SignInResult.lockedOut:
-        return l.pinTooManyTries(auth.lockedFor(person.id)?.inSeconds ?? AuthService.lockout.inSeconds);
+        return l.pinTooManyTries(auth.lockedFor(number)?.inSeconds ?? AuthService.lockout.inSeconds);
     }
   }
 }

@@ -157,7 +157,11 @@ class _UserChip extends StatelessWidget {
           PopupMenuItem(
             value: _UserAction.profile,
             height: AbySize.tapPos,
-            child: ListTile(leading: const Icon(Icons.person_outline), title: Text(l.profileMine)),
+            child: ListTile(
+              leading: const Icon(Icons.person_outline),
+              title: Text(l.profileMine),
+              subtitle: user.number == null ? null : Text(l.staffNumberLabel(user.number!)),
+            ),
           ),
           if (clock != null) ...[
             PopupMenuItem(

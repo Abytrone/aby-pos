@@ -687,6 +687,7 @@ drift's step-by-step API with generated schema snapshots.
 | 17 | Branches, devices in branches, staff per branch, transfers |
 | 18 | A picture for each category |
 | 19 | `manageDevices` permission, granted to Manager |
+| 20 | `staff.staff_number`, numbered from 101 by `created_at` |
 
 ---
 
@@ -812,13 +813,19 @@ new items in the same transaction.
 
 ### 13.1 Staff and PINs
 
-- Staff sign in with a 4-digit PIN (or by scanning a badge QR code). PINs are stored as
+- Staff sign in with a 3-digit **staff number** and a 4-digit PIN. A badge QR code, or being the
+  only person at the branch, stands in for the number. The sign-in screen, Switch user and the
+  approval prompt never list names, and PINs need not be unique: the number identifies the
+  person (`StaffRepository.withNumber`). Numbers are given out from 101, lowest free first.
+  Two tills offline can hand out the same number, so `withNumber` tries every match, and
+  `ensureNumbers()` (run on the sign-in screen) numbers rows synced from older versions. PINs are stored as
   `v1$<iterations>$<salt>$<hash>`: PBKDF2-style HMAC-SHA256, 20,000 iterations, 16-byte salt,
   compared in constant time ([pin_hasher.dart](lib/app/services/pin_hasher.dart)). Four digits
   cannot resist someone who has the database file; the hashing slows them down, and sign-in
   lockout handles guessing at the till.
-- **Lockout:** 5 wrong PINs in a row lock that person for 30 seconds. Approvals have their own
-  shared counter. Failures and lockouts are audited.
+- **Lockout:** 5 wrong tries in a row lock that staff number for 30 seconds (a badge sign-in
+  counts against the same number). A wrong number and a wrong PIN give the same message.
+  Approvals have their own shared counter. Failures and lockouts are audited.
 - Staff can be limited to one branch (`staff.branch_id`). Owners can sign in at any branch.
 
 ### 13.2 Permissions and roles

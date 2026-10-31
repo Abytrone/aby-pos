@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../../data/repositories/staff_repository.dart';
 import '../../../domain/business_templates.dart';
 import '../../../services/pin_hasher.dart';
 import '../../../theme/aby_colors.dart';
@@ -75,7 +76,11 @@ class SetupView extends GetView<SetupController> {
                     keyboardType: TextInputType.number,
                     inputFormatters: pinFormat,
                     textInputAction: TextInputAction.next,
-                    decoration: InputDecoration(labelText: l.pinLabel),
+                    decoration: InputDecoration(
+                      labelText: l.pinLabel,
+                      helperText: l.setupNumberNote('${StaffRepository.firstNumber}'),
+                      helperMaxLines: 2,
+                    ),
                   ),
                   const SizedBox(height: AbySpace.s4),
                   TextField(

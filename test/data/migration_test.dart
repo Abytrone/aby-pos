@@ -5,7 +5,7 @@ import 'package:aby_pos/app/data/repositories/discount_repository.dart';
 import 'package:aby_pos/app/data/repositories/settings_repository.dart';
 import 'package:aby_pos/app/models/enums.dart';
 import 'package:aby_pos/app/services/settings_service.dart';
-import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:drift/drift.dart' show OrderingTerm, driftRuntimeOptions;
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -25,11 +25,11 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  for (final from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]) {
-    test('v$from to v19 gives exactly the v19 schema', () async {
+  for (final from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]) {
+    test('v$from to v20 gives exactly the v20 schema', () async {
       final schema = await verifier.schemaAt(from);
       final db = AppDatabase(schema.newConnection(), false);
-      await verifier.migrateAndValidate(db, 19);
+      await verifier.migrateAndValidate(db, 20);
       await db.close();
     });
   }
@@ -323,6 +323,24 @@ void main() {
     final db = AppDatabase(schema.newConnection(), false);
     final role = await (db.select(db.roles)..where((x) => x.id.equals(BuiltInRole.manager.id))).getSingle();
     expect(role.permissions, containsAll({Permission.sell, Permission.manageDevices}));
+    await db.close();
+  });
+
+  test('v19 to v20 numbers staff from 101 in the order they were added', () async {
+    final schema = await verifier.schemaAt(19);
+    final raw = schema.rawDatabase;
+    const t = 1761000000;
+    raw.execute("INSERT INTO meta (key, value) VALUES ('device_id', 'dev-1')");
+    raw.execute('INSERT INTO roles (id, created_at, updated_at, device_id, name, built_in, permissions, max_discount_percent, sort_order) '
+        "VALUES ('${BuiltInRole.owner.id}', $t, $t, 'dev-1', 'Owner', 'owner', '[]', 100, 0)");
+    for (final (id, name, at) in [('s2', 'Ama', t + 60), ('s1', 'Kofi', t)]) {
+      raw.execute('INSERT INTO staff (id, created_at, updated_at, device_id, name, role_id, pin_hash) '
+          "VALUES ('$id', $at, $at, 'dev-1', '$name', '${BuiltInRole.owner.id}', 'x')");
+    }
+
+    final db = AppDatabase(schema.newConnection(), false);
+    final rows = await (db.select(db.staffMembers)..orderBy([(s) => OrderingTerm(expression: s.name)])).get();
+    expect([for (final r in rows) (r.name, r.staffNumber)], [('Ama', '102'), ('Kofi', '101')]);
     await db.close();
   });
 }

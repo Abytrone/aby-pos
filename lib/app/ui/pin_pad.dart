@@ -33,14 +33,32 @@ enum PinPadMode {
 /// decides whether the PIN is right and returns an error message, or null
 /// when it is accepted. A hardware keyboard always works: the top row or
 /// the number pad, Backspace to fix a digit, Esc to start again.
+///
+/// With [reveal] it takes something that is not secret, such as a staff
+/// number: the digits show as typed and the keys never shuffle.
 class PinPad extends StatefulWidget {
-  const PinPad({super.key, required this.onSubmit, this.title, this.mode});
+  const PinPad({
+    super.key,
+    required this.onSubmit,
+    this.title,
+    this.mode,
+    this.length = PinHasher.pinLength,
+    this.reveal = false,
+    this.error,
+  });
 
   final String? title;
   final Future<String?> Function(String pin) onSubmit;
 
   /// Null: this device's setting.
   final PinPadMode? mode;
+
+  /// Digits to take before [onSubmit].
+  final int length;
+  final bool reveal;
+
+  /// Shown until the first digit, e.g. why the pad came back.
+  final String? error;
 
   @override
   State<PinPad> createState() => _PinPadState();
@@ -56,7 +74,7 @@ class _PinPadState extends State<PinPad> {
           ? PinPadMode.fromSetting(Get.find<SettingsService>().get(AppSettings.pinPad))
           : PinPadMode.standard);
   String _pin = '';
-  String? _error;
+  late String? _error = widget.error;
   bool _busy = false;
 
   /// Someone typed on a keyboard: the keypad folds away for this entry.
@@ -68,7 +86,7 @@ class _PinPadState extends State<PinPad> {
 
   List<String> _layout() {
     final digits = [for (var i = 1; i <= 9; i++) '$i', '0'];
-    if (_mode == PinPadMode.shuffled) digits.shuffle(_random);
+    if (_mode == PinPadMode.shuffled && !widget.reveal) digits.shuffle(_random);
     return digits;
   }
 
@@ -80,12 +98,12 @@ class _PinPadState extends State<PinPad> {
   }
 
   Future<void> _digit(String d) async {
-    if (_busy || _pin.length >= PinHasher.pinLength) return;
+    if (_busy || _pin.length >= widget.length) return;
     setState(() {
       _pin += d;
       _error = null;
     });
-    if (_pin.length < PinHasher.pinLength) return;
+    if (_pin.length < widget.length) return;
     setState(() => _busy = true);
     final error = await widget.onSubmit(_pin);
     if (!mounted) return;
@@ -111,7 +129,7 @@ class _PinPadState extends State<PinPad> {
   }
 
   void _tap(String d) {
-    if (_mode == PinPadMode.shuffled) HapticFeedback.selectionClick();
+    if (_mode == PinPadMode.shuffled && !widget.reveal) HapticFeedback.selectionClick();
     _digit(d);
   }
 
@@ -170,13 +188,34 @@ class _PinPadState extends State<PinPad> {
     final keyboardOnly = _mode == PinPadMode.keyboard;
     final showKeys = !keyboardOnly && !_typing;
     final reduceMotion = MediaQuery.of(context).disableAnimations;
+    final quiet = _mode == PinPadMode.shuffled && !widget.reveal;
 
     final dots = Semantics(
-      label: l.pinDigitsEntered(_pin.length, PinHasher.pinLength),
+      label: widget.reveal ? _pin : l.pinDigitsEntered(_pin.length, widget.length),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          for (var i = 0; i < PinHasher.pinLength; i++)
+          for (var i = 0; i < widget.length; i++)
+            if (widget.reveal)
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: AbySpace.s1),
+                width: 40,
+                height: 48,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AbyRadius.md),
+                  border: Border.all(
+                    color: _error != null && _pin.isEmpty
+                        ? c.danger
+                        : i == _pin.length
+                            ? c.ink
+                            : c.lineStrong,
+                    width: 2,
+                  ),
+                ),
+                child: Text(i < _pin.length ? _pin[i] : '', style: AbyText.title.copyWith(color: c.ink)),
+              )
+            else
             AnimatedContainer(
               duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 120),
               curve: Curves.easeOut,
@@ -202,7 +241,9 @@ class _PinPadState extends State<PinPad> {
               const SizedBox(width: AbySpace.s1),
               Flexible(
                 child: Text(
-                  keyboardOnly || _typing ? l.pinTypeOnKeyboard : l.pinKeyboardWorks,
+                  widget.reveal
+                      ? (keyboardOnly || _typing ? l.digitsTypeOnKeyboard : l.digitsKeyboardWorks)
+                      : (keyboardOnly || _typing ? l.pinTypeOnKeyboard : l.pinKeyboardWorks),
                   textAlign: TextAlign.center,
                   style: AbyText.caption.copyWith(color: c.inkMuted),
                 ),
@@ -235,13 +276,13 @@ class _PinPadState extends State<PinPad> {
                     child: TextField(
                       controller: _field,
                       autofocus: true,
-                      obscureText: true,
+                      obscureText: !widget.reveal,
                       enableSuggestions: false,
                       autocorrect: false,
                       showCursor: false,
                       enableInteractiveSelection: false,
                       keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(PinHasher.pinLength)],
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(widget.length)],
                       decoration: const InputDecoration.collapsed(hintText: ''),
                       onChanged: _onField,
                     ),
@@ -271,10 +312,10 @@ class _PinPadState extends State<PinPad> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       for (var r = 0; r < 3; r++)
-              _KeyRow(children: [for (final d in _digits.sublist(r * 3, r * 3 + 3)) _Key(label: d, quiet: _mode == PinPadMode.shuffled, onTap: () => _tap(d))]),
+              _KeyRow(children: [for (final d in _digits.sublist(r * 3, r * 3 + 3)) _Key(label: d, quiet: quiet, onTap: () => _tap(d))]),
             _KeyRow(children: [
                           _Key(icon: AbyIcons.x, semantic: l.pinClear, onTap: _clear, subtle: true),
-              _Key(label: _digits[9], quiet: _mode == PinPadMode.shuffled, onTap: () => _tap(_digits[9])),
+              _Key(label: _digits[9], quiet: quiet, onTap: () => _tap(_digits[9])),
               _Key(icon: AbyIcons.delete, semantic: l.pinDelete, onTap: _backspace, subtle: true),
                         ],
                       ),
