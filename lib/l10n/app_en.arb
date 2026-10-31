@@ -4385,5 +4385,14 @@
   "recoveryConfirmPin": "Your PIN, to make a new code",
   "statusRecovery": "PIN recovery code",
   "statusRecoveryMissing": "You have no recovery code. Without one, a forgotten PIN needs your Aby supplier.",
-  "statusRecoveryOk": "You have one."
+  "statusRecoveryOk": "You have one.",
+  "forgotPinHaveResetCode": "I have my supplier's reset code",
+  "supplierWaiting": "Waiting for your supplier",
+  "supplierWaitNote": "You don't have to wait here. Close this and the till keeps working for everyone else. This request stays open on this till until {date}. When your supplier replies, tap \"Enter your supplier's reset code\" on the sign-in screen.",
+  "@supplierWaitNote": {"placeholders": {"date": {"type": "String"}}},
+  "supplierStartAgain": "Start again",
+  "forgotPinCloseForNow": "Close for now",
+  "signInResetWaiting": "Enter your supplier's reset code",
+  "auditStaffPinResetCancelled": "PIN reset request cancelled",
+  "resetRequestDropped": "Welcome back. Your PIN reset request is cancelled, so a reset code from your supplier won't work now. Let them know you don't need it."
 }

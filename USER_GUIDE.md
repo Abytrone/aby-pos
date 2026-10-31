@@ -1389,7 +1389,12 @@ Another owner, or anyone with *Manage staff*, can set a new one. If there is no 
 - **I have my recovery code:** type your staff number and the code, then choose a new PIN.
 - **Ask my Aby supplier:** type your staff number and Aby shows a **request code**. Send it to your
   supplier with your shop's name. Once they've checked it's you, they send back a reset code.
-  Paste it in and choose a new PIN. It works once, on that till.
+  **You don't have to wait at the till.** Tap **Close for now** and staff can keep selling. The
+  request stays open on that till for 7 days, and the sign-in screen shows **Enter your supplier's
+  reset code** until you use it. Tap it, paste the code and choose a new PIN. The code works once,
+  on that till. Typed the wrong staff number? Tap **Start again**. Remembered your PIN after all?
+  Just sign in. Aby cancels the request, so a code arriving later won't work. Tell your supplier
+  you don't need it.
 
 Either way you're signed in and get a **new recovery code** to write down. The old one stops
 working. Lost your recovery code but still know your PIN? Make a new one from **My profile → PIN

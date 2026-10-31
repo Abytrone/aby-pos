@@ -12,7 +12,9 @@ import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
 import '../../../core/settings.dart';
 import '../../../services/device_service.dart';
+import '../../../services/pin_recovery_service.dart';
 import '../../../services/settings_service.dart';
+import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/recovery_code_dialog.dart';
 import '../widgets/forgot_pin.dart';
@@ -30,6 +32,9 @@ class SignInController extends GetxController {
   final known = Rxn<Staff>();
   final fromBadge = false.obs;
   final loading = true.obs;
+
+  /// An owner asked the supplier for a reset code and it has not come yet.
+  final resetWaiting = false.obs;
   String? _branch;
 
   /// Changes to give the PIN pad a fresh start (after a badge scan, whose
@@ -98,7 +103,7 @@ class SignInController extends GetxController {
   /// recovery code before the till opens.
   Future<void> forgotPin() async {
     final code = await showForgotPin();
-    if (code == null) return;
+    if (code == null) return _checkResetWaiting();
     await showRecoveryCode(code);
     await Get.offAllNamed<void>(Routes.shell);
   }
@@ -109,7 +114,17 @@ class SignInController extends GetxController {
     _branch = await Get.find<AppDatabase>().branchOf(_device.deviceId);
     final here = await _staff.list(atBranch: _branch);
     if (here.length == 1) known.value = here.first;
+    await _checkResetWaiting();
     loading.value = false;
+  }
+
+  /// The owner who asked the supplier for a reset remembered their PIN.
+  Future<bool> _dropResetRequest() async =>
+      Get.isRegistered<PinRecoveryService>() && await Get.find<PinRecoveryService>().dropIfRemembered(_auth.user);
+
+  Future<void> _checkResetWaiting() async {
+    if (!Get.isRegistered<PinRecoveryService>()) return;
+    resetWaiting.value = await Get.find<PinRecoveryService>().pending() != null;
   }
 
   /// [number] is null when the person is [known]. Returns an error message,
@@ -122,7 +137,9 @@ class SignInController extends GetxController {
         : await _auth.signIn(number ?? '', pin, atBranch: _branch);
     switch (result) {
       case SignInResult.ok:
+        final dropped = await _dropResetRequest();
         await Get.offAllNamed<void>(Routes.shell);
+        if (dropped) showMessage(l.resetRequestDropped);
         return null;
       case SignInResult.wrongPin:
         return number == null ? l.pinWrong : l.signInWrong;

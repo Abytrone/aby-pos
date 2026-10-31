@@ -157,7 +157,7 @@ class InitialBinding extends Bindings {
     );
     Get.put(HubService(db, device, sync: sync, licenses: licenses), permanent: true);
     Get.put(
-      PinRecoveryService(db, Get.find(), auth, deviceCode: () async {
+      PinRecoveryService(db, Get.find(), auth, audit, deviceCode: () async {
         if (licenses.machineCode.isEmpty) await licenses.load();
         return licenses.machineCode;
       }),

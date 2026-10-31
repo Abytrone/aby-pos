@@ -26,7 +26,7 @@ void main() {
   const device = 'K7QM-2XRA-PL3D-9WEH';
 
   PinRecoveryService service() =>
-      PinRecoveryService(db, r.staff, auth, deviceCode: () async => device, publicKey: publicKey);
+      PinRecoveryService(db, r.staff, auth, r.audit, deviceCode: () async => device, publicKey: publicKey);
 
   setUpAll(() async => publicKey = await LicenseCodec.publicKeyOf(seed));
 
@@ -123,6 +123,46 @@ void main() {
       expect(await r.staff.verifyPin(kofi.id, '9999'), isTrue);
       expect(await r.staff.ownerWithRecoveryCode('101', next), kofi);
       expect(await recovery.redeem(code), isNull, reason: 'a reset code works once');
+    });
+
+    test('the request waits for the supplier: it outlives the app and can be cancelled', () async {
+      final request = await service().request('101');
+      final open = await service().waiting();
+      expect(open!.request.code, request.code, reason: 'a new service, as after a restart');
+      expect(open.expires.difference(DateTime.now()).inHours, closeTo(PinRecoveryService.requestLife.inHours, 1));
+
+      final code = await PinResetCodec.sign(request, seed);
+      expect(await service().redeem(code), kofi, reason: 'the code arrives later');
+
+      await service().cancelRequest();
+      expect(await service().waiting(), isNull);
+      expect(await service().redeem(code), isNull, reason: 'a cancelled request takes no code');
+    });
+
+    test('remembering the PIN cancels the request, so a late reset code does nothing', () async {
+      final recovery = service();
+      final request = await recovery.request('101');
+      final code = await PinResetCodec.sign(request, seed);
+
+      expect(await recovery.dropIfRemembered(ama), isFalse, reason: 'not the person it is for');
+      expect(await recovery.pending(), isNotNull);
+
+      expect(await auth.signIn('101', '1234'), SignInResult.ok);
+      expect(await recovery.dropIfRemembered(auth.user), isTrue);
+      expect(await recovery.pending(), isNull);
+      expect(await recovery.redeem(code), isNull);
+      expect(await recovery.dropIfRemembered(kofi), isFalse, reason: 'nothing left to cancel');
+      final entry = (await r.audit.list()).firstWhere((e) => e.action == AuditAction.staffPinResetCancelled);
+      expect(entry.summary, contains('remembered'));
+    });
+
+    test('getting in with the recovery code also drops a waiting supplier request', () async {
+      final recoveryCode = await r.staff.newRecoveryCode(kofi.id, by: kofi);
+      final recovery = service();
+      await recovery.request('101');
+      final owner = await recovery.withRecoveryCode('101', recoveryCode);
+      await recovery.setNewPin(owner!, '4321', bySupplier: false);
+      expect(await recovery.pending(), isNull);
     });
 
     test('a request for a cashier\'s number resets nobody', () async {

@@ -7118,4 +7118,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statusRecoveryOk => 'You have one.';
+
+  @override
+  String get forgotPinHaveResetCode => 'I have my supplier\'s reset code';
+
+  @override
+  String get supplierWaiting => 'Waiting for your supplier';
+
+  @override
+  String supplierWaitNote(String date) {
+    return 'You don\'t have to wait here. Close this and the till keeps working for everyone else. This request stays open on this till until $date. When your supplier replies, tap \"Enter your supplier\'s reset code\" on the sign-in screen.';
+  }
+
+  @override
+  String get supplierStartAgain => 'Start again';
+
+  @override
+  String get forgotPinCloseForNow => 'Close for now';
+
+  @override
+  String get signInResetWaiting => 'Enter your supplier\'s reset code';
+
+  @override
+  String get auditStaffPinResetCancelled => 'PIN reset request cancelled';
+
+  @override
+  String get resetRequestDropped =>
+      'Welcome back. Your PIN reset request is cancelled, so a reset code from your supplier won\'t work now. Let them know you don\'t need it.';
 }

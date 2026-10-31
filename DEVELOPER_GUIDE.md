@@ -843,6 +843,12 @@ new items in the same transaction.
     (`tool/license.dart reset`). The till rebuilds that message and checks the Ed25519 signature
     against `licensePublicKey`, so the code is only the signature. It works once, on that device,
     for an active owner. Whether a number is an owner's is checked only when the code comes back.
+    The supplier may answer hours later, so nothing waits in the dialog. While a request is open,
+    the sign-in link reads "Enter your supplier's reset code" and the dialog opens on it.
+    `cancelRequest()` ("Start again") drops it. When the owner it is for signs in with their PIN
+    (sign-in or Switch user), `dropIfRemembered` drops it too, so a late reset code does nothing.
+    Getting in with the recovery code also drops it. Each cancellation is audited
+    (`staffPinResetCancelled`).
 
 ### 13.2 Permissions and roles
 

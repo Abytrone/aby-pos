@@ -83,7 +83,8 @@ enum AuditAction {
   momoChargesSet,
   licenseActivated,
   staffRecoveryCodeMade,
-  staffPinReset;
+  staffPinReset,
+  staffPinResetCancelled;
 
   /// Actions an owner should notice first.
   bool get isSensitive => const {

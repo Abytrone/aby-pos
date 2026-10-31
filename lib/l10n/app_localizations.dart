@@ -12039,6 +12039,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have one.'**
   String get statusRecoveryOk;
+
+  /// No description provided for @forgotPinHaveResetCode.
+  ///
+  /// In en, this message translates to:
+  /// **'I have my supplier\'s reset code'**
+  String get forgotPinHaveResetCode;
+
+  /// No description provided for @supplierWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your supplier'**
+  String get supplierWaiting;
+
+  /// No description provided for @supplierWaitNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have to wait here. Close this and the till keeps working for everyone else. This request stays open on this till until {date}. When your supplier replies, tap \"Enter your supplier\'s reset code\" on the sign-in screen.'**
+  String supplierWaitNote(String date);
+
+  /// No description provided for @supplierStartAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Start again'**
+  String get supplierStartAgain;
+
+  /// No description provided for @forgotPinCloseForNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Close for now'**
+  String get forgotPinCloseForNow;
+
+  /// No description provided for @signInResetWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your supplier\'s reset code'**
+  String get signInResetWaiting;
+
+  /// No description provided for @auditStaffPinResetCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN reset request cancelled'**
+  String get auditStaffPinResetCancelled;
+
+  /// No description provided for @resetRequestDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back. Your PIN reset request is cancelled, so a reset code from your supplier won\'t work now. Let them know you don\'t need it.'**
+  String get resetRequestDropped;
 }
 
 class _AppLocalizationsDelegate

@@ -5,7 +5,9 @@ import 'package:clock/clock.dart';
 import '../core/license.dart';
 import '../core/pin_reset.dart';
 import '../data/database/app_database.dart';
+import '../data/repositories/audit_repository.dart';
 import '../data/repositories/staff_repository.dart';
+import '../models/audit.dart';
 import '../models/staff.dart';
 import 'auth_service.dart';
 
@@ -17,7 +19,8 @@ class PinRecoveryService {
   PinRecoveryService(
     this._db,
     this._staff,
-    this._auth, {
+    this._auth,
+    this._audit, {
     required this.deviceCode,
     this.publicKey = licensePublicKey,
   });
@@ -25,6 +28,7 @@ class PinRecoveryService {
   final AppDatabase _db;
   final StaffRepository _staff;
   final AuthService _auth;
+  final AuditRepository _audit;
   final Future<String> Function() deviceCode;
   final String publicKey;
 
@@ -38,8 +42,8 @@ class PinRecoveryService {
   /// the number is an owner's is only checked when the reset code comes
   /// back, so asking tells nobody who the owners are.
   Future<PinResetRequest> request(String number) async {
-    final waiting = await pending();
-    if (waiting != null && waiting.staffNumber == number) return waiting;
+    final open = await pending();
+    if (open != null && open.staffNumber == number) return open;
     final device = await deviceCode();
     if (device.isEmpty) throw const StaffException('This device has no device code. Contact your Aby supplier.');
     final r = PinResetRequest.create(device, number);
@@ -47,17 +51,46 @@ class PinRecoveryService {
     return r;
   }
 
-  /// The request waiting, unless it is older than [requestLife].
-  Future<PinResetRequest?> pending() async {
+  /// The request waiting, unless it is older than [requestLife]. It
+  /// survives closing the dialog and restarting the app, so the owner need
+  /// not wait at the till for the supplier.
+  Future<PinResetRequest?> pending() async => (await waiting())?.request;
+
+  /// The request waiting and when it stops working, or null.
+  Future<({PinResetRequest request, DateTime expires})?> waiting() async {
     final raw = await _db.readMeta(_requestKey);
     if (raw == null) return null;
     try {
       final j = jsonDecode(raw) as Map<String, dynamic>;
-      if (clock.now().difference(DateTime.parse(j['at'] as String)) > requestLife) return null;
-      return PinResetRequest.fromJson(j);
+      final expires = DateTime.parse(j['at'] as String).add(requestLife);
+      if (!clock.now().isBefore(expires)) return null;
+      return (request: PinResetRequest.fromJson(j), expires: expires);
     } on Object {
       return null;
     }
+  }
+
+  /// Drops the waiting request. A reset code already made for it will not
+  /// work. [reason] goes in the log.
+  Future<void> cancelRequest({Staff? by, String reason = 'started again'}) async {
+    final open = await pending();
+    await _db.deleteMeta(_requestKey);
+    if (open == null) return;
+    await _audit.record(
+      action: AuditAction.staffPinResetCancelled,
+      actor: by,
+      summary: 'PIN reset request for staff number ${open.staffNumber} cancelled: $reason',
+    );
+  }
+
+  /// [who] just signed in with their PIN: when the open request is theirs,
+  /// they remembered it, so the request goes and a reset code arriving
+  /// later does nothing. True when there was one, to tell them.
+  Future<bool> dropIfRemembered(Staff who) async {
+    final open = await pending();
+    if (open == null || open.staffNumber != who.number) return false;
+    await cancelRequest(by: who, reason: 'they remembered their PIN');
+    return true;
   }
 
   /// The owner the supplier's [resetCode] is for, or null when it does not
@@ -81,7 +114,9 @@ class PinRecoveryService {
       pin,
       how: bySupplier ? 'a reset code from the Aby supplier' : 'their recovery code',
     );
-    if (bySupplier) await _db.deleteMeta(_requestKey);
+    // In with a recovery code while a supplier request waits: it goes too.
+    final open = await pending();
+    if (open != null && open.staffNumber == owner.number) await _db.deleteMeta(_requestKey);
     await _auth.signInAs(owner, pin);
     return code;
   }

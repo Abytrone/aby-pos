@@ -12,10 +12,12 @@ import '../../../models/staff.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/device_service.dart';
+import '../../../services/pin_recovery_service.dart';
 import '../../../services/session_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../services/status_service.dart';
 import '../../../services/sync_service.dart';
+import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
 import '../widgets/command_bar.dart';
 
@@ -136,6 +138,10 @@ class ShellController extends GetxController {
     final branch = await Get.find<AppDatabase>().branchOf(Get.find<DeviceService>().deviceId);
     switch (await auth.signIn(number, pin, atBranch: branch)) {
       case SignInResult.ok:
+        // The owner who asked the supplier for a reset remembered their PIN.
+        if (Get.isRegistered<PinRecoveryService>() && await Get.find<PinRecoveryService>().dropIfRemembered(auth.user)) {
+          showMessage(l.resetRequestDropped);
+        }
         return null;
       case SignInResult.wrongPin:
         return l.signInWrong;

@@ -11,11 +11,16 @@ import '../../../services/pin_recovery_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
+import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 
 /// "Forgot your PIN?": an owner proves who they are with their recovery
 /// code or a reset code from the Aby supplier, then sets a new PIN. Returns
 /// the owner's new recovery code once they are signed in, or null.
+///
+/// The supplier may take hours to answer, so a request stays open on this
+/// till (PinRecoveryService.requestLife). With one open, the dialog opens
+/// on it, ready for the reset code.
 Future<String?> showForgotPin() => Get.dialog<String>(const _ForgotPin());
 
 enum _Step { choose, recoveryCode, supplier, newPin }
@@ -37,10 +42,34 @@ class _ForgotPinState extends State<_ForgotPin> {
 
   var _step = _Step.choose;
   PinResetRequest? _request;
+
+  /// When [_request] stops working.
+  DateTime? _expires;
+
+  /// A request was already open when the dialog opened.
+  bool _resumed = false;
   Staff? _owner;
   bool _bySupplier = false;
   String? _error;
   bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _resume();
+  }
+
+  Future<void> _resume() async {
+    final open = await _recovery.waiting();
+    if (open == null || !mounted) return;
+    setState(() {
+      _request = open.request;
+      _expires = open.expires;
+      _number.text = open.request.staffNumber;
+      _resumed = true;
+      _step = _Step.supplier;
+    });
+  }
 
   @override
   void dispose() {
@@ -88,6 +117,15 @@ class _ForgotPinState extends State<_ForgotPin> {
 
   Future<void> _askSupplier() => _run(() async {
         _request = await _recovery.request(_number.text);
+        _expires = (await _recovery.waiting())?.expires;
+      });
+
+  Future<void> _startAgain() => _run(() async {
+        await _recovery.cancelRequest();
+        _request = null;
+        _expires = null;
+        _resumed = false;
+        _reset.clear();
       });
 
   Future<void> _checkResetCode() => _run(() async {
@@ -160,16 +198,21 @@ class _ForgotPinState extends State<_ForgotPin> {
         ),
       _Step.supplier => (
           [
-            number,
-            const SizedBox(height: AbySpace.s3),
-            if (_request == null)
+            if (_request == null) ...[
+              number,
+              const SizedBox(height: AbySpace.s3),
               OutlinedButton(
                 onPressed: _busy || _number.text.length != StaffRepository.numberLength ? null : _askSupplier,
                 child: Text(l.supplierGetRequest),
-              )
-            else ...[
-              Text(l.supplierRequestIntro, style: AbyText.body.copyWith(color: c.ink)),
+              ),
+            ] else ...[
+              // Fixed while the request is open: it is for this number.
+              Text(l.staffNumberLabel(_request!.staffNumber), style: AbyText.body.copyWith(color: c.inkMuted)),
               const SizedBox(height: AbySpace.s2),
+              if (!_resumed) ...[
+                Text(l.supplierRequestIntro, style: AbyText.body.copyWith(color: c.ink)),
+                const SizedBox(height: AbySpace.s2),
+              ],
               Container(
                 padding: const EdgeInsets.all(AbySpace.s3),
                 decoration: BoxDecoration(color: c.surfaceSunken, borderRadius: BorderRadius.circular(AbyRadius.md)),
@@ -190,20 +233,44 @@ class _ForgotPinState extends State<_ForgotPin> {
                   ),
                 ]),
               ),
+              if (_expires != null) ...[
+                const SizedBox(height: AbySpace.s3),
+                Container(
+                  padding: const EdgeInsets.all(AbySpace.s3),
+                  decoration: BoxDecoration(color: c.blueSoft, borderRadius: BorderRadius.circular(AbyRadius.md)),
+                  child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Icon(Icons.schedule, size: 20, color: c.blue),
+                    const SizedBox(width: AbySpace.s2),
+                    Expanded(
+                      child: Text(l.supplierWaitNote(formatDate(_expires!)),
+                          style: AbyText.caption.copyWith(color: c.ink)),
+                    ),
+                  ]),
+                ),
+              ],
               const SizedBox(height: AbySpace.s3),
               TextField(
                 controller: _reset,
+                autofocus: _resumed,
                 minLines: 2,
                 maxLines: 4,
                 autocorrect: false,
                 enableSuggestions: false,
                 decoration: InputDecoration(labelText: l.supplierResetCode, hintText: 'ABYP.…'),
+                onChanged: (_) => setState(() {}),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(onPressed: _busy ? null : _startAgain, child: Text(l.supplierStartAgain)),
               ),
             ],
           ],
           _request == null
               ? null
-              : FilledButton(onPressed: _busy ? null : _checkResetCode, child: Text(l.commonContinue)),
+              : FilledButton(
+                  onPressed: _busy || _reset.text.trim().isEmpty ? null : _checkResetCode,
+                  child: Text(l.commonContinue),
+                ),
         ),
       _Step.newPin => (
           [
@@ -230,7 +297,11 @@ class _ForgotPinState extends State<_ForgotPin> {
     };
 
     return AlertDialog(
-      title: Text(_step == _Step.newPin ? l.newPinTitle : l.forgotPinLink),
+      title: Text(switch (_step) {
+        _Step.newPin => l.newPinTitle,
+        _Step.supplier when _resumed => l.supplierWaiting,
+        _ => l.forgotPinLink,
+      }),
       content: SizedBox(
         width: 400,
         child: SingleChildScrollView(
@@ -249,7 +320,11 @@ class _ForgotPinState extends State<_ForgotPin> {
       ),
       actions: [
         DialogButtons(children: [
-          OutlinedButton(onPressed: () => goBack<String>(), child: Text(l.commonCancel)),
+          OutlinedButton(
+            onPressed: () => goBack<String>(),
+            // The request stays open: closing is not giving up.
+            child: Text(_step == _Step.supplier && _request != null ? l.forgotPinCloseForNow : l.commonCancel),
+          ),
           ?primary,
         ]),
       ],
