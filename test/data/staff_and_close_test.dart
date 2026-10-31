@@ -187,6 +187,40 @@ void main() {
       expect(auth.isSignedIn, isFalse);
     });
 
+    test('lockouts grow longer, survive a restart, and are forgiven after an hour', () async {
+      var now = DateTime(2026, 10, 23, 9);
+      final kofi = await r.staff.create(name: 'Kofi', roleId: BuiltInRole.owner.id, pin: '1234');
+      Future<void> guess(AuthService auth) async {
+        for (var i = 0; i < AuthService.maxAttempts; i++) {
+          await auth.signIn(kofi.number!, '0000');
+        }
+      }
+
+      var auth = AuthService(r.staff, r.audit, clock: () => now, db: db);
+      await guess(auth);
+      expect(auth.lockedFor(kofi.number!), AuthService.lockout);
+      now = now.add(AuthService.lockout);
+      await guess(auth);
+      expect(auth.lockedFor(kofi.number!), AuthService.lockout * 2);
+
+      // A restart keeps the lockout and the count.
+      auth = AuthService(r.staff, r.audit, clock: () => now, db: db);
+      expect(await auth.signIn(kofi.number!, '1234'), SignInResult.lockedOut);
+      now = now.add(AuthService.lockout * 2);
+      await guess(auth);
+      expect(auth.lockedFor(kofi.number!), AuthService.lockout * 4);
+
+      expect(AuthService.lockoutNumber(20), AuthService.longestLockout);
+
+      now = now.add(AuthService.lockout * 4 + AuthService.forgiveAfter + const Duration(minutes: 1));
+      await guess(auth);
+      expect(auth.lockedFor(kofi.number!), AuthService.lockout, reason: 'forgiven: back to the first lockout');
+
+      now = now.add(AuthService.lockout);
+      expect(await auth.signIn(kofi.number!, '1234'), SignInResult.ok);
+      expect(await db.readMeta('auth.lockouts'), isNull, reason: 'signing in clears the count');
+    });
+
     test('a wrong staff number is a failed sign-in like a wrong PIN', () async {
       final auth = AuthService(r.staff, r.audit);
       await r.staff.create(name: 'Kofi', roleId: BuiltInRole.owner.id, pin: '1234');

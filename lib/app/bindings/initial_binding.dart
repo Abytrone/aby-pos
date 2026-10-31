@@ -139,7 +139,7 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => OutboxRepository(db), fenix: true);
 
     final settings = Get.put(SettingsService(SettingsRepository(db, device, audit)), permanent: true);
-    final auth = Get.put(AuthService(Get.find(), audit), permanent: true);
+    final auth = Get.put(AuthService(Get.find(), audit, db: db), permanent: true);
     Get.put(PermissionService(auth), permanent: true).prompter = showApprovalPrompt;
     Get.put(SessionService(auth, settings), permanent: true);
     final times = Get.put(TimeRepository(db, device), permanent: true);

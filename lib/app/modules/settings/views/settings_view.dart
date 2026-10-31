@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../../core/app_version.dart';
 import '../../../core/settings.dart';
 import '../../../domain/business_templates.dart';
 import '../../../domain/loyalty.dart';
@@ -885,7 +886,13 @@ class SettingsView extends GetView<SettingsController> {
           onTap: c.shareLatestAccounts,
         ), keywords: ['accountant', 'share', 'whatsapp', 'email']),
       ],
-      _Entry(about, InfoTile(title: l.settingsVersion, value: '1.0.0')),
+      _Entry(about, InfoTile(title: l.settingsVersion, value: appVersion)),
+      _Entry(about, InfoTile(
+        title: l.settingsErrorLog,
+        subtitle: l.settingsErrorLogHelp,
+        leading: const Icon(Icons.bug_report_outlined),
+        onTap: c.shareErrorLog,
+      ), keywords: ['error', 'crash', 'log', 'support', 'problem']),
       _Entry(about, InfoTile(
         title: l.licenseTitle,
         subtitle: l.licenseSettingsHelp,

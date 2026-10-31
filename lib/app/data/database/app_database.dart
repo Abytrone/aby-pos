@@ -30,17 +30,69 @@ abstract final class MetaKeys {
 
 /// Where the on-device database lives. The backup and restore code uses the
 /// same path, so keep this the single source.
-// TODO(storage): on Windows this is the user's Documents folder. Consider
-// moving to the app support folder with a one-time file move.
-Future<File> databaseFile() async =>
-    File(p.join((await getApplicationDocumentsDirectory()).path, 'aby_pos.sqlite'));
+Future<File> databaseFile() async => File(p.join(await _dataFolder(), 'aby_pos.sqlite'));
 
 /// Training mode (APP-05) runs on a copy, opened while this marker exists.
-Future<File> trainingMarkerFile() async =>
-    File(p.join((await getApplicationDocumentsDirectory()).path, 'aby_pos.training'));
+Future<File> trainingMarkerFile() async => File(p.join(await _dataFolder(), 'aby_pos.training'));
 
-Future<File> trainingDatabaseFile() async =>
-    File(p.join((await getApplicationDocumentsDirectory()).path, 'aby_pos_training.sqlite'));
+Future<File> trainingDatabaseFile() async => File(p.join(await _dataFolder(), 'aby_pos_training.sqlite'));
+
+/// The folder holding the database files. On Windows and Linux the
+/// documents folder is the user's own Documents, which OneDrive and the
+/// like sync, and syncing a database that is open corrupts it; so there
+/// it is the app support folder, and files from older versions are moved
+/// there once.
+///
+/// When the move fails (the files are locked, the disk is full) this run
+/// uses the old folder, and the next one tries again.
+Future<String> _dataFolder() => _dataFolderOnce ??= () async {
+      final documents = (await getApplicationDocumentsDirectory()).path;
+      if (!Platform.isWindows && !Platform.isLinux) return documents;
+      final folder = (await getApplicationSupportDirectory()).path;
+      try {
+        await moveDatabaseFiles(from: documents, to: folder);
+        return folder;
+      } on FileSystemException {
+        return File(p.join(documents, 'aby_pos.sqlite')).existsSync() ? documents : folder;
+      }
+    }();
+Future<String>? _dataFolderOnce;
+
+/// Moves the databases in [from] to [to], each with SQLite's journal files,
+/// and the training marker. A database already in [to] is never replaced:
+/// the old one stays where it was. Every file of a database is copied
+/// before any is deleted, so a failure leaves [from] as it was.
+Future<void> moveDatabaseFiles({required String from, required String to}) async {
+  await Directory(to).create(recursive: true);
+  for (final name in const ['aby_pos.sqlite', 'aby_pos_training.sqlite']) {
+    if (!await File(p.join(from, name)).exists() || await File(p.join(to, name)).exists()) continue;
+    final files = [
+      for (final suffix in const ['', '-wal', '-shm', '-journal'])
+        if (await File(p.join(from, '$name$suffix')).exists()) '$name$suffix',
+    ];
+    final copied = <File>[];
+    try {
+      // The database itself last: until it is there, the move has not
+      // happened and the next run starts it again.
+      for (final f in files.reversed) {
+        copied.add(await File(p.join(from, f)).copy(p.join(to, f)));
+      }
+    } on FileSystemException {
+      for (final f in copied) {
+        await f.delete();
+      }
+      rethrow;
+    }
+    for (final f in files) {
+      await File(p.join(from, f)).delete();
+    }
+  }
+  final marker = File(p.join(from, 'aby_pos.training'));
+  if (await marker.exists()) {
+    if (!await File(p.join(to, 'aby_pos.training')).exists()) await marker.copy(p.join(to, 'aby_pos.training'));
+    await marker.delete();
+  }
+}
 
 /// The file the app opens: the training copy while training, else the
 /// real one.

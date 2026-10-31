@@ -753,11 +753,15 @@ class TrainingSeeder {
 
   Future<void> _refund(String saleId, Staff cashier, {bool weighed = false}) async {
     final refundable = await _r.refunds.refundable(saleId);
-    final line = refundable?.lines.where((l) => !weighed || l.weighed).firstOrNull;
-    if (refundable == null || line == null || refundable.voided) return;
+    if (refundable == null || refundable.voided) return;
     // Weighed lines come back whole; counted ones one at a time.
-    final quantity = line.weighed ? line.left : min(1, line.left);
-    if (quantity <= 0) return;
+    int quantityOf(RefundableLine l) => l.weighed ? l.left : min(1, l.left);
+    // Not a free line (a stamp reward, a promotion): nothing to give back.
+    final line = refundable.lines
+        .where((l) => (!weighed || l.weighed) && quantityOf(l) > 0 && l.amountFor(quantityOf(l)) > 0)
+        .firstOrNull;
+    if (line == null) return;
+    final quantity = quantityOf(line);
     final draft = RefundDraft(
       saleId: saleId,
       lines: [

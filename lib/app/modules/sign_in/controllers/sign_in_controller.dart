@@ -145,7 +145,7 @@ class SignInController extends GetxController {
         return number == null ? l.pinWrong : l.signInWrong;
       case SignInResult.lockedOut:
         final key = number ?? person?.number ?? person?.id ?? '';
-        return l.pinTooManyTries(_auth.lockedFor(key)?.inSeconds ?? AuthService.lockout.inSeconds);
+        return l.tooManyTries(_auth.lockedFor(key) ?? AuthService.lockout);
     }
   }
 }

@@ -569,6 +569,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsVersion => 'Version';
 
   @override
+  String get settingsErrorLog => 'Error log';
+
+  @override
+  String get settingsErrorLogHelp =>
+      'Send it to Aby support when something went wrong.';
+
+  @override
+  String get settingsErrorLogNone => 'Nothing has gone wrong on this device.';
+
+  @override
   String get settingsDeviceId => 'Device ID';
 
   @override
@@ -4644,6 +4654,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String pinMustBeDigits(int count) {
     return 'The PIN must be $count digits.';
+  }
+
+  @override
+  String pinTooManyTriesMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '1 minute',
+    );
+    return 'Too many tries. Wait $_temp0.';
   }
 
   @override

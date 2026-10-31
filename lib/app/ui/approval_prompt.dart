@@ -44,7 +44,7 @@ Future<Staff?> showApprovalPrompt(ApprovalNeed need, String reason) {
                   try {
                     approver = await auth.approveWithPin(number!, pin, permission, discountPercent: need.discountPercent);
                   } on LockedOutException catch (e) {
-                    return l10n.pinTooManyTries(e.wait.inSeconds);
+                    return l10n.tooManyTries(e.wait);
                   }
                   if (approver == null) return l10n.approvalWrongPin;
                   goBack(result: approver);

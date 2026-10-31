@@ -182,6 +182,9 @@
   "settingsBackupsKeep": "Backups to keep on this device",
   "settingsOffsiteReminder": "Remind me to send a backup every",
   "settingsVersion": "Version",
+  "settingsErrorLog": "Error log",
+  "settingsErrorLogHelp": "Send it to Aby support when something went wrong.",
+  "settingsErrorLogNone": "Nothing has gone wrong on this device.",
   "settingsDeviceId": "Device ID",
   "settingsDataVersion": "Data version",
   "backupNow": "Back up now",
@@ -1488,6 +1491,14 @@
   "@pinMustBeDigits": {
     "placeholders": {
       "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pinTooManyTriesMinutes": "Too many tries. Wait {minutes, plural, =1{1 minute} other{{minutes} minutes}}.",
+  "@pinTooManyTriesMinutes": {
+    "placeholders": {
+      "minutes": {
         "type": "int"
       }
     }

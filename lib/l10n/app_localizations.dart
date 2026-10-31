@@ -1186,6 +1186,24 @@ abstract class AppLocalizations {
   /// **'Version'**
   String get settingsVersion;
 
+  /// No description provided for @settingsErrorLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Error log'**
+  String get settingsErrorLog;
+
+  /// No description provided for @settingsErrorLogHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Send it to Aby support when something went wrong.'**
+  String get settingsErrorLogHelp;
+
+  /// No description provided for @settingsErrorLogNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing has gone wrong on this device.'**
+  String get settingsErrorLogNone;
+
   /// No description provided for @settingsDeviceId.
   ///
   /// In en, this message translates to:
@@ -8997,6 +9015,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The PIN must be {count} digits.'**
   String pinMustBeDigits(int count);
+
+  /// No description provided for @pinTooManyTriesMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many tries. Wait {minutes, plural, =1{1 minute} other{{minutes} minutes}}.'**
+  String pinTooManyTriesMinutes(int minutes);
 
   /// No description provided for @pinTooManyTries.
   ///

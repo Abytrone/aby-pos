@@ -9,6 +9,7 @@ import '../../../data/database/app_database.dart';
 import '../../../services/accounts_export_service.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/backup/backup_service.dart';
+import '../../../services/crash_log.dart';
 import '../../../services/device_service.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
@@ -94,6 +95,12 @@ class SettingsController extends GetxController {
   Future<void> shareLatestAccounts() async {
     final file = await _accounts.latest();
     if (file == null) return showMessage(appL10n().accountsNone);
+    await shareOrSaveBytes(p.basename(file.path), await file.readAsBytes());
+  }
+
+  Future<void> shareErrorLog() async {
+    final file = await CrashLog.latest();
+    if (file == null) return showMessage(appL10n().settingsErrorLogNone);
     await shareOrSaveBytes(p.basename(file.path), await file.readAsBytes());
   }
 

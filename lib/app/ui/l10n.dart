@@ -9,6 +9,13 @@ extension L10nContext on BuildContext {
   AppLocalizations get l10n => AppLocalizations.of(this);
 }
 
+extension TooManyTries on AppLocalizations {
+  /// "Too many tries", with the wait in seconds, or minutes once it is long.
+  String tooManyTries(Duration wait) => wait.inSeconds <= 90
+      ? pinTooManyTries(wait.inSeconds)
+      : pinTooManyTriesMinutes((wait.inSeconds / 60).ceil());
+}
+
 /// For controllers and services, which have no BuildContext.
 AppLocalizations appL10n() {
   final locale = Get.locale ?? const Locale('en');

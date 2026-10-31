@@ -2,12 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:drift/drift.dart' show OrderingTerm, UpdateKind, Value, Variable;
 import 'package:get/get.dart' hide Value;
 
+import '../../core/app_version.dart';
 import '../../data/database/app_database.dart';
 import '../../data/sync/row_store.dart';
+import '../crash_log.dart';
 import '../device_service.dart';
 import '../ids.dart';
 import '../license_service.dart';
@@ -116,7 +119,6 @@ class HubService extends GetxService {
   final int beaconPort;
   final Duration every;
 
-  static const appVersion = '1.0.0';
   static const _kRole = 'hub.role', _kUrl = 'hub.url', _kSecret = 'hub.secret', _kId = 'hub.id', _kCursor = 'hub.cursor';
   static const _kName = 'hub.name';
 
@@ -331,7 +333,15 @@ class HubService extends GetxService {
         res.write(jsonEncode({'aby': 'hub', 'h': _device.deviceId, 'name': await _db.readMeta('shop_name') ?? 'Aby', 'v': appVersion}));
         return;
       }
-      final body = await utf8.decoder.bind(r).join();
+      if (r.contentLength > maxBody) {
+        res.statusCode = HttpStatus.requestEntityTooLarge;
+        return;
+      }
+      final body = await _read(r);
+      if (body == null) {
+        res.statusCode = HttpStatus.requestEntityTooLarge;
+        return;
+      }
       final deviceId = r.headers.value('x-aby-device') ?? '';
       if (r.method == 'POST' && path == '/pair') {
         res.write(await _pair(deviceId, body));
@@ -343,12 +353,28 @@ class HubService extends GetxService {
     } on HubException catch (e) {
       res.statusCode = HttpStatus.forbidden;
       res.write(jsonEncode({'error': e.error.name}));
-    } on Object catch (e) {
+    } on Object catch (e, stack) {
+      // The reason stays here: the network only learns that it failed.
+      unawaited(CrashLog.record(e, stack, context: 'Hub ${r.method} ${r.uri.path}'));
       res.statusCode = HttpStatus.internalServerError;
-      res.write(jsonEncode({'error': '$e'}));
+      res.write(jsonEncode({'error': 'failed'}));
     } finally {
       await res.close();
     }
+  }
+
+  /// The most a member may send at once. A batch is 300 rows without
+  /// photos, far under this.
+  static const maxBody = 16 * 1024 * 1024;
+
+  /// The request body as text, or null when it is over [maxBody].
+  static Future<String?> _read(HttpRequest r) async {
+    final bytes = BytesBuilder(copy: false);
+    await for (final chunk in r) {
+      bytes.add(chunk);
+      if (bytes.length > maxBody) return null;
+    }
+    return utf8.decode(bytes.takeBytes());
   }
 
   Future<String> _pair(String deviceId, String body) async {

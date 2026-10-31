@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 
 import '../core/permissions.dart';
+import '../data/database/app_database.dart';
 import '../data/repositories/audit_repository.dart';
 import '../data/repositories/staff_repository.dart';
 import '../models/audit.dart';
@@ -16,21 +19,73 @@ class LockedOutException implements Exception {
 
 /// Who is on the till right now. Held in memory only: restarting the app
 /// signs everyone out. Sign-ins, failures and locks go to the audit log.
+///
+/// Lockouts are kept in [db] (this device only), so restarting the app does
+/// not give a guesser fresh tries.
 class AuthService extends GetxService {
-  AuthService(this._staff, this._audit, {DateTime Function()? clock})
+  AuthService(this._staff, this._audit, {DateTime Function()? clock, this.db})
       : _clock = clock ?? DateTime.now;
 
   final StaffRepository _staff;
   final AuditRepository _audit;
   final DateTime Function() _clock;
+  final AppDatabase? db;
 
   static const maxAttempts = 5;
+
+  /// The first lockout. Each one after it doubles, up to [longestLockout].
   static const lockout = Duration(seconds: 30);
+  static const longestLockout = Duration(minutes: 15);
+
+  /// A lockout this long ago is forgiven: the next starts at [lockout] again.
+  static const forgiveAfter = Duration(hours: 1);
+
+  static const _metaKey = 'auth.lockouts';
+
+  /// How long the [n]th lockout in a row lasts (from 1).
+  static Duration lockoutNumber(int n) {
+    final d = lockout * (1 << (n - 1).clamp(0, 10));
+    return d > longestLockout ? longestLockout : d;
+  }
 
   final currentUser = Rxn<Staff>();
 
   final _failures = <String, int>{};
   final _lockedUntil = <String, DateTime>{};
+
+  /// Lockouts in a row per key, and when the last one ends.
+  final _lockouts = <String, ({int count, DateTime until})>{};
+  Future<void>? _loaded;
+
+  Future<void> _load() => _loaded ??= () async {
+        final text = await db?.readMeta(_metaKey);
+        if (text == null) return;
+        try {
+          for (final e in (jsonDecode(text) as Map<String, dynamic>).entries) {
+            final v = e.value as Map<String, dynamic>;
+            final until = DateTime.parse(v['until'] as String);
+            _lockouts[e.key] = (count: v['count'] as int, until: until);
+            if (until.isAfter(_clock())) _lockedUntil[e.key] = until;
+          }
+        } on Object {
+          // Unreadable: start again rather than keep anyone out.
+        }
+      }();
+
+  Future<void> _save() async {
+    final now = _clock();
+    _lockouts.removeWhere((_, v) => now.difference(v.until) > forgiveAfter);
+    if (db == null) return;
+    if (_lockouts.isEmpty) return db!.deleteMeta(_metaKey);
+    await db!.writeMeta(_metaKey, jsonEncode({
+      for (final e in _lockouts.entries) e.key: {'count': e.value.count, 'until': e.value.until.toIso8601String()},
+    }));
+  }
+
+  Future<void> _succeeded(String key) async {
+    _failures.remove(key);
+    if (_lockouts.remove(key) != null) await _save();
+  }
 
   /// Lockout key for approvals, which are not tied to one person.
   static const _approvalKey = '#approval';
@@ -61,8 +116,9 @@ class AuthService extends GetxService {
   /// Signs in whoever has this staff number and PIN (at [atBranch], when
   /// given). A wrong number and a wrong PIN look the same, so the screen
   /// gives away nothing about who works here. [maxAttempts] wrong tries in
-  /// a row lock that number for [lockout].
+  /// a row lock that number for [lockout], longer each time.
   Future<SignInResult> signIn(String number, String pin, {String? atBranch}) async {
+    await _load();
     if (lockedFor(number) != null) return SignInResult.lockedOut;
     final person = await _staff.withNumber(number, pin, atBranch: atBranch);
     if (person != null) return _signedIn(number, person);
@@ -74,13 +130,14 @@ class AuthService extends GetxService {
   /// till). Shares the lockout of their staff number.
   Future<SignInResult> signInAs(Staff staff, String pin) async {
     final key = staff.number ?? staff.id;
+    await _load();
     if (lockedFor(key) != null) return SignInResult.lockedOut;
     if (await _staff.verifyPin(staff.id, pin)) return _signedIn(key, staff);
     return _wrongPin(key, staff, staff.name);
   }
 
   Future<SignInResult> _signedIn(String key, Staff staff) async {
-    _failures.remove(key);
+    await _succeeded(key);
     // Reload so a role changed on another screen takes effect.
     currentUser.value = await _staff.find(staff.id) ?? staff;
     await _audit.record(action: AuditAction.signedIn, actor: staff, summary: '${staff.name} signed in');
@@ -88,7 +145,7 @@ class AuthService extends GetxService {
   }
 
   Future<SignInResult> _wrongPin(String key, Staff? staff, String who) async {
-    final locked = _fail(key);
+    final locked = await _fail(key);
     await _audit.record(
       action: locked ? AuditAction.lockedOut : AuditAction.signInFailed,
       actor: staff,
@@ -100,20 +157,21 @@ class AuthService extends GetxService {
   /// The person with this staff number and PIN who may do [permission], or
   /// null. Throws [LockedOutException] after [maxAttempts] wrong tries.
   Future<Staff?> approveWithPin(String number, String pin, Permission permission, {int? discountPercent}) async {
+    await _load();
     final wait = lockedFor(_approvalKey);
     if (wait != null) throw LockedOutException(wait);
     final approver = await _staff.approverWithPin(number, pin, permission, discountPercent: discountPercent);
     if (approver != null) {
-      _failures.remove(_approvalKey);
+      await _succeeded(_approvalKey);
       return approver;
     }
-    if (_fail(_approvalKey)) {
+    if (await _fail(_approvalKey)) {
       await _audit.record(
         action: AuditAction.approvalRefused,
         actor: currentUser.value,
         summary: 'Approval locked after $maxAttempts wrong PINs (${permission.name})',
       );
-      throw const LockedOutException(lockout);
+      throw LockedOutException(lockedFor(_approvalKey) ?? lockout);
     }
     return null;
   }
@@ -123,9 +181,10 @@ class AuthService extends GetxService {
   Future<SignInResult> confirmOwnPin(String pin) async {
     final me = user;
     final key = me.number ?? me.id;
+    await _load();
     if (lockedFor(key) != null) return SignInResult.lockedOut;
     if (await _staff.verifyPin(me.id, pin)) {
-      _failures.remove(key);
+      await _succeeded(key);
       return SignInResult.ok;
     }
     return _wrongPin(key, me, me.name);
@@ -134,30 +193,37 @@ class AuthService extends GetxService {
   /// The owner with this staff number and recovery code, or null. Throws
   /// [LockedOutException] after [maxAttempts] wrong tries.
   Future<Staff?> ownerWithRecoveryCode(String number, String code) async {
+    await _load();
     final wait = lockedFor(_recoveryKey);
     if (wait != null) throw LockedOutException(wait);
     final owner = await _staff.ownerWithRecoveryCode(number, code);
     if (owner != null) {
-      _failures.remove(_recoveryKey);
+      await _succeeded(_recoveryKey);
       return owner;
     }
-    final locked = _fail(_recoveryKey);
+    final locked = await _fail(_recoveryKey);
     await _audit.record(
       action: locked ? AuditAction.lockedOut : AuditAction.signInFailed,
       summary: locked
           ? 'Recovery codes locked after $maxAttempts wrong tries'
           : 'Wrong recovery code for staff number $number',
     );
-    if (locked) throw const LockedOutException(lockout);
+    if (locked) throw LockedOutException(lockedFor(_recoveryKey) ?? lockout);
     return null;
   }
 
   /// Counts a wrong PIN. Returns true when that starts a lockout.
-  bool _fail(String key) {
+  Future<bool> _fail(String key) async {
     final failures = (_failures[key] ?? 0) + 1;
     if (failures >= maxAttempts) {
       _failures.remove(key);
-      _lockedUntil[key] = _clock().add(lockout);
+      final now = _clock();
+      final last = _lockouts[key];
+      final count = last == null || now.difference(last.until) > forgiveAfter ? 1 : last.count + 1;
+      final until = now.add(lockoutNumber(count));
+      _lockedUntil[key] = until;
+      _lockouts[key] = (count: count, until: until);
+      await _save();
       return true;
     }
     _failures[key] = failures;

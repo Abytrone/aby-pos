@@ -119,7 +119,7 @@ void main() {
     expect((await get('/c/wrong')).$1, 404);
     final page = await get('/c/${display.token}');
     expect(page.$1, 200);
-    expect(page.$2, contains('Thank you!'));
+    expect(page.$2, contains('<h1>Thank you</h1>'));
     final state = jsonDecode((await get('/c/${display.token}/state')).$2) as Map<String, dynamic>;
     expect(state['stage'], 'idle');
     expect(state['shop'], 'Scoops Tamale');

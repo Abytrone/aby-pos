@@ -177,8 +177,9 @@ Do these once, in this order. Each takes a few minutes.
   be different.
 - **Badge:** if you have a staff badge, scan it with the barcode scanner (or the camera on
   Android) instead of typing your number, then type your PIN.
-- **Five wrong tries** lock that staff number for 30 seconds. This stops someone guessing. Aby
-  never says whether the number or the PIN was wrong.
+- **Five wrong tries** lock that staff number for 30 seconds. More wrong tries after that lock it
+  for longer each time, up to 15 minutes, even if Aby is closed and opened again. This stops
+  someone guessing. Aby never says whether the number or the PIN was wrong.
 - **PIN pad:** Settings → This device → **PIN keypad** can shuffle the numbers every time, so no
   one learns a PIN by watching where your finger goes. Or it can hide the keypad and use the
   keyboard.

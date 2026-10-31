@@ -281,16 +281,23 @@ failures show up in the status centre (the dot in the header), not as crashes.
 
 | File | Where | Purpose |
 |---|---|---|
-| `aby_pos.sqlite` | application documents folder | the shop's real data |
+| `aby_pos.sqlite` | data folder (below) | the shop's real data |
 | `aby_pos_training.sqlite` | same folder | the training copy |
 | `aby_pos.training` | same folder | marker file: while it exists, the training copy is opened |
 | `backups/aby-*.sqlite` | application **support** folder | local snapshots (the newest 14 are kept) |
 | `aby_pos.license` | application support folder | this device's licence (outside the database on purpose) |
 | `aby_pos.install` | application support folder | machine ID fallback on Android (§16) |
+| `logs/aby_pos.log` | application support folder | the crash log (§26.3) |
 
-On Windows the "documents folder" is the user's Documents folder (`TODO(storage)` notes a possible
-move). The installer never touches these files, so uninstalling or upgrading keeps the shop's
-data.
+The data folder is the application **support** folder on Windows and Linux
+(`%APPDATA%\Abytrone Technologies\Aby` on Windows), and the application documents folder
+elsewhere, where it is private to the app. On Windows the documents folder is the user's own
+Documents, which OneDrive syncs, and syncing an open SQLite file corrupts it. Earlier versions
+kept the database there: on first start `moveDatabaseFiles` copies the databases (with their
+`-wal`, `-shm` and `-journal` files) and the training marker across, then deletes the originals. A
+database already in the new folder is never replaced, and if the move fails that run uses the old
+folder and the next run tries again. The installer never touches these files, so uninstalling or
+upgrading keeps the shop's data.
 
 ### 5.3 Restarting in place
 
@@ -825,8 +832,11 @@ new items in the same transaction.
   cannot resist someone who has the database file; the hashing slows them down, and sign-in
   lockout handles guessing at the till.
 - **Lockout:** 5 wrong tries in a row lock that staff number for 30 seconds (a badge sign-in
-  counts against the same number). A wrong number and a wrong PIN give the same message.
-  Approvals have their own shared counter. Failures and lockouts are audited.
+  counts against the same number). Each lockout after that doubles, up to 15 minutes; a lockout
+  that ended over an hour ago is forgiven, and signing in clears the count. Lockouts are kept in
+  the `meta` table (`auth.lockouts`, this device only), so restarting the app does not reset them.
+  A wrong number and a wrong PIN give the same message. Approvals have their own shared counter.
+  Failures and lockouts are audited.
 - Staff can be limited to one branch (`staff.branch_id`). Owners can sign in at any branch.
 - **Forgotten owner PIN** ([pin_recovery_service.dart](lib/app/services/pin_recovery_service.dart),
   [core/pin_reset.dart](lib/app/core/pin_reset.dart)). Anyone with *Manage staff* can set
@@ -1411,8 +1421,9 @@ tests are not left with drift's cleanup timer.
 ### 26.1 Version
 
 `pubspec.yaml` has `version: 1.0.0+1`. The Windows script reads `major.minor.patch` from it.
-**Also update `HubService.appVersion`** (currently a hard-coded `'1.0.0'`), which members report to
-the hub.
+**Also update `appVersion`** in [app_version.dart](lib/app/core/app_version.dart), which Settings →
+About shows and members report to the hub. `test/app_version_test.dart` and `build_windows.ps1`
+both fail when the two differ.
 
 ### 26.2 Windows installer
 
@@ -1426,7 +1437,11 @@ powershell -ExecutionPolicy Bypass -File build_windows.ps1
 2. copies `msvcp140.dll`, `vcruntime140.dll` and `vcruntime140_1.dll` from `System32` next to
    `aby_pos.exe`, so Aby starts on a fresh Windows without the VC++ runtime;
 3. runs Inno Setup on [installer/aby_pos.iss](installer/aby_pos.iss) →
-   `build\installer\AbySetup-<version>.exe`.
+   `build\installer\AbySetup-<version>.exe`;
+4. when `$env:ABY_SIGN_CERT` holds the SHA-1 thumbprint of a code-signing certificate in the
+   Windows certificate store, signs `aby_pos.exe`, the installer and the uninstaller with
+   `signtool` (Windows SDK), timestamped. Without it the installer is unsigned, the script warns,
+   and Windows SmartScreen warns shops when they run it.
 
 **Keep `build\symbols\<version>` for every shipped version** (it is needed to read obfuscated
 crash stacks), and never ship it.
@@ -1436,8 +1451,19 @@ The installer:
 - installs per machine to Program Files (needs admin) on 64-bit Windows 10 or later;
 - shows the EULA (`installer/eula.txt`) with publisher *Abytrone Technologies*;
 - closes a running Aby before upgrading;
-- adds (and on uninstall removes) a Windows Firewall rule for the hub;
+- adds (and on uninstall removes) a Windows Firewall rule for the hub, on every network profile
+  (shop Wi-Fi is often marked Public) but only from the local subnet;
 - never touches shop data.
+
+### 26.3 Crash log
+
+`CrashLog.install()` ([crash_log.dart](lib/app/services/crash_log.dart)), called in `main`, catches
+what nothing else did: `FlutterError.onError` (still shown in debug) and
+`PlatformDispatcher.onError`. The hub logs its own request failures there too, and replies only
+`{"error": "failed"}`. Each entry has the time, version, platform, error and stack, appended to
+`logs/aby_pos.log` in the support folder; past 512 KB it becomes `aby_pos.old.log` and a new one
+starts. A shop sends it from Settings → About → **Error log**. Release stacks are obfuscated: read
+them with `flutter symbolize -i <file> -d build\symbols\<version>\app.windows-x64.symbols`.
 
 **Never change `AppId`**: it is how Windows knows a new installer upgrades the old one. Code
 signing is prepared (`SignTool=` is commented out) for when there is a certificate.
@@ -1574,7 +1600,6 @@ From FEATURES.md Phase 8 and the `TODO(sync)` markers:
   (`INT-04`), an accounting API (`INT-05`, beyond the monthly pack), online ordering (`INT-06`).
 - Per-branch prices and P&L; branch details on receipts.
 - More languages.
-- Moving the Windows database out of Documents (`TODO(storage)`).
 
 Open product questions are listed in [FEATURES.md §20](docs/FEATURES.md).
 

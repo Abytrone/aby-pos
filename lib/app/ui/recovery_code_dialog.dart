@@ -100,7 +100,7 @@ Future<bool> confirmOwnPin(String title) async {
             return l.pinWrong;
           case SignInResult.lockedOut:
             final me = auth.user;
-            return l.pinTooManyTries(auth.lockedFor(me.number ?? me.id)?.inSeconds ?? AuthService.lockout.inSeconds);
+            return l.tooManyTries(auth.lockedFor(me.number ?? me.id) ?? AuthService.lockout);
         }
       }),
       actions: [

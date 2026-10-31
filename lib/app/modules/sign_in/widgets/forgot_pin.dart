@@ -111,7 +111,7 @@ class _ForgotPinState extends State<_ForgotPin> {
           _bySupplier = false;
           _step = _Step.newPin;
         } on LockedOutException catch (e) {
-          _error = l.pinTooManyTries(e.wait.inSeconds);
+          _error = l.tooManyTries(e.wait);
         }
       });
 

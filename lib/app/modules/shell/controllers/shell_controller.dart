@@ -146,7 +146,7 @@ class ShellController extends GetxController {
       case SignInResult.wrongPin:
         return l.signInWrong;
       case SignInResult.lockedOut:
-        return l.pinTooManyTries(auth.lockedFor(number)?.inSeconds ?? AuthService.lockout.inSeconds);
+        return l.tooManyTries(auth.lockedFor(number) ?? AuthService.lockout);
     }
   }
 }
