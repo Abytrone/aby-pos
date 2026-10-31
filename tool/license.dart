@@ -14,16 +14,25 @@
 //
 //   dart run tool/license.dart check <key or .abylicense file>
 //       Shows what a license says and whether this build of Aby accepts it.
+//
+//   dart run tool/license.dart reset --key <folder> --request K7QM-2XRA-PL3D-9WEH-101-7QXM-P3RA
+//       An owner forgot their PIN and has no recovery code. Their till shows
+//       a request code (Forgot your PIN? → Ask my Aby supplier). Check you
+//       are talking to the owner first: this prints a reset code that sets
+//       a new PIN for that staff number, once, on that device. Noted in
+//       resets.csv.
 
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:aby_pos/app/core/license.dart';
+import 'package:aby_pos/app/core/pin_reset.dart';
 import 'package:uuid/uuid.dart';
 
 const _keyFile = 'aby_license_private.key';
 const _ledger = 'issued.csv';
+const _resets = 'resets.csv';
 
 Future<void> main(List<String> args) async {
   if (args.isEmpty) return _usage();
@@ -35,6 +44,8 @@ Future<void> main(List<String> args) async {
         await _issue(_options(args.skip(1).toList()));
       case 'check':
         await _check(args.skip(1).toList());
+      case 'reset':
+        await _reset(_options(args.skip(1).toList()));
       default:
         _usage();
     }
@@ -53,7 +64,8 @@ void _usage() {
   stdout.writeln('Usage:\n'
       '  dart run tool/license.dart keygen <folder>\n'
       '  dart run tool/license.dart issue --key <folder> --shop "<name>" --device <code> [--devices <n>]\n'
-      '  dart run tool/license.dart check <key or file>');
+      '  dart run tool/license.dart check <key or file>\n'
+      '  dart run tool/license.dart reset --key <folder> --request <request code>');
   exitCode = 64;
 }
 
@@ -119,6 +131,49 @@ Future<void> _issue(Map<String, String> o) async {
     ..writeln(key)
     ..writeln()
     ..writeln('Saved as ${out.absolute.path} and noted in ${ledger.path}.');
+}
+
+Future<void> _reset(Map<String, String> o) async {
+  final keyDir = o['key'], typed = o['request'];
+  if (keyDir == null || typed == null) throw const _UsageError('reset needs --key and --request.');
+  final request = PinResetRequest.parse(typed);
+  if (request == null) {
+    throw _UsageError('"$typed" is not a request code (like K7QM-2XRA-PL3D-9WEH-101-7QXM-P3RA).');
+  }
+  final seed = base64.decode((await File('$keyDir${Platform.pathSeparator}$_keyFile').readAsString()).trim());
+  if (await LicenseCodec.publicKeyOf(seed) != licensePublicKey) {
+    stderr.writeln('Warning: this key is not the one in lib/app/core/license.dart; this build of Aby will refuse the code.');
+  }
+
+  // Who has a licence for this device, to check against who is asking.
+  final ledger = File('$keyDir${Platform.pathSeparator}$_ledger');
+  final row = RegExp('^[^,]*,[^,]*,"((?:[^"]|"")*)",${request.device},');
+  final shops = <String>{
+    if (await ledger.exists())
+      for (final line in (await ledger.readAsLines()).skip(1))
+        if (row.firstMatch(line) case final m?) m[1]!.replaceAll('""', '"'),
+  };
+  final code = await PinResetCodec.sign(request, seed);
+  final resets = File('$keyDir${Platform.pathSeparator}$_resets');
+  if (!await resets.exists()) {
+    await resets.writeAsString('made,device,staff_number,request\n');
+  }
+  await resets.writeAsString(
+    '${DateTime.now().toIso8601String()},${request.device},${request.staffNumber},${request.code}\n',
+    mode: FileMode.append,
+    flush: true,
+  );
+  stdout
+    ..writeln('Device:       ${request.device}')
+    ..writeln('Licensed to:  ${shops.isEmpty ? '(no licence issued for this device)' : shops.join(', ')}')
+    ..writeln('Staff number: ${request.staffNumber}')
+    ..writeln()
+    ..writeln('Only send this once you are sure you are talking to that shop\'s owner.')
+    ..writeln('It sets a new PIN for staff number ${request.staffNumber}, once, on that device only.')
+    ..writeln()
+    ..writeln(code)
+    ..writeln()
+    ..writeln('Noted in ${resets.path}.');
 }
 
 Future<void> _check(List<String> args) async {

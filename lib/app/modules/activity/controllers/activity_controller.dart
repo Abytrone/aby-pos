@@ -59,6 +59,8 @@ enum ActivityFilter {
         ActivityFilter.staff => {
             AuditAction.staffAdded,
             AuditAction.staffPinChanged,
+            AuditAction.staffPinReset,
+            AuditAction.staffRecoveryCodeMade,
             AuditAction.staffDetailsChanged,
             AuditAction.staffRoleChanged,
             AuditAction.staffDeactivated,

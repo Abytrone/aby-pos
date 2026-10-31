@@ -191,7 +191,7 @@ class AppDatabase extends _$AppDatabase {
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -544,6 +544,10 @@ class AppDatabase extends _$AppDatabase {
       from19To20: (m, schema) async {
         await m.addColumn(schema.staff, schema.staff.staffNumber);
         await _numberStaff();
+      },
+      // v21: owner recovery codes, for a forgotten PIN.
+      from20To21: (m, schema) async {
+        await m.addColumn(schema.staff, schema.staff.recoveryHash);
       },
     ),
         beforeOpen: (details) async {

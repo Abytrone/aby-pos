@@ -79,10 +79,21 @@ abstract final class LicenseCodec {
   /// Signs [license] with the private key's 32-byte [seed]. Developer side.
   static Future<String> sign(License license, List<int> seed) async {
     final payload = utf8.encode(jsonEncode(license.toJson()));
-    final keys = await _ed25519.newKeyPairFromSeed(seed);
-    final signature = await _ed25519.sign(payload, keyPair: keys);
-    return '$prefix${_b64(payload)}.${_b64(signature.bytes)}';
+    return '$prefix${_b64(payload)}.${_b64(await signBytes(payload, seed))}';
   }
+
+  /// An Ed25519 signature of [message] with [seed]. Also signs PIN resets.
+  static Future<List<int>> signBytes(List<int> message, List<int> seed) async {
+    final keys = await _ed25519.newKeyPairFromSeed(seed);
+    return (await _ed25519.sign(message, keyPair: keys)).bytes;
+  }
+
+  /// Whether [signature] over [message] was made with Aby's private key.
+  static Future<bool> verifyBytes(List<int> message, List<int> signature, {String publicKey = licensePublicKey}) =>
+      _ed25519.verify(
+        message,
+        signature: Signature(signature, publicKey: SimplePublicKey(base64.decode(publicKey), type: KeyPairType.ed25519)),
+      );
 
   /// The public key that goes with [seed], for [licensePublicKey].
   static Future<String> publicKeyOf(List<int> seed) async {
@@ -103,11 +114,7 @@ abstract final class LicenseCodec {
     } on FormatException {
       throw const LicenseException(LicenseProblem.unreadable);
     }
-    final ok = await _ed25519.verify(
-      payload,
-      signature: Signature(signature, publicKey: SimplePublicKey(base64.decode(publicKey), type: KeyPairType.ed25519)),
-    );
-    if (!ok) throw const LicenseException(LicenseProblem.forged);
+    if (!await verifyBytes(payload, signature, publicKey: publicKey)) throw const LicenseException(LicenseProblem.forged);
     try {
       return License.fromJson(jsonDecode(utf8.decode(payload)) as Map<String, dynamic>);
     } on Object {
@@ -119,7 +126,7 @@ abstract final class LicenseCodec {
 }
 
 /// Letters device codes are made of: no 0/O or 1/I to mix up when read out.
-const _codeChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const codeChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
 /// The short code a shop sends to buy a license ("K7QM-2XRA-…"), made from
 /// the machine's own ID, so it stays the same through reinstalls and a
@@ -133,7 +140,7 @@ String deviceCode(String machineId) {
     bits += 8;
     while (bits >= 5 && out.length < 16) {
       bits -= 5;
-      out.write(_codeChars[(value >> bits) & 31]);
+      out.write(codeChars[(value >> bits) & 31]);
     }
     value &= (1 << bits) - 1;
     if (out.length == 16) break;

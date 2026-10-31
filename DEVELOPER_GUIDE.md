@@ -688,6 +688,7 @@ drift's step-by-step API with generated schema snapshots.
 | 18 | A picture for each category |
 | 19 | `manageDevices` permission, granted to Manager |
 | 20 | `staff.staff_number`, numbered from 101 by `created_at` |
+| 21 | `staff.recovery_hash`: owner recovery codes |
 
 ---
 
@@ -827,6 +828,21 @@ new items in the same transaction.
   counts against the same number). A wrong number and a wrong PIN give the same message.
   Approvals have their own shared counter. Failures and lockouts are audited.
 - Staff can be limited to one branch (`staff.branch_id`). Owners can sign in at any branch.
+- **Forgotten owner PIN** ([pin_recovery_service.dart](lib/app/services/pin_recovery_service.dart),
+  [core/pin_reset.dart](lib/app/core/pin_reset.dart)). Anyone with *Manage staff* can set
+  someone else's PIN, so this is only for owners locked out of their own shop. There are two
+  ways back in, and both end with a new PIN, a new recovery code and an audit entry
+  (`staffPinReset`):
+  - **Recovery code:** 12 characters (`K7QM-4XPA-9TRB`), hashed into `staff.recovery_hash` with
+    `PinHasher`. Made at setup and shown once, remade from the owner's own profile (after
+    `confirmOwnPin`), replaced each time it is used. Wrong codes share one lockout (`#recovery`).
+    The status centre warns an owner who has none.
+  - **Supplier reset:** the till makes a `PinResetRequest`: device code, staff number and an
+    8-character nonce. It is kept in `meta` (`pin.reset.request`, this device only, 7 days). The
+    supplier signs `aby-pin-reset:v1:<device>:<staff>:<nonce>` with the licence key
+    (`tool/license.dart reset`). The till rebuilds that message and checks the Ed25519 signature
+    against `licensePublicKey`, so the code is only the signature. It works once, on that device,
+    for an active owner. Whether a number is an owner's is checked only when the code comes back.
 
 ### 13.2 Permissions and roles
 
@@ -980,10 +996,15 @@ payload = {"v":1,"id":"<uuid>","shop":"Mama Ama Provisions","device":"K7QM-2XRA-
 dart run tool/license.dart keygen <folder>        # once: makes the private key, prints the public key
 dart run tool/license.dart issue --key <folder> --shop "Mama Ama Provisions" --device K7QM-2XRA-PL3D-9WEH --devices 3
 dart run tool/license.dart check <key or .abylicense file>
+dart run tool/license.dart reset --key <folder> --request K7QM-2XRA-PL3D-9WEH-101-7QXM-P3RA
 ```
 
 `issue` prints the key, saves `<Shop>-<code>.abylicense` in the current folder, and appends to
 `issued.csv` in the key folder. The shop pastes the key in Settings → Licence (or opens the file).
+
+`reset` answers an owner who forgot their PIN and has no recovery code (§13.1). It prints who the
+device is licensed to (from `issued.csv`), the staff number and a reset code (`ABYP.<signature>`),
+and appends to `resets.csv`. Confirm you are talking to that shop's owner before sending it.
 
 **Security:** the private key (`aby_license_private.key`) must never be committed, shared or
 shipped. `.gitignore` excludes `*.key` and `*.abylicense`. Back the key up offline: without it no

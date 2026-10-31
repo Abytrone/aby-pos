@@ -40313,6 +40313,17 @@ class $StaffMembersTable extends StaffMembers
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _recoveryHashMeta = const VerificationMeta(
+    'recoveryHash',
+  );
+  @override
+  late final GeneratedColumn<String> recoveryHash = GeneratedColumn<String>(
+    'recovery_hash',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -40339,6 +40350,7 @@ class $StaffMembersTable extends StaffMembers
     workEnd,
     branchId,
     staffNumber,
+    recoveryHash,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -40519,6 +40531,15 @@ class $StaffMembersTable extends StaffMembers
         ),
       );
     }
+    if (data.containsKey('recovery_hash')) {
+      context.handle(
+        _recoveryHashMeta,
+        recoveryHash.isAcceptableOrUnknown(
+          data['recovery_hash']!,
+          _recoveryHashMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -40624,6 +40645,10 @@ class $StaffMembersTable extends StaffMembers
         DriftSqlType.string,
         data['${effectivePrefix}staff_number'],
       ),
+      recoveryHash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}recovery_hash'],
+      ),
     );
   }
 
@@ -40677,6 +40702,10 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
   /// Typed before the PIN at sign-in ("101"), so the screen never lists
   /// names and two people may share a PIN. Not secret. v20.
   final String? staffNumber;
+
+  /// An owner's recovery code, hashed like a PIN: sets a new PIN when the
+  /// old one is forgotten. Null for none. v21.
+  final String? recoveryHash;
   const StaffRow({
     required this.id,
     required this.createdAt,
@@ -40702,6 +40731,7 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
     this.workEnd,
     this.branchId,
     this.staffNumber,
+    this.recoveryHash,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -40761,6 +40791,9 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
     }
     if (!nullToAbsent || staffNumber != null) {
       map['staff_number'] = Variable<String>(staffNumber);
+    }
+    if (!nullToAbsent || recoveryHash != null) {
+      map['recovery_hash'] = Variable<String>(recoveryHash);
     }
     return map;
   }
@@ -40823,6 +40856,9 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
       staffNumber: staffNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(staffNumber),
+      recoveryHash: recoveryHash == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recoveryHash),
     );
   }
 
@@ -40856,6 +40892,7 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
       workEnd: serializer.fromJson<int?>(json['workEnd']),
       branchId: serializer.fromJson<String?>(json['branchId']),
       staffNumber: serializer.fromJson<String?>(json['staffNumber']),
+      recoveryHash: serializer.fromJson<String?>(json['recoveryHash']),
     );
   }
   @override
@@ -40886,6 +40923,7 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
       'workEnd': serializer.toJson<int?>(workEnd),
       'branchId': serializer.toJson<String?>(branchId),
       'staffNumber': serializer.toJson<String?>(staffNumber),
+      'recoveryHash': serializer.toJson<String?>(recoveryHash),
     };
   }
 
@@ -40914,6 +40952,7 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
     Value<int?> workEnd = const Value.absent(),
     Value<String?> branchId = const Value.absent(),
     Value<String?> staffNumber = const Value.absent(),
+    Value<String?> recoveryHash = const Value.absent(),
   }) => StaffRow(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -40943,6 +40982,7 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
     workEnd: workEnd.present ? workEnd.value : this.workEnd,
     branchId: branchId.present ? branchId.value : this.branchId,
     staffNumber: staffNumber.present ? staffNumber.value : this.staffNumber,
+    recoveryHash: recoveryHash.present ? recoveryHash.value : this.recoveryHash,
   );
   StaffRow copyWithCompanion(StaffMembersCompanion data) {
     return StaffRow(
@@ -40978,6 +41018,9 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
       staffNumber: data.staffNumber.present
           ? data.staffNumber.value
           : this.staffNumber,
+      recoveryHash: data.recoveryHash.present
+          ? data.recoveryHash.value
+          : this.recoveryHash,
     );
   }
 
@@ -41007,7 +41050,8 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
           ..write('workStart: $workStart, ')
           ..write('workEnd: $workEnd, ')
           ..write('branchId: $branchId, ')
-          ..write('staffNumber: $staffNumber')
+          ..write('staffNumber: $staffNumber, ')
+          ..write('recoveryHash: $recoveryHash')
           ..write(')'))
         .toString();
   }
@@ -41038,6 +41082,7 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
     workEnd,
     branchId,
     staffNumber,
+    recoveryHash,
   ]);
   @override
   bool operator ==(Object other) =>
@@ -41066,7 +41111,8 @@ class StaffRow extends DataClass implements Insertable<StaffRow> {
           other.workStart == this.workStart &&
           other.workEnd == this.workEnd &&
           other.branchId == this.branchId &&
-          other.staffNumber == this.staffNumber);
+          other.staffNumber == this.staffNumber &&
+          other.recoveryHash == this.recoveryHash);
 }
 
 class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
@@ -41094,6 +41140,7 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
   final Value<int?> workEnd;
   final Value<String?> branchId;
   final Value<String?> staffNumber;
+  final Value<String?> recoveryHash;
   final Value<int> rowid;
   const StaffMembersCompanion({
     this.id = const Value.absent(),
@@ -41120,6 +41167,7 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
     this.workEnd = const Value.absent(),
     this.branchId = const Value.absent(),
     this.staffNumber = const Value.absent(),
+    this.recoveryHash = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   StaffMembersCompanion.insert({
@@ -41147,6 +41195,7 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
     this.workEnd = const Value.absent(),
     this.branchId = const Value.absent(),
     this.staffNumber = const Value.absent(),
+    this.recoveryHash = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -41180,6 +41229,7 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
     Expression<int>? workEnd,
     Expression<String>? branchId,
     Expression<String>? staffNumber,
+    Expression<String>? recoveryHash,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -41207,6 +41257,7 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
       if (workEnd != null) 'work_end': workEnd,
       if (branchId != null) 'branch_id': branchId,
       if (staffNumber != null) 'staff_number': staffNumber,
+      if (recoveryHash != null) 'recovery_hash': recoveryHash,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -41236,6 +41287,7 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
     Value<int?>? workEnd,
     Value<String?>? branchId,
     Value<String?>? staffNumber,
+    Value<String?>? recoveryHash,
     Value<int>? rowid,
   }) {
     return StaffMembersCompanion(
@@ -41263,6 +41315,7 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
       workEnd: workEnd ?? this.workEnd,
       branchId: branchId ?? this.branchId,
       staffNumber: staffNumber ?? this.staffNumber,
+      recoveryHash: recoveryHash ?? this.recoveryHash,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -41342,6 +41395,9 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
     if (staffNumber.present) {
       map['staff_number'] = Variable<String>(staffNumber.value);
     }
+    if (recoveryHash.present) {
+      map['recovery_hash'] = Variable<String>(recoveryHash.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -41375,6 +41431,7 @@ class StaffMembersCompanion extends UpdateCompanion<StaffRow> {
           ..write('workEnd: $workEnd, ')
           ..write('branchId: $branchId, ')
           ..write('staffNumber: $staffNumber, ')
+          ..write('recoveryHash: $recoveryHash, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -75537,6 +75594,7 @@ typedef $$StaffMembersTableCreateCompanionBuilder =
       Value<int?> workEnd,
       Value<String?> branchId,
       Value<String?> staffNumber,
+      Value<String?> recoveryHash,
       Value<int> rowid,
     });
 typedef $$StaffMembersTableUpdateCompanionBuilder =
@@ -75565,6 +75623,7 @@ typedef $$StaffMembersTableUpdateCompanionBuilder =
       Value<int?> workEnd,
       Value<String?> branchId,
       Value<String?> staffNumber,
+      Value<String?> recoveryHash,
       Value<int> rowid,
     });
 
@@ -75729,6 +75788,11 @@ class $$StaffMembersTableFilterComposer
 
   ColumnFilters<String> get staffNumber => $composableBuilder(
     column: $table.staffNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get recoveryHash => $composableBuilder(
+    column: $table.recoveryHash,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -75905,6 +75969,11 @@ class $$StaffMembersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get recoveryHash => $composableBuilder(
+    column: $table.recoveryHash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$RolesTableOrderingComposer get roleId {
     final $$RolesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -76015,6 +76084,11 @@ class $$StaffMembersTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get recoveryHash => $composableBuilder(
+    column: $table.recoveryHash,
+    builder: (column) => column,
+  );
+
   $$RolesTableAnnotationComposer get roleId {
     final $$RolesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -76116,6 +76190,7 @@ class $$StaffMembersTableTableManager
                 Value<int?> workEnd = const Value.absent(),
                 Value<String?> branchId = const Value.absent(),
                 Value<String?> staffNumber = const Value.absent(),
+                Value<String?> recoveryHash = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StaffMembersCompanion(
                 id: id,
@@ -76142,6 +76217,7 @@ class $$StaffMembersTableTableManager
                 workEnd: workEnd,
                 branchId: branchId,
                 staffNumber: staffNumber,
+                recoveryHash: recoveryHash,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -76170,6 +76246,7 @@ class $$StaffMembersTableTableManager
                 Value<int?> workEnd = const Value.absent(),
                 Value<String?> branchId = const Value.absent(),
                 Value<String?> staffNumber = const Value.absent(),
+                Value<String?> recoveryHash = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StaffMembersCompanion.insert(
                 id: id,
@@ -76196,6 +76273,7 @@ class $$StaffMembersTableTableManager
                 workEnd: workEnd,
                 branchId: branchId,
                 staffNumber: staffNumber,
+                recoveryHash: recoveryHash,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

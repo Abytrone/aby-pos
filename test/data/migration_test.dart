@@ -25,11 +25,11 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  for (final from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]) {
-    test('v$from to v20 gives exactly the v20 schema', () async {
+  for (final from in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]) {
+    test('v$from to v21 gives exactly the v21 schema', () async {
       final schema = await verifier.schemaAt(from);
       final db = AppDatabase(schema.newConnection(), false);
-      await verifier.migrateAndValidate(db, 20);
+      await verifier.migrateAndValidate(db, 21);
       await db.close();
     });
   }

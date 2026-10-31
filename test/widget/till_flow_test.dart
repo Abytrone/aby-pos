@@ -33,6 +33,18 @@ Future<void> _signIn(WidgetTester tester, String number, String pin) async {
   await _typePin(tester, pin);
 }
 
+/// The new owner's recovery code: Done waits until it is written down.
+Future<void> _writeDownRecoveryCode(WidgetTester tester) async {
+  expect(find.text('Your recovery code'), findsOneWidget);
+  await tester.tap(find.text('Done'));
+  await _settle(tester);
+  expect(find.text('Your recovery code'), findsOneWidget, reason: 'not until it is written down');
+  await tester.tap(find.text("I've written it down"));
+  await tester.pump();
+  await tester.tap(find.text('Done'));
+  await _settle(tester);
+}
+
 /// Unmounts the app and disposes every service, so their timers and drift
 /// streams stop before the test ends.
 Future<void> _dispose(WidgetTester tester) async {
@@ -1065,6 +1077,7 @@ void main() {
     await tester.ensureVisible(find.text('Create owner and start'));
     await tester.tap(find.text('Create owner and start'));
     await _settle(tester);
+    await _writeDownRecoveryCode(tester);
 
     expect(find.text('Food'), findsWidgets);
     expect(find.text('Vanilla cone'), findsNothing);
@@ -1097,6 +1110,7 @@ void main() {
     await tester.ensureVisible(find.text('Create owner and start'));
     await tester.tap(find.text('Create owner and start'));
     await _settle(tester);
+    await _writeDownRecoveryCode(tester);
 
     // Phones get a bottom bar instead of the rail.
     expect(find.byType(NavigationBar), findsOneWidget);

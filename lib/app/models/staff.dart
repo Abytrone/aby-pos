@@ -81,9 +81,13 @@ class StaffProfile {
     this.workStart,
     this.workEnd,
     this.branchId,
+    this.hasRecoveryCode = false,
   });
 
   final Staff staff;
+
+  /// An owner has a code to set a new PIN with if they forget it.
+  final bool hasRecoveryCode;
 
   /// Where they work; null for every branch.
   final String? branchId;

@@ -4,6 +4,7 @@ import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../../core/permissions.dart';
+import '../../core/pin_reset.dart';
 import '../../models/audit.dart';
 import '../../models/staff.dart';
 import '../../services/device_service.dart';
@@ -222,6 +223,7 @@ class StaffRepository {
       workStart: row.workStart,
       workEnd: row.workEnd,
       branchId: row.branchId,
+      hasRecoveryCode: row.recoveryHash != null,
     );
   }
 
@@ -369,6 +371,72 @@ class StaffRepository {
       throw const StaffException('The current PIN is wrong.');
     }
     await changePin(me.id, newPin, by: me);
+  }
+
+  /// A new recovery code for an owner (the old one stops working). Returns
+  /// the code, to show once; only its hash is kept.
+  Future<String> newRecoveryCode(String staffId, {required Staff by}) async {
+    final row = await _requireRow(staffId);
+    final person = (await find(staffId))!;
+    if (!person.isOwner) throw const StaffException('Only owners have a recovery code.');
+    final code = RecoveryCode.generate();
+    await _db.transaction(() async {
+      await _db.updateTracked(
+        _db.staffMembers,
+        row.copyWith(recoveryHash: Value(PinHasher.hash(RecoveryCode.normalize(code))), updatedAt: clock.now()),
+      );
+      await _audit.record(
+        action: AuditAction.staffRecoveryCodeMade,
+        actor: by,
+        entity: 'staff',
+        entityId: staffId,
+        summary: 'New recovery code for ${row.name}',
+      );
+    });
+    return code;
+  }
+
+  /// The active owner with this staff number, or null.
+  Future<Staff?> ownerWithNumber(String number) async =>
+      (await list()).where((s) => s.isOwner && s.number == number.trim()).firstOrNull;
+
+  /// The active owner with this staff number and recovery code, or null.
+  Future<Staff?> ownerWithRecoveryCode(String number, String code) async {
+    final typed = RecoveryCode.normalize(code);
+    for (final s in await list()) {
+      if (!s.isOwner || s.number != number.trim()) continue;
+      final hash = (await _row(s.id))?.recoveryHash;
+      if (hash != null && PinHasher.verify(typed, hash)) return s;
+    }
+    return null;
+  }
+
+  /// A forgotten PIN replaced, after a recovery code or the supplier's
+  /// reset code ([how], for the log) proved who it is. The recovery code is
+  /// used up: returns the new one, to show once.
+  Future<String> resetForgottenPin(String staffId, String pin, {required String how}) async {
+    _checkPin(pin);
+    final code = RecoveryCode.generate();
+    await _db.transaction(() async {
+      final row = await _requireRow(staffId);
+      final person = (await find(staffId))!;
+      await _db.updateTracked(
+        _db.staffMembers,
+        row.copyWith(
+          pinHash: PinHasher.hash(pin),
+          recoveryHash: Value(PinHasher.hash(RecoveryCode.normalize(code))),
+          updatedAt: clock.now(),
+        ),
+      );
+      await _audit.record(
+        action: AuditAction.staffPinReset,
+        actor: person,
+        entity: 'staff',
+        entityId: staffId,
+        summary: '${row.name} set a new PIN with $how',
+      );
+    });
+    return code;
   }
 
   Future<Uint8List?> photo(String staffId) async {

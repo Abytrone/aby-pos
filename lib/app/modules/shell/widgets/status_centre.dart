@@ -28,7 +28,9 @@ Future<void> showStatusCentre() {
       title: Text(l.statusCentreTitle),
       content: SizedBox(
         width: 460,
-        child: Obx(() => Column(
+        // Scrolls on short phones, where every check with its fix is too tall.
+        child: SingleChildScrollView(
+          child: Obx(() => Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 for (final check in status.checks)
@@ -51,6 +53,7 @@ Future<void> showStatusCentre() {
                   ),
               ],
             )),
+        ),
       ),
       actions: [
         DialogButtons(children: [FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
@@ -67,6 +70,7 @@ String _title(AppLocalizations l, StatusItem item) => switch (item) {
       StatusItem.sync => l.statusSync,
       StatusItem.printer => l.statusPrinter,
       StatusItem.accounts => l.statusAccounts,
+      StatusItem.recovery => l.statusRecovery,
     };
 
 String _detail(AppLocalizations l, StatusCheck check) => switch (check.item) {
@@ -81,6 +85,7 @@ String _detail(AppLocalizations l, StatusCheck check) => switch (check.item) {
       StatusItem.printer => check.detail == null
           ? l.statusPrinterReady
           : '${l.statusPrintsWaiting(check.count ?? 0)} ${check.detail}',
+      StatusItem.recovery => check.level == StatusLevel.ok ? l.statusRecoveryOk : l.statusRecoveryMissing,
       StatusItem.accounts => check.detail != null
           ? l.statusAccountsFailed
           : check.at == null
@@ -105,6 +110,13 @@ Widget? _action(AppLocalizations l, StatusCheck check, BackupController backups,
         TextButton(onPressed: Get.find<PrintService>().clearQueue, child: Text(l.printClear)),
         TextButton(onPressed: Get.find<PrintService>().retryNow, child: Text(l.commonTryAgain)),
       ]),
+    StatusItem.recovery => TextButton(
+        onPressed: () {
+          goBack<void>();
+          shell.openMyProfile();
+        },
+        child: Text(l.recoveryMake),
+      ),
     StatusItem.accounts => TextButton(
         onPressed: () async {
           await Get.find<AccountsExportService>().exportIfDue();

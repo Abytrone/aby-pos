@@ -18,7 +18,9 @@ import '../../../services/permission_service.dart';
 import '../../../services/pin_hasher.dart';
 import '../../../services/settings_service.dart';
 import '../../../services/staff_photo_service.dart';
+import '../../../services/status_service.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/recovery_code_dialog.dart';
 import '../widgets/badge_dialog.dart';
 import '../../../ui/photo_picker.dart';
 import '../../staff/controllers/staff_controller.dart';
@@ -266,6 +268,17 @@ class StaffProfileController extends GetxController {
         final name = profile.value!.staff.name;
         message.value = active ? l.staffReactivated(name) : l.staffDeactivated(name);
       });
+
+  /// An owner makes a new recovery code (the old one stops working),
+  /// after typing their PIN again: an unattended till is not enough.
+  Future<void> newRecoveryCode() async {
+    if (!await confirmOwnPin(appL10n().recoveryConfirmPin)) return;
+    await _run(() async {
+      final code = await _staff.newRecoveryCode(me.id, by: me);
+      await showRecoveryCode(code);
+      if (Get.isRegistered<StatusService>()) await Get.find<StatusService>().refresh(checkChain: false);
+    });
+  }
 
   /// A new sign-in badge, printed on the receipt printer or shared as a PDF.
   Future<void> newBadge() => _run(() async {

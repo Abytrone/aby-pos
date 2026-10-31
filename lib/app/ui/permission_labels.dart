@@ -134,4 +134,6 @@ String auditActionLabel(AppLocalizations l, AuditAction a) => switch (a) {
   AuditAction.trainingStarted => l.auditTrainingStarted,
   AuditAction.momoChargesSet => l.auditMomoChargesSet,
   AuditAction.licenseActivated => l.auditLicenseActivated,
+  AuditAction.staffRecoveryCodeMade => l.auditStaffRecoveryCodeMade,
+  AuditAction.staffPinReset => l.auditStaffPinReset,
 };

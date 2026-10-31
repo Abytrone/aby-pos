@@ -840,6 +840,10 @@ class StaffMembers extends Table with SyncColumns {
   /// Typed before the PIN at sign-in ("101"), so the screen never lists
   /// names and two people may share a PIN. Not secret. v20.
   TextColumn get staffNumber => text().nullable()();
+
+  /// An owner's recovery code, hashed like a PIN: sets a new PIN when the
+  /// old one is forgotten. Null for none. v21.
+  TextColumn get recoveryHash => text().nullable()();
 }
 
 /// Staff photos, small and kept apart from staff rows so they stay out of

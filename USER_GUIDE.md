@@ -103,6 +103,8 @@ To **set up your shop**:
 3. **Your PIN.** You're the owner. Pick a 4-digit PIN. You use it to sign in and to approve things
    like voids. Don't share it.
 4. Tap **Create owner and start**.
+5. Aby shows your **recovery code** (like `K7QM-4XPA-9TRB`). Write it down and keep it away from
+   the till. If you ever forget your PIN, it lets you set a new one. Aby shows it only this once.
 
 You are **staff number 101**. While you are the only person, Aby asks just for your PIN. Once
 you add staff, everyone signs in with their staff number and then their PIN.
@@ -1381,8 +1383,17 @@ items taken off carts. Turn on **blind count** so counts are honest.
 Someone with *Manage staff* opens their page in Staff and sets a new PIN.
 
 **The owner forgot their PIN.**
-Another owner, or anyone with *Manage staff*, can set a new one. If there is no one, contact your
-Aby supplier. Keep your PIN safe.
+Another owner, or anyone with *Manage staff*, can set a new one. If there is no one, tap
+**Forgot your PIN?** on the sign-in screen:
+
+- **I have my recovery code:** type your staff number and the code, then choose a new PIN.
+- **Ask my Aby supplier:** type your staff number and Aby shows a **request code**. Send it to your
+  supplier with your shop's name. Once they've checked it's you, they send back a reset code.
+  Paste it in and choose a new PIN. It works once, on that till.
+
+Either way you're signed in and get a **new recovery code** to write down. The old one stops
+working. Lost your recovery code but still know your PIN? Make a new one from **My profile → PIN
+recovery**. The status dot warns owners who don't have one.
 
 **I forgot the backup password.**
 Old `.abybak` files can't be opened without it. Set a new password (Settings → Backup → **Change the

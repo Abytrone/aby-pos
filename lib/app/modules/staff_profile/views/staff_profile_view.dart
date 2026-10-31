@@ -284,6 +284,18 @@ class _Details extends GetView<StaffProfileController> {
             },
           ),
         ]),
+      if (controller.isMe && profile.staff.isOwner)
+        GroupCard(title: l.recoverySection, children: [
+          InfoTile(
+            title: profile.hasRecoveryCode ? l.recoveryHas : l.recoveryNone,
+            subtitle: l.recoveryHelp,
+            leading: const Icon(Icons.key_outlined),
+            trailing: TextButton(
+              onPressed: controller.newRecoveryCode,
+              child: Text(profile.hasRecoveryCode ? l.recoveryMakeNew : l.recoveryMake),
+            ),
+          ),
+        ]),
       GroupCard(title: l.profileContact, children: [
         copyable(l.profilePhone, phone(profile.phone)),
         copyable(l.profileEmail, profile.email),

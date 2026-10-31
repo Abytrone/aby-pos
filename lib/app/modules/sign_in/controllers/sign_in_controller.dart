@@ -14,6 +14,8 @@ import '../../../core/settings.dart';
 import '../../../services/device_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/recovery_code_dialog.dart';
+import '../widgets/forgot_pin.dart';
 
 /// "Who's on the till?": staff number, then PIN. No names are shown, so
 /// nobody standing at the till learns who works here. A badge, or being the
@@ -90,6 +92,15 @@ class SignInController extends GetxController {
     fromBadge.value = false;
     known.value = null;
     padKey.value++;
+  }
+
+  /// An owner who forgot their PIN gets back in, and sees their new
+  /// recovery code before the till opens.
+  Future<void> forgotPin() async {
+    final code = await showForgotPin();
+    if (code == null) return;
+    await showRecoveryCode(code);
+    await Get.offAllNamed<void>(Routes.shell);
   }
 
   Future<void> _load() async {

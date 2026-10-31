@@ -64,6 +64,7 @@ class SignInView extends GetView<SignInController> {
               ),
               if (fromBadge)
                 TextButton(onPressed: controller.useNumber, child: Text(context.l10n.signInUseNumber)),
+              TextButton(onPressed: controller.forgotPin, child: Text(context.l10n.forgotPinLink)),
             ],
           );
           return LayoutBuilder(builder: (context, constraints) {

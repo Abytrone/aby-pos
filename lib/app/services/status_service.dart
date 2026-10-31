@@ -4,8 +4,10 @@ import 'package:get/get.dart';
 
 import '../core/settings.dart';
 import '../data/repositories/audit_repository.dart';
+import '../data/repositories/staff_repository.dart';
 import '../models/audit.dart';
 import 'accounts_export_service.dart';
+import 'auth_service.dart';
 import 'backup/backup_service.dart';
 import 'printing/print_service.dart';
 import 'settings_service.dart';
@@ -13,7 +15,7 @@ import 'sync_service.dart';
 
 enum StatusLevel { ok, info, warning, problem }
 
-enum StatusItem { localBackup, offsiteBackup, activityLog, sync, printer, accounts }
+enum StatusItem { localBackup, offsiteBackup, activityLog, sync, printer, accounts, recovery }
 
 class StatusCheck {
   const StatusCheck(this.item, this.level, {this.at, this.count, this.detail});
@@ -48,7 +50,7 @@ class StatusService extends GetxService {
 
   Timer? _timer;
   StreamSubscription<int>? _syncSub;
-  Worker? _printWorker, _onlineWorker;
+  Worker? _printWorker, _onlineWorker, _userWorker;
 
   StatusLevel get overall => checks.fold(
         StatusLevel.ok,
@@ -64,6 +66,9 @@ class StatusService extends GetxService {
     if (Get.isRegistered<PrintService>()) {
       _printWorker = ever(Get.find<PrintService>().queue, (_) => refresh(checkChain: false));
     }
+    if (Get.isRegistered<AuthService>()) {
+      _userWorker = ever(Get.find<AuthService>().currentUser, (_) => refresh(checkChain: false));
+    }
   }
 
   @override
@@ -72,6 +77,7 @@ class StatusService extends GetxService {
     _syncSub?.cancel();
     _printWorker?.dispose();
     _onlineWorker?.dispose();
+    _userWorker?.dispose();
     super.onClose();
   }
 
@@ -95,6 +101,11 @@ class StatusService extends GetxService {
     final accounts = Get.isRegistered<AccountsExportService>() ? Get.find<AccountsExportService>() : null;
     final accountsProblem = accounts != null && accounts.isOn ? await accounts.problem() : null;
     final accountsAt = accounts != null && accounts.isOn ? await accounts.lastExportAt() : null;
+    // An owner without a recovery code needs the supplier for a lost PIN.
+    final user = Get.isRegistered<AuthService>() ? Get.find<AuthService>().currentUser.value : null;
+    final hasRecovery = user != null && user.isOwner && Get.isRegistered<StaffRepository>()
+        ? (await Get.find<StaffRepository>().profile(user.id))?.hasRecoveryCode
+        : null;
     checks.assignAll([
       StatusCheck(StatusItem.localBackup,
           age(local, const Duration(days: 2), const Duration(days: 7)),
@@ -121,6 +132,8 @@ class StatusService extends GetxService {
           count: printer.queue.length,
           detail: printer.problem,
         ),
+      if (hasRecovery != null)
+        StatusCheck(StatusItem.recovery, hasRecovery ? StatusLevel.ok : StatusLevel.warning),
       if (accounts != null && accounts.isOn)
         StatusCheck(
           StatusItem.accounts,

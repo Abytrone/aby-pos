@@ -11865,6 +11865,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You can also type it on the keyboard'**
   String get digitsKeyboardWorks;
+
+  /// No description provided for @auditStaffRecoveryCodeMade.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery code made'**
+  String get auditStaffRecoveryCodeMade;
+
+  /// No description provided for @auditStaffPinReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgotten PIN reset'**
+  String get auditStaffPinReset;
+
+  /// No description provided for @forgotPinLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your PIN?'**
+  String get forgotPinLink;
+
+  /// No description provided for @forgotPinIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff: ask a manager or the owner to set a new PIN for you under Staff.\n\nOwners can get back in here.'**
+  String get forgotPinIntro;
+
+  /// No description provided for @forgotPinUseCode.
+  ///
+  /// In en, this message translates to:
+  /// **'I have my recovery code'**
+  String get forgotPinUseCode;
+
+  /// No description provided for @forgotPinAskSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask my Aby supplier'**
+  String get forgotPinAskSupplier;
+
+  /// No description provided for @recoveryCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery code'**
+  String get recoveryCodeLabel;
+
+  /// No description provided for @recoveryCodeWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That staff number and recovery code don\'t match an owner.'**
+  String get recoveryCodeWrong;
+
+  /// No description provided for @supplierRequestIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Send this request code to your Aby supplier with your shop\'s name. They will check it\'s you and send back a reset code.'**
+  String get supplierRequestIntro;
+
+  /// No description provided for @supplierRequestCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Request code'**
+  String get supplierRequestCode;
+
+  /// No description provided for @supplierResetCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset code from the supplier'**
+  String get supplierResetCode;
+
+  /// No description provided for @supplierResetWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That reset code doesn\'t match this request, or the staff number isn\'t an owner\'s.'**
+  String get supplierResetWrong;
+
+  /// No description provided for @supplierGetRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a request code'**
+  String get supplierGetRequest;
+
+  /// No description provided for @newPinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a new PIN'**
+  String get newPinTitle;
+
+  /// No description provided for @newPinSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and sign in'**
+  String get newPinSave;
+
+  /// No description provided for @recoveryCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your recovery code'**
+  String get recoveryCodeTitle;
+
+  /// No description provided for @recoveryCodeIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'If you forget your PIN, this code lets you set a new one. Write it down and keep it somewhere safe, away from the till. Aby won\'t show it again.'**
+  String get recoveryCodeIntro;
+
+  /// No description provided for @recoveryCodeOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'It works once. After you use it, Aby gives you a new one.'**
+  String get recoveryCodeOnce;
+
+  /// No description provided for @recoveryCodeWritten.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ve written it down'**
+  String get recoveryCodeWritten;
+
+  /// No description provided for @recoverySection.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN recovery'**
+  String get recoverySection;
+
+  /// No description provided for @recoveryHas.
+  ///
+  /// In en, this message translates to:
+  /// **'You have a recovery code'**
+  String get recoveryHas;
+
+  /// No description provided for @recoveryNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No recovery code yet'**
+  String get recoveryNone;
+
+  /// No description provided for @recoveryHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets a new PIN if you forget yours. Making a new code stops the old one working.'**
+  String get recoveryHelp;
+
+  /// No description provided for @recoveryMake.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a code'**
+  String get recoveryMake;
+
+  /// No description provided for @recoveryMakeNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a new code'**
+  String get recoveryMakeNew;
+
+  /// No description provided for @recoveryConfirmPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Your PIN, to make a new code'**
+  String get recoveryConfirmPin;
+
+  /// No description provided for @statusRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN recovery code'**
+  String get statusRecovery;
+
+  /// No description provided for @statusRecoveryMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no recovery code. Without one, a forgotten PIN needs your Aby supplier.'**
+  String get statusRecoveryMissing;
+
+  /// No description provided for @statusRecoveryOk.
+  ///
+  /// In en, this message translates to:
+  /// **'You have one.'**
+  String get statusRecoveryOk;
 }
 
 class _AppLocalizationsDelegate

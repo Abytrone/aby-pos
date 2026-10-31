@@ -49,6 +49,7 @@ import '../services/insight_service.dart';
 import '../services/license_service.dart';
 import '../services/display/display_service.dart';
 import '../services/notification_service.dart';
+import '../services/pin_recovery_service.dart';
 import '../services/permission_service.dart';
 import '../services/price_scheduler.dart';
 import '../services/printing/print_service.dart';
@@ -155,6 +156,13 @@ class InitialBinding extends Bindings {
       permanent: true,
     );
     Get.put(HubService(db, device, sync: sync, licenses: licenses), permanent: true);
+    Get.put(
+      PinRecoveryService(db, Get.find(), auth, deviceCode: () async {
+        if (licenses.machineCode.isEmpty) await licenses.load();
+        return licenses.machineCode;
+      }),
+      permanent: true,
+    );
     Get.put(TrainingService(db, audit: audit), permanent: true);
     final backups = Get.put(BackupService(db, audit, settings), permanent: true);
     Get.lazyPut(() => BranchMerge(db, audit, backups), fenix: true);

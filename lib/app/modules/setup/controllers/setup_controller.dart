@@ -14,6 +14,7 @@ import '../../../services/pin_hasher.dart';
 import '../../../services/settings_service.dart';
 import '../../../services/template_service.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/recovery_code_dialog.dart';
 import '../../settings/controllers/backup_controller.dart';
 import '../../settings/widgets/hub_devices.dart';
 
@@ -79,7 +80,9 @@ class SetupController extends GetxController {
       );
       await _settings.set(AppSettings.shopName, shopField.text.trim(), by: owner);
       await TemplateService(Get.find<CatalogRepository>(), _settings).apply(type.value, by: owner);
+      final recoveryCode = await _staff.newRecoveryCode(owner.id, by: owner);
       _auth.signInAsNew(owner);
+      await showRecoveryCode(recoveryCode);
       await Get.offAllNamed<void>(Routes.shell);
     } on StaffException catch (e) {
       error.value = e.message;

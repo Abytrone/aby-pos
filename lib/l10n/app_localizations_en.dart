@@ -7023,4 +7023,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get digitsKeyboardWorks => 'You can also type it on the keyboard';
+
+  @override
+  String get auditStaffRecoveryCodeMade => 'Recovery code made';
+
+  @override
+  String get auditStaffPinReset => 'Forgotten PIN reset';
+
+  @override
+  String get forgotPinLink => 'Forgot your PIN?';
+
+  @override
+  String get forgotPinIntro =>
+      'Staff: ask a manager or the owner to set a new PIN for you under Staff.\n\nOwners can get back in here.';
+
+  @override
+  String get forgotPinUseCode => 'I have my recovery code';
+
+  @override
+  String get forgotPinAskSupplier => 'Ask my Aby supplier';
+
+  @override
+  String get recoveryCodeLabel => 'Recovery code';
+
+  @override
+  String get recoveryCodeWrong =>
+      'That staff number and recovery code don\'t match an owner.';
+
+  @override
+  String get supplierRequestIntro =>
+      'Send this request code to your Aby supplier with your shop\'s name. They will check it\'s you and send back a reset code.';
+
+  @override
+  String get supplierRequestCode => 'Request code';
+
+  @override
+  String get supplierResetCode => 'Reset code from the supplier';
+
+  @override
+  String get supplierResetWrong =>
+      'That reset code doesn\'t match this request, or the staff number isn\'t an owner\'s.';
+
+  @override
+  String get supplierGetRequest => 'Get a request code';
+
+  @override
+  String get newPinTitle => 'Set a new PIN';
+
+  @override
+  String get newPinSave => 'Save and sign in';
+
+  @override
+  String get recoveryCodeTitle => 'Your recovery code';
+
+  @override
+  String get recoveryCodeIntro =>
+      'If you forget your PIN, this code lets you set a new one. Write it down and keep it somewhere safe, away from the till. Aby won\'t show it again.';
+
+  @override
+  String get recoveryCodeOnce =>
+      'It works once. After you use it, Aby gives you a new one.';
+
+  @override
+  String get recoveryCodeWritten => 'I\'ve written it down';
+
+  @override
+  String get recoverySection => 'PIN recovery';
+
+  @override
+  String get recoveryHas => 'You have a recovery code';
+
+  @override
+  String get recoveryNone => 'No recovery code yet';
+
+  @override
+  String get recoveryHelp =>
+      'Sets a new PIN if you forget yours. Making a new code stops the old one working.';
+
+  @override
+  String get recoveryMake => 'Make a code';
+
+  @override
+  String get recoveryMakeNew => 'Make a new code';
+
+  @override
+  String get recoveryConfirmPin => 'Your PIN, to make a new code';
+
+  @override
+  String get statusRecovery => 'PIN recovery code';
+
+  @override
+  String get statusRecoveryMissing =>
+      'You have no recovery code. Without one, a forgotten PIN needs your Aby supplier.';
+
+  @override
+  String get statusRecoveryOk => 'You have one.';
 }

@@ -35,6 +35,9 @@ class AuthService extends GetxService {
   /// Lockout key for approvals, which are not tied to one person.
   static const _approvalKey = '#approval';
 
+  /// Lockout key for recovery codes.
+  static const _recoveryKey = '#recovery';
+
   bool get isSignedIn => currentUser.value != null;
 
   /// The signed-in person. Only call where sign-in is guaranteed (the
@@ -112,6 +115,40 @@ class AuthService extends GetxService {
       );
       throw const LockedOutException(lockout);
     }
+    return null;
+  }
+
+  /// The signed-in person's own PIN, asked again before something
+  /// sensitive. Shares their sign-in lockout; does not sign in again.
+  Future<SignInResult> confirmOwnPin(String pin) async {
+    final me = user;
+    final key = me.number ?? me.id;
+    if (lockedFor(key) != null) return SignInResult.lockedOut;
+    if (await _staff.verifyPin(me.id, pin)) {
+      _failures.remove(key);
+      return SignInResult.ok;
+    }
+    return _wrongPin(key, me, me.name);
+  }
+
+  /// The owner with this staff number and recovery code, or null. Throws
+  /// [LockedOutException] after [maxAttempts] wrong tries.
+  Future<Staff?> ownerWithRecoveryCode(String number, String code) async {
+    final wait = lockedFor(_recoveryKey);
+    if (wait != null) throw LockedOutException(wait);
+    final owner = await _staff.ownerWithRecoveryCode(number, code);
+    if (owner != null) {
+      _failures.remove(_recoveryKey);
+      return owner;
+    }
+    final locked = _fail(_recoveryKey);
+    await _audit.record(
+      action: locked ? AuditAction.lockedOut : AuditAction.signInFailed,
+      summary: locked
+          ? 'Recovery codes locked after $maxAttempts wrong tries'
+          : 'Wrong recovery code for staff number $number',
+    );
+    if (locked) throw const LockedOutException(lockout);
     return null;
   }
 
