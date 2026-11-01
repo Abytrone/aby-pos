@@ -6,6 +6,8 @@ import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
 import '../../../data/repositories/stock_repository.dart';
 import '../../../domain/catalogue_io.dart';
+import '../../../data/repositories/catalog_repository.dart' show CatalogueException;
+import '../../../domain/stock_io.dart';
 import '../../../models/drafts.dart';
 import '../../../models/staff.dart';
 import '../../../models/stock.dart';
@@ -14,6 +16,7 @@ import '../../../services/auth_service.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../ui/export_dialog.dart';
+import '../../../ui/files.dart';
 import '../../../ui/l10n.dart';
 
 enum StockFilter { all, low, retired }
@@ -109,5 +112,33 @@ class StockController extends GetxController {
       csv: io.exportStock(items),
       csvImports: true,
     );
+  }
+
+  /// A filled-in example file to edit and import.
+  Future<void> downloadSample() => shareOrSaveText('aby-stock-sample.csv', Get.find<StockIo>().sampleStock());
+
+  /// Reads a CSV and returns what it would do (nothing saved yet).
+  Future<StockImportPreview?> previewImport() async {
+    final text = await pickTextFile();
+    if (text == null) return null;
+    return Get.find<StockIo>().previewStock(text);
+  }
+
+  /// Saves an import. Returns true when saved.
+  Future<bool> applyImport(StockImportPreview preview) async {
+    final auth = await _permissions.authorize(Permission.editProducts, reason: appL10n().stockEditReason);
+    if (auth == null) return false;
+    try {
+      await Get.find<StockIo>().applyStock(preview, by: auth.authority);
+      message.value = appL10n().importDone(preview.newItems, preview.updatedItems);
+      await load();
+      return true;
+    } on StockException catch (e) {
+      message.value = e.message;
+      return false;
+    } on CatalogueException catch (e) {
+      message.value = e.message;
+      return false;
+    }
   }
 }

@@ -1804,6 +1804,18 @@ abstract class AppLocalizations {
   /// **'Products imported'**
   String get auditCatalogueImported;
 
+  /// No description provided for @auditStockImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock imported'**
+  String get auditStockImported;
+
+  /// No description provided for @auditProductsFromStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Products made from stock'**
+  String get auditProductsFromStock;
+
   /// No description provided for @cartTax.
   ///
   /// In en, this message translates to:
@@ -12405,6 +12417,455 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{label} +{count}'**
   String statusChipMore(String label, int count);
+
+  /// No description provided for @saleDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale {number}'**
+  String saleDetailTitle(String number);
+
+  /// No description provided for @saleDetailServedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Served by {name}'**
+  String saleDetailServedBy(String name);
+
+  /// No description provided for @saleDetailOrderNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {number}'**
+  String saleDetailOrderNumber(String number);
+
+  /// No description provided for @saleDetailVoided.
+  ///
+  /// In en, this message translates to:
+  /// **'Voided by {name}, {when}. It counts for nothing.'**
+  String saleDetailVoided(String name, String when);
+
+  /// No description provided for @saleDetailRefunded.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} refunded'**
+  String saleDetailRefunded(String amount);
+
+  /// No description provided for @saleDetailRefundedAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded in full'**
+  String get saleDetailRefundedAll;
+
+  /// No description provided for @saleDetailItems.
+  ///
+  /// In en, this message translates to:
+  /// **'What was bought'**
+  String get saleDetailItems;
+
+  /// No description provided for @saleDetailPriceChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu price {price}, changed by {name}'**
+  String saleDetailPriceChanged(String price, String name);
+
+  /// No description provided for @saleDetailPriceTyped.
+  ///
+  /// In en, this message translates to:
+  /// **'Price typed at the till (suggested {price})'**
+  String saleDetailPriceTyped(String price);
+
+  /// No description provided for @saleDetailDiscountTag.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} off: {reason}'**
+  String saleDetailDiscountTag(String label, String reason);
+
+  /// No description provided for @saleDetailApprovedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'approved by {name}'**
+  String saleDetailApprovedBy(String name);
+
+  /// No description provided for @saleDetailPromotion.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotion'**
+  String get saleDetailPromotion;
+
+  /// No description provided for @saleDetailSubtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get saleDetailSubtotal;
+
+  /// No description provided for @saleDetailItemDiscounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Item discounts'**
+  String get saleDetailItemDiscounts;
+
+  /// No description provided for @saleDetailPromotions.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotions'**
+  String get saleDetailPromotions;
+
+  /// No description provided for @saleDetailOrderDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Order discount'**
+  String get saleDetailOrderDiscount;
+
+  /// No description provided for @saleDetailTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax'**
+  String get saleDetailTax;
+
+  /// No description provided for @saleDetailTaxIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes tax'**
+  String get saleDetailTaxIncluded;
+
+  /// No description provided for @saleDetailRounding.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounding'**
+  String get saleDetailRounding;
+
+  /// No description provided for @saleDetailTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get saleDetailTotal;
+
+  /// No description provided for @saleDetailPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get saleDetailPayments;
+
+  /// No description provided for @saleDetailGiven.
+  ///
+  /// In en, this message translates to:
+  /// **'Given {amount}'**
+  String saleDetailGiven(String amount);
+
+  /// No description provided for @saleDetailChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change {amount}'**
+  String saleDetailChange(String amount);
+
+  /// No description provided for @saleDetailRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Ref {reference}'**
+  String saleDetailRef(String reference);
+
+  /// No description provided for @saleDetailCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost'**
+  String get saleDetailCost;
+
+  /// No description provided for @saleDetailProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit'**
+  String get saleDetailProfit;
+
+  /// No description provided for @saleDetailMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin'**
+  String get saleDetailMargin;
+
+  /// No description provided for @saleDetailRefunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunds'**
+  String get saleDetailRefunds;
+
+  /// No description provided for @saleDetailRefundLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{number}  ·  {when}  ·  {name}: {reason}'**
+  String saleDetailRefundLine(
+    String number,
+    String when,
+    String name,
+    String reason,
+  );
+
+  /// No description provided for @saleDetailHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get saleDetailHistory;
+
+  /// No description provided for @saleDetailNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get saleDetailNote;
+
+  /// No description provided for @saleDetailGone.
+  ///
+  /// In en, this message translates to:
+  /// **'This sale could not be found.'**
+  String get saleDetailGone;
+
+  /// No description provided for @saleDetailOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'See the whole sale'**
+  String get saleDetailOpen;
+
+  /// No description provided for @todayDiscountOff.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} off'**
+  String todayDiscountOff(String amount);
+
+  /// No description provided for @todayMoreItems.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String todayMoreItems(int count);
+
+  /// No description provided for @stockImportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import stock'**
+  String get stockImportTitle;
+
+  /// No description provided for @stockImportIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Add or update many stock items at once from a spreadsheet: one row per item. The counts in the file become what you have on hand.'**
+  String get stockImportIntro;
+
+  /// No description provided for @stockImportStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Download the sample, or start from the stock you already have.'**
+  String get stockImportStep1;
+
+  /// No description provided for @stockImportStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in your items in Excel or Google Sheets.'**
+  String get stockImportStep2;
+
+  /// No description provided for @stockImportColItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed. A name already here updates that item.'**
+  String get stockImportColItem;
+
+  /// No description provided for @stockImportColUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'How it is kept: piece, g or ml.'**
+  String get stockImportColUnit;
+
+  /// No description provided for @stockImportColCostPer.
+  ///
+  /// In en, this message translates to:
+  /// **'What the cost and counts are in: pcs, kg, g, L or ml.'**
+  String get stockImportColCostPer;
+
+  /// No description provided for @stockImportColCost.
+  ///
+  /// In en, this message translates to:
+  /// **'What you pay for one of cost_per, in cedis.'**
+  String get stockImportColCost;
+
+  /// No description provided for @stockImportColOnHand.
+  ///
+  /// In en, this message translates to:
+  /// **'How many you have now. Leave it empty to keep the count.'**
+  String get stockImportColOnHand;
+
+  /// No description provided for @stockImportColLowBelow.
+  ///
+  /// In en, this message translates to:
+  /// **'Warn when stock falls to this.'**
+  String get stockImportColLowBelow;
+
+  /// No description provided for @stockImportStartFromMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from my stock instead'**
+  String get stockImportStartFromMine;
+
+  /// No description provided for @stockImportFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing adds stock items and updates costs and counts. It never removes anything.'**
+  String get stockImportFooter;
+
+  /// No description provided for @stockImportRecounted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 count changes. It is recorded as an adjustment.} other{{count} counts change. Each is recorded as an adjustment.}}'**
+  String stockImportRecounted(int count);
+
+  /// No description provided for @stockImportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get stockImportButton;
+
+  /// No description provided for @fromStockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Products from stock'**
+  String get fromStockTitle;
+
+  /// No description provided for @fromStockButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Make products'**
+  String get fromStockButton;
+
+  /// No description provided for @fromStockIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Tick the stock items you sell as they are. Each becomes a product that takes stock off when sold, priced from its cost.'**
+  String get fromStockIntro;
+
+  /// No description provided for @fromStockMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin'**
+  String get fromStockMargin;
+
+  /// No description provided for @fromStockMarkup.
+  ///
+  /// In en, this message translates to:
+  /// **'Markup'**
+  String get fromStockMarkup;
+
+  /// No description provided for @fromStockMarginHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of each price is profit.'**
+  String fromStockMarginHelp(String percent);
+
+  /// No description provided for @fromStockMarkupHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% is added to each cost.'**
+  String fromStockMarkupHelp(String percent);
+
+  /// No description provided for @fromStockPercentInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a margin below 100%.'**
+  String get fromStockPercentInvalid;
+
+  /// No description provided for @fromStockCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get fromStockCategory;
+
+  /// No description provided for @fromStockNewCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'New category…'**
+  String get fromStockNewCategory;
+
+  /// No description provided for @fromStockNewCategoryName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name of the new category'**
+  String get fromStockNewCategoryName;
+
+  /// No description provided for @fromStockOnTill.
+  ///
+  /// In en, this message translates to:
+  /// **'Put them on the till'**
+  String get fromStockOnTill;
+
+  /// No description provided for @fromStockAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Tick all'**
+  String get fromStockAll;
+
+  /// No description provided for @fromStockNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Untick all'**
+  String get fromStockNone;
+
+  /// No description provided for @fromStockAlreadySold.
+  ///
+  /// In en, this message translates to:
+  /// **'Already sold as a product'**
+  String get fromStockAlreadySold;
+
+  /// No description provided for @fromStockNameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'A product has this name'**
+  String get fromStockNameTaken;
+
+  /// No description provided for @fromStockNoCost.
+  ///
+  /// In en, this message translates to:
+  /// **'No cost: tap the price to type one'**
+  String get fromStockNoCost;
+
+  /// No description provided for @fromStockCostLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost {amount}'**
+  String fromStockCostLine(String amount);
+
+  /// No description provided for @fromStockPerUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} per {unit}'**
+  String fromStockPerUnit(String amount, String unit);
+
+  /// No description provided for @fromStockProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} profit'**
+  String fromStockProfit(String amount);
+
+  /// No description provided for @fromStockTypePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price for {name}'**
+  String fromStockTypePrice(String name);
+
+  /// No description provided for @fromStockCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Make products} =1{Make 1 product} other{Make {count} products}}'**
+  String fromStockCreate(int count);
+
+  /// No description provided for @fromStockDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 product made.} other{{count} products made.}}'**
+  String fromStockDone(int count);
+
+  /// No description provided for @fromStockEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No stock items to make products from. Add stock items first, or import them.'**
+  String get fromStockEmpty;
+
+  /// No description provided for @fromStockReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Make products from stock'**
+  String get fromStockReason;
 }
 
 class _AppLocalizationsDelegate

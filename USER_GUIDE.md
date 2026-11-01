@@ -443,8 +443,20 @@ difference is paid or given back.
 
 ### 5.1 Today
 
-**Today** lists every sale of the business day on this till: number, time, items, payment, who
-sold it, and refunds or voids. At the top: **Total sales**, **Number of sales**, **Refunds**.
+**Today** lists every sale of the business day on this till: number, time, what was bought, who
+sold it, the customer, how it was paid, any discount, and refunds or voids. At the top: **Total
+sales**, **Number of sales**, **Refunds**.
+
+**Tap a sale** to see it in full:
+
+- every line, with its options and note;
+- **price changes** (the menu price, and who changed it);
+- **discounts**, with the reason and who approved them, and promotions;
+- the totals, tax and rounding, and each payment (cash given, change, MoMo reference);
+- **profit**: cost, profit and margin, for people allowed to see costs;
+- refunds taken against it, and its **history** from the activity log.
+
+Print, send, refund or void it from there too.
 
 > **When does the day start?** At 05:00 by default, so a sale at 1:30 am counts on the evening
 > before. Change this in Settings → Shop → **Business day starts at** (18.6).
@@ -745,7 +757,23 @@ Import** brings a CSV back:
 - It **never removes** anything.
 - If any row has a problem, **nothing** is imported. Fix the row and try again.
 
-### 9.7 Labels and barcodes
+### 9.7 Products from stock
+
+When you sell things as you buy them (bottled water, biscuits, a bag of sugar), let Aby make the
+products: Products → Tools → **Products from stock** (also on Stock → Tools).
+
+- Tick the stock items to sell. Items already sold as a product, or with a product of the same
+  name, start unticked.
+- Choose **Margin** (the share of the price that is profit: cost 6.00 at 40% sells at 10.00) or
+  **Markup** (added to the cost: cost 6.00 at 40% sells at 8.40). It starts at your target margin.
+- Choose how prices round (to 10p, 50p or GH₵ 1), always up so the profit is never less.
+- Tap any price to type your own. Each row shows the profit per sale.
+- Pick a category, or make a new one, and **Make products**.
+
+Each product takes its stock item off when sold. Items kept in grams or millilitres become
+products sold by the kg or litre.
+
+### 9.8 Labels and barcodes
 
 Products → Tools → **Labels**:
 
@@ -773,6 +801,12 @@ Each item shows what is **on hand**, what it cost on average, its history, how m
 
 > **You don't have to count stock.** Products with no stock items simply sell. Add stock items only
 > for what you want to track.
+
+**Import stock** (Stock → Tools → **Import stock**) works like the product import: download the
+sample (or export your stock to start from it), fill it in Excel or Google Sheets, and pick the CSV.
+Columns: `stock_item` (needed), `unit` (piece, g or ml), `cost_per` (pcs, kg, g, L or ml), `cost`,
+`on_hand` and `low_below`. You see a preview first. A count that changes is recorded as an
+adjustment, so the item's history shows the import. It never removes anything.
 
 ### 10.2 How stock moves
 

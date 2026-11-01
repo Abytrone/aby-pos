@@ -886,6 +886,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auditCatalogueImported => 'Products imported';
 
   @override
+  String get auditStockImported => 'Stock imported';
+
+  @override
+  String get auditProductsFromStock => 'Products made from stock';
+
+  @override
   String get cartTax => 'Tax';
 
   @override
@@ -7339,4 +7345,308 @@ class AppLocalizationsEn extends AppLocalizations {
   String statusChipMore(String label, int count) {
     return '$label +$count';
   }
+
+  @override
+  String saleDetailTitle(String number) {
+    return 'Sale $number';
+  }
+
+  @override
+  String saleDetailServedBy(String name) {
+    return 'Served by $name';
+  }
+
+  @override
+  String saleDetailOrderNumber(String number) {
+    return 'Order $number';
+  }
+
+  @override
+  String saleDetailVoided(String name, String when) {
+    return 'Voided by $name, $when. It counts for nothing.';
+  }
+
+  @override
+  String saleDetailRefunded(String amount) {
+    return '$amount refunded';
+  }
+
+  @override
+  String get saleDetailRefundedAll => 'Refunded in full';
+
+  @override
+  String get saleDetailItems => 'What was bought';
+
+  @override
+  String saleDetailPriceChanged(String price, String name) {
+    return 'Menu price $price, changed by $name';
+  }
+
+  @override
+  String saleDetailPriceTyped(String price) {
+    return 'Price typed at the till (suggested $price)';
+  }
+
+  @override
+  String saleDetailDiscountTag(String label, String reason) {
+    return '$label off: $reason';
+  }
+
+  @override
+  String saleDetailApprovedBy(String name) {
+    return 'approved by $name';
+  }
+
+  @override
+  String get saleDetailPromotion => 'Promotion';
+
+  @override
+  String get saleDetailSubtotal => 'Subtotal';
+
+  @override
+  String get saleDetailItemDiscounts => 'Item discounts';
+
+  @override
+  String get saleDetailPromotions => 'Promotions';
+
+  @override
+  String get saleDetailOrderDiscount => 'Order discount';
+
+  @override
+  String get saleDetailTax => 'Tax';
+
+  @override
+  String get saleDetailTaxIncluded => 'Includes tax';
+
+  @override
+  String get saleDetailRounding => 'Rounding';
+
+  @override
+  String get saleDetailTotal => 'Total';
+
+  @override
+  String get saleDetailPayments => 'Payments';
+
+  @override
+  String saleDetailGiven(String amount) {
+    return 'Given $amount';
+  }
+
+  @override
+  String saleDetailChange(String amount) {
+    return 'Change $amount';
+  }
+
+  @override
+  String saleDetailRef(String reference) {
+    return 'Ref $reference';
+  }
+
+  @override
+  String get saleDetailCost => 'Cost';
+
+  @override
+  String get saleDetailProfit => 'Profit';
+
+  @override
+  String get saleDetailMargin => 'Margin';
+
+  @override
+  String get saleDetailRefunds => 'Refunds';
+
+  @override
+  String saleDetailRefundLine(
+    String number,
+    String when,
+    String name,
+    String reason,
+  ) {
+    return '$number  ·  $when  ·  $name: $reason';
+  }
+
+  @override
+  String get saleDetailHistory => 'History';
+
+  @override
+  String get saleDetailNote => 'Note';
+
+  @override
+  String get saleDetailGone => 'This sale could not be found.';
+
+  @override
+  String get saleDetailOpen => 'See the whole sale';
+
+  @override
+  String todayDiscountOff(String amount) {
+    return '$amount off';
+  }
+
+  @override
+  String todayMoreItems(int count) {
+    return '+$count more';
+  }
+
+  @override
+  String get stockImportTitle => 'Import stock';
+
+  @override
+  String get stockImportIntro =>
+      'Add or update many stock items at once from a spreadsheet: one row per item. The counts in the file become what you have on hand.';
+
+  @override
+  String get stockImportStep1 =>
+      'Download the sample, or start from the stock you already have.';
+
+  @override
+  String get stockImportStep2 =>
+      'Fill in your items in Excel or Google Sheets.';
+
+  @override
+  String get stockImportColItem =>
+      'Needed. A name already here updates that item.';
+
+  @override
+  String get stockImportColUnit => 'How it is kept: piece, g or ml.';
+
+  @override
+  String get stockImportColCostPer =>
+      'What the cost and counts are in: pcs, kg, g, L or ml.';
+
+  @override
+  String get stockImportColCost =>
+      'What you pay for one of cost_per, in cedis.';
+
+  @override
+  String get stockImportColOnHand =>
+      'How many you have now. Leave it empty to keep the count.';
+
+  @override
+  String get stockImportColLowBelow => 'Warn when stock falls to this.';
+
+  @override
+  String get stockImportStartFromMine => 'Start from my stock instead';
+
+  @override
+  String get stockImportFooter =>
+      'Importing adds stock items and updates costs and counts. It never removes anything.';
+
+  @override
+  String stockImportRecounted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count counts change. Each is recorded as an adjustment.',
+      one: '1 count changes. It is recorded as an adjustment.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get stockImportButton => 'Import';
+
+  @override
+  String get fromStockTitle => 'Products from stock';
+
+  @override
+  String get fromStockButton => 'Make products';
+
+  @override
+  String get fromStockIntro =>
+      'Tick the stock items you sell as they are. Each becomes a product that takes stock off when sold, priced from its cost.';
+
+  @override
+  String get fromStockMargin => 'Margin';
+
+  @override
+  String get fromStockMarkup => 'Markup';
+
+  @override
+  String fromStockMarginHelp(String percent) {
+    return '$percent% of each price is profit.';
+  }
+
+  @override
+  String fromStockMarkupHelp(String percent) {
+    return '$percent% is added to each cost.';
+  }
+
+  @override
+  String get fromStockPercentInvalid => 'Enter a margin below 100%.';
+
+  @override
+  String get fromStockCategory => 'Category';
+
+  @override
+  String get fromStockNewCategory => 'New category…';
+
+  @override
+  String get fromStockNewCategoryName => 'Name of the new category';
+
+  @override
+  String get fromStockOnTill => 'Put them on the till';
+
+  @override
+  String get fromStockAll => 'Tick all';
+
+  @override
+  String get fromStockNone => 'Untick all';
+
+  @override
+  String get fromStockAlreadySold => 'Already sold as a product';
+
+  @override
+  String get fromStockNameTaken => 'A product has this name';
+
+  @override
+  String get fromStockNoCost => 'No cost: tap the price to type one';
+
+  @override
+  String fromStockCostLine(String amount) {
+    return 'Cost $amount';
+  }
+
+  @override
+  String fromStockPerUnit(String amount, String unit) {
+    return '$amount per $unit';
+  }
+
+  @override
+  String fromStockProfit(String amount) {
+    return '$amount profit';
+  }
+
+  @override
+  String fromStockTypePrice(String name) {
+    return 'Price for $name';
+  }
+
+  @override
+  String fromStockCreate(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Make $count products',
+      one: 'Make 1 product',
+      zero: 'Make products',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String fromStockDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count products made.',
+      one: '1 product made.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fromStockEmpty =>
+      'No stock items to make products from. Add stock items first, or import them.';
+
+  @override
+  String get fromStockReason => 'Make products from stock';
 }

@@ -173,11 +173,21 @@ class Sale {
     this.voidedAt,
     this.voidedBy,
     this.refunded = 0,
+    this.discountTotal = 0,
+    this.customerName,
+    this.items = const [],
   });
 
   final String id;
   final int number;
   final SaleStatus status;
+
+  /// Pesewas off: line and order discounts and promotions.
+  final int discountTotal;
+  final String? customerName;
+
+  /// What was bought, a short line per sale line ("2 x Vanilla cone").
+  final List<String> items;
 
   /// Pesewas given back by refunds.
   final int refunded;

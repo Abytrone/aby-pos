@@ -16,6 +16,7 @@ import '../../../ui/section_page.dart';
 import '../controllers/today_controller.dart';
 import '../../../routes/app_routes.dart';
 import '../widgets/cash_dialogs.dart';
+import '../widgets/sale_detail.dart';
 import '../widgets/sale_row.dart';
 import '../widgets/summary_cards.dart';
 
@@ -106,13 +107,20 @@ class TodayView extends GetView<TodayController> {
                 separatorBuilder: (_, _) => const Divider(height: 1),
                 itemBuilder: (context, i) {
                   final s = sales[i];
-                  return SaleRow(
-                    sale: s,
-                    locked: locked[s.id]!,
+                  final actions = SaleActions(
                     onVoid: !s.isVoided && !locked[s.id]! && !s.hasRefunds ? () => _confirmVoid(context, s) : null,
                     onRefund: !s.isVoided && !s.fullyRefunded ? () => controller.openRefund(s.id) : null,
                     onPrint: () => printSaleReceipt(s.id),
                     onSend: s.isVoided ? null : () => sendSaleReceipt(s.id),
+                  );
+                  return SaleRow(
+                    sale: s,
+                    locked: locked[s.id]!,
+                    onVoid: actions.onVoid,
+                    onRefund: actions.onRefund,
+                    onPrint: actions.onPrint,
+                    onSend: actions.onSend,
+                    onOpen: () => showSaleDetail(context, s, actions),
                   );
                 },
               ),

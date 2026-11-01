@@ -85,6 +85,7 @@ class AuditRepository {
   /// Newest first.
   Future<List<AuditEntry>> list({
     String? actorId,
+    String? entityId,
     Set<AuditAction>? actions,
     DateTime? from,
     DateTime? to,
@@ -99,6 +100,7 @@ class AuditRepository {
     if (actorId != null) {
       query.where((a) => a.actorId.equals(actorId) | a.approverId.equals(actorId));
     }
+    if (entityId != null) query.where((a) => a.entityId.equals(entityId));
     if (actions != null && actions.isNotEmpty) {
       query.where((a) => a.action.isIn(actions.map((e) => e.name)));
     }

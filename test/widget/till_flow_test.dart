@@ -549,9 +549,17 @@ void main() {
     expect(find.text('Refund R-0001 saved'), findsOneWidget);
     await tester.tap(find.text('Done'));
     await _settle(tester);
-    expect(find.text('Refunded GH₵ 12.00'), findsOneWidget);
+    expect(find.textContaining('Refunded GH₵ 12.00', findRichText: true), findsOneWidget);
     expect(find.textContaining('R-0001'), findsOneWidget);
     expect(find.text('Void'), findsNothing, reason: 'a refunded sale cannot be voided');
+
+    // Tapping the sale opens it in full: what was bought, payments, refunds.
+    await tester.tap(find.textContaining('Refunded GH₵ 12.00', findRichText: true));
+    await _settle(tester);
+    expect(find.text('WHAT WAS BOUGHT'), findsOneWidget);
+    expect(find.text('GH₵ 12.00 refunded'), findsOneWidget);
+    await tester.tap(find.byTooltip('Close'));
+    await _settle(tester);
 
     // A refund without a receipt opens too (its title is fixed text).
     await tester.tap(find.byTooltip('Cash'));

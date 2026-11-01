@@ -41,6 +41,8 @@ enum AuditAction {
   pricesBulkChanged,
   barcodesGenerated,
   catalogueImported,
+  stockImported,
+  productsFromStock,
   cartLinesRemoved,
   cartCleared,
   priceOverridden,

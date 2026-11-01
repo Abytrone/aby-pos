@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 
+import '../../models/discount.dart';
 import '../../models/enums.dart';
 import '../../models/receipt.dart';
 import '../../models/sale.dart';
+import '../../models/sale_detail.dart';
 import '../database/app_database.dart';
 
 /// Reads a saved sale or refund back as it goes on paper, so a reprint is
@@ -91,6 +95,59 @@ class ReceiptRepository {
       loyaltyBalance: loyalty,
       orderNumber: s.orderNumber,
     );
+  }
+
+  /// A sale with everything the receipt leaves out, for its own page.
+  Future<SaleDetail?> detail(String saleId) async {
+    final receipt = await sale(saleId);
+    if (receipt == null) return null;
+    final s = await (_db.select(_db.sales)..where((t) => t.id.equals(saleId))).getSingle();
+    final lines = await (_db.select(_db.saleLines)
+          ..where((l) => l.saleId.equals(saleId) & l.deletedAt.isNull())
+          ..orderBy([(l) => OrderingTerm(expression: l.createdAt), (l) => OrderingTerm(expression: l.id)]))
+        .get();
+    final refunds = await (_db.select(_db.refunds)
+          ..where((r) => r.saleId.equals(saleId) & r.deletedAt.isNull())
+          ..orderBy([(r) => OrderingTerm(expression: r.createdAt)]))
+        .get();
+    return SaleDetail(
+      receipt: receipt,
+      lines: [
+        for (final (i, l) in lines.indexed)
+          SaleDetailLine(
+            line: receipt.lines[i],
+            listPrice: l.listPrice,
+            priceOverriddenBy: l.priceOverriddenBy,
+            discount: _discount(l.discountDetail),
+            orderShare: l.orderDiscountShare,
+            cost: l.costTotal,
+          ),
+      ],
+      refunds: [
+        for (final r in refunds)
+          SaleRefundNote(
+            refundId: r.id,
+            number: r.number,
+            at: r.createdAt,
+            byName: r.staffName,
+            reason: r.reason,
+            total: r.total,
+            approverName: r.approverName,
+          ),
+      ],
+      orderDiscount: _discount(s.orderDiscount),
+      voidedAt: s.voidedAt,
+      voidedBy: s.voidedBy,
+    );
+  }
+
+  static Discount? _discount(String? json) {
+    if (json == null || json.isEmpty) return null;
+    try {
+      return Discount.fromJson(jsonDecode(json) as Map<String, dynamic>);
+    } on Object {
+      return null;
+    }
   }
 
   Future<RefundReceiptData?> refund(String refundId) async {

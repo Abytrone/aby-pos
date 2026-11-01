@@ -35,6 +35,7 @@ import '../data/repositories/transfer_repository.dart';
 import '../data/repositories/time_repository.dart';
 import '../data/repositories/voucher_repository.dart';
 import '../domain/catalogue_io.dart';
+import '../domain/stock_io.dart';
 import '../domain/catalogue_rules.dart';
 import '../modules/till/controllers/cart_controller.dart';
 import '../services/alert_service.dart';
@@ -91,6 +92,7 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => ReceivingRepository(db, device, audit, Get.find(), Get.find(), Get.find<PurchaseOrderRepository>()), fenix: true);
     Get.lazyPut(() => StockCountRepository(db, device, audit, Get.find()), fenix: true);
     Get.lazyPut(() => CatalogueIo(Get.find(), Get.find(), audit), fenix: true);
+    Get.lazyPut(() => StockIo(db, Get.find(), Get.find(), Get.find(), audit), fenix: true);
     Get.lazyPut(() => CashEventRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => CustomerRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => ShiftRepository(db, device, audit), fenix: true);

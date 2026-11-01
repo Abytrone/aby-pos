@@ -15,6 +15,7 @@ import '../../../ui/product_picture.dart';
 import '../../../ui/section_page.dart';
 import '../../till/widgets/variant_sheet.dart' show groupRule;
 import '../controllers/catalogue_controller.dart';
+import '../widgets/from_stock_dialog.dart';
 import '../widgets/labels_dialog.dart';
 import '../widgets/category_editor.dart';
 import '../widgets/option_group_editor.dart';
@@ -45,11 +46,13 @@ class ProductsView extends GetView<CatalogueController> {
                     0 => showBulkPrices(controller),
                     1 => runImport(controller),
                     3 => showLabels(),
+                    4 => showProductsFromStock(context),
                     _ => controller.exportProducts(),
                   },
                   itemBuilder: (_) => [
                     PopupMenuItem(value: 0, child: Text(l.bulkTitle)),
                     if (controller.canEdit) PopupMenuItem(value: 1, child: Text(l.importTitle)),
+                    if (controller.canEdit) PopupMenuItem(value: 4, child: Text(l.fromStockTitle)),
                     PopupMenuItem(value: 2, child: Text(l.exportButton)),
                     PopupMenuItem(value: 3, child: Text(l.labelsTitle)),
                   ],

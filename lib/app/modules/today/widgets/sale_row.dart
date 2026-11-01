@@ -15,8 +15,12 @@ class SaleRow extends StatelessWidget {
     required this.onRefund,
     this.onPrint,
     this.onSend,
+    this.onOpen,
     this.locked = false,
   });
+
+  /// The sale in full.
+  final VoidCallback? onOpen;
 
   /// Print or send the receipt again.
   final VoidCallback? onPrint;
@@ -43,8 +47,7 @@ class SaleRow extends StatelessWidget {
     final muted = AbyText.caption.copyWith(color: c.inkMuted);
     final narrow = context.isNarrow;
     final actions = [
-      if (onRefund != null)
-        TextButton(onPressed: onRefund, child: Text(l.todayRefund)),
+      if (onRefund != null) TextButton(onPressed: onRefund, child: Text(l.todayRefund)),
       if (onVoid != null)
         TextButton(
           onPressed: onVoid,
@@ -52,69 +55,102 @@ class SaleRow extends StatelessWidget {
           child: Text(l.todayVoid),
         ),
     ];
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: AbySize.tapPos + AbySpace.s4),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AbySpace.s4, vertical: AbySpace.s2),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 80,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(sale.displayNumber, style: AbyText.receiptStrong.copyWith(color: c.ink)),
-                  Text(time, style: muted),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('${l.todayItems(sale.itemCount)}  ·  $methods', style: AbyText.body.copyWith(color: c.ink)),
-                  if (sale.isVoided)
-                    Text(l.todayVoidedBy(sale.voidedBy ?? '?'), style: muted.copyWith(color: c.danger))
-                  else if (sale.hasRefunds)
-                    Text(l.todayRefunded(formatMoney(sale.refunded)), style: muted.copyWith(color: c.warning))
-                  else
-                    Text(sale.cashierName, style: muted),
-                ],
-              ),
-            ),
-            Text(
-              formatMoney(sale.total),
-              style: AbyText.price.copyWith(
-                color: sale.isVoided ? c.inkMuted : c.ink,
-                decoration: sale.isVoided ? TextDecoration.lineThrough : null,
-              ),
-            ),
-            const SizedBox(width: AbySpace.s2),
-            if (actions.isEmpty)
+    return InkWell(
+      onTap: onOpen,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: AbySize.tapPos + AbySpace.s4),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AbySpace.s4, vertical: AbySpace.s2),
+          child: Row(
+            children: [
               SizedBox(
-                width: 96,
-                child: Text(
-                  sale.isVoided ? l.todayVoided : (locked ? l.todayClosed : l.todayRefundedAll),
-                  textAlign: TextAlign.center,
-                  style: muted,
+                width: 80,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(sale.displayNumber, style: AbyText.receiptStrong.copyWith(color: c.ink)),
+                    Text(time, style: muted),
+                  ],
                 ),
-              )
-            else if (!narrow)
-              Row(mainAxisSize: MainAxisSize.min, children: actions),
-            if (narrow || onPrint != null || onSend != null)
-              PopupMenuButton<VoidCallback>(
-                tooltip: l.commonMore,
-                onSelected: (f) => f(),
-                itemBuilder: (_) => [
-                  if (narrow && onRefund != null) PopupMenuItem(value: onRefund, child: Text(l.todayRefund)),
-                  if (narrow && onVoid != null) PopupMenuItem(value: onVoid, child: Text(l.todayVoid)),
-                  if (onPrint != null) PopupMenuItem(value: onPrint, child: Text(l.receiptPrint)),
-                  if (onSend != null) PopupMenuItem(value: onSend, child: Text(l.receiptSend)),
-                ],
               ),
-          ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _items(l),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AbyText.body.copyWith(color: c.ink),
+                    ),
+                    if (sale.isVoided)
+                      Text(l.todayVoidedBy(sale.voidedBy ?? '?'), style: muted.copyWith(color: c.danger))
+                    else
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: [sale.cashierName, ?sale.customerName, methods].join('  ·  ')),
+                            if (sale.discountTotal > 0)
+                              TextSpan(
+                                text: '  ·  ${l.todayDiscountOff(formatMoney(sale.discountTotal))}',
+                                style: TextStyle(color: c.success, fontWeight: FontWeight.w600),
+                              ),
+                            if (sale.hasRefunds)
+                              TextSpan(
+                                text: '  ·  ${l.todayRefunded(formatMoney(sale.refunded))}',
+                                style: TextStyle(color: c.warning, fontWeight: FontWeight.w600),
+                              ),
+                          ],
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: muted,
+                      ),
+                  ],
+                ),
+              ),
+              Text(
+                formatMoney(sale.total),
+                style: AbyText.price.copyWith(
+                  color: sale.isVoided ? c.inkMuted : c.ink,
+                  decoration: sale.isVoided ? TextDecoration.lineThrough : null,
+                ),
+              ),
+              const SizedBox(width: AbySpace.s2),
+              if (actions.isEmpty)
+                SizedBox(
+                  width: 96,
+                  child: Text(
+                    sale.isVoided ? l.todayVoided : (locked ? l.todayClosed : l.todayRefundedAll),
+                    textAlign: TextAlign.center,
+                    style: muted,
+                  ),
+                )
+              else if (!narrow)
+                Row(mainAxisSize: MainAxisSize.min, children: actions),
+              if (narrow || onPrint != null || onSend != null)
+                PopupMenuButton<VoidCallback>(
+                  tooltip: l.commonMore,
+                  onSelected: (f) => f(),
+                  itemBuilder: (_) => [
+                    if (narrow && onRefund != null) PopupMenuItem(value: onRefund, child: Text(l.todayRefund)),
+                    if (narrow && onVoid != null) PopupMenuItem(value: onVoid, child: Text(l.todayVoid)),
+                    if (onPrint != null) PopupMenuItem(value: onPrint, child: Text(l.receiptPrint)),
+                    if (onSend != null) PopupMenuItem(value: onSend, child: Text(l.receiptSend)),
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  /// "2 x Vanilla cone, Waffle +3 more"; the count when lines are unknown.
+  String _items(AppLocalizations l) {
+    if (sale.items.isEmpty) return l.todayItems(sale.itemCount);
+    final shown = sale.items.take(2).join(', ');
+    final more = sale.items.length - 2;
+    return more > 0 ? '$shown ${l.todayMoreItems(more)}' : shown;
   }
 }

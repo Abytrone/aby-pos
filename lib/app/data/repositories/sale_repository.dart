@@ -706,15 +706,26 @@ class SaleRepository {
           ));
     }
 
-    final qty = _db.saleLines.quantity.sum();
-    final countQuery = _db.selectOnly(_db.saleLines)
-      ..addColumns([_db.saleLines.saleId, qty])
-      ..where(_db.saleLines.saleId.isIn(ids) & _db.saleLines.deletedAt.isNull())
-      ..groupBy([_db.saleLines.saleId]);
-    final counts = {
-      for (final r in await countQuery.get())
-        r.read(_db.saleLines.saleId)!: r.read(qty) ?? 0,
-    };
+    // A weighed line is one item, not its grams.
+    final lines = await (_db.select(_db.saleLines)
+          ..where((l) => l.saleId.isIn(ids) & l.deletedAt.isNull())
+          ..orderBy([(l) => OrderingTerm(expression: l.createdAt), (l) => OrderingTerm(expression: l.id)]))
+        .get();
+    final counts = <String, int>{};
+    final items = <String, List<String>>{};
+    for (final l in lines) {
+      final each = l.sellBy == SellBy.each;
+      counts[l.saleId] = (counts[l.saleId] ?? 0) + (each ? l.quantity : 1);
+      final title = l.variantName == null || l.variantName!.isEmpty ? l.productName : '${l.productName} (${l.variantName})';
+      items.putIfAbsent(l.saleId, () => []).add(each && l.quantity > 1 ? '${l.quantity} x $title' : title);
+    }
+
+    final customerIds = {for (final r in rows) ?r.customerId};
+    final customers = customerIds.isEmpty
+        ? const <String, String>{}
+        : {
+            for (final c in await (_db.select(_db.customers)..where((c) => c.id.isIn(customerIds))).get()) c.id: c.name,
+          };
 
     final refundSum = _db.refunds.total.sum();
     final refundQuery = _db.selectOnly(_db.refunds)
@@ -740,6 +751,9 @@ class SaleRepository {
           voidedAt: r.voidedAt,
           voidedBy: r.voidedBy,
           refunded: refunded[r.id] ?? 0,
+          discountTotal: r.discountTotal,
+          customerName: customers[r.customerId],
+          items: items[r.id] ?? const [],
         ),
     ];
   }

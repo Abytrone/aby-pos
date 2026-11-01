@@ -8,7 +8,10 @@ import '../../../services/branch_service.dart';
 import '../../../services/money.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../domain/stock_io.dart';
 import '../../../ui/dialogs.dart';
+import '../../../ui/import_dialogs.dart';
+import '../../products/widgets/from_stock_dialog.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/query_field.dart';
 import '../../../ui/layout.dart';
@@ -55,10 +58,26 @@ class StockView extends GetView<StockController> {
                       icon: const Icon(Icons.event_busy_outlined),
                       label: Text(l.expiryTitle),
                     ),
-                    OutlinedButton.icon(
-                      onPressed: controller.exportStock,
-                      icon: const Icon(Icons.download_outlined),
-                      label: Text(l.exportButton),
+                    PopupMenuButton<int>(
+                      tooltip: l.productsTools,
+                      onSelected: (v) => switch (v) {
+                        0 => _import(),
+                        1 => showProductsFromStock(context),
+                        _ => controller.exportStock(),
+                      },
+                      itemBuilder: (_) => [
+                        if (controller.canEdit) PopupMenuItem(value: 0, child: Text(l.stockImportTitle)),
+                        if (controller.canEdit) PopupMenuItem(value: 1, child: Text(l.fromStockTitle)),
+                        PopupMenuItem(value: 2, child: Text(l.exportButton)),
+                      ],
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: AbySpace.s3, vertical: AbySpace.s3),
+                        child: Row(mainAxisSize: MainAxisSize.min, children: [
+                          const Icon(Icons.build_outlined),
+                          const SizedBox(width: AbySpace.s2),
+                          Text(l.productsTools),
+                        ]),
+                      ),
                     ),
                   ],
                 1 => [
@@ -127,6 +146,41 @@ class StockView extends GetView<StockController> {
         );
       }),
     );
+  }
+
+  /// Explain the file, pick it, show what it would do, import on confirm.
+  Future<void> _import() async {
+    final l = appL10n();
+    final pick = await showImportStart(
+      title: l.stockImportTitle,
+      intro: l.stockImportIntro,
+      steps: [l.stockImportStep1, l.stockImportStep2, l.importStep3],
+      columns: {
+        'stock_item': l.stockImportColItem,
+        'unit': l.stockImportColUnit,
+        'cost_per': l.stockImportColCostPer,
+        'cost': l.stockImportColCost,
+        'on_hand': l.stockImportColOnHand,
+        'low_below': l.stockImportColLowBelow,
+      },
+      requiredColumns: StockIo.requiredColumns,
+      onSample: controller.downloadSample,
+      startFromMineLabel: l.stockImportStartFromMine,
+      onStartFromMine: controller.items.isEmpty ? null : controller.exportStock,
+      footer: l.stockImportFooter,
+    );
+    if (!pick) return;
+    final preview = await controller.previewImport();
+    if (preview == null) return;
+    await showImportPreview(
+      title: l.stockImportTitle,
+      summary: l.importSummary(preview.newItems, preview.updatedItems, preview.unchanged),
+      notes: [if (preview.recounted > 0) l.stockImportRecounted(preview.recounted)],
+      problems: preview.problems,
+      canApply: preview.canApply,
+      onApply: () => controller.applyImport(preview),
+    );
+    _flush(controller.message);
   }
 
   Future<void> _startCount(PurchasingController purchasing) async {
