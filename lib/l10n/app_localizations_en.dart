@@ -3954,7 +3954,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get poSend => 'Send';
 
   @override
-  String get poReceive => 'Receive delivery';
+  String get poReceive => 'Create delivery';
 
   @override
   String get poPickSupplier => 'Choose the supplier.';
@@ -7785,5 +7785,136 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get stockNewItemInline => 'New stock item…';
+  String get stockNewItemInline => '+ New stock items…';
+
+  @override
+  String get newItemsTitle => 'New stock items';
+
+  @override
+  String get newItemsIntroOrder =>
+      'Items you don\'t have in stock yet. Each is saved to your stock list and put on this order.';
+
+  @override
+  String get newItemsIntroDelivery =>
+      'Items that came but are not in your stock list yet. Each is saved to your stock and added to this delivery.';
+
+  @override
+  String get newItemsName => 'Name';
+
+  @override
+  String get newItemsUnit => 'Unit';
+
+  @override
+  String newItemsCostPer(String unit) {
+    return 'Cost per $unit';
+  }
+
+  @override
+  String get newItemsAddRow => 'Add row';
+
+  @override
+  String newItemsSave(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Add $count items',
+      one: 'Add 1 item',
+      zero: 'Add items',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get newItemsNone => 'Fill in at least one row.';
+
+  @override
+  String newItemsRowInvalid(String name) {
+    return 'Check the quantity and cost for $name.';
+  }
+
+  @override
+  String newItemsTaken(String name) {
+    return '$name is already in your stock list: pick it from the list instead.';
+  }
+
+  @override
+  String newItemsTwice(String name) {
+    return '$name is in the list twice.';
+  }
+
+  @override
+  String newItemsNeedCost(String name) {
+    return 'Enter what $name cost.';
+  }
+
+  @override
+  String updateTitle(String number) {
+    return 'Update stock items from $number';
+  }
+
+  @override
+  String get updateIntro =>
+      'The stock this delivery brought in is already counted. Tick what else it should change on each item.';
+
+  @override
+  String updateCost(String from, String to, String unit) {
+    return 'Cost $from → $to per $unit';
+  }
+
+  @override
+  String get updateCostHelp =>
+      'This delivery\'s price, instead of the average of everything bought.';
+
+  @override
+  String updateSupplier(String from, String to) {
+    return 'Supplier $from → $to';
+  }
+
+  @override
+  String updateOrderQty(String from, String to) {
+    return 'Usual order $from → $to';
+  }
+
+  @override
+  String get updateNoSupplier => 'none';
+
+  @override
+  String get updateNothing => 'Every stock item already matches this delivery.';
+
+  @override
+  String get updateOpenItem => 'Open item';
+
+  @override
+  String updateApply(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Update $count items',
+      one: 'Update 1 item',
+      zero: 'Update',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String updateDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stock items updated.',
+      one: '1 stock item updated.',
+      zero: 'Nothing changed.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deliveryUpdateStock => 'Update stock items';
+
+  @override
+  String get poDeliveries => 'Deliveries from this order';
+
+  @override
+  String get poNoDeliveries =>
+      'Nothing received yet. Create delivery when it arrives.';
 }

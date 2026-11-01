@@ -16,6 +16,7 @@ import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
 import '../../products/controllers/catalogue_controller.dart';
+import '../../stock/widgets/new_items_dialog.dart';
 import '../../stock/widgets/stock_item_editor.dart';
 import '../../../ui/l10n.dart';
 
@@ -136,13 +137,30 @@ class ReceiveController extends GetxController {
     update();
   }
 
-  /// Makes a new stock item from the line's dropdown and puts it on the line.
+  /// "+ New stock items…" in a line's item list: one or several new items,
+  /// with what came and its cost. The first goes on this line, the rest on
+  /// lines of their own.
   Future<void> newItemFor(ReceiveLineForm line) async {
-    final item = await createStockItemInline(supplierId: supplierId);
+    final made = await showNewStockItems(
+      forDelivery: true,
+      supplierId: supplierId,
+      takenNames: {for (final i in items) i.name},
+    );
     line.version++;
-    if (item == null) return update();
-    items = [...items, item]..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-    setItem(line, item.id);
+    if (made == null || made.isEmpty) return update();
+    items = [...items, for (final m in made) m.item]..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    for (final (k, m) in made.indexed) {
+      final unit = DisplayUnit.bulk(m.item.unit);
+      if (k == 0) {
+        line.stockItemId = m.item.id;
+        line.unit = unit;
+        line.quantity.text = quantityIn(m.quantity, unit);
+        line.total.text = _plain(m.lineTotal);
+      } else {
+        lines.add(ReceiveLineForm(stockItemId: m.item.id, unit: unit, quantity: quantityIn(m.quantity, unit), total: _plain(m.lineTotal)));
+      }
+    }
+    changed();
   }
 
   void setItem(ReceiveLineForm line, String? id) {
@@ -311,6 +329,7 @@ class ReceiveController extends GetxController {
           p.name,
     ];
     return DeliverySummary(
+      detail: await _receiving.detail(receipt.id),
       number: receipt.displayNumber,
       changes: changes,
       order: o,
@@ -330,8 +349,11 @@ class DeliverySummary {
     required this.targetMargin,
     required this.belowMargin,
     this.order,
+    this.detail,
   });
 
+  /// The delivery as saved.
+  final DeliveryDetail? detail;
   final String number;
   final List<(StockItem before, StockItem after)> changes;
   final PurchaseOrder? order;

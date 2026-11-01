@@ -7717,7 +7717,7 @@ abstract class AppLocalizations {
   /// No description provided for @poReceive.
   ///
   /// In en, this message translates to:
-  /// **'Receive delivery'**
+  /// **'Create delivery'**
   String get poReceive;
 
   /// No description provided for @poPickSupplier.
@@ -13044,8 +13044,170 @@ abstract class AppLocalizations {
   /// No description provided for @stockNewItemInline.
   ///
   /// In en, this message translates to:
-  /// **'New stock item…'**
+  /// **'+ New stock items…'**
   String get stockNewItemInline;
+
+  /// No description provided for @newItemsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New stock items'**
+  String get newItemsTitle;
+
+  /// No description provided for @newItemsIntroOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Items you don\'t have in stock yet. Each is saved to your stock list and put on this order.'**
+  String get newItemsIntroOrder;
+
+  /// No description provided for @newItemsIntroDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Items that came but are not in your stock list yet. Each is saved to your stock and added to this delivery.'**
+  String get newItemsIntroDelivery;
+
+  /// No description provided for @newItemsName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get newItemsName;
+
+  /// No description provided for @newItemsUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get newItemsUnit;
+
+  /// No description provided for @newItemsCostPer.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost per {unit}'**
+  String newItemsCostPer(String unit);
+
+  /// No description provided for @newItemsAddRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Add row'**
+  String get newItemsAddRow;
+
+  /// No description provided for @newItemsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Add items} =1{Add 1 item} other{Add {count} items}}'**
+  String newItemsSave(int count);
+
+  /// No description provided for @newItemsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in at least one row.'**
+  String get newItemsNone;
+
+  /// No description provided for @newItemsRowInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the quantity and cost for {name}.'**
+  String newItemsRowInvalid(String name);
+
+  /// No description provided for @newItemsTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is already in your stock list: pick it from the list instead.'**
+  String newItemsTaken(String name);
+
+  /// No description provided for @newItemsTwice.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is in the list twice.'**
+  String newItemsTwice(String name);
+
+  /// No description provided for @newItemsNeedCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter what {name} cost.'**
+  String newItemsNeedCost(String name);
+
+  /// No description provided for @updateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update stock items from {number}'**
+  String updateTitle(String number);
+
+  /// No description provided for @updateIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'The stock this delivery brought in is already counted. Tick what else it should change on each item.'**
+  String get updateIntro;
+
+  /// No description provided for @updateCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost {from} → {to} per {unit}'**
+  String updateCost(String from, String to, String unit);
+
+  /// No description provided for @updateCostHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'This delivery\'s price, instead of the average of everything bought.'**
+  String get updateCostHelp;
+
+  /// No description provided for @updateSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier {from} → {to}'**
+  String updateSupplier(String from, String to);
+
+  /// No description provided for @updateOrderQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Usual order {from} → {to}'**
+  String updateOrderQty(String from, String to);
+
+  /// No description provided for @updateNoSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'none'**
+  String get updateNoSupplier;
+
+  /// No description provided for @updateNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Every stock item already matches this delivery.'**
+  String get updateNothing;
+
+  /// No description provided for @updateOpenItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Open item'**
+  String get updateOpenItem;
+
+  /// No description provided for @updateApply.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Update} =1{Update 1 item} other{Update {count} items}}'**
+  String updateApply(int count);
+
+  /// No description provided for @updateDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing changed.} =1{1 stock item updated.} other{{count} stock items updated.}}'**
+  String updateDone(int count);
+
+  /// No description provided for @deliveryUpdateStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Update stock items'**
+  String get deliveryUpdateStock;
+
+  /// No description provided for @poDeliveries.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliveries from this order'**
+  String get poDeliveries;
+
+  /// No description provided for @poNoDeliveries.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing received yet. Create delivery when it arrives.'**
+  String get poNoDeliveries;
 }
 
 class _AppLocalizationsDelegate

@@ -880,12 +880,14 @@ Stock → **Orders → New order**:
 3. **Save or print**: the order as a PDF (item, quantity, unit, expected price) to share by
    WhatsApp or email, save to a folder, or, on a computer, open to print.
 
-Not in your stock list yet? Choose **New stock item…** at the bottom of the item list, fill it in,
-and it goes straight onto the order.
+Not in your stock list yet? Choose **+ New stock items…** at the top of a line's item list. Type one
+item or several: name, unit (pcs, kg or L), quantity and cost per unit. They are saved to your stock
+list, linked to the supplier, and put on the order (the first on that line, the rest below it).
 
-When goods arrive, tap **Receive delivery** on the order (each waiting order has the button in the
+When goods arrive, tap **Create delivery** on the order (each waiting order has the button in the
 list too). It can arrive in parts: the order goes from **Waiting** to **Part delivered** to
-**Delivered**. You can cancel an order.
+**Delivered**. The order's page lists the deliveries made from it; tap one to open it. You can cancel
+an order.
 
 ### 11.3 Receiving a delivery
 
@@ -897,7 +899,8 @@ line shows what was ordered and what came before. Change a **Quantity** if less 
 for what did not come: the order keeps waiting for it.
 
 - What came in: the **Quantity** (in the item's unit) and the **Cost of this line** from the invoice.
-  Something new? **New stock item…** at the bottom of the item list makes it there and then.
+  Something new? **+ New stock items…** at the top of the line's item list makes one or several,
+  with their quantities and costs. They join your stock list and the delivery together.
 - Batch and expiry date, for items that track them.
 - The supplier, and whether you **paid now** or **owe** it. Without a supplier, it must be paid in
   full.
@@ -915,7 +918,18 @@ After saving, Aby shows what the delivery changed:
 
 Stock → **Deliveries** lists every delivery with what is still owed. Tap one to see it: each item
 with its quantity, unit and cost, the total, paid and owed. **Save or print** makes its goods
-received note (a PDF with a line to sign) to share, save, or open to print.
+received note (a PDF with a line to sign) to share, save, or open to print. Tap an item's name to
+open the stock item.
+
+**Update stock items** (on a delivery, or on the summary right after saving one) brings each stock
+item in line with the delivery. The stock it brought in is already counted; for each item you tick
+what else follows the delivery:
+
+- **Cost**: this delivery's price, instead of the average of everything bought;
+- **Supplier**: who delivered it, so the next order to them suggests it;
+- **Usual order**: the quantity that came, as the amount to order next time.
+
+Only what differs is shown, all ticked to begin with.
 
 ---
 

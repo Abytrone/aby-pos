@@ -174,6 +174,17 @@ class ReceivingRepository {
   }
 
   /// Newest first.
+  /// Deliveries made from one purchase order, oldest first.
+  Future<List<StockReceipt>> forOrder(String purchaseOrderId) async {
+    final ids = {
+      for (final r in await (_db.select(_db.stockReceipts)
+            ..where((r) => r.purchaseOrderId.equals(purchaseOrderId) & r.deletedAt.isNull()))
+          .get())
+        r.id,
+    };
+    return [for (final r in await list(limit: 500)) if (ids.contains(r.id)) r].reversed.toList();
+  }
+
   Future<List<StockReceipt>> list({int limit = 50, String? supplierId}) async {
     final query =
         _db.select(_db.stockReceipts).join([
@@ -232,6 +243,7 @@ class ReceivingRepository {
           final line = r.readTable(_db.stockReceiptLines);
           final item = r.readTable(_db.stockItems);
           return DeliveryLine(
+            stockItemId: item.id,
             name: item.name,
             unit: item.unit,
             quantity: line.quantity,
@@ -253,6 +265,7 @@ class ReceivingRepository {
         invoiceRef: row.invoiceRef,
       ),
       lines: lines,
+      supplierId: row.supplierId,
       supplierPhone: supplier?.phone,
       note: row.note,
       orderNumber: order == null ? null : formatPurchaseOrderNumber(order.number),

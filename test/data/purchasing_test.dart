@@ -10,6 +10,7 @@ import 'package:aby_pos/app/domain/audit_details.dart';
 import 'package:aby_pos/app/domain/business_templates.dart';
 import 'package:aby_pos/app/domain/catalogue_io.dart';
 import 'package:aby_pos/app/domain/delivery_pdf.dart';
+import 'package:aby_pos/app/domain/delivery_updates.dart';
 import 'package:aby_pos/app/domain/catalogue_rules.dart';
 import 'package:aby_pos/app/domain/inventory.dart';
 import 'package:aby_pos/app/models/models.dart';
@@ -107,6 +108,26 @@ void main() {
       expect(detail.receipt.invoiceRef, 'INV-77');
       final pdf = await DeliveryPdf.build(detail, shopName: 'Scoops Tamale');
       expect(String.fromCharCodes(pdf.sublist(0, 5)), '%PDF-');
+
+      // Updating the cones from the delivery record: its price (GH₵ 1.00
+      // each, not the 0.87 average), its supplier and its quantity.
+      final plan = DeliveryUpdates.plan(detail, {for (final i in await r.stock.items()) i.id: i});
+      expect(plan.single.changes, {DeliveryChange.cost, DeliveryChange.supplier, DeliveryChange.orderQty});
+      expect(await DeliveryUpdates.apply(r.stock, [(plan.single, {DeliveryChange.cost, DeliveryChange.supplier})], by: owner), 1);
+      final updated = await stockItem('Wafer cones');
+      expect(updated.costMilli, 100000);
+      expect(updated.supplierId, supplierId);
+      expect(updated.reorderQty, isNot(100), reason: 'left unticked');
+      expect(updated.onHand, 300, reason: 'the stock count is the delivery itself, not changed again');
+      final again = DeliveryUpdates.plan(detail, {for (final i in await r.stock.items()) i.id: i});
+      expect(again.single.changes, {DeliveryChange.orderQty});
+      await DeliveryUpdates.apply(r.stock, [(again.single, {DeliveryChange.orderQty})], by: owner);
+      expect(DeliveryUpdates.plan(detail, {for (final i in await r.stock.items()) i.id: i}), isEmpty);
+      // Back to the average for the checks below.
+      await r.stock.saveItem(
+        StockItemDraft(id: updated.id, name: updated.name, unit: updated.unit, costMilli: 86667, reorderPoint: updated.reorderPoint),
+        by: owner,
+      );
 
       final after = await stockItem('Wafer cones');
       expect(after.onHand, 300);

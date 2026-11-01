@@ -11,7 +11,9 @@ import '../../../ui/dialogs.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/section_page.dart';
+import '../../../routes/app_routes.dart';
 import '../controllers/purchasing_controller.dart';
+import 'update_from_delivery.dart';
 
 /// Deliveries received, newest first. Tap one to see it in full.
 class DeliveriesTab extends GetView<PurchasingController> {
@@ -119,7 +121,16 @@ Future<void> showDelivery(PurchasingController ctl, StockReceipt r) => Get.dialo
                                   Padding(
                                     padding: const EdgeInsets.symmetric(vertical: AbySpace.s2),
                                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                      Text(line.name, style: AbyText.body.copyWith(color: c.ink)),
+                                      InkWell(
+                                        onTap: () {
+                                          goBack<void>();
+                                          Get.toNamed<void>(Routes.stockItem, arguments: line.stockItemId);
+                                        },
+                                        child: Text(
+                                          line.name,
+                                          style: AbyText.body.copyWith(color: c.ink, decoration: TextDecoration.underline),
+                                        ),
+                                      ),
                                       Text(
                                         l.deliveryEach(
                                           formatMoney(priceForUnit(line.unitCostMilli, DisplayUnit.bulk(line.unit))),
@@ -169,6 +180,17 @@ Future<void> showDelivery(PurchasingController ctl, StockReceipt r) => Get.dialo
                   icon: const Icon(Icons.picture_as_pdf_outlined),
                   label: Text(l.deliveryPdf),
                 ),
+                if (ctl.canReceive)
+                  OutlinedButton.icon(
+                    onPressed: d == null
+                        ? null
+                        : () async {
+                            goBack<void>();
+                            await showUpdateFromDelivery(d);
+                          },
+                    icon: const Icon(Icons.sync_alt),
+                    label: Text(l.deliveryUpdateStock),
+                  ),
                 FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
               ]),
             ],

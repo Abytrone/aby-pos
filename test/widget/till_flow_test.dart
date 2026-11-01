@@ -393,6 +393,42 @@ void main() {
     expect(find.text('Save or print'), findsOneWidget);
     expect(find.text('Owed'), findsOneWidget);
     expect(find.text('pcs'), findsWidgets);
+
+    // The delivery record updates its stock items: the cones take its price
+    // as their cost, its supplier, and its quantity as their usual order.
+    await tester.tap(find.text('Update stock items'));
+    await _settle(tester);
+    expect(find.text('Update stock items from GRN-0001'), findsOneWidget);
+    expect(find.textContaining('Supplier none → Tamale Wholesale'), findsOneWidget);
+    expect(find.textContaining('Usual order'), findsOneWidget);
+    await tester.tap(find.text('Update 1 item'));
+    await _settle(tester);
+    expect(find.text('1 stock item updated.'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
+    await _settle(tester);
+
+    // Items not in stock yet come in with the delivery: "+ New stock items…"
+    // at the top of a line's item list opens a table, saved to stock and
+    // put on the delivery.
+    await tester.tap(find.text('Receive delivery'));
+    await _settle(tester);
+    await tester.tap(find.widgetWithText(DropdownButtonFormField<String>, 'Stock item'));
+    await _settle(tester);
+    await tester.tap(find.text('+ New stock items…').last);
+    await _settle(tester);
+    Finder inDialog(String label) =>
+        find.descendant(of: find.byType(AlertDialog), matching: find.widgetWithText(TextField, label)).first;
+    await tester.enterText(inDialog('Name'), 'Paper bags');
+    await tester.enterText(inDialog('Quantity'), '50');
+    await tester.enterText(inDialog('Cost per pcs'), '0.20');
+    await _settle(tester);
+    await tester.tap(find.text('Add 1 item'));
+    await _settle(tester);
+    expect(find.text('Paper bags'), findsWidgets);
+    expect(find.widgetWithText(TextField, '10.00'), findsNWidgets(2), reason: '50 at GH₵ 0.20, and paid now follows the total');
+    await tester.tap(find.text('Save delivery'));
+    await _settle(tester);
+    expect(find.text('Delivery GRN-0002 received'), findsOneWidget);
     await tester.tap(find.text('Done').last);
     await _settle(tester);
 
@@ -424,7 +460,7 @@ void main() {
     await tester.enterText(find.widgetWithText(TextField, 'Found'), '290');
     await tester.tap(find.byTooltip('Save'));
     await _settle(tester);
-    expect(find.text('1 of 12 counted'), findsOneWidget);
+    expect(find.text('1 of 13 counted'), findsOneWidget);
     expect(find.textContaining('short so far'), findsOneWidget);
     await tester.tap(find.text('Post count'));
     await _settle(tester);
@@ -978,6 +1014,16 @@ void main() {
     await tester.tap(find.text('Create order'));
     await _settle(tester);
     expect(find.text('Choose the supplier.'), findsOneWidget);
+    // New stock items can go on an order too, from a line's item list.
+    await tester.tap(find.text('Add item'));
+    await _settle(tester);
+    await tester.tap(find.widgetWithText(DropdownButtonFormField<String>, 'Stock item'));
+    await _settle(tester);
+    await tester.tap(find.text('+ New stock items…').last);
+    await _settle(tester);
+    expect(find.text('New stock items'), findsOneWidget);
+    await tester.tap(find.text('Cancel').last);
+    await _settle(tester);
     await tester.tap(find.text('Cancel'));
     await _settle(tester);
 

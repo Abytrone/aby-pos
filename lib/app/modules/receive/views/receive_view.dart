@@ -14,6 +14,7 @@ import '../../../ui/option_chip.dart';
 import '../../products/controllers/catalogue_controller.dart';
 import '../../products/widgets/labels_dialog.dart';
 import '../../stock/widgets/stock_item_editor.dart';
+import '../../stock/widgets/update_from_delivery.dart';
 import '../../shell/controllers/shell_controller.dart';
 import '../controllers/receive_controller.dart';
 
@@ -187,15 +188,16 @@ class _LineRow extends StatelessWidget {
               isExpanded: true,
               decoration: InputDecoration(labelText: l.recipeItem, isDense: true),
               items: [
-                for (final i in ctl.items) DropdownMenuItem(value: i.id, child: Text(i.name, overflow: TextOverflow.ellipsis)),
                 DropdownMenuItem(
                   value: newStockItemChoice,
                   child: Text(l.stockNewItemInline, style: TextStyle(color: c.blue, fontWeight: FontWeight.w600)),
                 ),
+                for (final i in ctl.items) DropdownMenuItem(value: i.id, child: Text(i.name, overflow: TextOverflow.ellipsis)),
               ],
               onChanged: (v) => ctl.setItem(line, v),
             ),
           ),
+
           SizedBox(
             width: 120,
             child: TextField(
@@ -348,6 +350,15 @@ Future<void> showDeliverySummary(DeliverySummary s, {Map<String, int> labels = c
                   reviewLowMargins();
                 },
                 child: Text(l.receiveSummaryReview),
+              ),
+            if (s.detail != null)
+              OutlinedButton.icon(
+                onPressed: () async {
+                  goBack<void>();
+                  await showUpdateFromDelivery(s.detail!);
+                },
+                icon: const Icon(Icons.sync_alt),
+                label: Text(l.deliveryUpdateStock),
               ),
             FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
           ]),

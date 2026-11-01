@@ -136,6 +136,9 @@ class PurchasingController extends GetxController {
 
   Future<DeliveryDetail?> delivery(StockReceipt r) => _receiving.detail(r.id);
 
+  /// Deliveries made from [o], oldest first.
+  Future<List<StockReceipt>> deliveriesFor(PurchaseOrder o) => _receiving.forOrder(o.id);
+
   /// The goods received note as a PDF: share it, save it, or open it to print.
   Future<void> shareDelivery(DeliveryDetail d) async {
     final s = Get.find<SettingsService>();

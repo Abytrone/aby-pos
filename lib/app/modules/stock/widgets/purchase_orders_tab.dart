@@ -14,6 +14,8 @@ import '../../../ui/l10n.dart';
 import '../../../ui/section_page.dart';
 import '../controllers/purchasing_controller.dart';
 import '../controllers/stock_controller.dart';
+import 'new_items_dialog.dart';
+import 'purchasing_tabs.dart' show showDelivery;
 import 'stock_item_editor.dart';
 
 String poStatusLabel(AppLocalizations l, PurchaseOrderStatus s) => switch (s) {
@@ -83,6 +85,33 @@ Future<void> showPurchaseOrder(PurchasingController ctl, PurchaseOrder o) => Get
                   value: formatQuantity(line.quantity, line.unit),
                 ),
               if (o.note != null) Text('“${o.note}”', style: AbyText.caption.copyWith(color: c.inkMuted)),
+              const SizedBox(height: AbySpace.s4),
+              Text(l.poDeliveries.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
+              FutureBuilder<List<StockReceipt>>(
+                future: ctl.deliveriesFor(o),
+                builder: (_, snap) {
+                  final list = snap.data ?? const <StockReceipt>[];
+                  if (snap.hasData && list.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: AbySpace.s2),
+                      child: Text(l.poNoDeliveries, style: AbyText.caption.copyWith(color: c.inkMuted)),
+                    );
+                  }
+                  return Column(children: [
+                    for (final r in list)
+                      InfoTile(
+                        leading: Icon(Icons.local_shipping_outlined, color: c.inkMuted),
+                        title: r.displayNumber,
+                        subtitle: [formatDateTime(r.at), l.deliveriesItems(r.lineCount), r.receivedByName].join('  ·  '),
+                        value: formatMoney(r.total),
+                        onTap: () {
+                          goBack<void>();
+                          showDelivery(ctl, r);
+                        },
+                      ),
+                  ]);
+                },
+              ),
             ]),
           ),
         ),
@@ -158,6 +187,30 @@ class _NewOrderState extends State<_NewOrder> {
 
   StockItem? _item(String? id) => widget.items.where((i) => i.id == id).firstOrNull;
 
+  /// "+ New stock items…" in a line's item list: one or several new items.
+  /// The first goes on this line, the rest on lines of their own.
+  Future<void> _newItemFor(_Line line) async {
+    final made = await showNewStockItems(
+      forDelivery: false,
+      supplierId: _supplier,
+      takenNames: {for (final i in widget.items) i.name},
+    );
+    setState(() {
+      line.version++;
+      if (made == null || made.isEmpty) return;
+      for (final (k, m) in made.indexed) {
+        widget.items.add(m.item);
+        final qty = quantityIn(m.quantity, DisplayUnit.bulk(m.item.unit));
+        if (k == 0) {
+          line.itemId = m.item.id;
+          line.quantity.text = qty;
+        } else {
+          _lines.add(_Line(m.item.id, qty));
+        }
+      }
+    });
+  }
+
   Future<void> _pickSupplier(String? id) async {
     setState(() => _supplier = id);
     if (id == null) return;
@@ -228,24 +281,16 @@ class _NewOrderState extends State<_NewOrder> {
                       isExpanded: true,
                       decoration: InputDecoration(labelText: l.recipeItem, isDense: true),
                       items: [
-                        for (final i in widget.items) DropdownMenuItem(value: i.id, child: Text(i.name, overflow: TextOverflow.ellipsis)),
                         DropdownMenuItem(
                           value: newStockItemChoice,
                           child: Text(l.stockNewItemInline, style: TextStyle(color: c.blue, fontWeight: FontWeight.w600)),
                         ),
+                        for (final i in widget.items) DropdownMenuItem(value: i.id, child: Text(i.name, overflow: TextOverflow.ellipsis)),
                       ],
-                      onChanged: (v) async {
-                        if (v != newStockItemChoice) return setState(() => line.itemId = v);
-                        final item = await createStockItemInline(supplierId: _supplier);
-                        setState(() {
-                          line.version++;
-                          if (item == null) return;
-                          widget.items.add(item);
-                          line.itemId = item.id;
-                        });
-                      },
+                      onChanged: (v) => v == newStockItemChoice ? _newItemFor(line) : setState(() => line.itemId = v),
                     ),
                   ),
+
                   const SizedBox(width: AbySpace.s2),
                   Expanded(
                     flex: 2,

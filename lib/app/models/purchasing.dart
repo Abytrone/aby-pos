@@ -156,6 +156,7 @@ class StockReceipt {
 /// One line of a delivery as received.
 class DeliveryLine {
   const DeliveryLine({
+    required this.stockItemId,
     required this.name,
     required this.unit,
     required this.quantity,
@@ -163,6 +164,7 @@ class DeliveryLine {
     required this.lineTotal,
   });
 
+  final String stockItemId;
   final String name;
   final StockUnit unit;
 
@@ -181,12 +183,14 @@ class DeliveryDetail {
   const DeliveryDetail({
     required this.receipt,
     required this.lines,
+    this.supplierId,
     this.supplierPhone,
     this.note,
     this.orderNumber,
   });
 
   final StockReceipt receipt;
+  final String? supplierId;
   final List<DeliveryLine> lines;
   final String? supplierPhone;
   final String? note;
