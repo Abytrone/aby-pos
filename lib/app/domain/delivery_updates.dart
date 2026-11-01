@@ -1,4 +1,6 @@
+import '../data/repositories/audit_repository.dart';
 import '../data/repositories/stock_repository.dart';
+import '../models/audit.dart';
 import '../models/drafts.dart';
 import '../models/purchasing.dart';
 import '../models/staff.dart';
@@ -49,10 +51,13 @@ abstract final class DeliveryUpdates {
             }(),
       ].where((u) => u.changes.isNotEmpty).toList();
 
-  /// Saves the [chosen] changes for each update. Returns how many items
-  /// changed. Each save is audited as a stock item change.
+  /// Saves the [chosen] changes for each update, and marks [delivery] as
+  /// used so it is not offered again. Returns how many items changed. Each
+  /// save is audited as a stock item change.
   static Future<int> apply(
     StockRepository stock,
+    AuditRepository audit,
+    StockReceipt delivery,
     List<(DeliveryUpdate, Set<DeliveryChange>)> chosen, {
     required Staff by,
   }) async {
@@ -75,6 +80,19 @@ abstract final class DeliveryUpdates {
       );
       changed++;
     }
+    if (changed > 0) {
+      await audit.record(
+        action: AuditAction.stockUpdatedFromDelivery,
+        actor: by,
+        entity: 'stock_receipts',
+        entityId: delivery.id,
+        summary: '${delivery.displayNumber}: $changed stock items updated from it',
+      );
+    }
     return changed;
   }
+
+  /// When stock items were last updated from [delivery]; null if never.
+  static Future<DateTime?> updatedAt(AuditRepository audit, StockReceipt delivery) async =>
+      (await audit.list(entityId: delivery.id, actions: {AuditAction.stockUpdatedFromDelivery}, limit: 1)).firstOrNull?.at;
 }

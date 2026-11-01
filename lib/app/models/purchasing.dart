@@ -147,7 +147,8 @@ class StockReceipt {
   final String? supplierName;
   final String? invoiceRef;
 
-  String get displayNumber => 'GRN-${number.toString().padLeft(4, '0')}';
+  /// "DEL-0004": a delivery (in accounting, a goods received note).
+  String get displayNumber => 'DEL-${number.toString().padLeft(4, '0')}';
 
   /// Pesewas still owed for it.
   int get owed => total > paidNow ? total - paidNow : 0;

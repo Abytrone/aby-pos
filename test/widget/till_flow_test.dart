@@ -380,11 +380,11 @@ void main() {
     await tester.tap(find.text('Save delivery'));
     await _settle(tester);
     // What the delivery changed: the cones' stock before and after.
-    expect(find.text('Delivery GRN-0001 received'), findsOneWidget);
+    expect(find.text('Delivery DEL-0001 received'), findsOneWidget);
     expect(find.text('Wafer cones'), findsWidgets);
     await tester.tap(find.text('Done').last);
     await _settle(tester);
-    expect(find.textContaining('GRN-0001'), findsWidgets);
+    expect(find.textContaining('DEL-0001'), findsWidgets);
     expect(find.text('GH₵ 60.00 owed'), findsOneWidget);
 
     // Tapping the delivery opens it: its lines, what is owed, and its PDF.
@@ -398,13 +398,40 @@ void main() {
     // as their cost, its supplier, and its quantity as their usual order.
     await tester.tap(find.text('Update stock items'));
     await _settle(tester);
-    expect(find.text('Update stock items from GRN-0001'), findsOneWidget);
+    expect(find.text('Update stock items from DEL-0001'), findsOneWidget);
     expect(find.textContaining('Supplier none → Tamale Wholesale'), findsOneWidget);
     expect(find.textContaining('Usual order'), findsOneWidget);
     await tester.tap(find.text('Update 1 item'));
     await _settle(tester);
     expect(find.text('1 stock item updated.'), findsOneWidget);
     await tester.pump(const Duration(seconds: 5));
+    await _settle(tester);
+    // Used once: the delivery now says so, and the button rests.
+    await tester.tap(find.text('GH₵ 60.00 owed'));
+    await _settle(tester);
+    expect(find.text('Stock items updated'), findsOneWidget);
+    expect(find.text('Update stock items'), findsNothing);
+    await tester.tap(find.text('Done').last);
+    await _settle(tester);
+
+    // The cones' history names the delivery, and opens it.
+    await tester.tap(find.widgetWithText(Tab, 'Items'));
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Search stock'), 'wafer');
+    await _settle(tester);
+    await tester.tap(find.text('Wafer cones'));
+    await _settle(tester);
+    expect(find.text('Received  ·  DEL-0001 from Tamale Wholesale'), findsOneWidget);
+    await tester.tap(find.text('Received  ·  DEL-0001 from Tamale Wholesale'));
+    await _settle(tester);
+    expect(find.text('Save or print'), findsOneWidget);
+    await tester.tap(find.text('Done').last);
+    await _settle(tester);
+    await tester.tap(find.byType(BackButton));
+    await _settle(tester);
+    await tester.tap(find.byTooltip('Clear'));
+    await _settle(tester);
+    await tester.tap(find.widgetWithText(Tab, 'Deliveries'));
     await _settle(tester);
 
     // Items not in stock yet come in with the delivery: "+ New stock items…"
@@ -428,7 +455,7 @@ void main() {
     expect(find.widgetWithText(TextField, '10.00'), findsNWidgets(2), reason: '50 at GH₵ 0.20, and paid now follows the total');
     await tester.tap(find.text('Save delivery'));
     await _settle(tester);
-    expect(find.text('Delivery GRN-0002 received'), findsOneWidget);
+    expect(find.text('Delivery DEL-0002 received'), findsOneWidget);
     await tester.tap(find.text('Done').last);
     await _settle(tester);
 

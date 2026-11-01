@@ -96,7 +96,7 @@ void main() {
         ),
         by: owner,
       );
-      expect(receipt.displayNumber, 'GRN-0001');
+      expect(receipt.displayNumber, 'DEL-0001');
       expect(receipt.supplierName, 'Tamale Wholesale');
 
       // Its own page and goods received note: lines, paid and owed.
@@ -113,7 +113,12 @@ void main() {
       // each, not the 0.87 average), its supplier and its quantity.
       final plan = DeliveryUpdates.plan(detail, {for (final i in await r.stock.items()) i.id: i});
       expect(plan.single.changes, {DeliveryChange.cost, DeliveryChange.supplier, DeliveryChange.orderQty});
-      expect(await DeliveryUpdates.apply(r.stock, [(plan.single, {DeliveryChange.cost, DeliveryChange.supplier})], by: owner), 1);
+      expect(await DeliveryUpdates.updatedAt(r.audit, receipt), isNull);
+      expect(
+        await DeliveryUpdates.apply(r.stock, r.audit, receipt, [(plan.single, {DeliveryChange.cost, DeliveryChange.supplier})], by: owner),
+        1,
+      );
+      expect(await DeliveryUpdates.updatedAt(r.audit, receipt), isNotNull, reason: 'the delivery is marked as used');
       final updated = await stockItem('Wafer cones');
       expect(updated.costMilli, 100000);
       expect(updated.supplierId, supplierId);
@@ -121,7 +126,7 @@ void main() {
       expect(updated.onHand, 300, reason: 'the stock count is the delivery itself, not changed again');
       final again = DeliveryUpdates.plan(detail, {for (final i in await r.stock.items()) i.id: i});
       expect(again.single.changes, {DeliveryChange.orderQty});
-      await DeliveryUpdates.apply(r.stock, [(again.single, {DeliveryChange.orderQty})], by: owner);
+      await DeliveryUpdates.apply(r.stock, r.audit, receipt, [(again.single, {DeliveryChange.orderQty})], by: owner);
       expect(DeliveryUpdates.plan(detail, {for (final i in await r.stock.items()) i.id: i}), isEmpty);
       // Back to the average for the checks below.
       await r.stock.saveItem(
@@ -159,7 +164,7 @@ void main() {
       );
       await receiving.receive(paid(2500), by: owner);
       final second = await receiving.receive(paid(2600), by: owner);
-      expect(second.displayNumber, 'GRN-0002');
+      expect(second.displayNumber, 'DEL-0002');
     });
 
     test('rejects bad deliveries without saving anything', () async {

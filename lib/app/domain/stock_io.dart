@@ -7,6 +7,7 @@ import '../data/repositories/stock_repository.dart';
 import '../data/repositories/supplier_repository.dart';
 import '../models/audit.dart';
 import '../models/drafts.dart';
+import '../models/catalog.dart';
 import '../models/enums.dart';
 import '../models/purchasing.dart';
 import '../models/staff.dart';
@@ -370,6 +371,38 @@ class StockIo {
   // ---------------------------------------------------------------------------
   // Products from stock
 
+  /// The category a product made from [itemName] most likely belongs in:
+  /// a category named in it ("Vanilla ice cream": Ice cream), else the
+  /// category of a product named in it ("Cones": the Cone product's).
+  /// Longest match wins; null when nothing matches.
+  static String? suggestCategory(String itemName, List<Category> categories, List<Product> products) {
+    final name = ' ${itemName.toLowerCase()} ';
+    bool names(String word) {
+      final w = word.trim().toLowerCase();
+      if (w.length < 3) return false;
+      final singular = w.endsWith('s') ? w.substring(0, w.length - 1) : w;
+      return name.contains(' $w ') ||
+          name.contains(' ${w}s ') ||
+          name.contains(' $singular ') ||
+          name.contains(' ${w}es ');
+    }
+
+    String? best(Iterable<(String, String)> named) {
+      String? id;
+      var length = 0;
+      for (final (word, categoryId) in named) {
+        if (word.length > length && names(word)) {
+          id = categoryId;
+          length = word.length;
+        }
+      }
+      return id;
+    }
+
+    return best([for (final c in categories) (c.name, c.id)]) ??
+        best([for (final p in products.where((p) => !p.archived)) (p.name, p.categoryId)]);
+  }
+
   /// A plan for each active stock item that is not made here: what the
   /// product would sell by and cost, and whether it is already on the menu.
   Future<List<StockProductPlan>> productPlans() async {
@@ -413,28 +446,35 @@ class StockIo {
   /// pesewas), in [categoryId] or a new category called [newCategory]. Each
   /// product's recipe uses its stock item, so selling it takes stock off.
   /// Returns how many were made.
+  ///
+  /// [categoryFor] gives an item its own category (stock item ID →
+  /// category ID); the rest go in [categoryId], or a new category called
+  /// [newCategory].
   Future<int> createProducts(
     List<StockProductPlan> plans, {
     required Map<String, int> prices,
+    Map<String, String> categoryFor = const {},
     String? categoryId,
     String? newCategory,
     bool onTill = true,
     required Staff by,
   }) async {
     if (plans.isEmpty) throw const CatalogueException('Tick at least one stock item.');
-    if (categoryId == null && (newCategory == null || newCategory.trim().isEmpty)) {
-      throw const CatalogueException('Pick a category.');
+    final rest = plans.where((p) => !categoryFor.containsKey(p.item.id));
+    if (rest.isNotEmpty && categoryId == null && (newCategory == null || newCategory.trim().isEmpty)) {
+      throw CatalogueException('Pick a category for ${rest.first.item.name}.');
     }
     for (final p in plans) {
       if (prices[p.item.id] == null) throw CatalogueException('Enter a price for ${p.item.name}.');
     }
     return _db.transaction(() async {
-      final category = categoryId ??
-          await _rules.saveCategory(CategoryDraft(name: newCategory!.trim(), tone: CategoryTone.blue), by: by);
+      final fallback = rest.isEmpty
+          ? null
+          : categoryId ?? await _rules.saveCategory(CategoryDraft(name: newCategory!.trim(), tone: CategoryTone.blue), by: by);
       for (final p in plans) {
         await _rules.saveProduct(
           ProductDraft(
-            categoryId: category,
+            categoryId: categoryFor[p.item.id] ?? fallback!,
             name: p.item.name,
             active: onTill,
             sellBy: p.sellBy,

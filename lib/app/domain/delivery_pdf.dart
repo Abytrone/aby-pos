@@ -21,7 +21,7 @@ abstract final class DeliveryPdf {
     final b = brand ?? PdfBrand.plain();
     final r = d.receipt;
     final made = DateTime.now();
-    final doc = pw.Document(title: 'Goods received ${r.displayNumber}', author: shopName, creator: 'Aby');
+    final doc = pw.Document(title: 'Delivery ${r.displayNumber}', author: shopName, creator: 'Aby');
     final items = DocSheet(
       name: 'Items',
       columns: [
@@ -68,11 +68,11 @@ abstract final class DeliveryPdf {
     doc.addPage(
       pw.MultiPage(
         pageTheme: b.page(),
-        header: (context) => b.runningHeader(context, 'Goods received ${r.displayNumber}', shopName),
+        header: (context) => b.runningHeader(context, 'Delivery ${r.displayNumber}', shopName),
         footer: (context) => b.footer(context, made),
         build: (_) => [
           b.band(
-            eyebrow: 'Goods received note',
+            eyebrow: 'Delivery received',
             title: r.displayNumber,
             shopName: shopName,
             lines: [

@@ -42,6 +42,7 @@ enum AuditAction {
   barcodesGenerated,
   catalogueImported,
   stockImported,
+  stockUpdatedFromDelivery,
   productsFromStock,
   cartLinesRemoved,
   cartCleared,

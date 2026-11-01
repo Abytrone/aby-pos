@@ -45,7 +45,12 @@ class _FromStockState extends State<_FromStock> {
   final _typed = <String, int>{};
   PriceRule _rule = PriceRule.margin;
   int _step = 50;
+  /// The category for rows without their own.
   String? _categoryId;
+
+  /// Rows with their own category: stock item ID → category ID. Filled
+  /// from each item's name where it is clear; changed on the row.
+  final _rowCategory = <String, String>{};
   bool _onTill = true;
   bool _saving = false;
   String? _error;
@@ -58,12 +63,17 @@ class _FromStockState extends State<_FromStock> {
 
   Future<void> _load() async {
     final plans = await _io.productPlans();
+    final catalogue = await Get.find<CatalogRepository>().load(includeInactive: true);
     final categories = await Get.find<CatalogRepository>().categories();
     if (!mounted) return;
     setState(() {
       _plans = plans;
       _categories = categories;
       _categoryId = categories.firstOrNull?.id ?? _newCategory;
+      for (final p in plans) {
+        final guess = StockIo.suggestCategory(p.item.name, categories, catalogue.products);
+        if (guess != null && categories.any((c) => c.id == guess)) _rowCategory[p.item.id] = guess;
+      }
       _ticked.addAll([for (final p in plans) if (p.suggested) p.item.id]);
     });
   }
@@ -123,6 +133,7 @@ class _FromStockState extends State<_FromStock> {
       final made = await _io.createProducts(
         chosen,
         prices: {for (final p in chosen) p.item.id: _priceOf(p)!},
+        categoryFor: {for (final p in chosen) if (_rowCategory[p.item.id] != null) p.item.id: _rowCategory[p.item.id]!},
         categoryId: _categoryId == _newCategory ? null : _categoryId,
         newCategory: _categoryName.text,
         onTill: _onTill,
@@ -188,7 +199,12 @@ class _FromStockState extends State<_FromStock> {
           child: DropdownButtonFormField<String>(
             initialValue: _categoryId,
             isExpanded: true,
-            decoration: InputDecoration(labelText: l.fromStockCategory, isDense: true),
+            decoration: InputDecoration(
+              labelText: l.fromStockDefaultCategory,
+              helperText: l.fromStockDefaultHelp,
+              helperMaxLines: 2,
+              isDense: true,
+            ),
             items: [
               for (final cat in _categories) DropdownMenuItem(value: cat.id, child: Text(cat.name)),
               DropdownMenuItem(value: _newCategory, child: Text(l.fromStockNewCategory)),
@@ -202,6 +218,7 @@ class _FromStockState extends State<_FromStock> {
             child: TextField(
               controller: _categoryName,
               textCapitalization: TextCapitalization.sentences,
+              onChanged: (_) => setState(() {}),
               decoration: InputDecoration(labelText: l.fromStockNewCategoryName, isDense: true),
             ),
           ),
@@ -288,6 +305,41 @@ class _FromStockState extends State<_FromStock> {
     );
   }
 
+  /// The row's category, tap to change: its own, or the one for the rest.
+  Widget _categoryChip(AbyColors c, StockProductPlan p) {
+    final l = context.l10n;
+    final own = _rowCategory[p.item.id];
+    final name = own == null
+        ? (_categoryId == _newCategory
+            ? (_categoryName.text.trim().isEmpty ? l.fromStockNewCategory : _categoryName.text.trim())
+            : _categories.where((x) => x.id == _categoryId).firstOrNull?.name ?? '?')
+        : _categories.where((x) => x.id == own).firstOrNull?.name ?? '?';
+    return PopupMenuButton<String>(
+      tooltip: l.fromStockCategory,
+      onSelected: (v) => setState(() => v.isEmpty ? _rowCategory.remove(p.item.id) : _rowCategory[p.item.id] = v),
+      itemBuilder: (_) => [
+        for (final cat in _categories) CheckedPopupMenuItem(value: cat.id, checked: own == cat.id, child: Text(cat.name)),
+        const PopupMenuDivider(),
+        CheckedPopupMenuItem(value: '', checked: own == null, child: Text(l.fromStockDefaultCategory)),
+      ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(Icons.folder_outlined, size: 14, color: own == null ? c.inkMuted : c.blue),
+          const SizedBox(width: AbySpace.s1),
+          Flexible(
+            child: Text(
+              name,
+              overflow: TextOverflow.ellipsis,
+              style: AbyText.caption.copyWith(color: own == null ? c.inkMuted : c.blue, fontWeight: FontWeight.w600),
+            ),
+          ),
+          Icon(Icons.arrow_drop_down, size: 18, color: own == null ? c.inkMuted : c.blue),
+        ]),
+      ),
+    );
+  }
+
   Widget _row(BuildContext context, AbyColors c, StockProductPlan p) {
     final l = context.l10n;
     final price = _priceOf(p);
@@ -305,6 +357,7 @@ class _FromStockState extends State<_FromStock> {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(p.item.name, style: AbyText.body.copyWith(color: c.ink, fontWeight: FontWeight.w600)),
+            _categoryChip(c, p),
             Text(
               [
                 if (p.cost > 0) l.fromStockCostLine(cost) else l.fromStockNoCost,

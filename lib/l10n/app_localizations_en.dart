@@ -7917,4 +7917,41 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get poNoDeliveries =>
       'Nothing received yet. Create delivery when it arrives.';
+
+  @override
+  String get auditStockUpdatedFromDelivery =>
+      'Stock items updated from a delivery';
+
+  @override
+  String updateAlready(String when) {
+    return 'Stock items were already updated from this delivery ($when).';
+  }
+
+  @override
+  String get deliveryStockUpdated => 'Stock items updated';
+
+  @override
+  String get deliveryStockMatches => 'Stock items match';
+
+  @override
+  String deliveryStockUpdatedOn(String when) {
+    return 'Stock items updated from it $when';
+  }
+
+  @override
+  String moveReceivedFrom(String number) {
+    return 'Received  ·  $number';
+  }
+
+  @override
+  String moveReceivedFromSupplier(String number, String supplier) {
+    return 'Received  ·  $number from $supplier';
+  }
+
+  @override
+  String get fromStockDefaultCategory => 'Category for the rest';
+
+  @override
+  String get fromStockDefaultHelp =>
+      'Each item gets a category from its name where Aby can tell. Change any on its row.';
 }

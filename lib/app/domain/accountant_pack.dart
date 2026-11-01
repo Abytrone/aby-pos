@@ -178,7 +178,7 @@ class AccountantPack {
         'WHERE r.deleted_at IS NULL AND r.created_at >= ? AND r.created_at < ? ORDER BY r.created_at',
         range,
         (x) => [
-          'GRN-${x.read<int>('number').toString().padLeft(4, '0')}',
+          'DEL-${x.read<int>('number').toString().padLeft(4, '0')}',
             _at(x, 'at'),
           x.read<String>('supplier'),
           x.read<String>('invoice'),

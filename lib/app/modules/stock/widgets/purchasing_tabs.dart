@@ -72,10 +72,10 @@ Future<void> showDelivery(PurchasingController ctl, StockReceipt r) => Get.dialo
       final l = context.l10n;
       final c = Theme.of(context).extension<AbyColors>()!;
       final muted = AbyText.caption.copyWith(color: c.inkMuted);
-      return FutureBuilder<DeliveryDetail?>(
-        future: ctl.delivery(r),
+      return FutureBuilder<(DeliveryDetail?, DateTime?, bool)>(
+        future: ctl.deliveryPage(r),
         builder: (context, snap) {
-          final d = snap.data;
+          final (d, updatedAt, matches) = snap.data ?? (null, null, false);
           Widget money(String label, int amount, {Color? color, bool strong = false}) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2),
                 child: Row(children: [
@@ -170,6 +170,12 @@ Future<void> showDelivery(PurchasingController ctl, StockReceipt r) => Get.dialo
                             padding: const EdgeInsets.only(top: AbySpace.s3),
                             child: Text('“${d.note}”', style: muted),
                           ),
+                        if (updatedAt != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: AbySpace.s3),
+                            child: Text(l.deliveryStockUpdatedOn(formatDateTime(updatedAt)),
+                                style: muted.copyWith(color: c.success)),
+                          ),
                       ]),
                     ),
             ),
@@ -180,16 +186,23 @@ Future<void> showDelivery(PurchasingController ctl, StockReceipt r) => Get.dialo
                   icon: const Icon(Icons.picture_as_pdf_outlined),
                   label: Text(l.deliveryPdf),
                 ),
+                // Once used (or nothing differs), the button says so and rests.
                 if (ctl.canReceive)
                   OutlinedButton.icon(
-                    onPressed: d == null
+                    onPressed: d == null || updatedAt != null || matches
                         ? null
                         : () async {
                             goBack<void>();
                             await showUpdateFromDelivery(d);
                           },
-                    icon: const Icon(Icons.sync_alt),
-                    label: Text(l.deliveryUpdateStock),
+                    icon: Icon(updatedAt != null || matches ? Icons.check : Icons.sync_alt),
+                    label: Text(
+                      updatedAt != null
+                          ? l.deliveryStockUpdated
+                          : matches && d != null
+                              ? l.deliveryStockMatches
+                              : l.deliveryUpdateStock,
+                    ),
                   ),
                 FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
               ]),

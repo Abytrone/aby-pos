@@ -1,5 +1,9 @@
 import 'package:get/get.dart';
 
+import '../../../models/purchasing.dart';
+
+import '../../../data/repositories/receiving_repository.dart';
+
 import '../../../core/permissions.dart';
 import '../../../core/units.dart';
 import '../../../data/repositories/stock_repository.dart';
@@ -22,6 +26,9 @@ class StockItemController extends GetxController {
 
   final item = Rxn<StockItem>();
   final movements = <StockMovement>[].obs;
+
+  /// The deliveries behind "Received" movements, by delivery ID.
+  final deliveries = <String, StockReceipt>{}.obs;
   final usedBy = <String>[].obs;
 
   /// Made here: its batch recipe; every stock item, to pick ingredients.
@@ -47,6 +54,10 @@ class StockItemController extends GetxController {
   Future<void> load() async {
     item.value = await _stock.item(itemId);
     movements.assignAll(await _stock.movements(itemId));
+    deliveries.assignAll(await Get.find<ReceivingRepository>().byIds({
+      for (final m in movements)
+        if (m.reason == StockReason.restock && m.refId != null) m.refId!,
+    }));
     usedBy.assignAll(await _stock.usedBy(itemId));
     used28.value = (await _stock.usedSince(DateTime.now().subtract(const Duration(days: 28))))[itemId] ?? 0;
     production.value = await _stock.productionRecipe(itemId);

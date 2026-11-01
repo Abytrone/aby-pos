@@ -768,7 +768,10 @@ products: Products → Tools → **Products from stock** (also on Stock → Tool
   **Markup** (added to the cost: cost 6.00 at 40% sells at 8.40). It starts at your target margin.
 - Choose how prices round (to 10p, 50p or GH₵ 1), always up so the profit is never less.
 - Tap any price to type your own. Each row shows the profit per sale.
-- Pick a category, or make a new one, and **Make products**.
+- Each item gets its **own category** from its name where Aby can tell ("Vanilla ice cream" goes in
+  Ice cream, "Cones" in the category of your Cone product). Tap the category under any item to change
+  it. **Category for the rest** (an existing one, or a new one) is for items Aby could not place.
+- **Make products**.
 
 Each product takes its stock item off when sold. Items kept in grams or millilitres become
 products sold by the kg or litre.
@@ -929,7 +932,13 @@ what else follows the delivery:
 - **Supplier**: who delivered it, so the next order to them suggests it;
 - **Usual order**: the quantity that came, as the amount to order next time.
 
-Only what differs is shown, all ticked to begin with.
+Only what differs is shown, all ticked to begin with. A delivery updates its stock items once: after
+that its button reads **Stock items updated** (with when), or **Stock items match** when there is
+nothing to change.
+
+Deliveries are numbered **DEL-0001**, **DEL-0002** and so on. On a stock item's page, each delivery in
+its history shows its number and supplier ("Received · DEL-0004 from Sally Ent."); tap it to open the
+delivery.
 
 ---
 

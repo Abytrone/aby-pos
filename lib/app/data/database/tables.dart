@@ -250,7 +250,7 @@ class SupplierLedger extends Table with SyncColumns {
 /// A delivery received ("goods received note").
 @DataClassName('StockReceiptRow')
 class StockReceipts extends Table with SyncColumns {
-  /// Per-device sequence, shown as "GRN-0001".
+  /// Per-device sequence, shown as "DEL-0001".
   IntColumn get number => integer()();
   TextColumn get supplierId => text().nullable().references(Suppliers, #id)();
   TextColumn get invoiceRef => text().nullable()();

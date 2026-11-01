@@ -95,6 +95,7 @@ String auditActionLabel(AppLocalizations l, AuditAction a) => switch (a) {
       AuditAction.barcodesGenerated => l.auditBarcodesGenerated,
       AuditAction.catalogueImported => l.auditCatalogueImported,
       AuditAction.stockImported => l.auditStockImported,
+      AuditAction.stockUpdatedFromDelivery => l.auditStockUpdatedFromDelivery,
       AuditAction.productsFromStock => l.auditProductsFromStock,
       AuditAction.cartLinesRemoved => l.auditCartLinesRemoved,
       AuditAction.cartCleared => l.auditCartCleared,

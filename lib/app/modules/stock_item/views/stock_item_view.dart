@@ -12,6 +12,8 @@ import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/layout.dart';
 import '../../../ui/section_page.dart';
+import '../../stock/controllers/purchasing_controller.dart';
+import '../../stock/widgets/purchasing_tabs.dart' show showDelivery;
 import '../../stock/widgets/stock_item_editor.dart';
 import '../controllers/stock_item_controller.dart';
 import '../widgets/production.dart';
@@ -65,11 +67,21 @@ class StockItemView extends GetView<StockItemController> {
               ? [InfoTile(title: l.stockNoMovements)]
               : [
                   for (final m in moves)
-                    InfoTile(
-                      title: reasonLabel(l, m),
-                      subtitle: [formatDateTime(m.at), ?m.byName, ?m.note].join('  ·  '),
-                      value: '${m.quantityChange > 0 ? '+' : ''}${formatQuantity(m.quantityChange, item.unit)}',
-                    ),
+                    () {
+                      // Only deliveries have one; sales and corrections have none.
+                      final delivery = m.refId == null ? null : controller.deliveries[m.refId!];
+                      return InfoTile(
+                        title: delivery == null
+                            ? reasonLabel(l, m)
+                            : delivery.supplierName == null
+                                ? l.moveReceivedFrom(delivery.displayNumber)
+                                : l.moveReceivedFromSupplier(delivery.displayNumber, delivery.supplierName!),
+                        subtitle: [formatDateTime(m.at), ?m.byName, ?m.note].join('  ·  '),
+                        value: '${m.quantityChange > 0 ? '+' : ''}${formatQuantity(m.quantityChange, item.unit)}',
+                        // The delivery it came in, with its PDF and stock update.
+                        onTap: delivery == null ? null : () => showDelivery(Get.find<PurchasingController>(), delivery),
+                      );
+                    }(),
                 ],
         );
         return Align(

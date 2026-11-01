@@ -7,7 +7,9 @@ import '../../../data/repositories/receiving_repository.dart';
 import '../../../data/repositories/stock_count_repository.dart';
 import '../../../data/repositories/stock_repository.dart';
 import '../../../data/repositories/supplier_repository.dart';
+import '../../../data/repositories/audit_repository.dart';
 import '../../../domain/delivery_pdf.dart';
+import '../../../domain/delivery_updates.dart';
 import '../../../domain/purchase_order_pdf.dart';
 import '../../../models/purchasing.dart';
 import '../../../routes/app_routes.dart';
@@ -135,6 +137,16 @@ class PurchasingController extends GetxController {
   }
 
   Future<DeliveryDetail?> delivery(StockReceipt r) => _receiving.detail(r.id);
+
+  /// A delivery for its page: the record, when stock items were updated
+  /// from it (null if never), and whether they already match it anyway.
+  Future<(DeliveryDetail?, DateTime?, bool)> deliveryPage(StockReceipt r) async {
+    final d = await _receiving.detail(r.id);
+    if (d == null) return (null, null, true);
+    final when = await DeliveryUpdates.updatedAt(Get.find<AuditRepository>(), r);
+    final items = {for (final i in await Get.find<StockRepository>().items(includeInactive: true)) i.id: i};
+    return (d, when, DeliveryUpdates.plan(d, items).isEmpty);
+  }
 
   /// Deliveries made from [o], oldest first.
   Future<List<StockReceipt>> deliveriesFor(PurchaseOrder o) => _receiving.forOrder(o.id);

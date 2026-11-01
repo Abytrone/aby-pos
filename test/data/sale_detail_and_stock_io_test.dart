@@ -194,6 +194,21 @@ void main() {
   });
 
   group('Products from stock', () {
+    test('each item gets a category from its name: a category named in it, else a product named in it', () {
+      const iceCream = Category(id: 'c-ice', name: 'Ice cream', tone: CategoryTone.blue);
+      const toppings = Category(id: 'c-top', name: 'Toppings', tone: CategoryTone.blue);
+      const drinks = Category(id: 'c-drinks', name: 'Drinks', tone: CategoryTone.blue);
+      const cone = Product(id: 'p1', categoryId: 'c-top', name: 'Cone', variants: [Variant(id: 'v1', price: 2000)]);
+      const water = Product(id: 'p2', categoryId: 'c-drinks', name: 'Bottled water', variants: [Variant(id: 'v2', price: 500)]);
+      const cats = [iceCream, toppings, drinks];
+      const products = [cone, water];
+      expect(StockIo.suggestCategory('Vanilla ice cream', cats, products), 'c-ice');
+      expect(StockIo.suggestCategory('Cones', cats, products), 'c-top', reason: 'the Cone product, plural');
+      expect(StockIo.suggestCategory('Bottled water', cats, products), 'c-drinks');
+      expect(StockIo.suggestCategory('Napkins', cats, products), isNull, reason: 'left for the category for the rest');
+      expect(StockIo.suggestCategory('Ice', cats, products), isNull, reason: 'a part of a word is not a match');
+    });
+
     test('plans flag items already sold; made products sell from their stock item at the price asked', () async {
       final water = await r.stock.saveItem(
         StockItemDraft(name: 'Bottled water', unit: StockUnit.piece, costMilli: costMilliFromPrice(210, DisplayUnit.piece)),
@@ -211,13 +226,16 @@ void main() {
       expect(sugar.sellBy, SellBy.kg);
       expect(sugar.recipeQuantity, 1000);
 
+      final firstCategory = (await r.catalog.categories()).first;
       final made = await io.createProducts(
         [plan, sugar],
         prices: {water: priceFromCost(plan.cost, 30, PriceRule.margin)!, sugar.item.id: 2000},
+        categoryFor: {sugar.item.id: firstCategory.id},
         newCategory: 'Shop items',
         by: owner,
       );
       expect(made, 2);
+      expect((await product('Groundnut crunch')).categoryId, firstCategory.id, reason: 'its own category');
       final bottle = await product('Bottled water');
       expect(bottle.variants.single.price, 300);
       expect(bottle.variants.single.recipe.single.stockItemId, water);

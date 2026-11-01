@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../core/permissions.dart';
 import '../../../core/units.dart';
+import '../../../data/repositories/audit_repository.dart';
 import '../../../data/repositories/stock_repository.dart';
 import '../../../data/repositories/supplier_repository.dart';
 import '../../../domain/delivery_updates.dart';
@@ -13,12 +14,19 @@ import '../../../services/permission_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
+import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 
 /// Update the stock items on a delivery from it: tick, per item, whether
 /// its cost, supplier and usual order follow the delivery. The stock the
 /// delivery brought in is already counted; this is the rest of the item.
 Future<void> showUpdateFromDelivery(DeliveryDetail d) async {
+  // Already used, or nothing differs: say so instead.
+  final when = await DeliveryUpdates.updatedAt(Get.find<AuditRepository>(), d.receipt);
+  if (when != null) {
+    showMessage(appL10n().updateAlready(formatDateTime(when)));
+    return;
+  }
   final items = {for (final i in await Get.find<StockRepository>().items(includeInactive: true)) i.id: i};
   final suppliers = {for (final s in await Get.find<SupplierRepository>().list(includeInactive: true)) s.id: s.name};
   await Get.dialog<void>(_Update(detail: d, updates: DeliveryUpdates.plan(d, items), suppliers: suppliers));
@@ -50,6 +58,8 @@ class _UpdateState extends State<_Update> {
     try {
       final n = await DeliveryUpdates.apply(
         Get.find<StockRepository>(),
+        Get.find<AuditRepository>(),
+        widget.detail.receipt,
         [for (final u in widget.updates) (u, _picked[u.item.id]!)],
         by: auth.authority,
       );

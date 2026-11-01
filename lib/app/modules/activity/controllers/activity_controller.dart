@@ -94,6 +94,7 @@ enum ActivityFilter {
             AuditAction.barcodesGenerated,
             AuditAction.catalogueImported,
             AuditAction.stockImported,
+            AuditAction.stockUpdatedFromDelivery,
             AuditAction.productsFromStock,
       AuditAction.priceScheduleCancelled,
       AuditAction.stockCountCancelled,

@@ -4682,5 +4682,18 @@
   "@updateDone": {"placeholders": {"count": {"type": "int"}}},
   "deliveryUpdateStock": "Update stock items",
   "poDeliveries": "Deliveries from this order",
-  "poNoDeliveries": "Nothing received yet. Create delivery when it arrives."
+  "poNoDeliveries": "Nothing received yet. Create delivery when it arrives.",
+  "auditStockUpdatedFromDelivery": "Stock items updated from a delivery",
+  "updateAlready": "Stock items were already updated from this delivery ({when}).",
+  "@updateAlready": {"placeholders": {"when": {"type": "String"}}},
+  "deliveryStockUpdated": "Stock items updated",
+  "deliveryStockMatches": "Stock items match",
+  "deliveryStockUpdatedOn": "Stock items updated from it {when}",
+  "@deliveryStockUpdatedOn": {"placeholders": {"when": {"type": "String"}}},
+  "moveReceivedFrom": "Received  ·  {number}",
+  "@moveReceivedFrom": {"placeholders": {"number": {"type": "String"}}},
+  "moveReceivedFromSupplier": "Received  ·  {number} from {supplier}",
+  "@moveReceivedFromSupplier": {"placeholders": {"number": {"type": "String"}, "supplier": {"type": "String"}}},
+  "fromStockDefaultCategory": "Category for the rest",
+  "fromStockDefaultHelp": "Each item gets a category from its name where Aby can tell. Change any on its row."
 }

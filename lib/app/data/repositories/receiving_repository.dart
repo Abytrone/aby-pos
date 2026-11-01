@@ -185,7 +185,11 @@ class ReceivingRepository {
     return [for (final r in await list(limit: 500)) if (ids.contains(r.id)) r].reversed.toList();
   }
 
-  Future<List<StockReceipt>> list({int limit = 50, String? supplierId}) async {
+  /// Deliveries by ID (for the stock item history's links).
+  Future<Map<String, StockReceipt>> byIds(Set<String> ids) async =>
+      ids.isEmpty ? const {} : {for (final r in await list(limit: 100000, ids: ids)) r.id: r};
+
+  Future<List<StockReceipt>> list({int limit = 50, String? supplierId, Set<String>? ids}) async {
     final query =
         _db.select(_db.stockReceipts).join([
             leftOuterJoin(_db.suppliers, _db.suppliers.id.equalsExp(_db.stockReceipts.supplierId)),
@@ -197,6 +201,7 @@ class ReceivingRepository {
           ])
           ..limit(limit);
     if (supplierId != null) query.where(_db.stockReceipts.supplierId.equals(supplierId));
+    if (ids != null) query.where(_db.stockReceipts.id.isIn(ids));
     final rows = await query.get();
     final counts = <String, int>{};
     for (final l in await (_db.select(_db.stockReceiptLines)..where((l) => l.deletedAt.isNull())).get()) {

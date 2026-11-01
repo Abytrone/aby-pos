@@ -13208,6 +13208,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing received yet. Create delivery when it arrives.'**
   String get poNoDeliveries;
+
+  /// No description provided for @auditStockUpdatedFromDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock items updated from a delivery'**
+  String get auditStockUpdatedFromDelivery;
+
+  /// No description provided for @updateAlready.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock items were already updated from this delivery ({when}).'**
+  String updateAlready(String when);
+
+  /// No description provided for @deliveryStockUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock items updated'**
+  String get deliveryStockUpdated;
+
+  /// No description provided for @deliveryStockMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock items match'**
+  String get deliveryStockMatches;
+
+  /// No description provided for @deliveryStockUpdatedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock items updated from it {when}'**
+  String deliveryStockUpdatedOn(String when);
+
+  /// No description provided for @moveReceivedFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Received  ·  {number}'**
+  String moveReceivedFrom(String number);
+
+  /// No description provided for @moveReceivedFromSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Received  ·  {number} from {supplier}'**
+  String moveReceivedFromSupplier(String number, String supplier);
+
+  /// No description provided for @fromStockDefaultCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category for the rest'**
+  String get fromStockDefaultCategory;
+
+  /// No description provided for @fromStockDefaultHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Each item gets a category from its name where Aby can tell. Change any on its row.'**
+  String get fromStockDefaultHelp;
 }
 
 class _AppLocalizationsDelegate
