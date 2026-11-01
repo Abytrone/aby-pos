@@ -14,6 +14,7 @@ import '../../../ui/l10n.dart';
 import '../../../ui/section_page.dart';
 import '../controllers/purchasing_controller.dart';
 import '../controllers/stock_controller.dart';
+import 'stock_item_editor.dart';
 
 String poStatusLabel(AppLocalizations l, PurchaseOrderStatus s) => switch (s) {
       PurchaseOrderStatus.open => l.poOpen,
@@ -95,7 +96,7 @@ Future<void> showPurchaseOrder(PurchasingController ctl, PurchaseOrder o) => Get
                 },
                 child: Text(l.poCancel, style: TextStyle(color: c.danger)),
               ),
-            OutlinedButton.icon(onPressed: () => ctl.shareOrder(o), icon: const Icon(Icons.send_outlined), label: Text(l.poSend)),
+            OutlinedButton.icon(onPressed: () => ctl.shareOrder(o), icon: const Icon(Icons.picture_as_pdf_outlined), label: Text(l.deliveryPdf)),
             if (o.isOpen && ctl.canReceive)
               FilledButton.icon(
                 onPressed: () async {
@@ -124,6 +125,9 @@ class _Line {
 
   String? itemId;
   final TextEditingController quantity;
+
+  /// Bumped after "New stock item…", so the dropdown redraws.
+  int version = 0;
 }
 
 class _NewOrder extends StatefulWidget {
@@ -219,13 +223,27 @@ class _NewOrderState extends State<_NewOrder> {
                   Expanded(
                     flex: 3,
                     child: DropdownButtonFormField<String>(
+                      key: ValueKey((line, line.version)),
                       initialValue: line.itemId,
                       isExpanded: true,
                       decoration: InputDecoration(labelText: l.recipeItem, isDense: true),
                       items: [
                         for (final i in widget.items) DropdownMenuItem(value: i.id, child: Text(i.name, overflow: TextOverflow.ellipsis)),
+                        DropdownMenuItem(
+                          value: newStockItemChoice,
+                          child: Text(l.stockNewItemInline, style: TextStyle(color: c.blue, fontWeight: FontWeight.w600)),
+                        ),
                       ],
-                      onChanged: (v) => setState(() => line.itemId = v),
+                      onChanged: (v) async {
+                        if (v != newStockItemChoice) return setState(() => line.itemId = v);
+                        final item = await createStockItemInline(supplierId: _supplier);
+                        setState(() {
+                          line.version++;
+                          if (item == null) return;
+                          widget.items.add(item);
+                          line.itemId = item.id;
+                        });
+                      },
                     ),
                   ),
                   const SizedBox(width: AbySpace.s2),

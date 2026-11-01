@@ -5,12 +5,14 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'dialogs.dart';
 import 'l10n.dart';
 
-/// Where a made file goes.
-enum FileDestination { share, folder }
+/// Where a made file goes. [open] shows it in the computer's own viewer
+/// (to print it), on desktops only.
+enum FileDestination { share, folder, open }
 
 /// Offers "Share" or "Save to a folder" for a text file (CSV exports).
 /// Returns true when it went somewhere.
@@ -27,8 +29,16 @@ Future<bool> shareOrSaveBytes(String fileName, Uint8List bytes, {String? text, S
   final l = appL10n();
   final where = await choiceDialog<FileDestination>(
     title: title ?? l.exportWhere,
-    options: FileDestination.values,
-    label: (w) => w == FileDestination.share ? l.backupShare : l.backupSaveToFolder,
+    options: [
+      FileDestination.share,
+      FileDestination.folder,
+      if (canOpenFolders && fileName.toLowerCase().endsWith('.pdf')) FileDestination.open,
+    ],
+    label: (w) => switch (w) {
+      FileDestination.share => l.backupShare,
+      FileDestination.folder => l.backupSaveToFolder,
+      FileDestination.open => l.fileOpenToPrint,
+    },
   );
   if (where == null) return false;
   return sendBytes(fileName, bytes, where, text: text);
@@ -44,6 +54,12 @@ Future<bool> sendBytes(String fileName, Uint8List bytes, FileDestination where, 
   final dir = await getTemporaryDirectory();
   final file = File('${dir.path}${Platform.pathSeparator}$fileName');
   await file.writeAsBytes(bytes, flush: true);
+  if (where == FileDestination.open) {
+    // The PDF viewer prints it (Ctrl+P), on paper or to a PDF printer.
+    final opened = await launchUrl(Uri.file(file.path));
+    if (!opened) showMessage(l.fileOpenFailed, tone: MessageTone.error);
+    return opened;
+  }
   final result = await SharePlus.instance.share(ShareParams(files: [XFile(file.path)], subject: fileName, text: text));
   if (result.status == ShareResultStatus.unavailable) {
     showMessage(l.backupShareUnavailable, tone: MessageTone.error);

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
 import '../../../core/units.dart';
+import '../../../data/repositories/stock_repository.dart';
 import '../../../models/drafts.dart';
 import '../../../models/enums.dart';
 import '../../../models/stock.dart';
 import '../../../services/money.dart';
+import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
@@ -19,6 +22,39 @@ String unitLabel(AppLocalizations l, StockUnit u) => switch (u) {
       StockUnit.g => l.unitWeight,
       StockUnit.ml => l.unitVolume,
     };
+
+/// The value an item dropdown uses for "New stock item…".
+const newStockItemChoice = '__new_stock_item__';
+
+/// A new stock item made in the middle of an order or a delivery: the
+/// editor, then the saved item (null when cancelled or refused). [supplierId]
+/// fills in who it comes from when the editor leaves it empty.
+Future<StockItem?> createStockItemInline({String? supplierId}) async {
+  String? id;
+  await showStockItemEditor(onSave: (d) async {
+    final auth = await Get.find<PermissionService>().authorize(Permission.editProducts, reason: appL10n().stockEditReason);
+    if (auth == null) return false;
+    try {
+      id = await Get.find<StockRepository>().saveItem(
+        StockItemDraft(
+          name: d.name,
+          unit: d.unit,
+          costMilli: d.costMilli,
+          reorderPoint: d.reorderPoint,
+          reorderQty: d.reorderQty,
+          supplierId: d.supplierId ?? supplierId,
+          tracksExpiry: d.tracksExpiry,
+        ),
+        by: auth.authority,
+      );
+      return true;
+    } on StockException catch (e) {
+      showMessage(e.message, tone: MessageTone.error);
+      return false;
+    }
+  });
+  return id == null ? null : Get.find<StockRepository>().item(id!);
+}
 
 /// Name, unit, cost (per piece, kg or L) and when to reorder.
 /// [onSave] returns true when saved.

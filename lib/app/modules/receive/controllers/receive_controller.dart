@@ -16,6 +16,7 @@ import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
 import '../../products/controllers/catalogue_controller.dart';
+import '../../stock/widgets/stock_item_editor.dart';
 import '../../../ui/l10n.dart';
 
 /// One line on the delivery form.
@@ -25,6 +26,10 @@ class ReceiveLineForm {
         total = TextEditingController(text: total);
 
   String? stockItemId;
+
+  /// Bumped when the item is set from outside the dropdown (a new item, or
+  /// "New stock item…" cancelled), so the dropdown redraws.
+  int version = 0;
 
   /// Base units on the order, and already received against it, when the
   /// line comes from a purchase order. Such a line may be 0: not delivered.
@@ -131,7 +136,20 @@ class ReceiveController extends GetxController {
     update();
   }
 
+  /// Makes a new stock item from the line's dropdown and puts it on the line.
+  Future<void> newItemFor(ReceiveLineForm line) async {
+    final item = await createStockItemInline(supplierId: supplierId);
+    line.version++;
+    if (item == null) return update();
+    items = [...items, item]..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    setItem(line, item.id);
+  }
+
   void setItem(ReceiveLineForm line, String? id) {
+    if (id == newStockItemChoice) {
+      newItemFor(line);
+      return;
+    }
     line.stockItemId = id;
     final item = itemOf(line);
     line.unit = item == null ? null : DisplayUnit.bulk(item.unit);

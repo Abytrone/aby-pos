@@ -877,7 +877,11 @@ Stock → **Orders → New order**:
    (set on each item, or in the stock import's `order_qty` column).
 2. Change each **Quantity** (in the item's unit: L, kg or pcs), add more, set a **needed by** date
    and a note.
-3. **Share** the order as a PDF by WhatsApp or email.
+3. **Save or print**: the order as a PDF (item, quantity, unit, expected price) to share by
+   WhatsApp or email, save to a folder, or, on a computer, open to print.
+
+Not in your stock list yet? Choose **New stock item…** at the bottom of the item list, fill it in,
+and it goes straight onto the order.
 
 When goods arrive, tap **Receive delivery** on the order (each waiting order has the button in the
 list too). It can arrive in parts: the order goes from **Waiting** to **Part delivered** to
@@ -893,6 +897,7 @@ line shows what was ordered and what came before. Change a **Quantity** if less 
 for what did not come: the order keeps waiting for it.
 
 - What came in: the **Quantity** (in the item's unit) and the **Cost of this line** from the invoice.
+  Something new? **New stock item…** at the bottom of the item list makes it there and then.
 - Batch and expiry date, for items that track them.
 - The supplier, and whether you **paid now** or **owe** it. Without a supplier, it must be paid in
   full.
@@ -907,6 +912,10 @@ After saving, Aby shows what the delivery changed:
 - products whose margin is now **below your target** because costs went up, with **Review
   prices** to go straight to them;
 - **Print labels** for products sold as they came in.
+
+Stock → **Deliveries** lists every delivery with what is still owed. Tap one to see it: each item
+with its quantity, unit and cost, the total, paid and owed. **Save or print** makes its goods
+received note (a PDF with a line to sign) to share, save, or open to print.
 
 ---
 

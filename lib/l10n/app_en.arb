@@ -4627,5 +4627,21 @@
   "stockImportColSupplier": "Who you buy it from. A new name becomes a new supplier.",
   "stockImportColOrderQty": "How much you usually order, in cost_per units.",
   "stockImportNewSuppliers": "New suppliers: {names}",
-  "@stockImportNewSuppliers": {"placeholders": {"names": {"type": "String"}}}
+  "@stockImportNewSuppliers": {"placeholders": {"names": {"type": "String"}}},
+  "fileOpenToPrint": "Open to print",
+  "fileOpenFailed": "The file could not be opened. Save it to a folder and open it from there.",
+  "deliveryTitle": "Delivery {number}",
+  "@deliveryTitle": {"placeholders": {"number": {"type": "String"}}},
+  "deliveryFrom": "From {supplier}",
+  "@deliveryFrom": {"placeholders": {"supplier": {"type": "String"}}},
+  "deliveryAgainstOrder": "For order {number}",
+  "@deliveryAgainstOrder": {"placeholders": {"number": {"type": "String"}}},
+  "deliveryPaid": "Paid",
+  "deliveryOwed": "Owed",
+  "deliveryPdf": "Save or print",
+  "deliveryShareText": "Goods received {number}",
+  "@deliveryShareText": {"placeholders": {"number": {"type": "String"}}},
+  "deliveryEach": "{amount} per {unit}",
+  "@deliveryEach": {"placeholders": {"amount": {"type": "String"}, "unit": {"type": "String"}}},
+  "stockNewItemInline": "New stock item…"
 }

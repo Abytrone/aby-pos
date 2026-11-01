@@ -9,6 +9,7 @@ import 'package:aby_pos/app/data/repositories/supplier_repository.dart';
 import 'package:aby_pos/app/domain/audit_details.dart';
 import 'package:aby_pos/app/domain/business_templates.dart';
 import 'package:aby_pos/app/domain/catalogue_io.dart';
+import 'package:aby_pos/app/domain/delivery_pdf.dart';
 import 'package:aby_pos/app/domain/catalogue_rules.dart';
 import 'package:aby_pos/app/domain/inventory.dart';
 import 'package:aby_pos/app/models/models.dart';
@@ -96,6 +97,16 @@ void main() {
       );
       expect(receipt.displayNumber, 'GRN-0001');
       expect(receipt.supplierName, 'Tamale Wholesale');
+
+      // Its own page and goods received note: lines, paid and owed.
+      final detail = (await receiving.detail(receipt.id))!;
+      expect(detail.lines.single.name, 'Wafer cones');
+      expect(detail.lines.single.quantity, 100);
+      expect(detail.lines.single.lineTotal, 10000);
+      expect(detail.receipt.owed, 6000);
+      expect(detail.receipt.invoiceRef, 'INV-77');
+      final pdf = await DeliveryPdf.build(detail, shopName: 'Scoops Tamale');
+      expect(String.fromCharCodes(pdf.sublist(0, 5)), '%PDF-');
 
       final after = await stockItem('Wafer cones');
       expect(after.onHand, 300);

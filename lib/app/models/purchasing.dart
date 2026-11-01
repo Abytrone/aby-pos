@@ -148,6 +148,51 @@ class StockReceipt {
   final String? invoiceRef;
 
   String get displayNumber => 'GRN-${number.toString().padLeft(4, '0')}';
+
+  /// Pesewas still owed for it.
+  int get owed => total > paidNow ? total - paidNow : 0;
+}
+
+/// One line of a delivery as received.
+class DeliveryLine {
+  const DeliveryLine({
+    required this.name,
+    required this.unit,
+    required this.quantity,
+    required this.unitCostMilli,
+    required this.lineTotal,
+  });
+
+  final String name;
+  final StockUnit unit;
+
+  /// Base units (pieces, grams, ml).
+  final int quantity;
+
+  /// Thousandths of a pesewa per base unit.
+  final int unitCostMilli;
+
+  /// Pesewas.
+  final int lineTotal;
+}
+
+/// A delivery with its lines, for its own page and its PDF.
+class DeliveryDetail {
+  const DeliveryDetail({
+    required this.receipt,
+    required this.lines,
+    this.supplierPhone,
+    this.note,
+    this.orderNumber,
+  });
+
+  final StockReceipt receipt;
+  final List<DeliveryLine> lines;
+  final String? supplierPhone;
+  final String? note;
+
+  /// "PO-0003" when it came against an order.
+  final String? orderNumber;
 }
 
 class StockCount {

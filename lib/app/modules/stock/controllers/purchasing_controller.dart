@@ -7,6 +7,7 @@ import '../../../data/repositories/receiving_repository.dart';
 import '../../../data/repositories/stock_count_repository.dart';
 import '../../../data/repositories/stock_repository.dart';
 import '../../../data/repositories/supplier_repository.dart';
+import '../../../domain/delivery_pdf.dart';
 import '../../../domain/purchase_order_pdf.dart';
 import '../../../models/purchasing.dart';
 import '../../../routes/app_routes.dart';
@@ -133,7 +134,21 @@ class PurchasingController extends GetxController {
     await load();
   }
 
-  Future<List<(String, String, int)>> receiptLines(StockReceipt r) => _receiving.lines(r.id);
+  Future<DeliveryDetail?> delivery(StockReceipt r) => _receiving.detail(r.id);
+
+  /// The goods received note as a PDF: share it, save it, or open it to print.
+  Future<void> shareDelivery(DeliveryDetail d) async {
+    final s = Get.find<SettingsService>();
+    final bytes = await DeliveryPdf.build(
+      d,
+      shopName: s.get(AppSettings.shopName),
+      shopPhone: s.get(AppSettings.shopPhone),
+      shopAddress: s.get(AppSettings.shopAddress),
+      brand: await loadPdfBrand(),
+      logo: shopLogo(),
+    );
+    await shareOrSaveBytes('${d.receipt.displayNumber}.pdf', bytes, text: appL10n().deliveryShareText(d.receipt.displayNumber));
+  }
 
   Future<void> startOrContinueCount({required bool blind}) async {
     var count = openCount.value;

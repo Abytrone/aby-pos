@@ -387,6 +387,15 @@ void main() {
     expect(find.textContaining('GRN-0001'), findsWidgets);
     expect(find.text('GH₵ 60.00 owed'), findsOneWidget);
 
+    // Tapping the delivery opens it: its lines, what is owed, and its PDF.
+    await tester.tap(find.text('GH₵ 60.00 owed'));
+    await _settle(tester);
+    expect(find.text('Save or print'), findsOneWidget);
+    expect(find.text('Owed'), findsOneWidget);
+    expect(find.text('pcs'), findsWidgets);
+    await tester.tap(find.text('Done').last);
+    await _settle(tester);
+
     // Paying it off from the supplier's page.
     await tester.tap(find.text('Suppliers'));
     await _settle(tester);

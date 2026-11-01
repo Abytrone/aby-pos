@@ -13,6 +13,7 @@ import '../../../ui/layout.dart';
 import '../../../ui/option_chip.dart';
 import '../../products/controllers/catalogue_controller.dart';
 import '../../products/widgets/labels_dialog.dart';
+import '../../stock/widgets/stock_item_editor.dart';
 import '../../shell/controllers/shell_controller.dart';
 import '../controllers/receive_controller.dart';
 
@@ -181,10 +182,17 @@ class _LineRow extends StatelessWidget {
           SizedBox(
             width: context.isNarrow ? double.infinity : 260,
             child: DropdownButtonFormField<String>(
+              key: ValueKey((line, line.version)),
               initialValue: line.stockItemId,
               isExpanded: true,
               decoration: InputDecoration(labelText: l.recipeItem, isDense: true),
-              items: [for (final i in ctl.items) DropdownMenuItem(value: i.id, child: Text(i.name, overflow: TextOverflow.ellipsis))],
+              items: [
+                for (final i in ctl.items) DropdownMenuItem(value: i.id, child: Text(i.name, overflow: TextOverflow.ellipsis)),
+                DropdownMenuItem(
+                  value: newStockItemChoice,
+                  child: Text(l.stockNewItemInline, style: TextStyle(color: c.blue, fontWeight: FontWeight.w600)),
+                ),
+              ],
               onChanged: (v) => ctl.setItem(line, v),
             ),
           ),

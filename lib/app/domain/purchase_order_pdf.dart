@@ -16,15 +16,24 @@ abstract final class PurchaseOrderPdf {
     final b = brand ?? PdfBrand.plain();
     final made = DateTime.now();
     final doc = pw.Document(title: 'Purchase order ${o.displayNumber}', author: shopName, creator: 'Aby');
+    // Quantity and unit in columns of their own: "12.5" then "kg".
+    final priced = o.estimate > 0;
     final items = DocSheet(
       name: 'Items',
-      columns: [const DocColumn('Item'), const DocColumn('Quantity', DocKind.count), DocColumn.total('Expected price (${b.currency})')],
+      columns: [
+        const DocColumn('Item'),
+        const DocColumn('Quantity', DocKind.count),
+        const DocColumn('Unit'),
+        if (priced) DocColumn.total('Expected price (${b.currency})'),
+      ],
       rows: [
-            for (final l in o.lines)
-              [
-                l.name,
-                formatQuantity(l.quantity, l.unit),
-                l.estimate == 0 ? null : l.estimate],
+        for (final l in o.lines)
+          [
+            l.name,
+            quantityIn(l.quantity, DisplayUnit.bulk(l.unit)),
+            DisplayUnit.bulk(l.unit).symbol,
+            if (priced) l.estimate == 0 ? null : l.estimate,
+          ],
       ],
     );
     pw.Widget box(String label, List<String> lines) => pw.Expanded(
@@ -72,7 +81,7 @@ abstract final class PurchaseOrderPdf {
             ],
           ),
           pw.SizedBox(height: 14),
-          ...b.table(o.estimate > 0 ? items : DocSheet(name: items.name, columns: items.columns.sublist(0, 2), rows: items.rows)),
+          ...b.table(items),
         if (o.note != null) ...[pw.SizedBox(height: 12), pw.Container(
               padding: const pw.EdgeInsets.all(10),
               decoration: pw.BoxDecoration(

@@ -7742,4 +7742,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String stockImportNewSuppliers(String names) {
     return 'New suppliers: $names';
   }
+
+  @override
+  String get fileOpenToPrint => 'Open to print';
+
+  @override
+  String get fileOpenFailed =>
+      'The file could not be opened. Save it to a folder and open it from there.';
+
+  @override
+  String deliveryTitle(String number) {
+    return 'Delivery $number';
+  }
+
+  @override
+  String deliveryFrom(String supplier) {
+    return 'From $supplier';
+  }
+
+  @override
+  String deliveryAgainstOrder(String number) {
+    return 'For order $number';
+  }
+
+  @override
+  String get deliveryPaid => 'Paid';
+
+  @override
+  String get deliveryOwed => 'Owed';
+
+  @override
+  String get deliveryPdf => 'Save or print';
+
+  @override
+  String deliveryShareText(String number) {
+    return 'Goods received $number';
+  }
+
+  @override
+  String deliveryEach(String amount, String unit) {
+    return '$amount per $unit';
+  }
+
+  @override
+  String get stockNewItemInline => 'New stock item…';
 }

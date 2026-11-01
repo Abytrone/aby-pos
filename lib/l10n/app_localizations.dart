@@ -12980,6 +12980,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New suppliers: {names}'**
   String stockImportNewSuppliers(String names);
+
+  /// No description provided for @fileOpenToPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Open to print'**
+  String get fileOpenToPrint;
+
+  /// No description provided for @fileOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The file could not be opened. Save it to a folder and open it from there.'**
+  String get fileOpenFailed;
+
+  /// No description provided for @deliveryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery {number}'**
+  String deliveryTitle(String number);
+
+  /// No description provided for @deliveryFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From {supplier}'**
+  String deliveryFrom(String supplier);
+
+  /// No description provided for @deliveryAgainstOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'For order {number}'**
+  String deliveryAgainstOrder(String number);
+
+  /// No description provided for @deliveryPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get deliveryPaid;
+
+  /// No description provided for @deliveryOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed'**
+  String get deliveryOwed;
+
+  /// No description provided for @deliveryPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Save or print'**
+  String get deliveryPdf;
+
+  /// No description provided for @deliveryShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Goods received {number}'**
+  String deliveryShareText(String number);
+
+  /// No description provided for @deliveryEach.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} per {unit}'**
+  String deliveryEach(String amount, String unit);
+
+  /// No description provided for @stockNewItemInline.
+  ///
+  /// In en, this message translates to:
+  /// **'New stock item…'**
+  String get stockNewItemInline;
 }
 
 class _AppLocalizationsDelegate

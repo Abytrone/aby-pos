@@ -210,6 +210,55 @@ class ReceivingRepository {
     ];
   }
 
+  /// One delivery with its lines, supplier phone and order number.
+  Future<DeliveryDetail?> detail(String receiptId) async {
+    final row = await (_db.select(_db.stockReceipts)..where((r) => r.id.equals(receiptId))).getSingleOrNull();
+    if (row == null) return null;
+    final supplier = row.supplierId == null
+        ? null
+        : await (_db.select(_db.suppliers)..where((s) => s.id.equals(row.supplierId!))).getSingleOrNull();
+    final order = row.purchaseOrderId == null
+        ? null
+        : await (_db.select(_db.purchaseOrders)..where((o) => o.id.equals(row.purchaseOrderId!))).getSingleOrNull();
+    final rows = await (_db.select(_db.stockReceiptLines).join([
+      innerJoin(_db.stockItems, _db.stockItems.id.equalsExp(_db.stockReceiptLines.stockItemId)),
+    ])
+          ..where(_db.stockReceiptLines.receiptId.equals(receiptId) & _db.stockReceiptLines.deletedAt.isNull())
+          ..orderBy([OrderingTerm(expression: _db.stockReceiptLines.createdAt), OrderingTerm(expression: _db.stockReceiptLines.id)]))
+        .get();
+    final lines = [
+      for (final r in rows)
+        () {
+          final line = r.readTable(_db.stockReceiptLines);
+          final item = r.readTable(_db.stockItems);
+          return DeliveryLine(
+            name: item.name,
+            unit: item.unit,
+            quantity: line.quantity,
+            unitCostMilli: line.unitCostMilli,
+            lineTotal: line.lineTotal,
+          );
+        }(),
+    ];
+    return DeliveryDetail(
+      receipt: StockReceipt(
+        id: row.id,
+        number: row.number,
+        at: row.createdAt,
+        total: row.total,
+        paidNow: row.paidNow,
+        receivedByName: row.receivedByName,
+        lineCount: lines.length,
+        supplierName: supplier?.name,
+        invoiceRef: row.invoiceRef,
+      ),
+      lines: lines,
+      supplierPhone: supplier?.phone,
+      note: row.note,
+      orderNumber: order == null ? null : formatPurchaseOrderNumber(order.number),
+    );
+  }
+
   /// "12 pcs Wafer cones, GH₵ 9.60" lines for one delivery.
   Future<List<(String name, String quantity, int total)>> lines(String receiptId) async {
     final rows = await (_db.select(_db.stockReceiptLines).join([
