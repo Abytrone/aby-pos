@@ -265,7 +265,7 @@ main()
               6. apply the theme setting
               7. BackupService.finishPendingRestore()   audits a restore that just happened
               8. PriceScheduler.run()              scheduled prices whose day has come
-              9. if there are staff (unawaited):   daily backup · monthly accountant pack ·
+              9. if there are staff (unawaited):   backup schedule · monthly accountant pack ·
                                                    notifications
              10. start display server, start hub (unawaited; never in training)
              11. StatusService.refresh()
@@ -284,7 +284,7 @@ failures show up in the status centre (the dot in the header), not as crashes.
 | `aby_pos.sqlite` | data folder (below) | the shop's real data |
 | `aby_pos_training.sqlite` | same folder | the training copy |
 | `aby_pos.training` | same folder | marker file: while it exists, the training copy is opened |
-| `backups/aby-*.sqlite` | application **support** folder | local snapshots (the newest 14 are kept) |
+| `backups/aby-*.sqlite` | application **support** folder | local snapshots (the newest 14, and one a day for 14 days); Settings shows the path |
 | `aby_pos.license` | application support folder | this device's licence (outside the database on purpose) |
 | `aby_pos.install` | application support folder | machine ID fallback on Android (§16) |
 | `logs/aby_pos.log` | application support folder | the crash log (§26.3) |
@@ -606,8 +606,10 @@ rows. Ledgers only ever add rows, so they never conflict during sync.
 - **Phone numbers:** stored as `+233XXXXXXXXX` (`Validators.normalisePhone`), shown as
   `024 123 4567`.
 - **The business day** ([business_day.dart](lib/app/core/business_day.dart)) starts at 05:00 by
-  default (`AppSettings.businessDayStart`), so a sale at 01:30 belongs to the evening before. Use
-  `BusinessDay.containing(moment, startMinutes: …)` for "today", not midnight.
+  default (`AppSettings.businessDayStart`, minutes after midnight; Settings offers midnight and
+  every hour to 10:00), so a sale at 01:30 belongs to the evening before. Use
+  `BusinessDay.containing(moment, startMinutes: …)` for "today", not midnight. Today, close day,
+  the dashboard, alerts, staff figures and daily order numbers all do.
 
 ### 9.7 Repositories
 
@@ -1193,8 +1195,35 @@ tests.
 
 | Kind | How |
 |---|---|
-| Local snapshot | a consistent copy of the open database into `support/backups/aby-<timestamp>.sqlite`, checked after copying; the newest `backup.keep` (14) are kept. Made daily at start-up (`autoBackupIfDue`), at day close, by *Back up now*, and before every restore or merge. |
+| Local snapshot | a consistent copy of the open database (`VACUUM INTO`) into `support/backups/aby-<timestamp>.sqlite`, checked after copying. Made on a schedule (below), at day close, by *Back up now*, and before every restore or merge. |
 | Off-device | `.abybak`: a fresh snapshot encrypted with the backup password, shared (WhatsApp, Drive, email) or saved to a folder or USB stick. The status centre turns amber after `backup.offsiteReminderDays` (7) without one. |
+
+**Schedule.** `startSchedule()` runs at start-up (when staff exist) and calls `autoBackupIfDue()`
+straight away and then once a minute. It is skipped when:
+
+- `backup.autoDaily` is off (the key is from when backups were daily; it is now the on/off switch);
+- training mode is on, or a backup is already running;
+- the last one is younger than `backup.everyMinutes` (1 to 60, or 1440 for once a day; default 30),
+  less 30 s of timer drift, or 20 h for once a day;
+- **nothing changed**: SQLite's `total_changes()` is the same as just after the last backup (taken
+  after that backup's own meta and audit writes).
+
+Only the day's first automatic backup is written to the audit log; manual ones always are.
+`restore` stops the schedule before closing the database, and `onClose` stops it too
+(`BackupService` is a `GetxService`, so tests' `Get.deleteAll` clears the timer).
+
+**Keeping.** `_prune` keeps the newest `backup.keep` (14), then the newest of each earlier calendar
+day until that many days are covered: at one a minute there is still one from each of the last two
+weeks.
+
+**Live state.** `running` (an `RxBool`) and `lastBackupAt` (`Rxn<DateTime>`) change as backups
+happen; `nextBackupAt` is derived. The header's status chip pulses and says "Backing up…" while
+`running`, says "Backed up" for 4 s after `lastBackupAt` moves, and otherwise names the worst
+check (`StatusService.needing`) rather than a generic warning. The status centre opens with a
+backup panel (always a *Back up now*), and `BackupController` exposes `folder` and
+`openBackupsFolder()` ([files.dart](lib/app/ui/files.dart) `openFolder`: Explorer, Finder or
+`xdg-open`; desktops only). Restore and branch-merge pickers open in the backups folder
+(`initialDirectory`).
 
 The `.abybak` format ([backup_codec.dart](lib/app/services/backup/backup_codec.dart)):
 
@@ -1305,11 +1334,11 @@ state (`paying`, `done`, `cancelPaying`).
 | `HubService` | hub or member sync | every 3 s |
 | `PriceScheduler` | puts scheduled prices into effect | at start, then hourly |
 | `AccountsExportService` | last month's accountant pack to a folder, once per month, catching up to 12 missed months | at start, then hourly, if `device.accountsMonthly` |
-| `BackupService.autoBackupIfDue` | daily local snapshot | at start |
+| `BackupService` schedule | local snapshot every `backup.everyMinutes`, skipped when nothing changed (§19.1) | at start, then every minute |
 | `NotificationService` + `AlertService` | low stock, overdue credit, backups due, day left open, old parked orders, expenses due → phone or Windows notifications, each kind at most once a day unless it grows; per-person opt-out | started after sign-in data exists |
 | `InsightService` | dashboard insights (stock running out, falling margins, late customers, cash short), dismissible | on demand |
 | `ClockService` | whether the signed-in person is clocked in or on a break (`staff.clockInToSell`); offers clocking in after sign-in (§13.5) | reactive |
-| `StatusService` | the status centre: local and off-device backups, audit chain, sync, printer, accountant pack | at start and after relevant actions |
+| `StatusService` | the status centre: local and off-device backups, audit chain, sync, printer, recovery code, accountant pack | at start, every 10 min, and after relevant actions (including each backup) |
 | `PrintService` | print queue retries | timer while jobs wait |
 
 Background work must never block the till and must surface failures in the status centre rather
@@ -1449,7 +1478,7 @@ tests are not left with drift's cleanup timer.
 - **Fix time** with `withClock(Clock.fixed(...), () async { ... })` from `package:clock` for
   anything about business days, schedules or expiry.
 - **Services take seams** for files, clocks and timers (`BackupService(backupsDirectory:,
-  tempDirectory:, liveDatabaseFile:, iterations:)`, `LicenseService(machineId:, file:,
+  tempDirectory:, liveDatabaseFile:, iterations:, clock:)`, `LicenseService(machineId:, file:,
   publicKey:)`, `HubService(port: 0, every: …)`, `SessionService(clock:)`). Use them, and add them
   to new services.
 - Use lower PBKDF2 `iterations` in tests to keep them fast.
@@ -1665,7 +1694,7 @@ Open product questions are listed in [FEATURES.md §20](docs/FEATURES.md).
 | **Wallet** | money held for a customer (paid ahead, kept change, refunds) |
 | **Parked order** | a cart put aside under a name; also how the live cart is saved |
 | **Variant** | a size or price point of a product (every product has at least one) |
-| **Option group** | modifiers such as Toppings, with min, max and repeats |
+| **Option group** | modifiers such as Extras or Sugar level, with min, max and repeats; the group's name is the heading on the till's sheet |
 | **Stock item** | what is counted (pieces, g, ml); products use stock items through **recipes** |
 | **Movement** | one entry in the stock ledger |
 | **Outbox** | rows changed on this device and not yet sent |

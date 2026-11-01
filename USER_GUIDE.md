@@ -204,8 +204,10 @@ From left to right:
 
 - **Your shop's name.** When you have more than one branch, a badge shows which one this till is
   at.
-- **The status dot**, which answers *"Is everything safe?"* (18.1). Green means all safe. Amber or
-  red means something needs you. Tap it to see what, with a button to fix it.
+- **The status dot**, which answers *"Is everything safe?"* (18.1). It says what is happening:
+  it pulses with **Backing up…** while a backup is made, then shows **Backed up**. Otherwise green
+  means **All safe**, and amber or red names what needs you, such as **Copy a backup off**. Tap it
+  to see everything, with **Back up now** and a button to fix each problem.
 - **Search** (or **Ctrl+K** on a keyboard). One box finds products, customers, sales (by number or
   MoMo reference), staff and actions. Type "close day", "add an expense" or "receive stock" and
   press Enter. You only see what you're allowed to do.
@@ -264,7 +266,7 @@ makes tiles smaller or larger.
 |---|---|
 | Add one | Tap the product |
 | Add several | Type the number (for example **3**), then tap the product |
-| Choose a size or toppings | Tap the product: a sheet opens with its sizes and options. Pick, then **Add** |
+| Choose a size or options | Tap the product: a sheet opens with its sizes and options. Pick, then **Add** |
 | Find by name | Type in the box at the top: results show as you type |
 | Scan a barcode | Scan with your scanner: no need to tap the box first. On Android, the camera button scans too |
 | Use a short code | Type the code (for example **12**) and press Enter |
@@ -440,7 +442,7 @@ difference is paid or given back.
 sold it, and refunds or voids. At the top: **Total sales**, **Number of sales**, **Refunds**.
 
 > **When does the day start?** At 05:00 by default, so a sale at 1:30 am counts on the evening
-> before. Change this in Settings → Shop → **Day starts at**.
+> before. Change this in Settings → Shop → **Business day starts at** (18.6).
 
 ### 5.2 Finding a sale
 
@@ -677,7 +679,7 @@ Tap **Add** (or a product to edit it):
   "Double scoop GH₵ 22.00") for more.
 - **Sold by:** each, by the kg, or by the litre.
 - **Open price:** the cashier types the price, between limits you can set.
-- **Options:** add option groups such as Toppings (9.3).
+- **Options:** add option groups such as Extras or Sugar level (9.3).
 - **Barcodes:** scan them in, or type them. A short code (like `12`) works as a barcode too.
 - **Photo:** take one or pick one. Without a photo, the tile shows the category's picture.
 - **Cost:** what it costs you, or a **recipe** that uses stock (10.3). Aby uses this for profit.
@@ -696,7 +698,9 @@ picture on the till.
 
 ### 9.3 Options
 
-Options are add-ons such as **Toppings**, **Milk** or **Sauce**. For each group set:
+Options are choices or add-ons on a product, such as **Extras**, **Milk**, **Sugar level** or
+**Sauce**. Name each group for your shop: the name is the heading the cashier sees on the till.
+For each group set:
 
 - the **least** and **most** a customer can pick ("pick 1", "up to 3");
 - whether the same one can be picked **twice** ("double sprinkles");
@@ -1209,24 +1213,45 @@ Your shop's data lives on your till, so keeping it safe matters. Aby does most o
 
 ### 18.1 The status dot: "Is everything safe?"
 
-Tap the dot at the top. It checks:
+The dot at the top follows what is happening:
+
+| The dot says | Means |
+|---|---|
+| **Backing up…** (pulsing) | a backup is being made right now |
+| **Backed up** | one just finished (for a few seconds) |
+| **All safe** | nothing needs you |
+| What needs you, such as **Copy a backup off** or **Backup due** | the most urgent problem; **+1**, **+2** when there are more |
+
+Tap it to see the details. At the top is **Backup on this device**: when the last backup was made,
+when the next automatic one runs, a **Back up now** button that is always there, and **Open folder**
+on a computer. Below it, each check:
 
 | Check | Green when |
 |---|---|
-| **Backup on this device** | one was made recently |
 | **Backup off this device** | one was sent away in the last 7 days |
 | **Activity log** | *"Checked. Nothing has been changed."* |
 | **Sync** | the hub is reachable, or nothing is waiting |
 | **Receipt printer** | *"Ready. Nothing waiting."* |
+| **PIN recovery code** | the signed-in owner has one |
 | **Accountant pack** | the last monthly pack was saved |
 
 Amber or red comes with a button to fix it.
 
 ### 18.2 Automatic backups
 
-- Aby **backs up by itself every day**, and **after every close day**, on the till.
-- It keeps the last **14** (Settings → Backup → **Backups to keep on this device**).
-- **Back up now** makes one straight away.
+- Aby **backs up by itself** while it is open, and **after every close day**, on the till.
+- Choose how often in Settings → Backup → **Back up every**: every **1, 5, 10, 15, 20, 25, 30, 35,
+  40, 45, 50 or 55 minutes**, **1 hour**, or **once a day**. New shops back up every 30 minutes.
+  Turn **Automatic backups** off to stop them.
+- When nothing has changed since the last backup, Aby skips it: the last one is still up to date.
+- It keeps the newest **14**, and the last one of each day before them for 14 days, so backing up
+  every minute still leaves last week's (Settings → Backup → **Backups to keep on this device**).
+- **Back up now** makes one straight away, in Settings or from the status dot.
+
+**Where are they?** Settings → Backup → **Backup folder** shows the full path. **Copy path**
+copies it; on a computer, **Open folder** shows it in File Explorer (Windows) or Finder (Mac).
+Copy the files from there to a USB stick if you like, but **Send a backup off this device** (18.3)
+is the safer way: it is locked with your password.
 
 ### 18.3 Backups off the till
 
@@ -1245,7 +1270,9 @@ The file is encrypted with your password. Aby reminds you after 7 days without o
 Settings → Backup → **Restore from a file** (or pick one of the **Backups on this device**). Needs
 *Restore a backup*, which owners have by default.
 
-1. Choose the backup and type its password.
+1. Choose the backup. The file window opens in the **backup folder**, so the till's own backups are
+   right there; go to a USB stick, Downloads or anywhere else from there. Type its password if it
+   is an `.abybak` file.
 2. Aby shows what is in it (shop name, number of sales, date) so you can check it's the right one.
 3. Confirm. Aby **keeps a safety copy of your data as it is now**, puts the backup in place, and
    restarts.
@@ -1261,6 +1288,27 @@ hub again, and newer changes made on the other tills come back.
    again.
 4. **Licence:** a licence is tied to its device. Send the new till's device code to get a key for
    it.
+
+### 18.6 When does the business day end?
+
+Most of Aby works by **business day**: Today, close day, the dashboard, reports, alerts and the
+daily order numbers (A1, A2…). A business day does not have to end at midnight.
+
+A chop bar open from 4 pm to 2 am serves one night, but midnight would cut it in two: half of
+tonight's sales on today, half on tomorrow, the drawer count not matching, and order numbers back
+to A1 in the middle of service. So Aby starts the day at **05:00** by default: everything from
+05:00 to 04:59 the next morning is one day, named after the day it started.
+
+Settings → Shop → **Business day starts at**. Pick **a time when you are closed**:
+
+| Your shop | Pick |
+|---|---|
+| Closes before midnight (pharmacy, boutique) | anything; **Midnight** is simplest |
+| Open past midnight (bar, chop bar) | an hour after you close, such as 05:00 or 06:00 |
+| Starts work early but opens late (bakery) | before you start, such as 04:00 |
+| Works through the night, opens mid-morning | up to **10:00** |
+
+The setting shows what it means, for example *"Runs 06:00 to 05:59 the next morning."*
 
 ---
 
@@ -1304,7 +1352,7 @@ till.
 | Commission | Off, a percent of sales, or per product |
 | Loyalty | Stamps, points or Gold |
 | Promotions | Automatic deals |
-| Day starts at | Sales before this time count on the previous day (05:00 by default) |
+| Business day starts at | Midnight, or any hour up to 10:00 (05:00 by default). Sales before it count on the previous day (18.6) |
 
 ### Selling
 
@@ -1355,12 +1403,14 @@ till.
 
 | Setting | What it does |
 |---|---|
-| Back up every day | Automatic daily backup on the till |
+| Automatic backups | On or off. Shows the last backup and when the next one runs |
+| Back up every | 1 to 60 minutes, or once a day (30 minutes by default) |
 | Back up now, Backups on this device | Make or restore a local backup |
+| Backup folder | Where the backups are, with **Copy path** and **Open folder** |
 | Send a backup off this device | Encrypted backup to share or save |
 | Change the backup password | For new backups |
 | Restore from a file | Bring back a backup |
-| Backups to keep on this device | 14 by default |
+| Backups to keep on this device | The newest 14, and one a day for 14 days, by default |
 | Remind me to send a backup every | 7 days by default |
 | Send this branch's data, Bring in a branch data file | Between branches (17.2) |
 | Save the accountant's pack every month, Where the packs are saved | Monthly accounts (13.4) |
@@ -1432,7 +1482,8 @@ other, join by typing the hub's address and code.
 Aby lists names that appear twice. Archive the extra ones.
 
 **The status dot is amber.**
-Tap it. Usually it's a backup due. Tap the button beside it.
+It names what needs you, for example **Copy a backup off** (send a backup off the till, 18.3) or
+**No recovery code** (make one in your profile). Tap it, then tap the button beside the problem.
 
 **The activity log says entries were changed outside Aby.**
 Someone edited Aby's data file directly. Talk to your Aby supplier, and restore a backup from
@@ -1493,7 +1544,7 @@ or getting your licence key.
 
 | Word | Means |
 |---|---|
-| **Business day** | Your trading day. Starts at 05:00 by default, so late-night sales count on the evening's day |
+| **Business day** | Your trading day. Starts at 05:00 by default (any hour up to 10:00), so late-night sales count on the evening's day |
 | **Cart** | The items being rung up |
 | **Close day / Z report** | The end-of-day count of the drawer |
 | **Credit book** | Customers who buy now and pay later |
