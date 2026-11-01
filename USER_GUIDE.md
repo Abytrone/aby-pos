@@ -266,7 +266,8 @@ makes tiles smaller or larger.
 |---|---|
 | Add one | Tap the product |
 | Add several | Type the number (for example **3**), then tap the product |
-| Choose a size or options | Tap the product: a sheet opens with its sizes and options. Pick, then **Add** |
+| Choose a size or options | Tap the product: a sheet opens with its sizes and options (toppings, sugar level), the usual ones already ticked. Pick, then **Add** |
+| Add one plain, fast | Press and hold a product with options: it goes in as it stands, with no sheet |
 | Find by name | Type in the box at the top: results show as you type |
 | Scan a barcode | Scan with your scanner: no need to tap the box first. On Android, the camera button scans too |
 | Use a short code | Type the code (for example **12**) and press Enter |
@@ -286,8 +287,10 @@ Tap a line in the cart to:
 
 - change the **quantity**, or the **size and options**;
 - give a **discount** on that line (3.4);
-- **change the price** (needs *Change a price at the till*, or someone's PIN; it goes in the
-  activity log);
+- **type the price**, for products set to *Price typed at the till*;
+- **change the price** of any other product, only if you are allowed to *Change a price at the
+  till*. For everyone else the price just shows and can't be changed. Changes go in the activity
+  log;
 - add a **note** ("no sugar", "extra cold");
 - **remove** it.
 
@@ -424,6 +427,8 @@ cash payments are rounded. The rounding is recorded on each sale and counted at 
 - **Credit sales** can print two copies: one for the customer, and one for the shop with a line to
   sign.
 - Every receipt has a **QR code**. Scan it at the till or in Refund to open that sale.
+- Receipts, refunds, gift vouchers and counter statements end with the small Aby mark and
+  **Powered by Aby**.
 - Design your receipt in Settings → Receipts and orders → **Receipt design** (15.2).
 
 ### 4.7 Exchanges

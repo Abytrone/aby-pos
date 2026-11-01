@@ -43,6 +43,10 @@ class _LineEditorState extends State<_LineEditor> {
 
   DisplayUnit get _unit => _start.product.sellBy == SellBy.litre ? DisplayUnit.l : DisplayUnit.kg;
 
+  /// The price is typed for "Price typed at the till" products, and changed
+  /// by people who may override prices. Everyone else just sees it.
+  bool get _priceTyped => _start.product.openPrice || till.canOverridePrice;
+
   @override
   void dispose() {
     _quantity.dispose();
@@ -88,15 +92,27 @@ class _LineEditorState extends State<_LineEditor> {
     if (quantity == null || quantity < 1) {
       return setState(() => _error = current.weighed ? l.tillWeightInvalid : l.lineQuantityInvalid);
     }
-    final price = parseMoney(_price.text);
-    if (price == null) return setState(() => _error = l.tillPriceInvalid);
-    if (price != current.unitPrice) {
-      final error = await till.setLinePrice(widget.lineKey, price);
-      if (error != null) return setState(() => _error = error);
+    if (_priceTyped) {
+      final price = parseMoney(_price.text);
+      if (price == null) return setState(() => _error = l.tillPriceInvalid);
+      if (price != current.unitPrice) {
+        final error = await till.setLinePrice(widget.lineKey, price);
+        if (error != null) return setState(() => _error = error);
+      }
     }
     till.cart.setQuantity(widget.lineKey, quantity);
     till.cart.setLineNote(widget.lineKey, _note.text);
     goBack<void>();
+  }
+
+  /// The limits an open price must keep to, when the product has any.
+  String? _range(CartLine line) {
+    final l = context.l10n;
+    final min = line.product.minPrice, max = line.product.maxPrice;
+    if (min != null && max != null) return l.lineOpenPriceBetween(formatMoney(min), formatMoney(max));
+    if (min != null) return l.lineOpenPriceMin(formatMoney(min));
+    if (max != null) return l.lineOpenPriceMax(formatMoney(max));
+    return null;
   }
 
   Future<void> _remove() async {
@@ -157,20 +173,42 @@ class _LineEditorState extends State<_LineEditor> {
                 ],
               ),
               const SizedBox(height: AbySpace.s3),
-              TextField(
-                controller: _price,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(
-                  labelText: per == null ? l.linePrice : l.entryPricePerLabel(per),
-                  prefixText: 'GH₵ ',
-                  helperText: current.product.openPrice
-                      ? null
-                      : current.priceOverridden
-                      ? l.lineMenuPrice(formatMoney(current.listPrice))
-                      : l.linePriceHelp,
-                  helperMaxLines: 2,
+              if (_priceTyped)
+                TextField(
+                  controller: _price,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    labelText: per == null ? l.linePrice : l.entryPricePerLabel(per),
+                    prefixText: 'GH₵ ',
+                    helperText: current.product.openPrice
+                        ? _range(current)
+                        : current.priceOverridden
+                        ? l.lineMenuPrice(formatMoney(current.listPrice))
+                        : l.linePriceHelp,
+                    helperMaxLines: 2,
+                  ),
+                )
+              else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        per == null ? l.linePrice : l.entryPricePerLabel(per),
+                        style: AbyText.body.copyWith(color: c.inkMuted),
+                      ),
+                    ),
+                    if (current.priceOverridden) ...[
+                      Text(
+                        l.lineMenuPrice(formatMoney(current.listPrice)),
+                        style: AbyText.caption.copyWith(color: c.inkMuted),
+                      ),
+                      const SizedBox(width: AbySpace.s3),
+                    ],
+                    Text(formatMoney(current.unitPrice), style: AbyText.body.copyWith(fontWeight: FontWeight.w700)),
+                  ],
                 ),
-              ),
               const SizedBox(height: AbySpace.s3),
               TextField(
                 controller: _note,

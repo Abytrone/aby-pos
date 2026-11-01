@@ -1889,8 +1889,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linePrice => 'Price for one';
 
   @override
-  String get linePriceHelp =>
-      'Changing it needs permission to override prices.';
+  String get linePriceHelp => 'A changed price is recorded under your name.';
 
   @override
   String get lineNote => 'Note';
@@ -5443,6 +5442,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String entryMax(String price) {
     return 'up to $price';
+  }
+
+  @override
+  String lineOpenPriceBetween(String min, String max) {
+    return 'Between $min and $max.';
+  }
+
+  @override
+  String lineOpenPriceMin(String min) {
+    return 'At least $min.';
+  }
+
+  @override
+  String lineOpenPriceMax(String max) {
+    return 'Up to $max.';
   }
 
   @override

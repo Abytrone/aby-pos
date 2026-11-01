@@ -29,7 +29,8 @@ class FakeLink implements PrinterLink {
   }
 }
 
-String _text(Uint8List bytes) => String.fromCharCodes(bytes.where((b) => b >= 32 && b < 127));
+String _text(Uint8List bytes) =>
+    String.fromCharCodes(bytes.where((b) => b >= 32 && b < 127));
 
 void main() {
   late AppDatabase db;
@@ -48,7 +49,13 @@ void main() {
     settings = SettingsService(SettingsRepository(db, r.device, r.audit));
     await settings.load();
     link = FakeLink();
-    printing = PrintService(settings, ReceiptRepository(db), r.device, links: (_) => link, retryAfter: const Duration(hours: 1));
+    printing = PrintService(
+      settings,
+      ReceiptRepository(db),
+      r.device,
+      links: (_) => link,
+      retryAfter: const Duration(hours: 1),
+    );
   });
   tearDown(() async {
     printing.onClose();
@@ -56,15 +63,27 @@ void main() {
   });
 
   Future<void> setUpPrinter({bool drawer = false, bool auto = true}) async {
-    await settings.set(AppSettings.receiptPrinter, const PrinterTarget(kind: PrinterKind.network, address: '10.0.0.9').encode(), by: owner);
+    await settings.set(
+      AppSettings.receiptPrinter,
+      const PrinterTarget(
+        kind: PrinterKind.network,
+        address: '10.0.0.9',
+      ).encode(),
+      by: owner,
+    );
     await settings.set(AppSettings.cashDrawer, drawer, by: owner);
     await settings.set(AppSettings.autoPrint, auto, by: owner);
   }
 
-  Future<void> settle() => Future<void>.delayed(const Duration(milliseconds: 20));
+  Future<void> settle() =>
+      Future<void>.delayed(const Duration(milliseconds: 20));
 
   test('no printer: nothing queues and the sale is not held up', () async {
-    final sale = await r.sales.completeSale(lines: [CartLine(product: named('Waffle'))], payments: [const PaymentInput.cash(tendered: 2000)], cashier: cashier);
+    final sale = await r.sales.completeSale(
+      lines: [CartLine(product: named('Waffle'))],
+      payments: [const PaymentInput.cash(tendered: 2000)],
+      cashier: cashier,
+    );
     await printing.afterSale(sale.saleId);
     expect(printing.queue, isEmpty);
     expect(await printing.printSale(sale.saleId), isFalse);
@@ -74,7 +93,11 @@ void main() {
   test('a cash sale prints its receipt with the drawer kick first', () async {
     await setUpPrinter(drawer: true);
     await settings.set(AppSettings.receiptFooter, 'Akwaaba!', by: owner);
-    final sale = await r.sales.completeSale(lines: [CartLine(product: named('Waffle'))], payments: [const PaymentInput.cash(tendered: 2000)], cashier: cashier);
+    final sale = await r.sales.completeSale(
+      lines: [CartLine(product: named('Waffle'))],
+      payments: [const PaymentInput.cash(tendered: 2000)],
+      cashier: cashier,
+    );
     await printing.afterSale(sale.saleId);
     await settle();
     final bytes = link.sent.single;
@@ -86,12 +109,22 @@ void main() {
 
   test('printing off: a cash sale still opens the drawer, MoMo does not', () async {
     await setUpPrinter(drawer: true, auto: false);
-    final cash = await r.sales.completeSale(lines: [CartLine(product: named('Waffle'))], payments: [const PaymentInput.cash(tendered: 2000)], cashier: cashier);
+    final cash = await r.sales.completeSale(
+      lines: [CartLine(product: named('Waffle'))],
+      payments: [const PaymentInput.cash(tendered: 2000)],
+      cashier: cashier,
+    );
     await printing.afterSale(cash.saleId);
     await settle();
     expect(link.sent.single, EscPos.kickOnly());
-    final momo = (await r.payMethods.list()).firstWhere((m) => m.name == 'MTN MoMo');
-    final sale = await r.sales.completeSale(lines: [CartLine(product: named('Waffle'))], payments: [PaymentInput.from(momo, reference: 'MP-1')], cashier: cashier);
+    final momo = (await r.payMethods.list()).firstWhere(
+      (m) => m.name == 'MTN MoMo',
+    );
+    final sale = await r.sales.completeSale(
+      lines: [CartLine(product: named('Waffle'))],
+      payments: [PaymentInput.from(momo, reference: 'MP-1')],
+      cashier: cashier,
+    );
     await printing.afterSale(sale.saleId);
     await settle();
     expect(link.sent, hasLength(1));
@@ -104,11 +137,14 @@ void main() {
 
   test('credit sales print a customer copy and a shop copy', () async {
     await setUpPrinter();
-    final id = await r.customers.save(const CustomerDraft(name: 'Kofi Mensah'), by: owner);
+    final id = await r.customers.save(
+      const CustomerDraft(name: 'Yahaya Fatahiya'),
+      by: owner,
+    );
     final kofi = (await r.customers.find(id))!;
     final sale = await r.sales.completeSale(
       lines: [CartLine(product: named('Waffle'))],
-      payments: [const PaymentInput.credit(customer: 'Kofi Mensah')],
+      payments: [const PaymentInput.credit(customer: 'Yahaya Fatahiya')],
       customer: kofi,
       cashier: cashier,
     );
@@ -117,19 +153,27 @@ void main() {
     expect(link.sent, hasLength(2));
     expect(_text(link.sent[0]), contains('CUSTOMER COPY'));
     expect(_text(link.sent[1]), contains('SHOP COPY'));
-    expect(_text(link.sent[1]), contains('Customer: Kofi Mensah'));
+    expect(_text(link.sent[1]), contains('Customer: Yahaya Fatahiya'));
   });
 
   test('the printer off: jobs wait, then go when it is back', () async {
     await setUpPrinter();
     link.down = true;
-    final sale = await r.sales.completeSale(lines: [CartLine(product: named('Waffle'))], payments: [const PaymentInput.cash(tendered: 2000)], cashier: cashier);
+    final sale = await r.sales.completeSale(
+      lines: [CartLine(product: named('Waffle'))],
+      payments: [const PaymentInput.cash(tendered: 2000)],
+      cashier: cashier,
+    );
     await printing.afterSale(sale.saleId);
     await printing.printSale(sale.saleId);
     await settle();
     expect(printing.queue, hasLength(2));
     expect(printing.problem, 'The printer is off.');
-    expect(printing.queue.first.attempts, greaterThanOrEqualTo(1), reason: 'each new job tries the stuck ones again');
+    expect(
+      printing.queue.first.attempts,
+      greaterThanOrEqualTo(1),
+      reason: 'each new job tries the stuck ones again',
+    );
     link.down = false;
     await printing.retryNow();
     expect(printing.queue, isEmpty);
@@ -137,27 +181,66 @@ void main() {
     expect(printing.problem, isNull);
   });
 
-  test('a reprint is noted in the activity log; the first print is not', () async {
-    printing.onClose();
-    printing = PrintService(settings, ReceiptRepository(db), r.device,
-        links: (_) => link, retryAfter: const Duration(hours: 1), audit: r.audit, signedIn: () => cashier);
-    await setUpPrinter(auto: false);
-    final sale = await r.sales.completeSale(lines: [CartLine(product: named('Waffle'))], payments: [const PaymentInput.cash(tendered: 2000)], cashier: cashier);
-    await printing.printSale(sale.saleId, reprint: false);
-    expect(await r.audit.list(actions: {AuditAction.receiptReprinted}), isEmpty);
-    await printing.printSale(sale.saleId);
-    final logged = (await r.audit.list(actions: {AuditAction.receiptReprinted})).single;
-    expect(logged.actorName, cashier.name);
-    expect(logged.summary, contains('printed again (GH₵ 12.00)'));
-  });
+  test(
+    'a reprint is noted in the activity log; the first print is not',
+    () async {
+      printing.onClose();
+      printing = PrintService(
+        settings,
+        ReceiptRepository(db),
+        r.device,
+        links: (_) => link,
+        retryAfter: const Duration(hours: 1),
+        audit: r.audit,
+        signedIn: () => cashier,
+      );
+      await setUpPrinter(auto: false);
+      final sale = await r.sales.completeSale(
+        lines: [CartLine(product: named('Waffle'))],
+        payments: [const PaymentInput.cash(tendered: 2000)],
+        cashier: cashier,
+      );
+      await printing.printSale(sale.saleId, reprint: false);
+      expect(
+        await r.audit.list(actions: {AuditAction.receiptReprinted}),
+        isEmpty,
+      );
+      await printing.printSale(sale.saleId);
+      final logged = (await r.audit.list(
+        actions: {AuditAction.receiptReprinted},
+      )).single;
+      expect(logged.actorName, cashier.name);
+      expect(logged.summary, contains('printed again (GH₵ 12.00)'));
+    },
+  );
 
   test('refund slips, and the receipt QR code finds the sale', () async {
     await setUpPrinter(drawer: true);
-    final sale = await r.sales.completeSale(lines: [CartLine(product: named('Waffle'))], payments: [const PaymentInput.cash(tendered: 2000)], cashier: cashier);
+    final sale = await r.sales.completeSale(
+      lines: [CartLine(product: named('Waffle'))],
+      payments: [const PaymentInput.cash(tendered: 2000)],
+      cashier: cashier,
+    );
     final line = (await r.refunds.refundable(sale.saleId))!.lines.single;
     final refund = await r.refunds.refund(
-      RefundDraft(saleId: sale.saleId, reason: 'Other', lines: [RefundLineDraft(saleLineId: line.saleLineId, name: line.title, quantity: 1)]),
-      payments: [const RefundPaymentInput(method: PaymentMethod.cash, methodName: 'Cash', amount: 1200)],
+      RefundDraft(
+        saleId: sale.saleId,
+        reason: 'Other',
+        lines: [
+          RefundLineDraft(
+            saleLineId: line.saleLineId,
+            name: line.title,
+            quantity: 1,
+          ),
+        ],
+      ),
+      payments: [
+        const RefundPaymentInput(
+          method: PaymentMethod.cash,
+          methodName: 'Cash',
+          amount: 1200,
+        ),
+      ],
       actor: owner,
     );
     await printing.afterRefund(refund.refundId);
@@ -169,8 +252,14 @@ void main() {
 
     final receipt = (await ReceiptRepository(db).sale(sale.saleId))!;
     expect(receipt.refunded, 1200);
-    expect(await r.refunds.saleIdByNumber(ReceiptCode.encode(sale.saleId)), sale.saleId);
-    expect(await r.refunds.saleIdByNumber(ReceiptCode.encode('not-a-sale')), isNull);
+    expect(
+      await r.refunds.saleIdByNumber(ReceiptCode.encode(sale.saleId)),
+      sale.saleId,
+    );
+    expect(
+      await r.refunds.saleIdByNumber(ReceiptCode.encode('not-a-sale')),
+      isNull,
+    );
   });
 
   test('a network printer gets the bytes on port 9100', () async {
@@ -181,7 +270,8 @@ void main() {
       await socket.forEach(all.addAll);
       got.complete(all);
     });
-    await NetworkLink('127.0.0.1:${server.port}').send(Uint8List.fromList([1, 2, 3]));
+    await NetworkLink('127.0.0.1:${server.port}')
+        .send(Uint8List.fromList([1, 2, 3]));
     expect(await got.future.timeout(const Duration(seconds: 5)), [1, 2, 3]);
     await server.close();
 
@@ -190,7 +280,10 @@ void main() {
     final port = closed.port;
     await closed.close();
     await expectLater(
-      NetworkLink('127.0.0.1:$port', timeout: const Duration(seconds: 2)).send(Uint8List(1)),
+      NetworkLink(
+        '127.0.0.1:$port',
+        timeout: const Duration(seconds: 2),
+      ).send(Uint8List(1)),
       throwsA(isA<PrinterException>()),
     );
   });

@@ -3763,7 +3763,7 @@ abstract class AppLocalizations {
   /// No description provided for @linePriceHelp.
   ///
   /// In en, this message translates to:
-  /// **'Changing it needs permission to override prices.'**
+  /// **'A changed price is recorded under your name.'**
   String get linePriceHelp;
 
   /// No description provided for @lineNote.
@@ -9861,6 +9861,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'up to {price}'**
   String entryMax(String price);
+
+  /// No description provided for @lineOpenPriceBetween.
+  ///
+  /// In en, this message translates to:
+  /// **'Between {min} and {max}.'**
+  String lineOpenPriceBetween(String min, String max);
+
+  /// No description provided for @lineOpenPriceMin.
+  ///
+  /// In en, this message translates to:
+  /// **'At least {min}.'**
+  String lineOpenPriceMin(String min);
+
+  /// No description provided for @lineOpenPriceMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {max}.'**
+  String lineOpenPriceMax(String max);
 
   /// No description provided for @lineMenuPrice.
   ///

@@ -123,6 +123,30 @@ void main() {
     expect(ReceiptBuilder.sale(sample(), design, reprint: true).toText(Paper.mm58), contains('REPRINT'));
   });
 
+  test('sale and refund receipts end with the Aby mark and "Powered by Aby"', () {
+    const design = ReceiptDesign(shopName: 'S');
+    final blocks = ReceiptBuilder.sale(sample(), design).blocks;
+    final mark = blocks.indexWhere((b) => b is RMark);
+    expect(mark, greaterThan(blocks.indexWhere((b) => b is RQr)), reason: 'at the very foot');
+    expect((blocks[mark + 1] as RText).text, 'Powered by Aby');
+    expect(blocks.last, same(blocks[mark + 1]));
+    expect(ReceiptBuilder.sale(sample(), design).toText(Paper.mm58).trimRight(), endsWith('Powered by Aby'));
+
+    // The printer draws the mark itself: centred, no wider than asked, with
+    // the ring's hole, the dot and the bar where they belong.
+    final bmp = MonoBitmap.abyMark(size: 86);
+    expect(bmp.width, 86);
+    expect(bmp.height, 76);
+    // Mark units map 1:1 here, offset by (12.5, 30.5).
+    expect(bmp.dark(50 - 12, 40 - 30), isTrue, reason: 'top of the ring');
+    expect(bmp.dark(50 - 12, 68 - 30), isFalse, reason: 'the hole');
+    expect(bmp.dark(28 - 12, 52 - 30), isTrue, reason: 'the dot');
+    expect(bmp.dark(87 - 12, 70 - 30), isTrue, reason: 'the bar');
+    expect(bmp.dark(15 - 12, 55 - 30), isFalse, reason: 'the opening, between the ring and the dot');
+    final bytes = EscPos.encode(ReceiptDoc('t', const [RMark()]), Paper.mm80, cut: false);
+    expect(_contains(bytes, [0x1D, 0x76, 0x30, 0x00, 8, 0]), isTrue, reason: '64 dots = 8 bytes a row on 80 mm');
+  });
+
   test('credit: two copies, and the shop copy has a line to sign', () {
     const design = ReceiptDesign(shopName: 'S', copies: {'credit': 2});
     final credit = sample(payments: const [Payment(id: 'p', method: PaymentMethod.credit, methodName: 'Credit', amount: 4800)]);

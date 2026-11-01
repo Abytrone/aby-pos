@@ -23,6 +23,15 @@ Future<void> _settle(WidgetTester tester) async {
   }
 }
 
+/// A tap on a product with options opens the picker, the usual ones ticked;
+/// Add puts it in as it stands.
+Future<void> _addPlain(WidgetTester tester, String product) async {
+  await tester.tap(find.text(product));
+  await _settle(tester);
+  await tester.tap(find.textContaining(RegExp(r'^Add GH₵')));
+  await _settle(tester);
+}
+
 Future<void> _typePin(WidgetTester tester, String pin) async {
   for (final digit in pin.split('')) {
     await tester.tap(find.widgetWithText(InkWell, digit).last);
@@ -109,8 +118,7 @@ void main() {
     await _settle(tester);
     await tester.tap(find.text('Add GH₵ 25.00'));
     await _settle(tester);
-    await tester.tap(find.text('Waffle'));
-    await _settle(tester);
+    await _addPlain(tester, 'Waffle');
 
     await tester.tap(find.text('Pay GH₵ 37.00'));
     await _settle(tester);
@@ -434,8 +442,7 @@ void main() {
     await tester.enterText(search, '3');
     await _settle(tester);
     expect(find.text('Tap a product to add 3, or press Enter for code 3'), findsOneWidget);
-    await tester.tap(find.text('Waffle'));
-    await _settle(tester);
+    await _addPlain(tester, 'Waffle');
     expect(find.text('Pay GH₵ 36.00'), findsOneWidget);
 
     // 10% off the line is within a cashier's limit: no PIN needed.
@@ -501,8 +508,7 @@ void main() {
     // Two waffles: GH₵ 10 by MTN MoMo, the rest in cash.
     final search = find.widgetWithText(TextField, 'Search, scan, or type a code');
     await tester.enterText(search, '2');
-    await tester.tap(find.text('Waffle'));
-    await _settle(tester);
+    await _addPlain(tester, 'Waffle');
     await tester.tap(find.text('Pay GH₵ 24.00'));
     await _settle(tester);
     await tester.tap(find.text('MTN MoMo'));
@@ -571,8 +577,7 @@ void main() {
     await _signIn(tester, '101', '1234');
 
     // A new customer from the till, with just a name and phone.
-    await tester.tap(find.text('Waffle'));
-    await _settle(tester);
+    await _addPlain(tester, 'Waffle');
     await tester.tap(find.text('Add a customer'));
     await _settle(tester);
     await tester.tap(find.text('New customer'));
@@ -685,8 +690,7 @@ void main() {
     await _settle(tester);
     await _signIn(tester, '101', '1234');
 
-    await tester.tap(find.text('Waffle'));
-    await _settle(tester);
+    await _addPlain(tester, 'Waffle');
     await tester.tap(find.text('Pay GH₵ 12.00'));
     await _settle(tester);
     await tester.tap(find.text('Exact'));
@@ -725,8 +729,7 @@ void main() {
     await _settle(tester);
     await _signIn(tester, '101', '1234');
 
-    await tester.tap(find.text('Waffle'));
-    await _settle(tester);
+    await _addPlain(tester, 'Waffle');
     await tester.tap(find.text('Pay GH₵ 12.00'));
     await _settle(tester);
     await tester.tap(find.text('Exact'));
@@ -831,8 +834,7 @@ void main() {
 
     await tester.tap(find.text('Sell'));
     await _settle(tester);
-    await tester.tap(find.text('Waffle'));
-    await _settle(tester);
+    await _addPlain(tester, 'Waffle');
     expect(find.text('Half price: −GH₵ 6.00'), findsOneWidget);
     expect(find.text('Pay GH₵ 6.00'), findsOneWidget);
 
@@ -901,8 +903,7 @@ void main() {
 
     await tester.tap(find.text('Sell'));
     await _settle(tester);
-    await tester.tap(find.text('Waffle'));
-    await _settle(tester);
+    await _addPlain(tester, 'Waffle');
     await tester.tap(find.text('Pay GH₵ 12.00'));
     await _settle(tester);
     await tester.tap(find.text('Exact'));
@@ -992,8 +993,7 @@ void main() {
 
     await tester.tap(find.text('Sell'));
     await _settle(tester);
-    await tester.tap(find.text('Waffle'));
-    await _settle(tester);
+    await _addPlain(tester, 'Waffle');
     await tester.tap(find.text('Pay GH₵ 12.00'));
     await _settle(tester);
     expect(find.text('Clock in to sell'), findsOneWidget);
@@ -1047,6 +1047,9 @@ void main() {
     await _settle(tester);
     expect(find.text('PRODUCTS'), findsOneWidget);
     await tester.tap(find.widgetWithText(ListTile, 'Waffle'));
+    await _settle(tester);
+    // Its toppings are offered first.
+    await tester.tap(find.text('Add GH₵ 12.00'));
     await _settle(tester);
     expect(find.text('Pay GH₵ 12.00'), findsOneWidget, reason: 'on the Sell screen, in the cart');
 
@@ -1113,8 +1116,7 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await _settle(tester);
 
-    await tester.tap(find.text('Waffle'));
-    await _settle(tester);
+    await _addPlain(tester, 'Waffle');
     await tester.tap(find.text('Pay GH₵ 12.00'));
     await _settle(tester);
     // First the float, which the cashier may put in, then clocking in.
@@ -1135,8 +1137,7 @@ void main() {
     // On a break: Pay asks to end it. The day is started, so no float again.
     unawaited(Get.find<ClockService>().toggleBreak());
     await _settle(tester);
-    await tester.tap(find.text('Waffle'));
-    await _settle(tester);
+    await _addPlain(tester, 'Waffle');
     await tester.tap(find.text('Pay GH₵ 12.00'));
     await _settle(tester);
     expect(find.text('Float at the start'), findsNothing);
@@ -1186,8 +1187,7 @@ void main() {
     // Phones show the list view; Waffle is further down it.
     await tester.scrollUntilVisible(find.text('Waffle'), 200,
         scrollable: find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down).first);
-    await tester.tap(find.text('Waffle'));
-    await _settle(tester);
+    await _addPlain(tester, 'Waffle');
     expect(find.text('Cart (1)'), findsOneWidget);
     expect(find.text('Pay GH₵ 12.00'), findsOneWidget);
 

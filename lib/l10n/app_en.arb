@@ -612,7 +612,7 @@
   "lineQuantity": "Quantity",
   "lineQuantityInvalid": "Enter a quantity of at least 1.",
   "linePrice": "Price for one",
-  "linePriceHelp": "Changing it needs permission to override prices.",
+  "linePriceHelp": "A changed price is recorded under your name.",
   "lineNote": "Note",
   "lineNoteHelp": "For the kitchen or the order ticket, e.g. \"no nuts\".",
   "lineAddDiscount": "Add a discount",
@@ -2570,6 +2570,33 @@
   "@entryMax": {
     "placeholders": {
       "price": {
+        "type": "String"
+      }
+    }
+  },
+  "lineOpenPriceBetween": "Between {min} and {max}.",
+  "@lineOpenPriceBetween": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "lineOpenPriceMin": "At least {min}.",
+  "@lineOpenPriceMin": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "lineOpenPriceMax": "Up to {max}.",
+  "@lineOpenPriceMax": {
+    "placeholders": {
+      "max": {
         "type": "String"
       }
     }

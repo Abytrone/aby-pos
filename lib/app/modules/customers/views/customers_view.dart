@@ -7,6 +7,7 @@ import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/query_field.dart';
 import '../../../ui/option_chip.dart';
 import '../../../ui/section_page.dart';
 import '../controllers/customers_controller.dart';
@@ -35,10 +36,7 @@ class CustomersView extends GetView<CustomersController> {
         padding: const EdgeInsets.fromLTRB(AbySpace.s4, 0, AbySpace.s4, AbySpace.s2),
         child: Row(children: [
           Expanded(
-            child: TextField(
-              onChanged: (v) => controller.query.value = v,
-              decoration: InputDecoration(prefixIcon: const Icon(Icons.search), hintText: l.customerSearchHint, isDense: true),
-            ),
+            child: QueryField(query: controller.query, hint: l.customerSearchHint),
           ),
           const SizedBox(width: AbySpace.s3),
           Obx(() => OptionChip(

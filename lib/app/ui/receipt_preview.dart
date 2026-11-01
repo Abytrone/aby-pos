@@ -1,5 +1,6 @@
 import 'package:barcode/barcode.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../domain/receipt/receipt_doc.dart';
@@ -72,6 +73,12 @@ class ReceiptPreview extends StatelessWidget {
                     width: width * 0.6,
                     color: Colors.grey,
                     colorBlendMode: BlendMode.saturation,
+                  ),
+                ),
+              RMark() => Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: AbySpace.s2),
+                    child: SvgPicture.string(abyMarkSvg, width: 28, height: 28, semanticsLabel: 'Aby'),
                   ),
                 ),
               RText(:final bold, :final big) => lines(b, bold: bold, big: big),

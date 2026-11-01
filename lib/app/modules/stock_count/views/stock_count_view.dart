@@ -9,6 +9,7 @@ import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/query_field.dart';
 import '../../../ui/layout.dart';
 import '../controllers/stock_count_controller.dart';
 
@@ -78,10 +79,7 @@ class StockCountView extends GetView<StockCountController> {
             child: Wrap(spacing: AbySpace.s3, runSpacing: AbySpace.s2, crossAxisAlignment: WrapCrossAlignment.center, children: [
               SizedBox(
                 width: context.isNarrow ? double.infinity : 260,
-                child: TextField(
-                  onChanged: (v) => controller.query.value = v,
-                  decoration: InputDecoration(prefixIcon: const Icon(Icons.search), hintText: l.stockSearch, isDense: true),
-                ),
+                child: QueryField(query: controller.query, hint: l.stockSearch),
               ),
               Text(
                 l.countProgress(controller.countedCount, controller.lines.length),

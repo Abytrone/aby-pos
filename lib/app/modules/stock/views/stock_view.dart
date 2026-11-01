@@ -10,6 +10,7 @@ import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
+import '../../../ui/query_field.dart';
 import '../../../ui/layout.dart';
 import '../../../ui/section_page.dart';
 import '../controllers/purchasing_controller.dart';
@@ -174,14 +175,7 @@ class _Items extends GetView<StockController> {
               children: [
                 SizedBox(
                   width: context.isNarrow ? double.infinity : 260,
-                  child: TextField(
-                    onChanged: (v) => controller.query.value = v,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search),
-                      hintText: l.stockSearch,
-                      isDense: true,
-                    ),
-                  ),
+                  child: QueryField(query: controller.query, hint: l.stockSearch),
                 ),
                 for (final f in StockFilter.values)
                   ChoiceChip(

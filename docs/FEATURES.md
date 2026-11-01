@@ -162,8 +162,9 @@ These replace today's fixed "variants + toppings" with a general system.
   option sets the base price (a cone is GH₵ 15 single, GH₵ 22 double).
 - **The picker sheet** shows the groups in order and checks the rules as you go. The "Add"
   button shows the running price and stays disabled until every required group is answered.
-- **Defaults:** each group can preselect an option. Products where every group has a default are
-  added with one tap; a long press opens the picker.
+- **Defaults:** each group can preselect an option. A tap on a product with options always opens
+  the picker (the defaults already ticked), so extras are offered every time. A long press adds
+  it as it stands when its defaults cover every required group, and opens the picker otherwise.
 - **Sold lines** store the chosen options as a snapshot (name and price), as they do today.
 
 ### SEL-03 Barcode and code entry [Standard]

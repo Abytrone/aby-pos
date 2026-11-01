@@ -69,6 +69,19 @@ class RImage extends ReceiptBlock {
   final Uint8List png;
 }
 
+/// The Aby mark, small and centred: the sign-off at the foot of a receipt.
+class RMark extends ReceiptBlock {
+  const RMark();
+}
+
+/// The mark in black (assets/brand/aby-mark-mono.svg), for screens and PDFs.
+/// Printers draw it from its circles instead: see MonoBitmap.abyMark.
+const abyMarkSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="5.25 18.00 100 100">'
+    '<path fill="#000000" d="M44.78 30.86 A37.5 37.5 0 1 1 13.32 75.80 A10.5 10.5 0 0 1 33.86 71.43 '
+    'A16.5 16.5 0 1 0 47.70 51.66 A10.5 10.5 0 0 1 44.78 30.86 Z M77 48.5 A10.5 10.5 0 0 1 98 48.5 '
+    'L98 95.5 A10.5 10.5 0 0 1 77 95.5 Z"/>'
+    '<path fill="#000000" d="M18.38 52.51 a9.5 9.5 0 1 0 19.0 0 a9.5 9.5 0 1 0 -19.0 0 Z"/></svg>';
+
 class RFeed extends ReceiptBlock {
   const RFeed([this.lines = 1]);
 
@@ -113,7 +126,7 @@ List<String> layout(ReceiptBlock b, int width) {
       return ['-' * width];
     case RFeed(:final lines):
       return List.filled(lines, '');
-    case RQr() || RImage() || RBarcode():
+    case RQr() || RImage() || RBarcode() || RMark():
       return const [];
   }
 }

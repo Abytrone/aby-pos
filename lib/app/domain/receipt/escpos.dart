@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:barcode/barcode.dart';
@@ -53,6 +54,43 @@ class MonoBitmap {
       for (var x = from; x < to && x < width; x++) {
         for (var y = 0; y < height; y++) {
           bmp.bits[y * bmp.bytesPerRow + (x >> 3)] |= 0x80 >> (x & 7);
+        }
+      }
+    }
+    return bmp;
+  }
+
+  /// The Aby mark, [size] dots across. Drawn from its shapes rather than
+  /// from a picture, so it is crisp at any size: a thick ring open on the
+  /// left with round ends, a dot in the opening and a round-ended bar.
+  factory MonoBitmap.abyMark({int size = 64}) {
+    // The mark's own units (as in aby-mark.svg), trimmed to its ink.
+    const left = 12.5, top = 30.5, across = 85.5, down = 75.5;
+    final scale = size / across;
+    final height = (down * scale).ceil();
+    final bmp = MonoBitmap(size, height, Uint8List(((size + 7) ~/ 8) * height));
+    bool within(double x, double y, double cx, double cy, double r) =>
+        (x - cx) * (x - cx) + (y - cy) * (y - cy) <= r * r;
+    bool ink(double x, double y) {
+      // The ring: centre (50, 68), 16.5 to 37.5 out, from 98° above the
+      // right-hand axis round clockwise 266°, with round ends.
+      final d2 = (x - 50) * (x - 50) + (y - 68) * (y - 68);
+      if (d2 >= 16.5 * 16.5 && d2 <= 37.5 * 37.5) {
+        final angle = (math.atan2(y - 68, x - 50) * 180 / math.pi + 98) % 360;
+        if (angle <= 266) return true;
+      }
+      return within(x, y, 46.24, 41.26, 10.5) ||
+          within(x, y, 23.59, 73.62, 10.5) ||
+          within(x, y, 27.88, 52.51, 9.5) ||
+          (x >= 77 && x <= 98 && y >= 48.5 && y <= 95.5) ||
+          within(x, y, 87.5, 48.5, 10.5) ||
+          within(x, y, 87.5, 95.5, 10.5);
+    }
+
+    for (var py = 0; py < height; py++) {
+      for (var px = 0; px < size; px++) {
+        if (ink(left + (px + 0.5) / scale, top + (py + 0.5) / scale)) {
+          bmp.bits[py * bmp.bytesPerRow + (px >> 3)] |= 0x80 >> (px & 7);
         }
       }
     }
@@ -169,6 +207,8 @@ abstract final class EscPos {
         case RImage(:final png):
           final bmp = MonoBitmap.picture(png, maxWidth: paper.dots);
           if (bmp != null) out.add(raster(bmp));
+        case RMark():
+          out.add(raster(MonoBitmap.abyMark(size: paper == Paper.mm58 ? 48 : 64)));
       }
     }
     if (cut) {

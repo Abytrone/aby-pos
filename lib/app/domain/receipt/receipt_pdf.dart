@@ -33,6 +33,12 @@ abstract final class ReceiptPdf {
                 ),
               ),
             RImage(:final png) => pw.Center(child: pw.Image(pw.MemoryImage(png), width: 120)),
+            RMark() => pw.Center(
+                child: pw.Padding(
+                  padding: const pw.EdgeInsets.only(top: 4),
+                  child: pw.SvgImage(svg: brand?.mark ?? abyMarkSvg, width: 22, height: 22),
+                ),
+              ),
             RBarcode(:final data) => pw.Center(
                 child: pw.BarcodeWidget(barcode: pw.Barcode.code128(), data: data, width: 140, height: 40, drawText: false),
               ),

@@ -339,7 +339,7 @@ class TillController extends GetxController {
       openPicker(product, quantity: qty);
       return TapResult.picker;
     }
-    if (variant != null && product.groups.any((g) => g.required && !g.accepts(g.defaults.length))) {
+    if (variant != null && product.groups.isNotEmpty) {
       openPicker(product, quantity: qty, variant: variant);
       return TapResult.picker;
     }
@@ -348,11 +348,20 @@ class TillController extends GetxController {
     return TapResult.added;
   }
 
-  /// Long press: the picker for any product with something to choose.
-  bool longPressProduct(Product product) {
-    if (!product.hasChoices || product.needsEntry) return false;
-    openPicker(product, quantity: pendingQuantity ?? 1);
-    return true;
+  /// Long press: the quick way round. A product whose defaults cover it goes
+  /// straight in as it stands (no extras); one with sizes or a choice to
+  /// make opens the picker. Null when there is nothing to choose.
+  TapResult? longPressProduct(Product product) {
+    if (!product.hasChoices || product.needsEntry) return null;
+    final qty = pendingQuantity ?? 1;
+    if (!product.addsAsIs) {
+      openPicker(product, quantity: qty);
+      return TapResult.picker;
+    }
+    if (_blockedOut(product)) return TapResult.blocked;
+    cart.add(product, options: [for (final g in product.groups) ...g.defaults], quantity: qty);
+    clearSearch();
+    return TapResult.added;
   }
 
   /// Out of stock: allowed with a warning, or refused, by the shop setting.
@@ -427,14 +436,18 @@ class TillController extends GetxController {
         final (product, variant) = hit;
         search.clear();
         if (!product.weighed) {
-          cart.add(product, variant: variant);
-        } else if (_settings.get(AppSettings.scaleValue) == 'price') {
+          // Not sold by weight after all: as if its own code was scanned.
+          final result = tapProduct(product, variant: variant);
+          return result == TapResult.added ? CodeAdded(product) : CodeNeedsInput(product, result);
+        }
+        final options = [for (final g in product.groups) ...g.defaults];
+        if (_settings.get(AppSettings.scaleValue) == 'price') {
           // The label shows the price: work the weight out from it.
           final perKg = variant.price;
           final grams = perKg <= 0 ? 0 : (scale.value * 1000 + perKg ~/ 2) ~/ perKg;
-          cart.add(product, variant: variant, quantity: grams < 1 ? 1 : grams);
+          cart.add(product, variant: variant, options: options, quantity: grams < 1 ? 1 : grams);
         } else {
-          cart.add(product, variant: variant, quantity: scale.value < 1 ? 1 : scale.value);
+          cart.add(product, variant: variant, options: options, quantity: scale.value < 1 ? 1 : scale.value);
         }
         return CodeAdded(product);
       }

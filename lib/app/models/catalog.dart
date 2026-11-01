@@ -239,9 +239,13 @@ class Product {
   /// Something to choose: more than one variant, or option groups.
   bool get hasChoices => variants.length > 1 || groups.isNotEmpty;
 
-  /// One tap is enough: one variant, and every required group is covered
-  /// by its defaults.
-  bool get oneTap =>
+  /// One tap is enough: one variant and nothing to add. Anything with
+  /// options opens the picker, so the toppings are offered every time.
+  bool get oneTap => variants.length == 1 && groups.isEmpty;
+
+  /// Can go in as it stands: one variant, and every required group is
+  /// covered by its defaults (a long press adds it so).
+  bool get addsAsIs =>
       variants.length == 1 && groups.every((g) => !g.required || g.accepts(g.defaults.length));
 
   /// The lowest price before options, in pesewas.

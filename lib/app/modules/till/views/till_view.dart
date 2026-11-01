@@ -274,7 +274,8 @@ class _Menu extends StatelessWidget {
               void tap() => onTapResult(controller.tapProduct(p));
               final longPress = p.hasChoices && !p.needsEntry
                   ? () {
-                      if (controller.longPressProduct(p)) onTapResult(TapResult.picker);
+                      final result = controller.longPressProduct(p);
+                      if (result != null) onTapResult(result);
                     }
                   : null;
               return grid

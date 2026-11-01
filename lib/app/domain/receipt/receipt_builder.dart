@@ -43,6 +43,14 @@ abstract final class ReceiptBuilder {
         if (d.header.isNotEmpty) RText(d.header, align: ReceiptAlign.center),
       ];
 
+  /// The Aby mark with "Powered by Aby" under it, at the foot of what the
+  /// customer takes away: receipts, refunds, vouchers and statements.
+  static const List<ReceiptBlock> _signOff = [
+    RFeed(),
+    RMark(),
+    RText('Powered by Aby', align: ReceiptAlign.center),
+  ];
+
   static ReceiptDoc sale(
     ReceiptData s,
     ReceiptDesign d, {
@@ -118,6 +126,7 @@ abstract final class ReceiptBuilder {
         RQr(ReceiptCode.encode(s.saleId)),
         const RText('Keep this receipt for refunds', align: ReceiptAlign.center),
       ],
+      ..._signOff,
     ]);
   }
 
@@ -138,6 +147,7 @@ abstract final class ReceiptBuilder {
         const RText('Customer signature:'),
         const RFeed(2),
         const RText('______________________________'),
+        ..._signOff,
       ]);
 
   /// A kitchen / prep ticket: the queue number big, then what to make.
@@ -281,6 +291,7 @@ abstract final class ReceiptBuilder {
         const RRule(),
         RRow('OWED GHS', paperMoney(customer.owed), bold: true),
         if (customer.wallet > 0) RRow('In wallet', paperMoney(customer.wallet)),
+        ..._signOff,
       ]);
 
   /// A gift voucher to hand over or send: the code big, its QR code, the
@@ -301,6 +312,7 @@ abstract final class ReceiptBuilder {
         if (expiresOn != null)
           RText('Use by ${_two(expiresOn.day)}/${_two(expiresOn.month)}/${expiresOn.year}', align: ReceiptAlign.center),
         RText('Pay with it at $shopName. What is left stays on the code.', align: ReceiptAlign.center),
+        ..._signOff,
       ]);
 
   /// A staff sign-in badge: the name and a QR code to scan at sign-in.

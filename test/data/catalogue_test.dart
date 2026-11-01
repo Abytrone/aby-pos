@@ -186,19 +186,25 @@ void main() {
   });
 
   group('one-tap and picker rules', () {
-    test('a product needs the picker when it has sizes or a required group without defaults', () {
-      expect(waffle.oneTap, isTrue, reason: 'one price, optional toppings');
+    test('a tap opens the picker for sizes or options; it can go in as it stands when defaults cover it', () {
+      expect(waffle.oneTap, isFalse, reason: 'optional toppings are offered');
+      expect(waffle.addsAsIs, isTrue, reason: 'a plain waffle is fine');
       expect(vanillaCone.oneTap, isFalse, reason: 'two sizes');
+      expect(vanillaCone.addsAsIs, isFalse);
       const sugar = OptionGroup(id: 'g', name: 'Sugar', minSelect: 1, maxSelect: 1, options: [
         Option(id: 'a', groupId: 'g', name: 'Normal'),
       ]);
       const tea = Product(id: 't', categoryId: 'c', name: 'Tea', variants: [Variant(id: 'vt', price: 500)], groups: [sugar]);
       expect(tea.oneTap, isFalse);
+      expect(tea.addsAsIs, isFalse, reason: 'sugar must be chosen');
       const sugarWithDefault = OptionGroup(id: 'g', name: 'Sugar', minSelect: 1, maxSelect: 1, options: [
         Option(id: 'a', groupId: 'g', name: 'Normal', isDefault: true),
       ]);
       const tea2 = Product(id: 't', categoryId: 'c', name: 'Tea', variants: [Variant(id: 'vt', price: 500)], groups: [sugarWithDefault]);
-      expect(tea2.oneTap, isTrue);
+      expect(tea2.oneTap, isFalse);
+      expect(tea2.addsAsIs, isTrue);
+      const water = Product(id: 'w', categoryId: 'c', name: 'Water', variants: [Variant(id: 'vw', price: 300)]);
+      expect(water.oneTap, isTrue);
     });
 
     test('repeated options price and key correctly', () {
