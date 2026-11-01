@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -72,7 +74,7 @@ class ShellHeader extends StatelessWidget {
               ),
             );
           }),
-          Obx(() => _StatusChip(level: controller.status.overall, compact: narrow)),
+          _StatusChip(status: controller.status, compact: narrow),
           const SizedBox(width: AbySpace.s2),
           Obx(() {
             final badge = AbySyncBadge(
@@ -89,40 +91,92 @@ class ShellHeader extends StatelessWidget {
   }
 }
 
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.level, required this.compact});
+/// The header's safety dot. It says what is happening now: pulsing while a
+/// backup is written, "Backed up" for a moment after, and otherwise the one
+/// thing that needs someone ("Copy a backup off"), not a vague warning.
+class _StatusChip extends StatefulWidget {
+  const _StatusChip({required this.status, required this.compact});
 
-  final StatusLevel level;
+  final StatusService status;
   final bool compact;
+
+  @override
+  State<_StatusChip> createState() => _StatusChipState();
+}
+
+class _StatusChipState extends State<_StatusChip> {
+  static const _flashFor = Duration(seconds: 4);
+
+  Worker? _worker;
+  Timer? _flashTimer;
+  bool _justBackedUp = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // On a finished backup only: a failed one has nothing to celebrate, and
+    // reading the last time at start-up is not news.
+    _worker = ever<DateTime?>(widget.status.lastBackupAt, (at) {
+      if (at == null || !mounted || DateTime.now().difference(at) > const Duration(minutes: 1)) return;
+      _flashTimer?.cancel();
+      setState(() => _justBackedUp = true);
+      _flashTimer = Timer(_flashFor, () {
+        if (mounted) setState(() => _justBackedUp = false);
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _worker?.dispose();
+    _flashTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final c = Theme.of(context).extension<AbyColors>()!;
-    final text = switch (level) {
-      StatusLevel.ok || StatusLevel.info => l.statusAllSafe,
-      StatusLevel.warning => l.statusNeedsAttention,
-      StatusLevel.problem => l.statusProblem,
-    };
-    return Tooltip(
-      message: l.statusCentreTitle,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(999),
-        onTap: () => showStatusCentre(),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: AbySize.tapMin, minWidth: AbySize.tapMin),
-          padding: const EdgeInsets.symmetric(horizontal: AbySpace.s3),
-          alignment: Alignment.center,
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            StatusDot(level: level),
-            if (!compact) ...[
-              const SizedBox(width: AbySpace.s2),
-              Text(text, style: AbyText.caption.copyWith(color: c.ink, fontWeight: FontWeight.w700)),
-            ],
-          ]),
+    return Obx(() {
+      final running = widget.status.backingUp.value;
+      final needing = widget.status.needing;
+      final level = running || _justBackedUp ? StatusLevel.ok : widget.status.overall;
+      final text = running
+          ? l.statusBackingUp
+          : _justBackedUp
+              ? l.statusBackedUp
+              : needing.isEmpty
+                  ? l.statusAllSafe
+                  : needing.length == 1
+                      ? statusChipLabel(l, needing.first.item)
+                      : l.statusChipMore(statusChipLabel(l, needing.first.item), needing.length - 1);
+      return Tooltip(
+        message: l.statusCentreTitle,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(999),
+          onTap: () => showStatusCentre(),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: AbySize.tapMin, minWidth: AbySize.tapMin),
+            padding: const EdgeInsets.symmetric(horizontal: AbySpace.s3),
+            alignment: Alignment.center,
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              StatusDot(level: level, pulse: running),
+              if (!widget.compact) ...[
+                const SizedBox(width: AbySpace.s2),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Text(
+                    text,
+                    key: ValueKey(text),
+                    style: AbyText.caption.copyWith(color: c.ink, fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ]),
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
 

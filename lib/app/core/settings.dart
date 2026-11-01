@@ -23,8 +23,8 @@ abstract final class AppSettings {
   static const shopPhone = Setting<String>('shop.phone', SettingScope.shop, '');
   static const shopAddress = Setting<String>('shop.address', SettingScope.shop, '');
 
-  /// Minutes after midnight when the business day starts (default 05:00),
-  /// so sales after midnight count on the evening's day.
+  /// Minutes after midnight when the business day starts (default 05:00,
+  /// up to 10:00), so sales after midnight count on the evening's day.
   static const businessDayStart =
       Setting<int>('day.startMinutes', SettingScope.shop, 5 * 60);
 
@@ -85,7 +85,11 @@ abstract final class AppSettings {
       Setting<int>('security.autoLockMinutes', SettingScope.shop, 3);
 
   // Data
+  /// Automatic backups on or off (the key is from when they were daily).
   static const autoBackupDaily = Setting<bool>('backup.autoDaily', SettingScope.shop, true);
+
+  /// Minutes between automatic backups: 1 to 60, or 1440 for once a day.
+  static const backupEveryMinutes = Setting<int>('backup.everyMinutes', SettingScope.shop, 30);
   static const backupsToKeep = Setting<int>('backup.keep', SettingScope.shop, 14);
 
   /// Days before the off-device backup reminder turns amber.
@@ -234,6 +238,7 @@ abstract final class AppSettings {
     creditReminder,
     autoLockMinutes,
     autoBackupDaily,
+    backupEveryMinutes,
     backupsToKeep,
     offsiteBackupDays,
     accountsMonthly,

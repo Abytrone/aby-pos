@@ -62,3 +62,15 @@ Future<String?> pickTextFile() async {
 
 /// Picks a folder (Windows and macOS). Null when cancelled.
 Future<String?> pickFolder(String title) => FilePicker.getDirectoryPath(dialogTitle: title);
+
+/// Only desktops have a file explorer to show a folder in.
+bool get canOpenFolders => Platform.isWindows || Platform.isMacOS || Platform.isLinux;
+
+/// Shows [path] in File Explorer, Finder or the Linux file manager,
+/// creating it first so there is something to open.
+Future<void> openFolder(String path) async {
+  await Directory(path).create(recursive: true);
+  final command = Platform.isWindows ? 'explorer' : (Platform.isMacOS ? 'open' : 'xdg-open');
+  // Explorer exits with 1 even when the window opened: the code means nothing.
+  await Process.start(command, [path], mode: ProcessStartMode.detached);
+}

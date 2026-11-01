@@ -135,7 +135,7 @@ void main() {
     final waffle = menu.products.firstWhere((p) => p.name == 'Waffle');
     expect(waffle.isSimple, isTrue);
     expect(waffle.variants.single.price, 1200, reason: 'old base price');
-    expect(waffle.groups.single.name, 'Toppings');
+    expect(waffle.groups.single.name, 'Options');
     expect(waffle.groups.single.options.single.id, 'a-sprinkles', reason: 'same ID as the old add-on');
     final cone = menu.products.firstWhere((p) => p.name == 'Vanilla cone');
     expect(cone.variants.map((v) => v.name), ['Single scoop', 'Double scoop']);

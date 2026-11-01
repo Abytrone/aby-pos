@@ -330,15 +330,26 @@ Future<T?> choiceDialog<T>({
   required List<T> options,
   required String Function(T option) label,
   T? selected,
+  String? message,
+  String? Function(T option)? subtitle,
 }) {
   return Get.dialog<T>(Builder(builder: (context) {
     return SimpleDialog(
       title: Text(title),
       children: [
+        if (message != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+            child: Text(message, style: Theme.of(context).textTheme.bodyMedium),
+          ),
         for (final option in options)
           ListTile(
             minTileHeight: 56,
             title: Text(label(option)),
+            subtitle: switch (subtitle?.call(option)) {
+              final String s => Text(s),
+              null => null,
+            },
             trailing: option == selected ? const Icon(Icons.check) : null,
             onTap: () => goBack(result: option),
           ),

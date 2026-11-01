@@ -20,6 +20,7 @@ import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../services/status_service.dart';
 import '../../../ui/dialogs.dart';
+import '../../../ui/files.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 
@@ -37,19 +38,45 @@ class BackupController extends GetxController {
   final hasPassword = false.obs;
   final busy = false.obs;
 
+  /// The full path of this device's backups folder ('' until known).
+  final folder = ''.obs;
+
+  /// True while any backup is being written, automatic ones included.
+  RxBool get backingUp => _backups.running;
+
+  Worker? _madeWorker;
+
   @override
   void onInit() {
     super.onInit();
     refreshList();
+    // Automatic backups land in the list as they are made.
+    _madeWorker = ever(_backups.lastBackupAt, (_) => refreshList());
+  }
+
+  @override
+  void onClose() {
+    _madeWorker?.dispose();
+    super.onClose();
   }
 
   Future<void> refreshList() async {
     hasPassword.value = await _backups.hasBackupPassword();
     try {
+      folder.value = (await _backups.backupsDirectory()).path;
       localBackups.assignAll(await _backups.listLocalBackups());
     } catch (_) {
       // No storage folder available (e.g. in tests): show none.
       localBackups.clear();
+    }
+  }
+
+  /// Shows the backups folder in the file explorer (desktops).
+  Future<void> openBackupsFolder() async {
+    try {
+      await openFolder(folder.value.isEmpty ? (await _backups.backupsDirectory()).path : folder.value);
+    } catch (_) {
+      showMessage(appL10n().backupFolderCouldNotOpen, tone: MessageTone.error);
     }
   }
 
@@ -230,9 +257,18 @@ class BackupController extends GetxController {
     }
   }
 
-  /// The picked file, and whether it is a temp copy to delete after.
+  /// The picked file, and whether it is a temp copy to delete after. Opens in
+  /// this device's backups folder, where most restores start; any other
+  /// folder is a click away.
   Future<(File, bool)?> _pick() async {
-    final picked = await FilePicker.pickFile(dialogTitle: appL10n().backupPickFile);
+    String? start;
+    try {
+      final dir = await _backups.backupsDirectory();
+      if (await dir.exists()) start = dir.path;
+    } catch (_) {
+      // No backups folder: the picker opens where the system chooses.
+    }
+    final picked = await FilePicker.pickFile(dialogTitle: appL10n().backupPickFile, initialDirectory: start);
     if (picked == null) return null;
     final path = picked.path;
     if (path != null) return (File(path), false);

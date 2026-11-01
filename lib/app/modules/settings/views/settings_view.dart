@@ -13,6 +13,7 @@ import '../../../models/enums.dart';
 import '../../../models/receipt.dart';
 import '../../../models/scale.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/backup/backup_service.dart';
 import '../../../services/branch_service.dart';
 import '../../../services/hub/hub_service.dart';
 import '../../../services/license_service.dart';
@@ -24,6 +25,7 @@ import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_icons.dart';
 import '../../../theme/aby_theme.dart';
 import '../../../ui/dialogs.dart';
+import '../../../ui/files.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/section_page.dart';
@@ -205,7 +207,9 @@ String _tabIcon(SettingsTab t) => switch (t) {
 class SettingsView extends GetView<SettingsController> {
   const SettingsView({super.key});
 
-  static const dayStarts = [0, 3 * 60, 4 * 60, 5 * 60, 6 * 60];
+  /// Midnight, then every hour to 10:00 for shops that trade through the night.
+  static final dayStarts = [for (var h = 0; h <= 10; h++) h * 60];
+  static const backupEvery = [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, BackupService.minutesPerDay];
   static const lockMinutes = [0, 1, 2, 3, 5, 10, 15];
   static const keepCounts = [7, 14, 30];
   static const reminderDays = [3, 7, 14];
@@ -323,6 +327,12 @@ class SettingsView extends GetView<SettingsController> {
     String viewLabel(String v) => settingViewLabel(l, v);
     String pinPadLabel(String v) => settingPinPadLabel(l, v);
     String scaleValueLabel(String v) => settingScaleValueLabel(l, v);
+    String dayStartLabel(int m) => m == 0 ? l.settingsMidnight : formatMinutesOfDay(m);
+    // The minute before the next day starts: 06:00 runs to 05:59.
+    String dayEnd(int m) => formatMinutesOfDay((m - 1) % BackupService.minutesPerDay);
+    String dayRuns(int m) => m == 0 ? l.settingsDayMidnight : l.settingsDayRuns(formatMinutesOfDay(m), dayEnd(m));
+    String everyLabel(int m) => settingBackupEveryLabel(l, m);
+    final next = Get.find<BackupService>().nextBackupAt;
 
     Future<void> editText(Setting<String> s, String title, {TextInputType? type}) async {
       final v = await textInputDialog(title: title, label: title, initial: c.value(s), keyboardType: type);
@@ -388,13 +398,15 @@ class SettingsView extends GetView<SettingsController> {
       ), keywords: ['expiry', 'batches', 'features']),
       _Entry(day, InfoTile(
         title: l.settingsDayStart,
-        subtitle: l.settingsDayStartHelp,
-        value: formatMinutesOfDay(c.value(AppSettings.businessDayStart)),
+        subtitle: dayRuns(c.value(AppSettings.businessDayStart)),
+        value: dayStartLabel(c.value(AppSettings.businessDayStart)),
         onTap: () async {
           final v = await choiceDialog<int>(
             title: l.settingsDayStart,
+            message: l.settingsDayStartHelp,
             options: dayStarts,
-            label: formatMinutesOfDay,
+            label: dayStartLabel,
+            subtitle: (m) => m == 0 ? l.settingsDayMidnight : l.settingsDayRunsShort(dayEnd(m)),
             selected: c.value(AppSettings.businessDayStart),
           );
           if (v != null) await c.save(AppSettings.businessDayStart, v);
@@ -800,19 +812,39 @@ class SettingsView extends GetView<SettingsController> {
         ), keywords: ['training', 'reset']),
       _Entry(data, InfoTile(
         title: l.settingsAutoBackup,
-        subtitle: local == null ? l.statusNever : l.statusLast(relativeTime(l, local)),
+        subtitle: [
+          local == null ? l.statusNever : l.statusLast(relativeTime(l, local)),
+          if (next != null) l.settingsBackupNextAt(formatTime(next.isBefore(DateTime.now()) ? DateTime.now() : next)),
+        ].join(' · '),
         trailing: Switch(
           value: c.value(AppSettings.autoBackupDaily),
           onChanged: (v) => c.save(AppSettings.autoBackupDaily, v),
         ),
-      ), keywords: ['backup', 'daily']),
+      ), keywords: ['backup', 'daily', 'automatic']),
+      if (c.value(AppSettings.autoBackupDaily))
+        _Entry(data, InfoTile(
+          title: l.settingsBackupEvery,
+          subtitle: l.settingsBackupEveryHelp,
+          value: everyLabel(c.value(AppSettings.backupEveryMinutes)),
+          onTap: () async {
+            final v = await choiceDialog<int>(
+              title: l.settingsBackupEvery,
+              options: backupEvery,
+              label: everyLabel,
+              selected: c.value(AppSettings.backupEveryMinutes),
+            );
+            if (v != null) await c.save(AppSettings.backupEveryMinutes, v);
+          },
+        ), keywords: ['backup', 'interval', 'minutes', 'hour', 'automatic', 'often']),
       _Entry(data, InfoTile(
-        title: l.backupNow,
+        title: backups.backingUp.value ? l.statusBackingUp : l.backupNow,
         leading: const Icon(Icons.backup_outlined),
-        onTap: () async {
-          await backups.backUpNow();
-          await c.refreshBackupTimes();
-        },
+        onTap: backups.backingUp.value
+            ? null
+            : () async {
+                await backups.backUpNow();
+                await c.refreshBackupTimes();
+              },
       ), keywords: ['backup']),
       _Entry(data, InfoTile(
         title: l.backupOnDevice,
@@ -820,6 +852,28 @@ class SettingsView extends GetView<SettingsController> {
         leading: const Icon(Icons.inventory_2_outlined),
         onTap: () => showLocalBackups(backups),
       ), keywords: ['backup', 'restore']),
+      _Entry(data, InfoTile(
+        title: l.backupFolder,
+        subtitle: backups.folder.value,
+        leading: const Icon(Icons.folder_outlined),
+        onTap: canOpenFolders ? backups.openBackupsFolder : null,
+        trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+          IconButton(
+            tooltip: l.backupFolderCopy,
+            icon: const Icon(Icons.copy_outlined),
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: backups.folder.value));
+              showMessage(l.backupFolderCopied, tone: MessageTone.success);
+            },
+          ),
+          if (canOpenFolders)
+            TextButton.icon(
+              onPressed: backups.openBackupsFolder,
+              icon: const Icon(Icons.folder_open_outlined),
+              label: Text(l.backupFolderOpen),
+            ),
+        ]),
+      ), keywords: ['backup', 'folder', 'path', 'explorer', 'where', 'location', 'files']),
       _Entry(data, InfoTile(
         title: l.backupSend,
         subtitle: offsite == null ? l.statusNever : l.statusLast(relativeTime(l, offsite)),
@@ -842,6 +896,7 @@ class SettingsView extends GetView<SettingsController> {
       ), keywords: ['backup', 'restore', 'import']),
       _Entry(data, InfoTile(
         title: l.settingsBackupsKeep,
+        subtitle: l.settingsBackupsKeepHelp(c.value(AppSettings.backupsToKeep)),
         value: '${c.value(AppSettings.backupsToKeep)}',
         onTap: () async {
           final v = await choiceDialog<int>(

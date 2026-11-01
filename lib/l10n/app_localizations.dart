@@ -1087,13 +1087,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsDayStart.
   ///
   /// In en, this message translates to:
-  /// **'Day starts at'**
+  /// **'Business day starts at'**
   String get settingsDayStart;
 
   /// No description provided for @settingsDayStartHelp.
   ///
   /// In en, this message translates to:
-  /// **'Sales before this time count on the previous day.'**
+  /// **'Open past midnight? Pick a time after you close, so late sales stay on the evening they belong to.'**
   String get settingsDayStartHelp;
 
   /// No description provided for @settingsAutoLock.
@@ -1165,7 +1165,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAutoBackup.
   ///
   /// In en, this message translates to:
-  /// **'Back up every day'**
+  /// **'Automatic backups'**
   String get settingsAutoBackup;
 
   /// No description provided for @settingsBackupsKeep.
@@ -2041,7 +2041,7 @@ abstract class AppLocalizations {
   /// No description provided for @optionsNameHelp.
   ///
   /// In en, this message translates to:
-  /// **'For example Toppings, Sugar level or Sauce.'**
+  /// **'For example Extras, Sugar level or Sauce.'**
   String get optionsNameHelp;
 
   /// No description provided for @optionsMin.
@@ -12225,6 +12225,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Welcome back. Your PIN reset request is cancelled, so a reset code from your supplier won\'t work now. Let them know you don\'t need it.'**
   String get resetRequestDropped;
+
+  /// No description provided for @settingsDayMidnight.
+  ///
+  /// In en, this message translates to:
+  /// **'Midnight to midnight, like the calendar.'**
+  String get settingsDayMidnight;
+
+  /// No description provided for @settingsDayRuns.
+  ///
+  /// In en, this message translates to:
+  /// **'Runs {start} to {end} the next morning. Sales before {start} count on the day before.'**
+  String settingsDayRuns(String start, String end);
+
+  /// No description provided for @settingsDayRunsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Until {end} the next morning'**
+  String settingsDayRunsShort(String end);
+
+  /// No description provided for @settingsMidnight.
+  ///
+  /// In en, this message translates to:
+  /// **'Midnight'**
+  String get settingsMidnight;
+
+  /// No description provided for @settingsBackupEvery.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up every'**
+  String get settingsBackupEvery;
+
+  /// No description provided for @settingsBackupEveryHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped when nothing has changed since the last one.'**
+  String get settingsBackupEveryHelp;
+
+  /// No description provided for @settingsBackupDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Once a day'**
+  String get settingsBackupDaily;
+
+  /// No description provided for @settingsEveryHour.
+  ///
+  /// In en, this message translates to:
+  /// **'1 hour'**
+  String get settingsEveryHour;
+
+  /// No description provided for @settingsBackupNextAt.
+  ///
+  /// In en, this message translates to:
+  /// **'next at {time}'**
+  String settingsBackupNextAt(String time);
+
+  /// No description provided for @settingsBackupsKeepHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The newest {count}, and one a day for {count} days before them.'**
+  String settingsBackupsKeepHelp(int count);
+
+  /// No description provided for @backupFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup folder'**
+  String get backupFolder;
+
+  /// No description provided for @backupFolderOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open folder'**
+  String get backupFolderOpen;
+
+  /// No description provided for @backupFolderCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy path'**
+  String get backupFolderCopy;
+
+  /// No description provided for @backupFolderCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder path copied.'**
+  String get backupFolderCopied;
+
+  /// No description provided for @backupFolderCouldNotOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the folder. Copy its path from Settings instead.'**
+  String get backupFolderCouldNotOpen;
+
+  /// No description provided for @statusBackingUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Backing up…'**
+  String get statusBackingUp;
+
+  /// No description provided for @statusBackedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Backed up'**
+  String get statusBackedUp;
+
+  /// No description provided for @statusAutoBackupOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic backups are off.'**
+  String get statusAutoBackupOff;
+
+  /// No description provided for @statusBackupNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next automatic backup at {time}.'**
+  String statusBackupNext(String time);
+
+  /// No description provided for @statusChipLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup due'**
+  String get statusChipLocal;
+
+  /// No description provided for @statusChipOffsite.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy a backup off'**
+  String get statusChipOffsite;
+
+  /// No description provided for @statusChipLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity log changed'**
+  String get statusChipLog;
+
+  /// No description provided for @statusChipSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Hub offline'**
+  String get statusChipSync;
+
+  /// No description provided for @statusChipPrinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Printer problem'**
+  String get statusChipPrinter;
+
+  /// No description provided for @statusChipRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'No recovery code'**
+  String get statusChipRecovery;
+
+  /// No description provided for @statusChipAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts pack failed'**
+  String get statusChipAccounts;
+
+  /// No description provided for @statusChipMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} +{count}'**
+  String statusChipMore(String label, int count);
 }
 
 class _AppLocalizationsDelegate

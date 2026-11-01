@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
 import 'package:drift/drift.dart' show Variable;
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -72,7 +74,7 @@ class LocalBackup {
 
 /// Local snapshots (automatic and at day close), encrypted off-device
 /// backups, and restore.
-class BackupService {
+class BackupService extends GetxService {
   BackupService(
     this._db,
     this._audit,
@@ -81,7 +83,9 @@ class BackupService {
     Future<Directory> Function()? tempDirectory,
     Future<File> Function()? liveDatabaseFile,
     this.iterations = BackupCodec.defaultIterations,
-  })  : _backupsDirectory = backupsDirectory ?? _defaultBackupsDirectory,
+    DateTime Function()? clock,
+  })  : _clock = clock ?? DateTime.now,
+        _backupsDirectory = backupsDirectory ?? _defaultBackupsDirectory,
         _tempDirectory = tempDirectory ?? getTemporaryDirectory,
         _liveDatabaseFile = liveDatabaseFile ?? databaseFile;
 
@@ -91,6 +95,7 @@ class BackupService {
   final Future<Directory> Function() _backupsDirectory;
   final Future<Directory> Function() _tempDirectory;
   final Future<File> Function() _liveDatabaseFile;
+  final DateTime Function() _clock;
 
   /// Key-stretching rounds for new `.abybak` files (lower in tests).
   final int iterations;
@@ -104,6 +109,21 @@ class BackupService {
 
   /// Set once [restore] has closed the database: the app must restart.
   bool closedForRestore = false;
+
+  /// A backup is being written now (the header's dot pulses).
+  final running = false.obs;
+
+  /// When the newest local backup was made; changes the moment one finishes.
+  final lastBackupAt = Rxn<DateTime>();
+
+  /// The database's change counter when the last backup was taken: an
+  /// automatic backup with nothing new to save is skipped.
+  int? _changesAtLastBackup;
+
+  Timer? _schedule;
+
+  /// Where local backups are kept on this device.
+  Future<Directory> backupsDirectory() => _backupsDirectory();
 
   /// Backups and restores belong to the real data, never the training copy.
   static bool get _training => Get.isRegistered<TrainingService>() && Get.find<TrainingService>().active.value;
@@ -119,42 +139,108 @@ class BackupService {
   /// Keeps the newest [AppSettings.backupsToKeep].
   Future<LocalBackup> createLocalBackup({Staff? by, bool record = true}) async {
     _refuseInTraining();
-    final dir = await _backupsDirectory();
-    await dir.create(recursive: true);
-    final now = DateTime.now();
-    final path = p.join(dir.path, '$_localPrefix${_stamp(now)}.sqlite');
-    final file = File(path);
-    if (await file.exists()) await file.delete();
-    await _db.customStatement('VACUUM INTO ?', [path]);
+    // One at a time: a backup asked for during an automatic one follows it.
+    while (running.value) {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    }
+    running.value = true;
     try {
-      await _inspect(path);
-    } catch (_) {
+      final dir = await _backupsDirectory();
+      await dir.create(recursive: true);
+      final now = _clock();
+      final path = p.join(dir.path, '$_localPrefix${_stamp(now)}.sqlite');
+      final file = File(path);
       if (await file.exists()) await file.delete();
-      rethrow;
+      await _db.customStatement('VACUUM INTO ?', [path]);
+      try {
+        await _inspect(path);
+      } catch (_) {
+        if (await file.exists()) await file.delete();
+        rethrow;
+      }
+      await _db.writeMeta(MetaKeys.lastLocalBackupAt, now.toUtc().toIso8601String());
+      await _prune(dir);
+      if (record) {
+        await _audit.record(
+          action: AuditAction.backupCreated,
+          actor: by,
+          entity: 'backup',
+          entityId: p.basename(path),
+          summary: by == null ? 'Automatic backup' : 'Backup made by ${by.name}',
+        );
+      }
+      // Taken after this backup's own writes, so they do not count as news.
+      _changesAtLastBackup = await _totalChanges();
+      lastBackupAt.value = now;
+      return LocalBackup(file: file, createdAt: now, sizeBytes: await file.length());
+    } finally {
+      running.value = false;
     }
-    await _db.writeMeta(MetaKeys.lastLocalBackupAt, now.toUtc().toIso8601String());
-    await _prune(dir);
-    if (record) {
-      await _audit.record(
-        action: AuditAction.backupCreated,
-        actor: by,
-        entity: 'backup',
-        entityId: p.basename(path),
-        summary: by == null ? 'Automatic backup' : 'Backup made by ${by.name}',
-      );
-    }
-    return LocalBackup(file: file, createdAt: now, sizeBytes: await file.length());
   }
 
-  /// The daily automatic backup, if it is switched on and due.
+  /// Minutes between automatic backups ([AppSettings.backupEveryMinutes]).
+  int get everyMinutes => _settings.get(AppSettings.backupEveryMinutes).clamp(1, minutesPerDay);
+
+  static const minutesPerDay = 24 * 60;
+
+  /// When the next automatic backup is due; null when they are off.
+  DateTime? get nextBackupAt {
+    if (!_settings.get(AppSettings.autoBackupDaily)) return null;
+    final last = lastBackupAt.value;
+    return last == null ? _clock() : last.add(Duration(minutes: everyMinutes));
+  }
+
+  /// The automatic backup, if it is switched on and due. Skipped when
+  /// nothing has changed since the last one: that backup is still current.
   Future<LocalBackup?> autoBackupIfDue() async {
     if (!_settings.get(AppSettings.autoBackupDaily)) return null;
     // The training copy is never backed up.
-    if (_training) return null;
+    if (_training || running.value) return null;
     final last = await lastLocalBackupAt();
-    if (last != null && DateTime.now().difference(last) < const Duration(hours: 20)) return null;
-    return createLocalBackup();
+    lastBackupAt.value ??= last;
+    final now = _clock();
+    // A minute timer drifts a few seconds; a daily one waits from opening time.
+    final dueAfter = everyMinutes >= minutesPerDay
+        ? const Duration(hours: 20)
+        : Duration(minutes: everyMinutes) - const Duration(seconds: 30);
+    if (last != null && now.difference(last) < dueAfter) return null;
+    if (_changesAtLastBackup != null && await _totalChanges() == _changesAtLastBackup) return null;
+    // Only the day's first automatic backup goes in the activity log; one a
+    // minute would bury everything else.
+    final firstToday = last == null || _day(last) != _day(now);
+    return createLocalBackup(record: firstToday);
   }
+
+  /// Checks once a minute for a due automatic backup, for as long as the app
+  /// is open. A failure is printed and tried again next minute; the status
+  /// centre shows the backup as overdue if it keeps failing.
+  void startSchedule() {
+    _schedule?.cancel();
+    Future<void> tick() async {
+      try {
+        await autoBackupIfDue();
+      } catch (e) {
+        debugPrint('Automatic backup failed: $e');
+      }
+    }
+
+    unawaited(tick());
+    _schedule = Timer.periodic(const Duration(minutes: 1), (_) => tick());
+  }
+
+  void stopSchedule() {
+    _schedule?.cancel();
+    _schedule = null;
+  }
+
+  @override
+  void onClose() {
+    stopSchedule();
+    super.onClose();
+  }
+
+  Future<int> _totalChanges() async =>
+      (await _db.customSelect('SELECT total_changes() AS n').getSingle()).read<int>('n');
 
   Future<List<LocalBackup>> listLocalBackups() async {
     final dir = await _backupsDirectory();
@@ -177,13 +263,20 @@ class BackupService {
   Future<DateTime?> lastOffsiteBackupAt() async =>
       DateTime.tryParse(await _db.readMeta(MetaKeys.lastOffsiteBackupAt) ?? '')?.toLocal();
 
+  /// Keeps the newest [AppSettings.backupsToKeep] backups, and the last one
+  /// of each earlier day until that many days are covered: backing up every
+  /// minute still leaves something from last week.
   Future<void> _prune(Directory dir) async {
     final keep = _settings.get(AppSettings.backupsToKeep).clamp(1, 365);
     final all = await listLocalBackups();
+    final days = {for (final b in all.take(keep)) _day(b.createdAt)};
     for (final old in all.skip(keep)) {
+      if (days.length < keep && days.add(_day(old.createdAt))) continue;
       await old.file.delete();
     }
   }
+
+  static DateTime _day(DateTime at) => DateTime(at.year, at.month, at.day);
 
   // ---------------------------------------------------------------------------
   // Backup password and off-device backups
@@ -352,6 +445,7 @@ class BackupService {
       rethrow;
     }
 
+    stopSchedule();
     closedForRestore = true;
     await _db.close();
     for (final suffix in ['-wal', '-shm', '-journal']) {

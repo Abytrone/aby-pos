@@ -46,7 +46,7 @@ class StartController extends GetxController {
     await _backups.finishPendingRestore();
     await Get.find<PriceScheduler>().run();
     final hasStaff = await _staff.hasStaff();
-    if (hasStaff) unawaited(_dailyBackup());
+    if (hasStaff) _backups.startSchedule();
     if (hasStaff) unawaited(_monthlyAccounts());
     if (hasStaff) unawaited(Get.find<NotificationService>().start());
     unawaited(_startDisplays());
@@ -81,16 +81,5 @@ class StartController extends GetxController {
   Future<void> _monthlyAccounts() async {
     await Get.find<AccountsExportService>().exportIfDue();
     await _status.refresh(checkChain: false);
-  }
-
-  /// Never blocks start-up; a failed automatic backup shows in the status
-  /// centre as "backup due".
-  Future<void> _dailyBackup() async {
-    try {
-      await _backups.autoBackupIfDue();
-      await _status.refresh(checkChain: false);
-    } catch (e) {
-      debugPrint('Automatic backup failed: $e');
-    }
   }
 }

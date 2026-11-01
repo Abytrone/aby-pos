@@ -357,7 +357,7 @@ class AppDatabase extends _$AppDatabase {
               newColumns: [schema.products.description, schema.products.archivedAt],
             ));
 
-            // Add-ons become options in one "Toppings" group. Same IDs, so
+            // Add-ons become options in one "Options" group. Same IDs, so
             // the add-ons on old sale lines still match.
             final addons = await customSelect(
               'SELECT id, name, price, active, sort_order FROM addons WHERE deleted_at IS NULL',
@@ -367,7 +367,7 @@ class AppDatabase extends _$AppDatabase {
               await customStatement(
                 'INSERT INTO option_groups (id, created_at, updated_at, device_id, name, '
                 'min_select, max_select, allow_repeat, active, sort_order) '
-                "VALUES (?, ?, ?, ?, 'Toppings', 0, NULL, 0, 1, 0)",
+                "VALUES (?, ?, ?, ?, 'Options', 0, NULL, 0, 1, 0)",
                 [groupId, now, now, deviceId],
               );
               for (final a in addons) {

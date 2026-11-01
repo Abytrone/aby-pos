@@ -6,6 +6,7 @@ import '../../../services/printing/print_service.dart';
 import '../../../services/status_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
+import '../../../ui/files.dart';
 import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/layout.dart';
@@ -33,7 +34,10 @@ Future<void> showStatusCentre() {
           child: Obx(() => Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                _BackupPanel(status: status, backups: backups),
+                const Divider(height: AbySpace.s4),
                 for (final check in status.checks)
+                  if (check.item != StatusItem.localBackup)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: AbySpace.s2),
                     child: Row(children: [
@@ -62,6 +66,81 @@ Future<void> showStatusCentre() {
     );
   }));
 }
+
+/// This device's backups first, since they are what most often needs a
+/// hand: what is happening now, when the next one runs, and a button that
+/// is always there.
+class _BackupPanel extends StatelessWidget {
+  const _BackupPanel({required this.status, required this.backups});
+
+  final StatusService status;
+  final BackupController backups;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final c = Theme.of(context).extension<AbyColors>()!;
+    return Obx(() {
+      final running = status.backingUp.value;
+      final check = status.checks.firstWhereOrNull((x) => x.item == StatusItem.localBackup);
+      final next = status.nextBackupAt;
+      final detail = running
+          ? l.statusBackingUp
+          : [
+              if (check != null) _detail(l, check),
+              next == null
+                  ? l.statusAutoBackupOff
+                  : l.statusBackupNext(formatTime(next.isBefore(DateTime.now()) ? DateTime.now() : next)),
+            ].join(' · ');
+      final button = FilledButton.tonalIcon(
+        onPressed: running ? null : backups.backUpNow,
+        icon: const Icon(Icons.backup_outlined),
+        label: Text(l.backupNow),
+      );
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: AbySpace.s2),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            StatusDot(level: running ? StatusLevel.ok : check?.level ?? StatusLevel.ok, size: 12, pulse: running),
+            const SizedBox(width: AbySpace.s3),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(l.statusLocalBackup, style: AbyText.body.copyWith(color: c.ink, fontWeight: FontWeight.w700)),
+                Text(detail, style: AbyText.caption.copyWith(color: c.inkMuted)),
+              ]),
+            ),
+            if (!context.isNarrow) button,
+          ]),
+          if (running) ...[
+            const SizedBox(height: AbySpace.s2),
+            const LinearProgressIndicator(),
+          ],
+          const SizedBox(height: AbySpace.s2),
+          Wrap(spacing: AbySpace.s2, children: [
+            if (context.isNarrow) button,
+            if (canOpenFolders)
+              TextButton.icon(
+                onPressed: backups.openBackupsFolder,
+                icon: const Icon(Icons.folder_open_outlined),
+                label: Text(l.backupFolderOpen),
+              ),
+          ]),
+        ]),
+      );
+    });
+  }
+}
+
+/// A few words for the header, naming what needs someone.
+String statusChipLabel(AppLocalizations l, StatusItem item) => switch (item) {
+      StatusItem.localBackup => l.statusChipLocal,
+      StatusItem.offsiteBackup => l.statusChipOffsite,
+      StatusItem.activityLog => l.statusChipLog,
+      StatusItem.sync => l.statusChipSync,
+      StatusItem.printer => l.statusChipPrinter,
+      StatusItem.accounts => l.statusChipAccounts,
+      StatusItem.recovery => l.statusChipRecovery,
+    };
 
 String _title(AppLocalizations l, StatusItem item) => switch (item) {
       StatusItem.localBackup => l.statusLocalBackup,

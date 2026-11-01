@@ -248,27 +248,27 @@ const _iceCream = SampleShop(
   ],
   made: SampleMade('Waffle batter', makes: 2000, uses: [('Waffle mix', 1200), ('Milk', 800)]),
   groups: [
-    SampleGroup('Toppings', max: 3, repeat: true, [
+    SampleGroup('Options', max: 3, repeat: true, [
       SampleOption('Sprinkles', price: 300, uses: [('Sprinkles', 10)]),
       SampleOption('Groundnut crunch', price: 500, uses: [('Groundnut crunch', 15)]),
       SampleOption('Chocolate sauce', price: 400, uses: [('Chocolate sauce', 20)]),
     ]),
   ],
   products: [
-    SampleProduct('Cones', 'Vanilla cone', groups: ['Toppings'], quick: true, photo: 'vanilla-cone', popular: 5, [
+    SampleProduct('Cones', 'Vanilla cone', groups: ['Options'], quick: true, photo: 'vanilla-cone', popular: 5, [
       SampleVariant('Single scoop', 1500, uses: [('Wafer cones', 1), ('Vanilla ice cream', 80)]),
       SampleVariant('Double scoop', 2200, uses: [('Wafer cones', 1), ('Vanilla ice cream', 160)]),
     ]),
-    SampleProduct('Cones', 'Chocolate cone', groups: ['Toppings'], quick: true, photo: 'chocolate-cone', popular: 4, [
+    SampleProduct('Cones', 'Chocolate cone', groups: ['Options'], quick: true, photo: 'chocolate-cone', popular: 4, [
       SampleVariant('Single scoop', 1500, uses: [('Wafer cones', 1), ('Chocolate ice cream', 80)]),
       SampleVariant('Double scoop', 2200, uses: [('Wafer cones', 1), ('Chocolate ice cream', 160)]),
     ]),
-    SampleProduct('Cups', 'Ice cream cup', groups: ['Toppings'], quick: true, photo: 'chocolate-cup', popular: 4, [
+    SampleProduct('Cups', 'Ice cream cup', groups: ['Options'], quick: true, photo: 'chocolate-cup', popular: 4, [
       SampleVariant('Small', 2000, uses: [('Cups, small', 1), ('Vanilla ice cream', 120)]),
       SampleVariant('Medium', 2500, uses: [('Cups, medium', 1), ('Vanilla ice cream', 180)]),
       SampleVariant('Large', 3200, uses: [('Cups, large', 1), ('Vanilla ice cream', 250)]),
     ]),
-    SampleProduct('Cups', 'Strawberry cup', groups: ['Toppings'], popular: 2, [
+    SampleProduct('Cups', 'Strawberry cup', groups: ['Options'], popular: 2, [
       SampleVariant('Small', 2000, uses: [('Cups, small', 1), ('Strawberry ice cream', 120)]),
       SampleVariant('Large', 3200, uses: [('Cups, large', 1), ('Strawberry ice cream', 250)]),
     ]),
@@ -278,7 +278,7 @@ const _iceCream = SampleShop(
     SampleProduct('Drinks', 'Milkshake', detail: '350 ml', quick: true, photo: 'milkshake', popular: 3, [
       SampleVariant(null, 2000, uses: [('Milk', 200), ('Vanilla ice cream', 100)]),
     ]),
-    SampleProduct('Snacks', 'Waffle', groups: ['Toppings'], photo: 'waffle', popular: 2, [
+    SampleProduct('Snacks', 'Waffle', groups: ['Options'], photo: 'waffle', popular: 2, [
       SampleVariant(null, 1200, uses: [('Waffle batter', 120)]),
     ]),
   ],

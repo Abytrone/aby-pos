@@ -50,7 +50,20 @@ class StatusService extends GetxService {
 
   Timer? _timer;
   StreamSubscription<int>? _syncSub;
-  Worker? _printWorker, _onlineWorker, _userWorker;
+  Worker? _printWorker, _onlineWorker, _userWorker, _backupWorker;
+
+  /// A backup is being written now.
+  RxBool get backingUp => _backups.running;
+
+  /// When the newest local backup finished.
+  Rxn<DateTime> get lastBackupAt => _backups.lastBackupAt;
+
+  /// When automatic backups run next; null when they are off.
+  DateTime? get nextBackupAt => _backups.nextBackupAt;
+
+  /// The checks that need someone, worst first: the header names the top one.
+  List<StatusCheck> get needing => checks.where((c) => c.level.index >= StatusLevel.warning.index).toList()
+    ..sort((a, b) => b.level.index.compareTo(a.level.index));
 
   StatusLevel get overall => checks.fold(
         StatusLevel.ok,
@@ -63,6 +76,7 @@ class StatusService extends GetxService {
     _timer = Timer.periodic(const Duration(minutes: 10), (_) => refresh());
     _syncSub = _sync.waitingSales.listen((_) => refresh(checkChain: false));
     _onlineWorker = ever(_sync.online, (_) => refresh(checkChain: false));
+    _backupWorker = ever(_backups.lastBackupAt, (_) => refresh(checkChain: false));
     if (Get.isRegistered<PrintService>()) {
       _printWorker = ever(Get.find<PrintService>().queue, (_) => refresh(checkChain: false));
     }
@@ -78,6 +92,7 @@ class StatusService extends GetxService {
     _printWorker?.dispose();
     _onlineWorker?.dispose();
     _userWorker?.dispose();
+    _backupWorker?.dispose();
     super.onClose();
   }
 

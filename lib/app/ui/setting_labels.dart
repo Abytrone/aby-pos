@@ -47,6 +47,13 @@ String settingRoundLabel(AppLocalizations l, int p) => switch (p) {
       _ => l.settingsOff,
     };
 
+/// How often automatic backups run: minutes, an hour, or once a day.
+String settingBackupEveryLabel(AppLocalizations l, int m) => switch (m) {
+      >= 24 * 60 => l.settingsBackupDaily,
+      60 => l.settingsEveryHour,
+      _ => l.settingsMinutes(m),
+    };
+
 /// The setting's title, as its row in Settings shows it.
 String settingLabel(AppLocalizations l, String key) => knownSettingLabel(l, key) ?? _humanise(key);
 
@@ -73,6 +80,7 @@ String? knownSettingLabel(AppLocalizations l, String key) => switch (key) {
       'pricing.targetMargin' => l.settingTargetMargin,
       'security.autoLockMinutes' => l.settingsAutoLock,
       'backup.autoDaily' => l.settingsAutoBackup,
+      'backup.everyMinutes' => l.settingsBackupEvery,
       'backup.keep' => l.settingsBackupsKeep,
       'backup.offsiteReminderDays' => l.settingsOffsiteReminder,
       'device.accountsMonthly' => l.accountsMonthly,
@@ -171,7 +179,8 @@ String settingValueText(AppLocalizations l, String key, Object? value, {Map<Stri
     ('selling.scaleValue', final String s) => settingScaleValueLabel(l, s),
     ('device.language', 'en') => 'English',
     ('cash.roundTo', final int p) => settingRoundLabel(l, p),
-    ('day.startMinutes', final int m) => formatMinutesOfDay(m),
+    ('day.startMinutes', final int m) => m == 0 ? l.settingsMidnight : formatMinutesOfDay(m),
+    ('backup.everyMinutes', final int m) => settingBackupEveryLabel(l, m),
     ('security.autoLockMinutes', final int m) => m == 0 ? l.settingsAutoLockOff : l.settingsMinutes(m),
     ('shift.varianceLimit' || 'loyalty.rewardValue' || 'loyalty.goldSpend', final int p) => formatMoney(p),
     ('pricing.targetMargin' || 'loyalty.goldPercent' || 'staff.commissionPercent', final int p) => '$p%',

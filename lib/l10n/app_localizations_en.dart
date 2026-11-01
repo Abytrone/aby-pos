@@ -516,11 +516,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsShopAddress => 'Address or landmark';
 
   @override
-  String get settingsDayStart => 'Day starts at';
+  String get settingsDayStart => 'Business day starts at';
 
   @override
   String get settingsDayStartHelp =>
-      'Sales before this time count on the previous day.';
+      'Open past midnight? Pick a time after you close, so late sales stay on the evening they belong to.';
 
   @override
   String get settingsAutoLock => 'Lock the till after';
@@ -557,7 +557,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLanguageMore => 'More languages are coming.';
 
   @override
-  String get settingsAutoBackup => 'Back up every day';
+  String get settingsAutoBackup => 'Automatic backups';
 
   @override
   String get settingsBackupsKeep => 'Backups to keep on this device';
@@ -1004,7 +1004,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get optionsName => 'Name';
 
   @override
-  String get optionsNameHelp => 'For example Toppings, Sugar level or Sauce.';
+  String get optionsNameHelp => 'For example Extras, Sugar level or Sauce.';
 
   @override
   String get optionsMin => 'Must pick at least';
@@ -7230,4 +7230,99 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get resetRequestDropped =>
       'Welcome back. Your PIN reset request is cancelled, so a reset code from your supplier won\'t work now. Let them know you don\'t need it.';
+
+  @override
+  String get settingsDayMidnight => 'Midnight to midnight, like the calendar.';
+
+  @override
+  String settingsDayRuns(String start, String end) {
+    return 'Runs $start to $end the next morning. Sales before $start count on the day before.';
+  }
+
+  @override
+  String settingsDayRunsShort(String end) {
+    return 'Until $end the next morning';
+  }
+
+  @override
+  String get settingsMidnight => 'Midnight';
+
+  @override
+  String get settingsBackupEvery => 'Back up every';
+
+  @override
+  String get settingsBackupEveryHelp =>
+      'Skipped when nothing has changed since the last one.';
+
+  @override
+  String get settingsBackupDaily => 'Once a day';
+
+  @override
+  String get settingsEveryHour => '1 hour';
+
+  @override
+  String settingsBackupNextAt(String time) {
+    return 'next at $time';
+  }
+
+  @override
+  String settingsBackupsKeepHelp(int count) {
+    return 'The newest $count, and one a day for $count days before them.';
+  }
+
+  @override
+  String get backupFolder => 'Backup folder';
+
+  @override
+  String get backupFolderOpen => 'Open folder';
+
+  @override
+  String get backupFolderCopy => 'Copy path';
+
+  @override
+  String get backupFolderCopied => 'Folder path copied.';
+
+  @override
+  String get backupFolderCouldNotOpen =>
+      'Couldn\'t open the folder. Copy its path from Settings instead.';
+
+  @override
+  String get statusBackingUp => 'Backing up…';
+
+  @override
+  String get statusBackedUp => 'Backed up';
+
+  @override
+  String get statusAutoBackupOff => 'Automatic backups are off.';
+
+  @override
+  String statusBackupNext(String time) {
+    return 'Next automatic backup at $time.';
+  }
+
+  @override
+  String get statusChipLocal => 'Backup due';
+
+  @override
+  String get statusChipOffsite => 'Copy a backup off';
+
+  @override
+  String get statusChipLog => 'Activity log changed';
+
+  @override
+  String get statusChipSync => 'Hub offline';
+
+  @override
+  String get statusChipPrinter => 'Printer problem';
+
+  @override
+  String get statusChipRecovery => 'No recovery code';
+
+  @override
+  String get statusChipAccounts => 'Accounts pack failed';
+
+  @override
+  String statusChipMore(String label, int count) {
+    return '$label +$count';
+  }
 }

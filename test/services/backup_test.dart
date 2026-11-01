@@ -146,6 +146,54 @@ void main() {
       expect(await backups.autoBackupIfDue(), isNull);
     });
 
+    Future<BackupService> withSettings(Map<Setting<int>, int> values, DateTime Function() clock) async {
+      for (final e in values.entries) {
+        await db.writeSettingRow(e.key.key, e.key.scope, '${e.value}', r.device.deviceId);
+      }
+      final settings = SettingsService(SettingsRepository(db, r.device, r.audit));
+      await settings.load();
+      return BackupService(db, r.audit, settings,
+          backupsDirectory: () async => Directory(p.join(tmp.path, 'backups')),
+          tempDirectory: () async => tmp,
+          liveDatabaseFile: () async => live,
+          iterations: 1000,
+          clock: clock);
+    }
+
+    test('automatic backups follow the chosen interval and skip when nothing changed', () async {
+      var now = DateTime(2026, 11, 1, 9);
+      final every5 = await withSettings({AppSettings.backupEveryMinutes: 5}, () => now);
+
+      expect(await every5.autoBackupIfDue(), isNotNull);
+      now = now.add(const Duration(minutes: 3));
+      expect(await every5.autoBackupIfDue(), isNull, reason: 'not due yet');
+      now = now.add(const Duration(minutes: 3));
+      expect(await every5.autoBackupIfDue(), isNull, reason: 'due, but nothing new to save');
+
+      await db.writeMeta('test.change', 'a sale, say');
+      final made = await every5.autoBackupIfDue();
+      expect(made, isNotNull);
+      expect(every5.lastBackupAt.value, now);
+      expect(every5.nextBackupAt, now.add(const Duration(minutes: 5)));
+      expect(every5.running.value, isFalse);
+
+      final logged = (await r.audit.list()).where((e) => e.action == AuditAction.backupCreated);
+      expect(logged, hasLength(1), reason: "only the day's first automatic backup is logged");
+    });
+
+    test('keeps the newest backups and one a day before them', () async {
+      var now = DateTime(2026, 11, 1, 9);
+      final keeping = await withSettings({AppSettings.backupsToKeep: 2}, () => now);
+      for (final day in [1, 2, 3]) {
+        for (final hour in [9, 17]) {
+          now = DateTime(2026, 11, day, hour);
+          await keeping.createLocalBackup(record: false);
+        }
+      }
+      final kept = (await keeping.listLocalBackups()).map((b) => b.createdAt).toList();
+      expect(kept, [DateTime(2026, 11, 3, 17), DateTime(2026, 11, 3, 9), DateTime(2026, 11, 2, 17)]);
+    });
+
     test('off-device backups need the backup password and are encrypted', () async {
       expect(await backups.hasBackupPassword(), isFalse);
       await expectLater(backups.setBackupPassword('short'), throwsA(isA<BackupException>()));
