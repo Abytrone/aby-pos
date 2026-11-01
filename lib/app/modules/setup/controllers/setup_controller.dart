@@ -79,6 +79,10 @@ class SetupController extends GetxController {
         pin: pin,
       );
       await _settings.set(AppSettings.shopName, shopField.text.trim(), by: owner);
+      // New shops count the float and clock in before selling; shops from
+      // before these settings keep working as they did.
+      await _settings.set(AppSettings.startDayToSell, true, by: owner);
+      await _settings.set(AppSettings.clockInToSell, true, by: owner);
       await TemplateService(Get.find<CatalogRepository>(), _settings).apply(type.value, by: owner);
       final recoveryCode = await _staff.newRecoveryCode(owner.id, by: owner);
       _auth.signInAsNew(owner);

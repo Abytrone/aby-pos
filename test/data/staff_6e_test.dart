@@ -70,6 +70,84 @@ void main() {
     expect((second.lateMinutes, second.earlyMinutes), (0, 0));
   });
 
+  test('out for lunch and back is neither late nor early; only the day\'s first and last stretch count', () async {
+    var now = DateTime(2026, 10, 26, 8, 20);
+    final times = TimeRepository(db, r.device, clock: () => now);
+    await r.staff.setWorkHours(ama.id, start: 8 * 60, end: 17 * 60, by: owner);
+    await times.clockIn(ama);
+    now = DateTime(2026, 10, 26, 12, 0);
+    await times.clockOut(ama);
+    now = DateTime(2026, 10, 26, 13, 0);
+    await times.clockIn(ama);
+    now = DateTime(2026, 10, 26, 16, 0);
+    await times.clockOut(ama);
+
+    final sheet = await times.timesheet(DateRange.of(ReportPeriod.thisWeek, DateTime(2026, 10, 28)));
+    expect([for (final e in sheet) (e.lateMinutes, e.earlyMinutes)], [(20, 0), (0, 60)]);
+  });
+
+  test('night shifts: late and early either side of midnight', () async {
+    var now = DateTime(2026, 10, 27, 0, 30);
+    final times = TimeRepository(db, r.device, clock: () => now);
+    await r.staff.setWorkHours(ama.id, start: 22 * 60, end: 6 * 60, by: owner);
+    await times.clockIn(ama);
+    now = DateTime(2026, 10, 27, 5, 0);
+    await times.clockOut(ama);
+
+    final e = (await times.timesheet(DateRange.of(ReportPeriod.thisWeek, DateTime(2026, 10, 28)))).single;
+    expect(e.lateMinutes, 150, reason: '00:30 is two and a half hours after 22:00');
+    expect(e.earlyMinutes, 60);
+    expect(TimeRepository.minutesPast(22 * 60, DateTime(2026, 1, 1, 21, 50)), -10);
+    expect(TimeRepository.minutesPast(6 * 60, DateTime(2026, 1, 1, 23, 0)), -7 * 60);
+  });
+
+  test('a forgotten clock out is flagged, and a manager corrects it with a reason in the log', () async {
+    var now = DateTime(2026, 10, 26, 8, 0);
+    final times = TimeRepository(db, r.device, clock: () => now, audit: r.audit);
+    await times.clockIn(ama);
+    await times.startBreak(ama);
+    now = DateTime(2026, 10, 27, 9, 0);
+
+    final stale = (await times.stillIn()).single;
+    expect(stale.tooLong(now), isTrue);
+    expect(await times.stillIn(deviceId: 'another till'), isEmpty);
+
+    Future<void> correct({DateTime? out, int breakMinutes = 30, String reason = 'Forgot to clock out'}) => times.correct(
+          stale.id,
+          clockIn: stale.clockIn,
+          clockOut: out,
+          breakMinutes: breakMinutes,
+          reason: reason,
+          by: owner,
+        );
+    await expectLater(correct(out: DateTime(2026, 10, 26, 17), reason: ' '), throwsA(isA<TimeClockException>()));
+    await expectLater(correct(out: DateTime(2026, 10, 26, 7)), throwsA(isA<TimeClockException>()), reason: 'before clock in');
+    await expectLater(correct(out: DateTime(2026, 10, 28)), throwsA(isA<TimeClockException>()), reason: 'in the future');
+    await expectLater(correct(out: DateTime(2026, 10, 26, 9), breakMinutes: 90), throwsA(isA<TimeClockException>()));
+
+    await correct(out: DateTime(2026, 10, 26, 17));
+    expect(await times.current(ama.id), isNull, reason: 'clocked out, and the break that was going ended');
+    final fixed = (await times.timesheet(DateRange.of(ReportPeriod.thisWeek, DateTime(2026, 10, 28)))).single;
+    expect(fixed.workedMinutes(now), 9 * 60 - 30);
+    expect(fixed.tooLong(now), isFalse);
+    expect(fixed.note, 'Forgot to clock out');
+    final logged = (await r.audit.list()).firstWhere((a) => a.action == AuditAction.timeEntryCorrected);
+    expect(logged.summary, contains('Forgot to clock out'));
+    expect(AuditAction.timeEntryCorrected.isSensitive, isTrue);
+    await expectLater(correct(), throwsA(isA<TimeClockException>()), reason: 'a finished stretch keeps a clock out');
+  });
+
+  test('a break still going is not worked time', () async {
+    var now = DateTime(2026, 10, 26, 8, 0);
+    final times = TimeRepository(db, r.device, clock: () => now);
+    await times.clockIn(ama);
+    now = DateTime(2026, 10, 26, 12, 0);
+    await times.startBreak(ama);
+    now = DateTime(2026, 10, 26, 12, 45);
+    final e = (await times.stillIn()).single;
+    expect(e.workedMinutes(now), 4 * 60);
+  });
+
   test('the staff report: items, hours and commission', () async {
     final menu = await r.catalog.load();
     Product named(String n) => menu.products.firstWhere((p) => p.name == n);

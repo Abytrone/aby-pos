@@ -84,13 +84,15 @@ enum AuditAction {
   licenseActivated,
   staffRecoveryCodeMade,
   staffPinReset,
-  staffPinResetCancelled;
+  staffPinResetCancelled,
+  timeEntryCorrected;
 
   /// Actions an owner should notice first.
   bool get isSensitive => const {
         AuditAction.signInFailed,
         AuditAction.lockedOut,
         AuditAction.staffPinReset,
+        AuditAction.timeEntryCorrected,
         AuditAction.approvalRefused,
         AuditAction.saleVoided,
         AuditAction.staffRoleChanged,

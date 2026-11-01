@@ -43,6 +43,22 @@ class ClockService extends GetxService {
   /// Selling waits for clocking in when the shop asks for it.
   bool get mayNotSell => _settings.get(AppSettings.clockInToSell) && !clockedIn;
 
+  /// ...and for the end of a break.
+  bool get mustEndBreak => _settings.get(AppSettings.clockInToSell) && (state.value?.onBreak ?? false);
+
+  /// Right after signing in: asks someone not clocked in to clock in, when
+  /// the shop wants that before selling. Pay asks again if they say no.
+  Future<void> offerAfterSignIn(Future<bool> Function() ask) async {
+    await refresh();
+    if (!mayNotSell || !await ask()) return;
+    try {
+      await clockIn();
+    } on TimeClockException {
+      // Clocked in on another till meanwhile: nothing to do.
+      await refresh();
+    }
+  }
+
   Future<void> clockIn() async {
     await _times.clockIn(_auth.user);
     await refresh();

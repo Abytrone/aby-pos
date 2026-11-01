@@ -180,7 +180,10 @@ abstract final class ReceiptBuilder {
       RText(title.toUpperCase(), align: ReceiptAlign.center, bold: true, big: true),
       RText('${p.from == null ? 'Start' : dateTime(p.from!)} to ${dateTime(at)}', align: ReceiptAlign.center),
       RText('Printed by $byName', align: ReceiptAlign.center),
-      if (p.shiftOpenedBy != null) RText('Shift opened by ${p.shiftOpenedBy}', align: ReceiptAlign.center),
+      if (p.shiftOpenedBy != null)
+        RText('Day started by ${p.shiftOpenedBy}', align: ReceiptAlign.center)
+      else if (showCash)
+        const RText('Day not started on this till', align: ReceiptAlign.center),
       const RRule(),
       RRow('Sales (${p.salesCount})', paperMoney(p.salesTotal), bold: true),
       if (p.voidedCount > 0) RRow('Voided', '${p.voidedCount}'),
@@ -240,6 +243,7 @@ abstract final class ReceiptBuilder {
       const RRule(),
       const RText('CASH DRAWER', bold: true),
       RRow('Opening float', paperMoney(z.openingFloat)),
+      if (!z.dayStarted) const RText('Day not started: float typed at the close'),
       RRow('Cash sales', paperMoney(cashSales)),
       if (z.customerCash > 0) RRow('From customers', paperMoney(z.customerCash)),
       if (z.payIns > 0) RRow('Paid in', paperMoney(z.payIns)),

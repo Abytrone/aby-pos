@@ -10,6 +10,7 @@ import '../../../ui/dialogs.dart';
 /// The cart stays. The next person types their staff number and PIN; no
 /// names are listed.
 Future<void> showQuickSwitch(ShellController controller) async {
+  var switched = false;
   await Get.dialog<void>(Builder(builder: (context) {
     final l = context.l10n;
     return AlertDialog(
@@ -20,7 +21,10 @@ Future<void> showQuickSwitch(ShellController controller) async {
           child: StaffPinEntry(
             onSubmit: (number, pin) async {
               final error = await controller.switchTo(number!, pin);
-              if (error == null) goBack<void>();
+              if (error == null) {
+                switched = true;
+                goBack<void>();
+              }
               return error;
             },
           ),
@@ -32,4 +36,5 @@ Future<void> showQuickSwitch(ShellController controller) async {
       ],
         );
   }));
+  if (switched) await controller.offerClockIn();
 }

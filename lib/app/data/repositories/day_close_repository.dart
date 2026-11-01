@@ -239,6 +239,7 @@ class DayCloseRepository {
         varianceReason: r.varianceReason,
         floatCount: CashCount.fromJson(r.floatCount),
         cashCount: CashCount.fromJson(r.cashCount),
+        dayStarted: r.shiftId != null,
       );
 
   /// Over and short closes per person over the last [days] (owners only see

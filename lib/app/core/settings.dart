@@ -66,6 +66,10 @@ abstract final class AppSettings {
   /// Close day hides what the drawer should hold until the cash is counted.
   static const blindCount = Setting<bool>('shift.blindCount', SettingScope.shop, false);
 
+  /// Each till starts the day with a counted float before its first sale.
+  /// Off for shops from before it; new shops turn it on (SetupController).
+  static const startDayToSell = Setting<bool>('shift.startDayToSell', SettingScope.shop, false);
+
   /// Pesewas over or short above which close day asks for a reason.
   static const varianceLimit = Setting<int>('shift.varianceLimit', SettingScope.shop, 500);
 
@@ -129,7 +133,8 @@ abstract final class AppSettings {
   static const orderPrepTarget = Setting<String>('orders.prepTarget', SettingScope.shop, '{}');
 
   // Staff (STF-04, STF-07)
-  /// Someone must be clocked in to sell.
+  /// Someone must be clocked in to sell. Off for shops from before it; new
+  /// shops turn it on (SetupController).
   static const clockInToSell = Setting<bool>('staff.clockInToSell', SettingScope.shop, false);
 
   /// off | percent | perProduct
@@ -224,6 +229,7 @@ abstract final class AppSettings {
     cashRoundTo,
     creditOverLimit,
     blindCount,
+    startDayToSell,
     varianceLimit,
     creditReminder,
     autoLockMinutes,

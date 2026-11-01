@@ -117,7 +117,7 @@ class DashboardView extends GetView<DashboardController> {
           final float = p.shiftFloat ?? p.suggestedFloat;
           return GroupCard(title: l.dashDrawer, children: [
             InfoTile(
-              title: p.shiftOpenedBy == null ? l.dashNoShift : l.dashShiftBy(p.shiftOpenedBy!),
+              title: p.shiftOpenedBy == null ? l.dashDayNotStarted : l.dashDayStartedBy(p.shiftOpenedBy!),
               value: formatMoney(p.expectedCash(float)),
               subtitle: l.closeExpected,
             ),

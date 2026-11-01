@@ -824,14 +824,14 @@
   "auditCashPaidOut": "Cash taken out",
   "auditMomoChecked": "MoMo payment missing",
   "auditSafeDrop": "Cash to the safe",
-  "auditShiftOpened": "Shift opened",
+  "auditDayStarted": "Day started",
   "todayCash": "Cash",
   "xReportTitle": "X report (so far)",
-  "shiftOpen": "Open the shift",
-  "shiftOpenHelp": "Count the float: the cash in the drawer before the first sale.",
-  "shiftCountFloat": "Count the float",
-  "shiftOpenReason": "Open the shift.",
-  "shiftAlreadyOpen": "A shift is already open on this till.",
+  "dayStart": "Start the day",
+  "dayStartHelp": "Count the float: the cash in the drawer before the first sale.",
+  "dayCountFloat": "Count the float",
+  "dayStartReason": "Start the day.",
+  "dayAlreadyStarted": "The day is already started on this till.",
   "payInTitle": "Put cash in",
   "payOutTitle": "Take cash out",
   "cashAddReceipt": "Photo of the receipt",
@@ -967,7 +967,7 @@
   "dashAllGood": "Nothing needs attention.",
   "dashArrange": "Arrange the dashboard",
   "dashRefresh": "Refresh",
-  "dashNoShift": "No shift opened",
+  "dashDayNotStarted": "Day not started",
   "alertBackup": "The backup is not up to date. See the status dot.",
   "reportSales": "Sales",
   "reportTimes": "Times",
@@ -1314,6 +1314,38 @@
   "reportCommission": "Commission",
   "settingsClockInToSell": "Clock in before selling",
   "settingsClockInToSellHelp": "Staff clock in and out from their name at the top. Timesheets are in Staff.",
+  "settingsStartDayToSell": "Start the day before selling",
+  "settingsStartDayToSellHelp": "Each till counts its float into the drawer before its first sale. Close day then checks the cash against it.",
+  "clockOnBreakTitle": "You're on a break",
+  "clockOnBreakBody": "End your break to sell?",
+  "closeDayNotStarted": "The day was not started on this till, so the float was not counted before the first sale. Type it below.",
+  "closeStillClockedIn": "Still clocked in on this till: {names}. If they have gone home, correct their hours in Staff, Timesheets.",
+  "@closeStillClockedIn": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "timeCorrectTitle": "Correct the hours",
+  "timeCorrectApproval": "Correct someone's hours.",
+  "timeCorrectHelp": "For a forgotten clock out, or a time typed wrong. The change and the reason go in the activity log.",
+  "timeClockInAt": "Clocked in",
+  "timeClockOutAt": "Clocked out",
+  "timeStillClockedIn": "Still clocked in",
+  "timeBreakMinutes": "Break (minutes)",
+  "timeReason": "Reason",
+  "timeReasonHint": "For example: forgot to clock out",
+  "timeCorrected": "Hours corrected.",
+  "timeTooLong": "Over 16 hours: was the clock out forgotten?",
+  "timeCorrectedNote": "Corrected: {reason}",
+  "@timeCorrectedNote": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
   "settingsCommission": "Commission",
   "settingsCommissionHelp": "Worked out per person in Reports, Staff, for any dates.",
   "commissionPercentChoice": "A percent of their sales",
@@ -3041,16 +3073,16 @@
       }
     }
   },
-  "shiftOpened": "Shift opened with {amount}.",
-  "@shiftOpened": {
+  "dayStarted": "Day started with a float of {amount}.",
+  "@dayStarted": {
     "placeholders": {
       "amount": {
         "type": "String"
       }
     }
   },
-  "shiftLine": "Shift opened by {name} at {time} with {float}.",
-  "@shiftLine": {
+  "dayStartedLine": "Day started by {name} at {time} with a float of {float}.",
+  "@dayStartedLine": {
     "placeholders": {
       "name": {
         "type": "String"
@@ -3159,8 +3191,8 @@
       }
     }
   },
-  "closeShiftBy": "Shift opened by {name} with {float}",
-  "@closeShiftBy": {
+  "closeDayStartedBy": "Day started by {name} with a float of {float}",
+  "@closeDayStartedBy": {
     "placeholders": {
       "name": {
         "type": "String"
@@ -3333,8 +3365,8 @@
       }
     }
   },
-  "dashShiftBy": "Shift opened by {name}",
-  "@dashShiftBy": {
+  "dashDayStartedBy": "Day started by {name}",
+  "@dashDayStartedBy": {
     "placeholders": {
       "name": {
         "type": "String"
@@ -4405,5 +4437,6 @@
   "forgotPinCloseForNow": "Close for now",
   "signInResetWaiting": "Enter your supplier's reset code",
   "auditStaffPinResetCancelled": "PIN reset request cancelled",
+  "auditTimeEntryCorrected": "Hours corrected",
   "resetRequestDropped": "Welcome back. Your PIN reset request is cancelled, so a reset code from your supplier won't work now. Let them know you don't need it."
 }

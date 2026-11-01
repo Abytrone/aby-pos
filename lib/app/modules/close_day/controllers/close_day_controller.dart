@@ -10,11 +10,13 @@ import '../../../core/settings.dart';
 import '../../../data/repositories/day_close_repository.dart';
 import '../../../data/repositories/parked_order_repository.dart';
 import '../../../data/repositories/report_repository.dart';
+import '../../../data/repositories/time_repository.dart';
 import '../../../models/day_close.dart';
 import '../../../models/report.dart';
 import '../../../services/alert_service.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/backup/backup_service.dart';
+import '../../../services/device_service.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
@@ -63,6 +65,9 @@ class CloseDayController extends GetxController {
   /// Parked orders older than the warning time (they may be unpaid sales).
   final oldParked = 0.obs;
 
+  /// People who clocked in on this till and have not clocked out.
+  final stillClockedIn = <String>[].obs;
+
   bool get blind => _settings.get(AppSettings.blindCount);
   int get varianceLimit => _settings.get(AppSettings.varianceLimit);
   bool get canSeeVariance => _auth.can(Permission.viewReports);
@@ -94,6 +99,10 @@ class CloseDayController extends GetxController {
     }
     final hours = _settings.get(AppSettings.parkedWarnHours);
     oldParked.value = await Get.find<ParkedOrderRepository>().olderThan(Duration(hours: hours));
+    if (Get.isRegistered<TimeRepository>()) {
+      final open = await Get.find<TimeRepository>().stillIn(deviceId: Get.find<DeviceService>().deviceId);
+      stillClockedIn.assignAll({for (final e in open) e.staffName});
+    }
   }
 
   /// From the open shift; otherwise typed (blank counts as zero).

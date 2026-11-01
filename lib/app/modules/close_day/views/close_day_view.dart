@@ -96,9 +96,11 @@ class _CountForm extends GetView<CloseDayController> {
           Text(period.from == null ? l.closeSinceFirst : l.closeSince(formatDateTime(period.from!)),
               style: AbyText.body.copyWith(color: c.inkMuted)),
           if (period.shiftOpenedBy != null)
-            Text(l.closeShiftBy(period.shiftOpenedBy!, formatMoney(period.shiftFloat!)),
+            Text(l.closeDayStartedBy(period.shiftOpenedBy!, formatMoney(period.shiftFloat!)),
                 style: AbyText.body.copyWith(color: c.inkMuted)),
           const SizedBox(height: AbySpace.s3),
+          if (controller.stillClockedIn.isNotEmpty)
+            _Warning(icon: Icons.schedule, text: l.closeStillClockedIn(controller.stillClockedIn.join(', '))),
           if (controller.oldParked.value > 0)
             Container(
               margin: const EdgeInsets.only(bottom: AbySpace.s3),
@@ -117,6 +119,7 @@ class _CountForm extends GetView<CloseDayController> {
             Text(l.closeBlindHelp, style: AbyText.caption.copyWith(color: c.inkMuted)),
           const SizedBox(height: AbySpace.s3),
           if (period.shiftFloat == null) ...[
+            _Warning(icon: Icons.payments_outlined, text: l.closeDayNotStarted),
             TextField(
               controller: controller.floatField,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -280,6 +283,29 @@ class _HistoryRow extends StatelessWidget {
           Text(diffText, style: AbyText.caption.copyWith(color: d == 0 ? c.success : (d > 0 ? c.warning : c.danger))),
         ]),
         IconButton(tooltip: l.closePrintZ, onPressed: () => printZ(close), icon: const Icon(Icons.print_outlined)),
+      ]),
+    );
+  }
+}
+
+/// Something to check before closing, in the warning colours.
+class _Warning extends StatelessWidget {
+  const _Warning({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).extension<AbyColors>()!;
+    return Container(
+      margin: const EdgeInsets.only(bottom: AbySpace.s3),
+      padding: const EdgeInsets.all(AbySpace.s3),
+      decoration: BoxDecoration(color: c.warningSoft, borderRadius: BorderRadius.circular(AbyRadius.sm)),
+      child: Row(children: [
+        Icon(icon, color: c.warning),
+        const SizedBox(width: AbySpace.s2),
+        Expanded(child: Text(text, style: AbyText.body.copyWith(color: c.ink))),
       ]),
     );
   }

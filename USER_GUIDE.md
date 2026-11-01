@@ -489,17 +489,23 @@ A sale rung up by mistake? Tap **Void** on it. Choose a reason. Aby asks:
 
 Open **Today → Cash** for everything about the drawer.
 
-### 6.1 Opening the shift
+### 6.1 Starting the day
 
-**Open the shift** at the start of the day. *"Count the float: the cash in the drawer before the
+**Start the day** before the first sale. *"Count the float: the cash in the drawer before the
 first sale."* Type the amount, or **Count the float** note by note (GH₵ 200 down to 1p) so you know
-exactly what was there.
+exactly what was there. Aby suggests the float from the last close.
 
-There is one drawer per till and one open shift at a time. Close day still works if you skip this.
+Each till starts its own day, and the day ends when you close it. With Settings → Selling → **Start
+the day before selling** on (new shops have it on), **Pay** asks for the float first if the day was
+not started. With it off you can skip this, but close day then asks for the float instead, and the Z
+report says the day was not started, because a float typed at the end was never counted.
+
+Starting the day is about the **cash**. Clocking in is about **people's hours** (14.5): they are
+separate.
 
 ### 6.2 The X report
 
-The **X report** shows the shift so far without closing anything: sales, payments by method,
+The **X report** shows the day so far without closing anything: sales, payments by method,
 cash in and out, and the cash that should be in the drawer. Print it or view it.
 
 ### 6.3 Putting cash in and taking it out
@@ -529,6 +535,10 @@ should be in your MoMo wallet.
 ### 6.6 Closing the day (the Z report)
 
 Today → **Close day**. Needs *Close the day*.
+
+Before you count, Aby warns you if the day was not started on this till, and lists anyone who
+clocked in on this till and has not clocked out (if they have gone home, correct their hours in
+Staff → Timesheets).
 
 1. **Count the drawer**: type the total, or count notes and coins.
 2. Aby shows what was expected: float + cash sales + cash from customers + cash put in − cash
@@ -895,7 +905,7 @@ Manage → **Dashboard** (needs *See reports*) shows **today, live**:
 - number of sales and the average sale;
 - takings by payment method;
 - an hour-by-hour strip, and the top 5 products;
-- **the drawer**: who opened the shift, and the cash that should be there;
+- **the drawer**: who started the day, and the cash that should be there;
 - **alerts**: low stock, late credit, backups due, a day not closed, old parked sales, expenses due,
   stock expiring.
 
@@ -996,10 +1006,16 @@ Owners sign in everywhere.
   badge** stops the old one working.
 - **Clock in and out** from your name at the top: **Clock in**, **Start a break**, **End the
   break**, **Clock out**.
-- Settings → Shop → Features → **Clock in before selling** asks people to clock in before they can
-  take payment.
+- Settings → Shop → Features → **Clock in before selling** (on for new shops) asks people to clock
+  in when they sign in, and again at **Pay** if they said not now. Someone on a break is asked to
+  end it before they take payment.
 - Staff → **Timesheets** for any week or dates: hours worked, breaks, late arrivals and early
-  leaves (with 5 minutes' grace). Export to CSV for wages.
+  leaves (with 5 minutes' grace). Late is judged on a person's first stretch of the day and early on
+  the last, so going out for lunch is neither. Usual hours can cross midnight (22:00 to 06:00).
+  Export to CSV for wages.
+- **Forgot to clock out?** A stretch over 16 hours is marked in red. Someone who may manage staff
+  taps the stretch, sets the right times and break, and gives a reason. The change shows on the
+  timesheet and in the Activity log.
 
 ### 14.6 Commission
 
@@ -1284,7 +1300,7 @@ till.
 | What kind of shop? | Chosen at setup; switches features on or off |
 | Expiry dates for new stock | New stock items ask for batches and expiry dates |
 | Takeaway, eat in or delivery | Asked on each sale; shown on the order ticket |
-| Clock in before selling | Staff must clock in to take payment |
+| Clock in before selling | Staff must clock in to take payment (on for new shops) |
 | Commission | Off, a percent of sales, or per product |
 | Loyalty | Stamps, points or Gold |
 | Promotions | Automatic deals |
@@ -1304,6 +1320,7 @@ till.
 | Scale barcodes, The scale barcode holds | Prefix, and weight or price |
 | Warn about parked orders after | 12 hours by default |
 | Blind count at close day | Count before seeing what's expected |
+| Start the day before selling | Each till counts its float before its first sale (on for new shops) |
 | Ask why when out by more than | GH₵ 5.00 by default |
 
 ### Receipts and orders
@@ -1464,7 +1481,7 @@ or getting your licence key.
 
 | When | What to do |
 |---|---|
-| **Morning** | Sign in → Today → Cash → **Open the shift** (count the float) |
+| **Morning** | Sign in → **Clock in** → Today → Cash → **Start the day** (count the float) |
 | **All day** | Sell, park, refund. Move cash to the safe when the drawer gets full |
 | **Evening** | Check parked sales → **Check MoMo** → **Close day** (count the drawer) → send the daily summary |
 | **Every week** | **Send a backup off this device** |
@@ -1488,7 +1505,7 @@ or getting your licence key.
 | **Pesewa** | 1/100 of a cedi. GH₵ 1.00 = 100 pesewas |
 | **Quick tab** | Your best sellers on the till |
 | **Recipe** | What stock a product uses |
-| **Shift / X report** | The drawer from opening until now |
+| **Start the day / X report** | The float counted at the start; the X report is the drawer since then |
 | **Stock item** | Something you count: tubs, crates, bags, grams, litres |
 | **Status dot** | The dot at the top: is everything safe? |
 | **Training mode** | Practice that never touches real sales |

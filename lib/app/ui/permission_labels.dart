@@ -116,7 +116,7 @@ String auditActionLabel(AppLocalizations l, AuditAction a) => switch (a) {
       AuditAction.cashPaidOut => l.auditCashPaidOut,
       AuditAction.safeDrop => l.auditSafeDrop,
       AuditAction.bankDeposit => l.auditBankDeposit,
-      AuditAction.shiftOpened => l.auditShiftOpened,
+      AuditAction.shiftOpened => l.auditDayStarted,
       AuditAction.momoChecked => l.auditMomoChecked,
       AuditAction.expenseAdded => l.auditExpenseAdded,
       AuditAction.expenseCategorySaved => l.auditExpenseCategorySaved,
@@ -137,4 +137,5 @@ String auditActionLabel(AppLocalizations l, AuditAction a) => switch (a) {
   AuditAction.staffRecoveryCodeMade => l.auditStaffRecoveryCodeMade,
   AuditAction.staffPinReset => l.auditStaffPinReset,
   AuditAction.staffPinResetCancelled => l.auditStaffPinResetCancelled,
+  AuditAction.timeEntryCorrected => l.auditTimeEntryCorrected,
 };

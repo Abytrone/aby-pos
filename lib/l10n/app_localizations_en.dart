@@ -2553,7 +2553,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auditSafeDrop => 'Cash to the safe';
 
   @override
-  String get auditShiftOpened => 'Shift opened';
+  String get auditDayStarted => 'Day started';
 
   @override
   String get todayCash => 'Cash';
@@ -2562,20 +2562,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get xReportTitle => 'X report (so far)';
 
   @override
-  String get shiftOpen => 'Open the shift';
+  String get dayStart => 'Start the day';
 
   @override
-  String get shiftOpenHelp =>
+  String get dayStartHelp =>
       'Count the float: the cash in the drawer before the first sale.';
 
   @override
-  String get shiftCountFloat => 'Count the float';
+  String get dayCountFloat => 'Count the float';
 
   @override
-  String get shiftOpenReason => 'Open the shift.';
+  String get dayStartReason => 'Start the day.';
 
   @override
-  String get shiftAlreadyOpen => 'A shift is already open on this till.';
+  String get dayAlreadyStarted => 'The day is already started on this till.';
 
   @override
   String get payInTitle => 'Put cash in';
@@ -2994,7 +2994,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashRefresh => 'Refresh';
 
   @override
-  String get dashNoShift => 'No shift opened';
+  String get dashDayNotStarted => 'Day not started';
 
   @override
   String get alertBackup => 'The backup is not up to date. See the status dot.';
@@ -4089,6 +4089,67 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsClockInToSellHelp =>
       'Staff clock in and out from their name at the top. Timesheets are in Staff.';
+
+  @override
+  String get settingsStartDayToSell => 'Start the day before selling';
+
+  @override
+  String get settingsStartDayToSellHelp =>
+      'Each till counts its float into the drawer before its first sale. Close day then checks the cash against it.';
+
+  @override
+  String get clockOnBreakTitle => 'You\'re on a break';
+
+  @override
+  String get clockOnBreakBody => 'End your break to sell?';
+
+  @override
+  String get closeDayNotStarted =>
+      'The day was not started on this till, so the float was not counted before the first sale. Type it below.';
+
+  @override
+  String closeStillClockedIn(String names) {
+    return 'Still clocked in on this till: $names. If they have gone home, correct their hours in Staff, Timesheets.';
+  }
+
+  @override
+  String get timeCorrectTitle => 'Correct the hours';
+
+  @override
+  String get timeCorrectApproval => 'Correct someone\'s hours.';
+
+  @override
+  String get timeCorrectHelp =>
+      'For a forgotten clock out, or a time typed wrong. The change and the reason go in the activity log.';
+
+  @override
+  String get timeClockInAt => 'Clocked in';
+
+  @override
+  String get timeClockOutAt => 'Clocked out';
+
+  @override
+  String get timeStillClockedIn => 'Still clocked in';
+
+  @override
+  String get timeBreakMinutes => 'Break (minutes)';
+
+  @override
+  String get timeReason => 'Reason';
+
+  @override
+  String get timeReasonHint => 'For example: forgot to clock out';
+
+  @override
+  String get timeCorrected => 'Hours corrected.';
+
+  @override
+  String get timeTooLong => 'Over 16 hours: was the clock out forgotten?';
+
+  @override
+  String timeCorrectedNote(String reason) {
+    return 'Corrected: $reason';
+  }
 
   @override
   String get settingsCommission => 'Commission';
@@ -5697,13 +5758,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String shiftOpened(String amount) {
-    return 'Shift opened with $amount.';
+  String dayStarted(String amount) {
+    return 'Day started with a float of $amount.';
   }
 
   @override
-  String shiftLine(String name, String time, String float) {
-    return 'Shift opened by $name at $time with $float.';
+  String dayStartedLine(String name, String time, String float) {
+    return 'Day started by $name at $time with a float of $float.';
   }
 
   @override
@@ -5785,8 +5846,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String closeShiftBy(String name, String float) {
-    return 'Shift opened by $name with $float';
+  String closeDayStartedBy(String name, String float) {
+    return 'Day started by $name with a float of $float';
   }
 
   @override
@@ -5887,8 +5948,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String dashShiftBy(String name) {
-    return 'Shift opened by $name';
+  String dashDayStartedBy(String name) {
+    return 'Day started by $name';
   }
 
   @override
@@ -7162,6 +7223,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auditStaffPinResetCancelled => 'PIN reset request cancelled';
+
+  @override
+  String get auditTimeEntryCorrected => 'Hours corrected';
 
   @override
   String get resetRequestDropped =>

@@ -12,6 +12,8 @@ import '../../../data/repositories/catalog_repository.dart';
 import '../../../data/repositories/discount_repository.dart';
 import '../../../data/repositories/parked_order_repository.dart';
 import '../../../data/repositories/sale_repository.dart';
+import '../../../data/repositories/shift_repository.dart';
+import '../../today/widgets/cash_dialogs.dart' show startDay;
 import '../../../domain/receipt/receipt_code.dart';
 import '../../../data/repositories/stock_repository.dart';
 import '../../../domain/catalogue_rules.dart';
@@ -684,19 +686,33 @@ class TillController extends GetxController {
 
   Future<void> pay() async {
     if (cart.isEmpty) return;
-    // The shop may want people clocked in before they sell (STF-04).
-    final clock = Get.isRegistered<ClockService>() ? Get.find<ClockService>() : null;
-    if (clock != null && clock.mayNotSell) {
-      final l = appL10n();
-      final ok = await confirmDialog(title: l.clockInToSellTitle, message: l.clockInToSellBody, confirmLabel: l.clockIn);
-      if (!ok) return;
-      try {
-        await clock.clockIn();
-      } on TimeClockException catch (e) {
-        showMessage(e.message, tone: MessageTone.error);
-        return;
-      }
-    }
+    if (!await _readyToSell()) return;
     await Get.toNamed<void>(Routes.checkout);
+  }
+
+  /// The shop may want the day started on this till with a counted float
+  /// (CSH-01), and the seller clocked in and not on a break (STF-04).
+  Future<bool> _readyToSell() async {
+    final l = appL10n();
+    if (_settings.get(AppSettings.startDayToSell) && await Get.find<ShiftRepository>().current() == null) {
+      if (!await startDay()) return false;
+    }
+    final clock = Get.isRegistered<ClockService>() ? Get.find<ClockService>() : null;
+    if (clock == null) return true;
+    try {
+      if (clock.mayNotSell) {
+        final ok = await confirmDialog(title: l.clockInToSellTitle, message: l.clockInToSellBody, confirmLabel: l.clockIn);
+        if (!ok) return false;
+        await clock.clockIn();
+      } else if (clock.mustEndBreak) {
+        final ok = await confirmDialog(title: l.clockOnBreakTitle, message: l.clockOnBreakBody, confirmLabel: l.clockEndBreak);
+        if (!ok) return false;
+        await clock.toggleBreak();
+      }
+    } on TimeClockException catch (e) {
+      showMessage(e.message, tone: MessageTone.error);
+      return false;
+    }
+    return true;
   }
 }

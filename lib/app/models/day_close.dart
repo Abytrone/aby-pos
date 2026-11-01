@@ -123,8 +123,12 @@ class DayClose {
     this.varianceReason,
     this.floatCount = const CashCount(),
     this.cashCount = const CashCount(),
+    this.dayStarted = true,
   });
 
+  /// The day was started with a float before selling; false when the float
+  /// was typed at the close instead.
+  final bool dayStarted;
   final int customerCash;
   final int payIns;
   final int payOuts;

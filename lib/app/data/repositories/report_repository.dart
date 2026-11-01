@@ -271,9 +271,12 @@ class ReportRepository {
       variables: vars,
       readsFrom: {_db.sales, _db.saleLines, _db.products},
     ).get();
-    // Time stored as seconds: a stretch still open counts to now.
+    // Time stored as seconds: a stretch still open counts to now, less a
+    // break still going.
     final hours = await _db.customSelect(
-      "SELECT staff_name AS name, SUM((COALESCE(clock_out, CAST(strftime('%s', 'now') AS INTEGER)) - clock_in) / 60 - break_minutes) AS n "
+      "SELECT staff_name AS name, SUM((COALESCE(clock_out, CAST(strftime('%s', 'now') AS INTEGER)) - clock_in) / 60 - break_minutes "
+      '- CASE WHEN clock_out IS NULL AND break_started_at IS NOT NULL '
+      "THEN (CAST(strftime('%s', 'now') AS INTEGER) - break_started_at) / 60 ELSE 0 END) AS n "
       'FROM time_entries WHERE deleted_at IS NULL AND clock_in >= ? AND clock_in < ? AND ${f.sql('device_id')} GROUP BY staff_name',
       variables: vars,
       readsFrom: {_db.timeEntries},

@@ -3,9 +3,11 @@ import 'package:get/get.dart';
 
 import '../../../core/csv.dart';
 import '../../../core/period.dart';
+import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
 import '../../../data/repositories/time_repository.dart';
 import '../../../domain/documents/report_docs.dart';
+import '../../../services/auth_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
@@ -14,6 +16,7 @@ import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/period_bar.dart';
 import '../../../ui/section_page.dart';
+import 'correct_hours_dialog.dart';
 
 /// "7 h 30 min".
 String hoursText(AppLocalizations l, int minutes) => l.timeHours(minutes ~/ 60, minutes % 60);
@@ -55,7 +58,7 @@ class _TimesheetsTabState extends State<TimesheetsTab> {
   Future<void> _export() async {
     final now = DateTime.now();
     final rows = [
-      ['Name', 'Day', 'In', 'Out', 'Break (min)', 'Worked (min)', 'Late (min)', 'Early (min)'],
+      ['Name', 'Day', 'In', 'Out', 'Break (min)', 'Worked (min)', 'Late (min)', 'Early (min)', 'Check', 'Corrected'],
       for (final e in _entries)
         [
           e.staffName,
@@ -66,6 +69,8 @@ class _TimesheetsTabState extends State<TimesheetsTab> {
           '${e.workedMinutes(now)}',
           '${e.lateMinutes}',
           '${e.earlyMinutes}',
+          if (e.tooLong(now)) 'Over 16 hours' else if (e.stillIn) 'Still clocked in' else '',
+          e.note ?? '',
         ],
     ];
     await exportDocument(
@@ -79,10 +84,13 @@ class _TimesheetsTabState extends State<TimesheetsTab> {
     final l = context.l10n;
     final c = Theme.of(context).extension<AbyColors>()!;
     final now = DateTime.now();
+    // By person, not name: two people may share a name, and a rename keeps
+    // one card. The card shows the latest name.
     final byPerson = <String, List<TimesheetEntry>>{};
     for (final e in _entries) {
-      byPerson.putIfAbsent(e.staffName, () => []).add(e);
+      byPerson.putIfAbsent(e.staffId, () => []).add(e);
     }
+    final canCorrect = Get.find<AuthService>().can(Permission.manageStaff);
     return Column(children: [
       PeriodBar(period: _period, range: _range, onChanged: _setPeriod),
       Expanded(
@@ -94,9 +102,9 @@ class _TimesheetsTabState extends State<TimesheetsTab> {
                   child: OutlinedButton.icon(onPressed: _export, icon: const Icon(Icons.download_outlined), label: Text(l.exportButton)),
                 ),
                 const SizedBox(height: AbySpace.s2),
-                for (final MapEntry(key: name, value: list) in byPerson.entries)
+                for (final list in byPerson.values)
                   GroupCard(
-                    title: name,
+                    title: list.last.staffName,
                     children: [
                       InfoTile(
                         title: l.timeWorked,
@@ -110,15 +118,22 @@ class _TimesheetsTabState extends State<TimesheetsTab> {
                         InfoTile(
                           title: '${formatDate(e.clockIn)}  ·  ${formatTime(e.clockIn)} – ${e.clockOut == null ? l.timeStillIn : formatTime(e.clockOut!)}',
                           subtitle: [
+                            if (e.tooLong(now)) l.timeTooLong,
                             if (e.breakMinutes > 0) l.timeBreak(e.breakMinutes),
                             if (e.lateMinutes > 0) l.timeLate(e.lateMinutes),
                             if (e.earlyMinutes > 0) l.timeEarly(e.earlyMinutes),
+                            if (e.note != null) l.timeCorrectedNote(e.note!),
                           ].join('  ·  '),
                           value: hoursText(l, e.workedMinutes(now)),
                           leading: Icon(
-                            e.lateMinutes > 0 || e.earlyMinutes > 0 ? Icons.warning_amber_rounded : Icons.schedule,
-                            color: e.lateMinutes > 0 || e.earlyMinutes > 0 ? c.warning : c.inkMuted,
+                            e.tooLong(now) || e.lateMinutes > 0 || e.earlyMinutes > 0 ? Icons.warning_amber_rounded : Icons.schedule,
+                            color: e.tooLong(now) ? c.danger : (e.lateMinutes > 0 || e.earlyMinutes > 0 ? c.warning : c.inkMuted),
                           ),
+                          onTap: canCorrect
+                              ? () async {
+                                  if (await showCorrectHours(e)) await _load();
+                                }
+                              : null,
                         ),
                     ],
                   ),

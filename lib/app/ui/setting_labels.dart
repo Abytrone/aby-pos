@@ -68,6 +68,7 @@ String? knownSettingLabel(AppLocalizations l, String key) => switch (key) {
       'credit.overLimit' => l.settingsOverLimit,
       'credit.reminder' => l.settingsReminder,
       'shift.blindCount' => l.settingsBlindCount,
+      'shift.startDayToSell' => l.settingsStartDayToSell,
       'shift.varianceLimit' => l.settingsVarianceLimit,
       'pricing.targetMargin' => l.settingTargetMargin,
       'security.autoLockMinutes' => l.settingsAutoLock,

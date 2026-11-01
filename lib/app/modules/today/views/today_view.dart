@@ -39,7 +39,7 @@ class TodayView extends GetView<TodayController> {
             icon: const Icon(Icons.payments_outlined),
             onSelected: (v) => _cash(context, v),
             itemBuilder: (_) => [
-              if (noShift) PopupMenuItem(value: 'open', child: Text(l.shiftOpen)),
+              if (noShift) PopupMenuItem(value: 'open', child: Text(l.dayStart)),
               PopupMenuItem(value: 'x', child: Text(l.xReportTitle)),
               PopupMenuItem(value: 'in', child: Text(l.payInTitle)),
               PopupMenuItem(value: 'out', child: Text(l.payOutTitle)),
@@ -74,7 +74,7 @@ class TodayView extends GetView<TodayController> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: AbySpace.s3),
                         child: Text(
-                          l.shiftLine(
+                          l.dayStartedLine(
                             controller.shift.value!.openedByName,
                             formatDateTime(controller.shift.value!.openedAt),
                             formatMoney(controller.shift.value!.openingFloat),
@@ -160,8 +160,7 @@ class TodayView extends GetView<TodayController> {
     String? message;
     switch (action) {
       case 'open':
-        final opened = await showOpenShift();
-        if (opened != null) message = await controller.openShift(opened.$1, opened.$2);
+        if (await startDay()) await controller.reloadShift();
       case 'x':
         await showXReport(await controller.xReport());
       case 'in' || 'out':

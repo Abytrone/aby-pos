@@ -525,6 +525,11 @@ class SettingsView extends GetView<SettingsController> {
         trailing: Switch(value: c.value(AppSettings.blindCount), onChanged: (v) => c.save(AppSettings.blindCount, v)),
       ), keywords: ['close day', 'count', 'drawer', 'shift']),
       _Entry(payments, InfoTile(
+        title: l.settingsStartDayToSell,
+        subtitle: l.settingsStartDayToSellHelp,
+        trailing: Switch(value: c.value(AppSettings.startDayToSell), onChanged: (v) => c.save(AppSettings.startDayToSell, v)),
+      ), keywords: ['float', 'start', 'open', 'drawer', 'shift', 'morning']),
+      _Entry(payments, InfoTile(
         title: l.settingsVarianceLimit,
         subtitle: l.settingsVarianceLimitHelp,
         value: formatMoney(c.value(AppSettings.varianceLimit)),

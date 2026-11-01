@@ -1,8 +1,12 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:aby_pos/app/app.dart';
 import 'package:aby_pos/app/core/permissions.dart';
+import 'package:aby_pos/app/core/settings.dart';
 import 'package:aby_pos/app/data/database/app_database.dart';
+import 'package:aby_pos/app/data/repositories/settings_repository.dart';
+import 'package:aby_pos/app/services/clock_service.dart';
 import 'package:aby_pos/app/ui/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -609,7 +613,7 @@ void main() {
     await _dispose(tester);
   });
 
-  testWidgets('tablet: open the shift, take cash out, close and balance', (tester) async {
+  testWidgets('tablet: start the day, take cash out, close and balance', (tester) async {
     tester.view.physicalSize = const Size(1280, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -623,12 +627,12 @@ void main() {
     await _settle(tester);
     await tester.tap(find.byTooltip('Cash'));
     await _settle(tester);
-    await tester.tap(find.text('Open the shift').last);
+    await tester.tap(find.text('Start the day').last);
     await _settle(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Float at the start'), '50');
-    await tester.tap(find.widgetWithText(FilledButton, 'Open the shift'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Start the day'));
     await _settle(tester);
-    expect(find.textContaining('Shift opened by Kofi'), findsOneWidget);
+    expect(find.textContaining('Day started by Kofi'), findsOneWidget);
 
     hideMessage(); // it covers the top right of the page
     await tester.pump();
@@ -646,7 +650,7 @@ void main() {
     await tester.pump();
     await tester.tap(find.widgetWithText(FilledButton, 'Close day'));
     await _settle(tester);
-    expect(find.textContaining('Shift opened by Kofi with GH₵ 50.00'), findsOneWidget);
+    expect(find.textContaining('Day started by Kofi with a float of GH₵ 50.00'), findsOneWidget);
     expect(find.text('Cash taken out'), findsOneWidget);
     await tester.enterText(find.widgetWithText(TextField, 'Cash counted now'), '40');
     await _settle(tester);
@@ -1086,6 +1090,65 @@ void main() {
     await _dispose(tester);
   });
 
+  testWidgets('the shop wants the day started and people clocked in: Pay asks for both, and for the end of a break',
+      (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    await tester.runAsync(() async {
+      final r = await Repos.open(db);
+      final kofi = (await r.staff.list()).firstWhere((s) => s.name == 'Kofi');
+      final settings = SettingsRepository(db, r.device, r.audit);
+      await settings.write(AppSettings.startDayToSell, true, by: kofi);
+      await settings.write(AppSettings.clockInToSell, true, by: kofi);
+    });
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
+    await _settle(tester);
+    await _signIn(tester, '102', '5678');
+
+    // Asked to clock in on signing in; not now.
+    expect(find.text('Clock in to sell'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await _settle(tester);
+
+    await tester.tap(find.text('Waffle'));
+    await _settle(tester);
+    await tester.tap(find.text('Pay GH₵ 12.00'));
+    await _settle(tester);
+    // First the float, which the cashier may put in, then clocking in.
+    expect(find.text('Start the day'), findsWidgets);
+    await tester.enterText(find.widgetWithText(TextField, 'Float at the start'), '50');
+    await tester.tap(find.widgetWithText(FilledButton, 'Start the day'));
+    await _settle(tester);
+    expect(find.text('Clock in to sell'), findsOneWidget);
+    await tester.tap(find.text('Clock in').last);
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Cash given'), '12');
+    await _settle(tester);
+    await tester.tap(find.text('Complete sale'));
+    await _settle(tester);
+    await tester.tap(find.text('New sale'));
+    await _settle(tester);
+
+    // On a break: Pay asks to end it. The day is started, so no float again.
+    unawaited(Get.find<ClockService>().toggleBreak());
+    await _settle(tester);
+    await tester.tap(find.text('Waffle'));
+    await _settle(tester);
+    await tester.tap(find.text('Pay GH₵ 12.00'));
+    await _settle(tester);
+    expect(find.text('Float at the start'), findsNothing);
+    expect(find.text("You're on a break"), findsOneWidget);
+    await tester.tap(find.text('End the break'));
+    await _settle(tester);
+    expect(find.widgetWithText(TextField, 'Cash given'), findsOneWidget);
+    expect(Get.find<ClockService>().state.value?.onBreak, isFalse);
+
+    await _dispose(tester);
+  });
+
   testWidgets('phone portrait, first run: name the shop, create the owner, start selling', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
@@ -1111,6 +1174,12 @@ void main() {
     await tester.tap(find.text('Create owner and start'));
     await _settle(tester);
     await _writeDownRecoveryCode(tester);
+
+    // New shops ask people to clock in before selling, starting now.
+    expect(find.text('Clock in to sell'), findsOneWidget);
+    await tester.tap(find.text('Clock in').last);
+    await _settle(tester);
+    expect(find.text('Clock in to sell'), findsNothing);
 
     // Phones get a bottom bar instead of the rail.
     expect(find.byType(NavigationBar), findsOneWidget);

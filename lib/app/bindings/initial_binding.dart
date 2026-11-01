@@ -142,7 +142,7 @@ class InitialBinding extends Bindings {
     final auth = Get.put(AuthService(Get.find(), audit, db: db), permanent: true);
     Get.put(PermissionService(auth), permanent: true).prompter = showApprovalPrompt;
     Get.put(SessionService(auth, settings), permanent: true);
-    final times = Get.put(TimeRepository(db, device), permanent: true);
+    final times = Get.put(TimeRepository(db, device, audit: audit), permanent: true);
     Get.put(ClockService(times, auth, settings), permanent: true);
     final sync = Get.put(SyncService(Get.find()), permanent: true);
     final licenses = Get.put(

@@ -5,13 +5,17 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/denominations.dart';
+import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
+import '../../../data/repositories/day_close_repository.dart';
+import '../../../data/repositories/shift_repository.dart';
 import '../../../domain/receipt/receipt_builder.dart';
 import '../../../models/day_close.dart';
 import '../../../models/discount.dart';
 import '../../../models/expense.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/money.dart';
+import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
@@ -23,19 +27,38 @@ import '../../../ui/receipt_actions.dart';
 import '../../close_day/widgets/period_summary.dart';
 import '../../../ui/dialogs.dart';
 
-/// Opening float: typed, or counted note by note. Null when cancelled.
-Future<(int, CashCount?)?> showOpenShift({int suggested = 0}) => Get.dialog<(int, CashCount?)>(_OpenShift(suggested: suggested));
+/// Starts the day on this till (CSH-01): the float, typed or counted, put
+/// in by someone who may close the day. True once the day is started.
+Future<bool> startDay() async {
+  final l = appL10n();
+  final suggested = (await Get.find<DayCloseRepository>().openPeriod()).suggestedFloat;
+  final opened = await showStartDay(suggested: suggested);
+  if (opened == null) return false;
+  final auth = await Get.find<PermissionService>().authorize(Permission.closeDay, reason: l.dayStartReason);
+  if (auth == null) return false;
+  try {
+    await Get.find<ShiftRepository>().open(float: opened.$1, count: opened.$2, by: auth.authority);
+  } on StateError {
+    showMessage(l.dayAlreadyStarted);
+    return true;
+  }
+  showMessage(l.dayStarted(formatMoney(opened.$1)), tone: MessageTone.success);
+  return true;
+}
 
-class _OpenShift extends StatefulWidget {
-  const _OpenShift({required this.suggested});
+/// Opening float: typed, or counted note by note. Null when cancelled.
+Future<(int, CashCount?)?> showStartDay({int suggested = 0}) => Get.dialog<(int, CashCount?)>(_StartDay(suggested: suggested));
+
+class _StartDay extends StatefulWidget {
+  const _StartDay({required this.suggested});
 
   final int suggested;
 
   @override
-  State<_OpenShift> createState() => _OpenShiftState();
+  State<_StartDay> createState() => _StartDayState();
 }
 
-class _OpenShiftState extends State<_OpenShift> {
+class _StartDayState extends State<_StartDay> {
   late final _float = TextEditingController(text: widget.suggested > 0 ? (widget.suggested / 100).toStringAsFixed(2) : '');
   CashCount? _count;
   String? _error;
@@ -51,11 +74,11 @@ class _OpenShiftState extends State<_OpenShift> {
     final c = Theme.of(context).extension<AbyColors>()!;
     final l = context.l10n;
     return AlertDialog(
-      title: Text(l.shiftOpen),
+      title: Text(l.dayStart),
       content: SizedBox(
         width: 400,
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(l.shiftOpenHelp, style: AbyText.caption.copyWith(color: c.inkMuted)),
+          Text(l.dayStartHelp, style: AbyText.caption.copyWith(color: c.inkMuted)),
           const SizedBox(height: AbySpace.s3),
           Row(children: [
             Expanded(
@@ -70,7 +93,7 @@ class _OpenShiftState extends State<_OpenShift> {
             const SizedBox(width: AbySpace.s2),
             OutlinedButton.icon(
               onPressed: () async {
-                final count = await showCashCount(initial: _count ?? const CashCount(), title: l.shiftCountFloat);
+                final count = await showCashCount(initial: _count ?? const CashCount(), title: l.dayCountFloat);
                 if (count == null) return;
                 setState(() {
                   _count = count;
@@ -97,7 +120,7 @@ class _OpenShiftState extends State<_OpenShift> {
               if (v == null) return setState(() => _error = l.customerAmountInvalid);
               goBack(result: (v, _count));
             },
-            child: Text(l.shiftOpen),
+            child: Text(l.dayStart),
           ),
         ]),
       ],

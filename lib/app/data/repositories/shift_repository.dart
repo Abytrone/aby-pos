@@ -57,7 +57,7 @@ class ShiftRepository {
   /// Opens the drawer's shift with the float in it.
   Future<String> open({required int float, CashCount? count, required Staff by}) async {
     if (float < 0) throw ArgumentError('The float cannot be negative.');
-    if (await current() != null) throw StateError('A shift is already open on this till.');
+    if (await current() != null) throw StateError('The day is already started on this till.');
     return _db.transaction(() async {
       final now = clock.now();
       final id = newId();
@@ -80,7 +80,7 @@ class ShiftRepository {
         actor: by,
         entity: 'shifts',
         entityId: id,
-        summary: 'Opened the shift with a float of ${formatMoney(float)}',
+        summary: 'Started the day with a float of ${formatMoney(float)}',
       );
       return id;
     });

@@ -902,6 +902,49 @@ Both actor and approver go into the audit log.
 narrows when there is no licence: only `reports` and `admin` permissions work, so an owner can
 always see, export and back up their own data (§16). Tests run with the gate open.
 
+### 13.5 Starting the day and the time clock
+
+Two separate things, kept apart in the wording too:
+
+| | Cash: **start the day** | People: **clock in / out** |
+|---|---|---|
+| What | a till's float, counted before its first sale; ended by close day (Z report) | a person's stretch of work, with breaks |
+| Table | `shifts` (one open per device) | `time_entries` |
+| Code | `ShiftRepository`, `startDay()` ([cash_dialogs.dart](lib/app/modules/today/widgets/cash_dialogs.dart)) | `TimeRepository`, `ClockService` |
+| Required before selling | `shift.startDayToSell` | `staff.clockInToSell` |
+
+The code and the table keep the old name `shift`; the screens, printouts and audit labels say
+"Start the day" / "Day started", and never "shift". Renaming the table would need a migration and a
+sync wire change for no gain.
+
+**Before selling** (`TillController._readyToSell`, on Pay): with `startDayToSell` on and no day
+started on this device, `startDay()` asks for the float (suggested from the last close) and
+authorises `closeDay`, which cashiers have. Then, with `clockInToSell` on, someone not clocked in is
+asked to clock in, and someone on a break to end it. The shell also offers clocking in after every
+sign-in and quick switch (`ShellController.offerClockIn`); saying no there only defers it to Pay.
+
+**Defaults:** both settings default to off, so shops from before them keep working as they did.
+`SetupController` turns both on for a new shop.
+
+**Close day** warns when the day was not started (the float is typed at the close instead) and
+lists people who clocked in on this device and have not clocked out. A close records `shift_id`;
+`DayClose.dayStarted` is false without one, and the Z report prints "Day not started: float typed
+at the close".
+
+**Timesheets** (`TimeRepository.timesheet`):
+
+- Late is judged on a person's first stretch of a calendar day, early on the last, so lunch out and
+  back in is neither. `minutesPast` takes the nearer side of midnight, so usual hours may cross it
+  (22:00 to 06:00).
+- `workedMinutes` takes off a break still going; Reports → Staff does the same in SQL.
+- A stretch over `longestStretch` (16 hours) is flagged: most likely a forgotten clock out.
+- `correct()` changes a stretch's times and break with a reason, kept in `time_entries.note` and
+  logged as `timeEntryCorrected` (sensitive, under the Staff filter). It needs `manageStaff`
+  (or an approval). Giving a clock out to an open stretch clocks the person out and ends a break
+  still going. Times cannot be in the future, clock out must follow clock in, and the break cannot
+  exceed the time worked.
+- The timesheet groups by staff ID, not name, so namesakes stay apart and a rename keeps one card.
+
 ---
 
 ## 14. The audit log
@@ -1265,7 +1308,7 @@ state (`paying`, `done`, `cancelPaying`).
 | `BackupService.autoBackupIfDue` | daily local snapshot | at start |
 | `NotificationService` + `AlertService` | low stock, overdue credit, backups due, day left open, old parked orders, expenses due → phone or Windows notifications, each kind at most once a day unless it grows; per-person opt-out | started after sign-in data exists |
 | `InsightService` | dashboard insights (stock running out, falling margins, late customers, cash short), dismissible | on demand |
-| `ClockService` | whether the signed-in person is clocked in (`staff.clockInToSell`) | reactive |
+| `ClockService` | whether the signed-in person is clocked in or on a break (`staff.clockInToSell`); offers clocking in after sign-in (§13.5) | reactive |
 | `StatusService` | the status centre: local and off-device backups, audit chain, sync, printer, accountant pack | at start and after relevant actions |
 | `PrintService` | print queue retries | timer while jobs wait |
 
@@ -1505,7 +1548,7 @@ From `analysis_options.yaml`, the README and the code itself:
 - **Small, explicit types** over maps. Records (`(String, int)`) for small internal tuples.
 - **Formatting:** keep diffs focused. Do not reformat whole files you only touched in a few lines
   (see §29).
-- **Plug-in points** for future work are marked `TODO(sync)` and `TODO(storage)`.
+- **Plug-in points** for future work are marked `TODO(sync)`.
 - **Commits** are per phase or feature, with a one-line summary and a body listing feature IDs and
   schema changes. `last_report.md` and the *Status* paragraphs in FEATURES.md record what each phase
   built, the decisions made and what was left out.
@@ -1611,7 +1654,8 @@ Open product questions are listed in [FEATURES.md §20](docs/FEATURES.md).
 |---|---|
 | **Pesewa** | 1/100 of a Ghana cedi (GH₵). All amounts are integer pesewas. |
 | **Business day** | trading day starting at 05:00 by default |
-| **Shift** | a drawer session opened with a counted float; **X report** = shift so far |
+| **Start the day** | counting a till's float before its first sale (`shifts` table); **X report** = the day so far |
+| **Clock in / out** | a person's working time (`time_entries`); not the same as starting the day |
 | **Close day / Z report** | end-of-day cash-up that locks the day's sales against voids |
 | **No-sale** | opening the drawer without a sale (needs a reason) |
 | **Pay-in / pay-out** | cash put into or taken out of the drawer |

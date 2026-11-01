@@ -5032,11 +5032,11 @@ abstract class AppLocalizations {
   /// **'Cash to the safe'**
   String get auditSafeDrop;
 
-  /// No description provided for @auditShiftOpened.
+  /// No description provided for @auditDayStarted.
   ///
   /// In en, this message translates to:
-  /// **'Shift opened'**
-  String get auditShiftOpened;
+  /// **'Day started'**
+  String get auditDayStarted;
 
   /// No description provided for @todayCash.
   ///
@@ -5050,35 +5050,35 @@ abstract class AppLocalizations {
   /// **'X report (so far)'**
   String get xReportTitle;
 
-  /// No description provided for @shiftOpen.
+  /// No description provided for @dayStart.
   ///
   /// In en, this message translates to:
-  /// **'Open the shift'**
-  String get shiftOpen;
+  /// **'Start the day'**
+  String get dayStart;
 
-  /// No description provided for @shiftOpenHelp.
+  /// No description provided for @dayStartHelp.
   ///
   /// In en, this message translates to:
   /// **'Count the float: the cash in the drawer before the first sale.'**
-  String get shiftOpenHelp;
+  String get dayStartHelp;
 
-  /// No description provided for @shiftCountFloat.
+  /// No description provided for @dayCountFloat.
   ///
   /// In en, this message translates to:
   /// **'Count the float'**
-  String get shiftCountFloat;
+  String get dayCountFloat;
 
-  /// No description provided for @shiftOpenReason.
+  /// No description provided for @dayStartReason.
   ///
   /// In en, this message translates to:
-  /// **'Open the shift.'**
-  String get shiftOpenReason;
+  /// **'Start the day.'**
+  String get dayStartReason;
 
-  /// No description provided for @shiftAlreadyOpen.
+  /// No description provided for @dayAlreadyStarted.
   ///
   /// In en, this message translates to:
-  /// **'A shift is already open on this till.'**
-  String get shiftAlreadyOpen;
+  /// **'The day is already started on this till.'**
+  String get dayAlreadyStarted;
 
   /// No description provided for @payInTitle.
   ///
@@ -5890,11 +5890,11 @@ abstract class AppLocalizations {
   /// **'Refresh'**
   String get dashRefresh;
 
-  /// No description provided for @dashNoShift.
+  /// No description provided for @dashDayNotStarted.
   ///
   /// In en, this message translates to:
-  /// **'No shift opened'**
-  String get dashNoShift;
+  /// **'Day not started'**
+  String get dashDayNotStarted;
 
   /// No description provided for @alertBackup.
   ///
@@ -7971,6 +7971,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Staff clock in and out from their name at the top. Timesheets are in Staff.'**
   String get settingsClockInToSellHelp;
+
+  /// No description provided for @settingsStartDayToSell.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the day before selling'**
+  String get settingsStartDayToSell;
+
+  /// No description provided for @settingsStartDayToSellHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Each till counts its float into the drawer before its first sale. Close day then checks the cash against it.'**
+  String get settingsStartDayToSellHelp;
+
+  /// No description provided for @clockOnBreakTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re on a break'**
+  String get clockOnBreakTitle;
+
+  /// No description provided for @clockOnBreakBody.
+  ///
+  /// In en, this message translates to:
+  /// **'End your break to sell?'**
+  String get clockOnBreakBody;
+
+  /// No description provided for @closeDayNotStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'The day was not started on this till, so the float was not counted before the first sale. Type it below.'**
+  String get closeDayNotStarted;
+
+  /// No description provided for @closeStillClockedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Still clocked in on this till: {names}. If they have gone home, correct their hours in Staff, Timesheets.'**
+  String closeStillClockedIn(String names);
+
+  /// No description provided for @timeCorrectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct the hours'**
+  String get timeCorrectTitle;
+
+  /// No description provided for @timeCorrectApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct someone\'s hours.'**
+  String get timeCorrectApproval;
+
+  /// No description provided for @timeCorrectHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'For a forgotten clock out, or a time typed wrong. The change and the reason go in the activity log.'**
+  String get timeCorrectHelp;
+
+  /// No description provided for @timeClockInAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Clocked in'**
+  String get timeClockInAt;
+
+  /// No description provided for @timeClockOutAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Clocked out'**
+  String get timeClockOutAt;
+
+  /// No description provided for @timeStillClockedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Still clocked in'**
+  String get timeStillClockedIn;
+
+  /// No description provided for @timeBreakMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Break (minutes)'**
+  String get timeBreakMinutes;
+
+  /// No description provided for @timeReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get timeReason;
+
+  /// No description provided for @timeReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example: forgot to clock out'**
+  String get timeReasonHint;
+
+  /// No description provided for @timeCorrected.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours corrected.'**
+  String get timeCorrected;
+
+  /// No description provided for @timeTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Over 16 hours: was the clock out forgotten?'**
+  String get timeTooLong;
+
+  /// No description provided for @timeCorrectedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Corrected: {reason}'**
+  String timeCorrectedNote(String reason);
 
   /// No description provided for @settingsCommission.
   ///
@@ -10102,17 +10210,17 @@ abstract class AppLocalizations {
   /// **'Due {date}'**
   String customerDue(String date);
 
-  /// No description provided for @shiftOpened.
+  /// No description provided for @dayStarted.
   ///
   /// In en, this message translates to:
-  /// **'Shift opened with {amount}.'**
-  String shiftOpened(String amount);
+  /// **'Day started with a float of {amount}.'**
+  String dayStarted(String amount);
 
-  /// No description provided for @shiftLine.
+  /// No description provided for @dayStartedLine.
   ///
   /// In en, this message translates to:
-  /// **'Shift opened by {name} at {time} with {float}.'**
-  String shiftLine(String name, String time, String float);
+  /// **'Day started by {name} at {time} with a float of {float}.'**
+  String dayStartedLine(String name, String time, String float);
 
   /// No description provided for @payInReason.
   ///
@@ -10186,11 +10294,11 @@ abstract class AppLocalizations {
   /// **'Since {time}'**
   String closeSince(String time);
 
-  /// No description provided for @closeShiftBy.
+  /// No description provided for @closeDayStartedBy.
   ///
   /// In en, this message translates to:
-  /// **'Shift opened by {name} with {float}'**
-  String closeShiftBy(String name, String float);
+  /// **'Day started by {name} with a float of {float}'**
+  String closeDayStartedBy(String name, String float);
 
   /// No description provided for @closeSales.
   ///
@@ -10294,11 +10402,11 @@ abstract class AppLocalizations {
   /// **'same day last week {count}'**
   String dashLastWeekCount(int count);
 
-  /// No description provided for @dashShiftBy.
+  /// No description provided for @dashDayStartedBy.
   ///
   /// In en, this message translates to:
-  /// **'Shift opened by {name}'**
-  String dashShiftBy(String name);
+  /// **'Day started by {name}'**
+  String dashDayStartedBy(String name);
 
   /// No description provided for @alertLowStock.
   ///
@@ -12105,6 +12213,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'PIN reset request cancelled'**
   String get auditStaffPinResetCancelled;
+
+  /// No description provided for @auditTimeEntryCorrected.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours corrected'**
+  String get auditTimeEntryCorrected;
 
   /// No description provided for @resetRequestDropped.
   ///

@@ -11,6 +11,7 @@ import '../../../data/database/app_database.dart';
 import '../../../models/staff.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/clock_service.dart';
 import '../../../services/device_service.dart';
 import '../../../services/pin_recovery_service.dart';
 import '../../../services/session_service.dart';
@@ -96,6 +97,23 @@ class ShellController extends GetxController {
     _ensureAllowed();
     _userSub = auth.currentUser.listen((_) => _ensureAllowed());
     HardwareKeyboard.instance.addHandler(_onKey);
+  }
+
+  /// The till opens after every sign-in.
+  @override
+  void onReady() {
+    super.onReady();
+    unawaited(offerClockIn());
+  }
+
+  /// Someone who signed in but has not clocked in is asked to, when the
+  /// shop wants it before selling (STF-04). Also after a quick switch.
+  Future<void> offerClockIn() async {
+    if (!Get.isRegistered<ClockService>()) return;
+    final l = appL10n();
+    await Get.find<ClockService>().offerAfterSignIn(
+      () => confirmDialog(title: l.clockInToSellTitle, message: l.clockInToSellBody, confirmLabel: l.clockIn),
+    );
   }
 
   /// Ctrl+K opens the command bar (APP-03).

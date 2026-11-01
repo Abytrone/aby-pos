@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 
 import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
-import '../../../core/denominations.dart';
 import '../../../data/repositories/cash_event_repository.dart';
 import '../../../data/repositories/day_close_repository.dart';
 import '../../../data/repositories/expense_repository.dart';
@@ -85,19 +84,8 @@ class TodayController extends GetxController {
 
   Future<void> _loadShift() async => shift.value = await _shifts.current();
 
-  /// Opens the drawer's shift with its float. Returns a message to show.
-  Future<String?> openShift(int float, CashCount? count) async {
-    final l = appL10n();
-    final auth = await _permissions.authorize(Permission.closeDay, reason: l.shiftOpenReason);
-    if (auth == null) return null;
-    try {
-      await _shifts.open(float: float, count: count, by: auth.authority);
-    } on StateError {
-      return l.shiftAlreadyOpen;
-    }
-    await _loadShift();
-    return l.shiftOpened(formatMoney(float));
-  }
+  /// After the day is started (startDay).
+  Future<void> reloadShift() => _loadShift();
 
   /// The X report: the shift so far, without closing it.
   Future<OpenPeriod> xReport() => _closes.openPeriod();
