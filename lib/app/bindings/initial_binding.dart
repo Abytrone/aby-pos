@@ -92,7 +92,7 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => ReceivingRepository(db, device, audit, Get.find(), Get.find(), Get.find<PurchaseOrderRepository>()), fenix: true);
     Get.lazyPut(() => StockCountRepository(db, device, audit, Get.find()), fenix: true);
     Get.lazyPut(() => CatalogueIo(Get.find(), Get.find(), audit), fenix: true);
-    Get.lazyPut(() => StockIo(db, Get.find(), Get.find(), Get.find(), audit), fenix: true);
+    Get.lazyPut(() => StockIo(db, Get.find(), Get.find(), Get.find(), Get.find(), audit), fenix: true);
     Get.lazyPut(() => CashEventRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => CustomerRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => ShiftRepository(db, device, audit), fenix: true);

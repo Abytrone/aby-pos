@@ -83,7 +83,7 @@ class _QuantityDialogState extends State<_QuantityDialog> {
                 controller: _amount,
                 autofocus: true,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(labelText: l.stockHowMuch, errorText: _error),
+                decoration: InputDecoration(labelText: l.stockQuantity, errorText: _error),
               ),
             ),
             if (units.length > 1) ...[

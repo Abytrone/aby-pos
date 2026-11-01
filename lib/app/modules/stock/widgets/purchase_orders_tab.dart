@@ -44,6 +44,13 @@ class PurchaseOrdersTab extends GetView<PurchasingController> {
             subtitle: [formatDate(o.at), poStatusLabel(l, o.status), l.deliveriesItems(o.lines.length)].join('  ·  '),
             value: o.estimate == 0 ? null : formatMoney(o.estimate),
             leading: Icon(Icons.assignment_outlined, color: o.isOpen ? c.blue : c.inkMuted),
+            trailing: o.isOpen && controller.canReceive
+                ? TextButton.icon(
+                    onPressed: () => controller.receiveOrder(o),
+                    icon: const Icon(Icons.local_shipping_outlined, size: 18),
+                    label: Text(l.poReceive),
+                  )
+                : null,
             onTap: () => showPurchaseOrder(controller, o),
           );
         },
@@ -228,7 +235,7 @@ class _NewOrderState extends State<_NewOrder> {
                       controller: line.quantity,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       decoration: InputDecoration(
-                        labelText: l.stockHowMuch,
+                        labelText: l.stockQuantity,
                         suffixText: _item(line.itemId) == null ? null : DisplayUnit.bulk(_item(line.itemId)!.unit).symbol,
                         isDense: true,
                       ),

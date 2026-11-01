@@ -14,8 +14,11 @@ import '../../../services/auth_service.dart';
 import '../../../services/pdf_brand_loader.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
+import '../../../ui/dialogs.dart';
 import '../../../ui/files.dart';
+import '../../../ui/format.dart';
 import '../../../ui/l10n.dart';
+import '../widgets/purchase_orders_tab.dart' show poStatusLabel;
 
 /// The Stock section's other tabs: deliveries, counts and suppliers.
 class PurchasingController extends GetxController {
@@ -100,7 +103,32 @@ class PurchasingController extends GetxController {
   /// Pesewas owed to all suppliers.
   int get totalOwed => suppliers.fold(0, (s, x) => s + (x.balance > 0 ? x.balance : 0));
 
+  /// A delivery: when orders are waiting, it asks which one it is for, so
+  /// the form starts with what was ordered.
   Future<void> receive() async {
+    final waiting = {for (final o in orders.where((o) => o.isOpen)) o.id: o};
+    if (waiting.isNotEmpty) {
+      final l = appL10n();
+      // '' is "without an order"; null is closing the question.
+      final choice = await choiceDialog<String>(
+        title: l.receiveFromWhich,
+        options: [...waiting.keys, ''],
+        label: (id) {
+          final o = waiting[id];
+          return o == null
+              ? l.receiveWithoutOrder
+              : l.receiveOrderLine(o.displayNumber, o.supplierName, l.deliveriesItems(o.lines.where((x) => x.outstanding > 0).length));
+        },
+        subtitle: (id) {
+          final o = waiting[id];
+          return o == null
+              ? null
+              : [poStatusLabel(l, o.status), formatDate(o.at), if (o.expectedOn != null) l.poNeededBy(formatDate(o.expectedOn!))].join('  ·  ');
+        },
+      );
+      if (choice == null) return;
+      if (choice.isNotEmpty) return receiveOrder(waiting[choice]!);
+    }
     await Get.toNamed<void>(Routes.receive);
     await load();
   }

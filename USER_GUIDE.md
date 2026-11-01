@@ -805,7 +805,8 @@ Each item shows what is **on hand**, what it cost on average, its history, how m
 **Import stock** (Stock → Tools → **Import stock**) works like the product import: download the
 sample (or export your stock to start from it), fill it in Excel or Google Sheets, and pick the CSV.
 Columns: `stock_item` (needed), `unit` (piece, g or ml), `cost_per` (pcs, kg, g, L or ml), `cost`,
-`on_hand` and `low_below`. You see a preview first. A count that changes is recorded as an
+`on_hand`, `low_below`, `order_qty` (the usual order) and `supplier` (a new name becomes a new
+supplier). Importing the name of a retired item brings it back. You see a preview first. A count that changes is recorded as an
 adjustment, so the item's history shows the import. It never removes anything.
 
 ### 10.2 How stock moves
@@ -872,24 +873,40 @@ page: their account, past deliveries, and **Pay** (needs *Pay out from the drawe
 
 Stock → **Orders → New order**:
 
-1. Pick the supplier. Aby brings in their items that are **low**, at the usual order.
-2. Add more, set a **needed by** date and a note.
+1. Pick the supplier. Aby brings in their items that are **low**, at the usual order quantity
+   (set on each item, or in the stock import's `order_qty` column).
+2. Change each **Quantity** (in the item's unit: L, kg or pcs), add more, set a **needed by** date
+   and a note.
 3. **Share** the order as a PDF by WhatsApp or email.
 
-When goods arrive, tap **Receive delivery** on the order. It can arrive in parts: the order goes
-from **Waiting** to **Part delivered** to **Delivered**. You can cancel an order.
+When goods arrive, tap **Receive delivery** on the order (each waiting order has the button in the
+list too). It can arrive in parts: the order goes from **Waiting** to **Part delivered** to
+**Delivered**. You can cancel an order.
 
 ### 11.3 Receiving a delivery
 
-Stock → **Deliveries → Receive** (or from an order). Needs *Receive stock*.
+Stock → **Deliveries → Receive delivery**. Needs *Receive stock*. When orders are waiting, Aby asks
+first which order the delivery is for, or **without an order**.
 
-- What came in, how much, and what it cost.
+From an order, the form is already filled with what is still to come, at the cost expected. Each
+line shows what was ordered and what came before. Change a **Quantity** if less came, and put **0**
+for what did not come: the order keeps waiting for it.
+
+- What came in: the **Quantity** (in the item's unit) and the **Cost of this line** from the invoice.
 - Batch and expiry date, for items that track them.
 - The supplier, and whether you **paid now** or **owe** it. Without a supplier, it must be paid in
   full.
 
 Aby updates the average cost. If Aby thought the item had run out, the new cost replaces the old
 one.
+
+After saving, Aby shows what the delivery changed:
+
+- each item's stock before and after, and its cost when the price changed;
+- whether the order is fully delivered or still waiting for some items;
+- products whose margin is now **below your target** because costs went up, with **Review
+  prices** to go straight to them;
+- **Print labels** for products sold as they came in.
 
 ---
 

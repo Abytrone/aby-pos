@@ -187,9 +187,10 @@ class CatalogueIo {
     return Csv.encode(rows);
   }
 
-  String exportStock(List<StockItem> items) {
+  /// The file stock import reads back. [suppliers]: supplier ID to name.
+  String exportStock(List<StockItem> items, {Map<String, String> suppliers = const {}}) {
     final rows = <List<String>>[
-      ['stock_item', 'unit', 'cost_per', 'cost', 'on_hand', 'low_below'],
+      ['stock_item', 'unit', 'cost_per', 'cost', 'on_hand', 'low_below', 'order_qty', 'supplier'],
     ];
     for (final i in items.where((i) => i.active)) {
       final bulk = DisplayUnit.bulk(i.unit);
@@ -200,6 +201,8 @@ class CatalogueIo {
         _money(i.bulkPrice),
         quantityIn(i.onHand, bulk),
         i.reorderPoint == null ? '' : quantityIn(i.reorderPoint!, bulk),
+        i.reorderQty == null ? '' : quantityIn(i.reorderQty!, bulk),
+        suppliers[i.supplierId] ?? '',
       ]);
     }
     return Csv.encode(rows);

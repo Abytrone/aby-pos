@@ -4,9 +4,11 @@ import '../data/database/app_database.dart';
 import '../data/repositories/audit_repository.dart';
 import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/stock_repository.dart';
+import '../data/repositories/supplier_repository.dart';
 import '../models/audit.dart';
 import '../models/drafts.dart';
 import '../models/enums.dart';
+import '../models/purchasing.dart';
 import '../models/staff.dart';
 import '../models/stock.dart';
 import '../services/money.dart';
@@ -16,11 +18,16 @@ import 'catalogue_rules.dart';
 /// One stock item an import would add or change. [setOnHand] is the
 /// count the file gives (base units), null to leave it as it is.
 class StockImportItem {
-  const StockImportItem({required this.draft, required this.onHandNow, this.setOnHand});
+  const StockImportItem({required this.draft, required this.onHandNow, this.setOnHand, this.reactivate = false});
 
+  /// [StockItemDraft.supplierId] is "new:Name" for a supplier the import
+  /// adds.
   final StockItemDraft draft;
   final int onHandNow;
   final int? setOnHand;
+
+  /// A retired item of the same name comes back.
+  final bool reactivate;
 
   int get change => setOnHand == null ? 0 : setOnHand! - onHandNow;
 }
@@ -33,9 +40,11 @@ class StockImportPreview {
     required this.updatedItems,
     required this.unchanged,
     required this.problems,
+    this.newSuppliers = const [],
   });
 
   final List<StockImportItem> items;
+  final List<String> newSuppliers;
   final int newItems;
   final int updatedItems;
   final int unchanged;
@@ -109,15 +118,16 @@ class StockProductPlan {
 /// Stock items to and from CSV (the same columns stock export writes), and
 /// products made from stock items in bulk, priced at a margin.
 class StockIo {
-  StockIo(this._db, this._stock, this._catalog, this._rules, this._audit);
+  StockIo(this._db, this._stock, this._suppliers, this._catalog, this._rules, this._audit);
 
   final AppDatabase _db;
   final StockRepository _stock;
+  final SupplierRepository _suppliers;
   final CatalogRepository _catalog;
   final CatalogueRules _rules;
   final AuditRepository _audit;
 
-  static const stockColumns = ['stock_item', 'unit', 'cost_per', 'cost', 'on_hand', 'low_below'];
+  static const stockColumns = ['stock_item', 'unit', 'cost_per', 'cost', 'on_hand', 'low_below', 'order_qty', 'supplier'];
 
   static const requiredColumns = {'stock_item'};
 
@@ -150,6 +160,12 @@ class StockIo {
     'low_stock': 'low_below',
     'minimum': 'low_below',
     'min': 'low_below',
+    'reorder_qty': 'order_qty',
+    'reorder_quantity': 'order_qty',
+    'order_quantity': 'order_qty',
+    'usual_order': 'order_qty',
+    'supplier_name': 'supplier',
+    'vendor': 'supplier',
   };
 
   static String columnFor(String heading) {
@@ -170,10 +186,10 @@ class StockIo {
   /// A filled-in example to start from.
   String sampleStock() => Csv.encode([
         stockColumns,
-        ['Vanilla ice cream', 'ml', 'L', '45.00', '20', '5'],
-        ['Wafer cones', 'piece', 'pcs', '0.60', '400', '100'],
-        ['Sugar', 'g', 'kg', '14.00', '12.5', '2'],
-        ['Bottled water', 'piece', 'pcs', '2.10', '48', '12'],
+        ['Vanilla ice cream', 'ml', 'L', '45.00', '20', '5', '20', 'Accra Dairy'],
+        ['Wafer cones', 'piece', 'pcs', '0.60', '400', '100', '500', 'Accra Dairy'],
+        ['Sugar', 'g', 'kg', '14.00', '12.5', '2', '10', 'Makola Wholesale'],
+        ['Bottled water', 'piece', 'pcs', '2.10', '48', '12', '48', 'Makola Wholesale'],
       ]);
 
   /// Reads a CSV and works out what would change. Nothing is saved.
@@ -196,6 +212,8 @@ class StockIo {
     }
 
     final existing = {for (final i in await _stock.items(includeInactive: true)) i.name.toLowerCase(): i};
+    final suppliers = {for (final x in await _suppliers.list(includeInactive: true)) x.name.toLowerCase(): x.id};
+    final newSuppliers = <String, String>{};
     final problems = <ImportProblem>[];
     final items = <StockImportItem>[];
     final seen = <String>{};
@@ -257,22 +275,46 @@ class StockIo {
         continue;
       }
 
+      final orderText = cell(r, 'order_qty');
+      final orderQty = orderText.isEmpty ? null : parseQuantity(orderText, counted);
+      if (orderText.isNotEmpty && (orderQty == null || orderQty <= 0)) {
+        problems.add(ImportProblem(rowNo, 'Check order_qty for $name.'));
+        continue;
+      }
+      final supplierName = cell(r, 'supplier');
+      String? supplierId = old?.supplierId;
+      if (supplierName.isNotEmpty) {
+        supplierId = suppliers[supplierName.toLowerCase()];
+        if (supplierId == null) {
+          final spelled = newSuppliers.putIfAbsent(supplierName.toLowerCase(), () => supplierName);
+          supplierId = 'new:$spelled';
+        }
+      }
+
       final draft = StockItemDraft(
         id: old?.id,
         name: old?.name ?? name,
         unit: unit,
         costMilli: cost == null ? (old?.costMilli ?? 0) : costMilliFromPrice(cost, counted),
         reorderPoint: lowText.isEmpty ? old?.reorderPoint : low,
-        reorderQty: old?.reorderQty,
-        supplierId: old?.supplierId,
+        reorderQty: orderText.isEmpty ? old?.reorderQty : orderQty,
+        supplierId: supplierId,
         tracksExpiry: old?.tracksExpiry ?? false,
       );
-      final item = StockImportItem(draft: draft, onHandNow: old?.onHand ?? 0, setOnHand: onHand);
+      final item = StockImportItem(
+        draft: draft,
+        onHandNow: old?.onHand ?? 0,
+        setOnHand: onHand,
+        reactivate: old != null && !old.active,
+      );
       if (old == null) {
         created++;
       } else if (draft.unit == old.unit &&
           draft.costMilli == old.costMilli &&
           draft.reorderPoint == old.reorderPoint &&
+          draft.reorderQty == old.reorderQty &&
+          draft.supplierId == old.supplierId &&
+          !item.reactivate &&
           item.change == 0) {
         unchanged++;
         continue;
@@ -287,6 +329,7 @@ class StockIo {
       updatedItems: updated,
       unchanged: unchanged,
       problems: problems,
+      newSuppliers: newSuppliers.values.toList(),
     );
   }
 
@@ -295,8 +338,25 @@ class StockIo {
   Future<void> applyStock(StockImportPreview preview, {required Staff by}) async {
     if (!preview.canApply) throw const StockException('Fix the problems in the file first.');
     await _db.transaction(() async {
+      final added = {
+        for (final name in preview.newSuppliers) 'new:$name': await _suppliers.save(SupplierDraft(name: name), by: by),
+      };
       for (final i in preview.items) {
-        final id = await _stock.saveItem(i.draft, by: by);
+        final d = i.draft;
+        final id = await _stock.saveItem(
+          StockItemDraft(
+            id: d.id,
+            name: d.name,
+            unit: d.unit,
+            costMilli: d.costMilli,
+            reorderPoint: d.reorderPoint,
+            reorderQty: d.reorderQty,
+            supplierId: added[d.supplierId] ?? d.supplierId,
+            tracksExpiry: d.tracksExpiry,
+          ),
+          by: by,
+        );
+        if (i.reactivate) await _stock.setItemActive(id, active: true, by: by);
         if (i.change != 0) await _stock.adjust(id, i.change, note: 'Stock import', by: by);
       }
       await _audit.record(

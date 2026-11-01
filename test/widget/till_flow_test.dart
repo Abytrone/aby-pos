@@ -324,7 +324,7 @@ void main() {
     expect(find.text('199 pcs'), findsWidgets);
     await tester.tap(find.text('Log waste'));
     await _settle(tester);
-    await tester.enterText(find.widgetWithText(TextField, 'How much'), '4');
+    await tester.enterText(find.widgetWithText(TextField, 'Quantity'), '4');
     await tester.tap(find.text('Dropped or damaged'));
     await tester.tap(find.text('Save'));
     await _settle(tester);
@@ -371,13 +371,18 @@ void main() {
     await _settle(tester);
     await tester.tap(find.text('Wafer cones').last);
     await _settle(tester);
-    await tester.enterText(find.widgetWithText(TextField, 'How much'), '100');
-    await tester.enterText(find.widgetWithText(TextField, 'Cost of these'), '100');
+    await tester.enterText(find.widgetWithText(TextField, 'Quantity'), '100');
+    await tester.enterText(find.widgetWithText(TextField, 'Cost of this line'), '100');
     await _settle(tester);
     expect(find.text('GH₵ 100.00'), findsWidgets);
     await tester.enterText(find.widgetWithText(TextField, 'Paid now'), '40');
     await _settle(tester);
     await tester.tap(find.text('Save delivery'));
+    await _settle(tester);
+    // What the delivery changed: the cones' stock before and after.
+    expect(find.text('Delivery GRN-0001 received'), findsOneWidget);
+    expect(find.text('Wafer cones'), findsWidgets);
+    await tester.tap(find.text('Done').last);
     await _settle(tester);
     expect(find.textContaining('GRN-0001'), findsWidgets);
     expect(find.text('GH₵ 60.00 owed'), findsOneWidget);

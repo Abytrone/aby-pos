@@ -1,6 +1,8 @@
 import 'package:aby_pos/app/core/units.dart';
 import 'package:aby_pos/app/data/database/app_database.dart';
+import 'package:aby_pos/app/data/repositories/purchase_order_repository.dart';
 import 'package:aby_pos/app/data/repositories/receipt_repository.dart';
+import 'package:aby_pos/app/data/repositories/supplier_repository.dart';
 import 'package:aby_pos/app/domain/catalogue_io.dart';
 import 'package:aby_pos/app/domain/catalogue_rules.dart';
 import 'package:aby_pos/app/domain/stock_io.dart';
@@ -17,7 +19,7 @@ void main() {
   setUp(() async {
     db = memoryDb();
     r = await Repos.open(db);
-    io = StockIo(db, r.stock, r.catalog, CatalogueRules(r.catalog), r.audit);
+    io = StockIo(db, r.stock, SupplierRepository(db, r.device, r.audit), r.catalog, CatalogueRules(r.catalog), r.audit);
   });
   tearDown(() => db.close());
 
@@ -155,6 +157,31 @@ void main() {
       expect((await io.previewStock('name\n')).problems, isEmpty);
       expect((await io.previewStock('product,price\nA,1\n')).problems, isEmpty, reason: '"product" reads as the item');
       expect((await io.previewStock('cost\n1\n')).problems.single.row, 1);
+    });
+
+    test('suppliers and order quantities come in; low items are suggested for that supplier; retired items return', () async {
+      final suppliers = SupplierRepository(db, r.device, r.audit);
+      final preview = await io.previewStock(
+        'stock_item,unit,cost_per,cost,on_hand,low_below,order_qty,supplier\n'
+        'Bottled water,piece,pcs,2.50,6,12,48,Sally Ent.\n'
+        'Napkins,piece,pcs,0.10,500,100,1000,sally ent.\n',
+      );
+      expect(preview.problems, isEmpty);
+      expect(preview.newSuppliers, ['Sally Ent.'], reason: 'one supplier, however it is typed');
+      await io.applyStock(preview, by: owner);
+      final sally = (await suppliers.list()).singleWhere((s) => s.name == 'Sally Ent.');
+      final water = await stockItem('Bottled water');
+      expect(water.supplierId, sally.id);
+      expect(water.reorderQty, 48);
+      expect(water.isLow, isTrue);
+      final orders = PurchaseOrderRepository(db, r.device, r.audit, r.stock);
+      expect(await orders.suggestions(sally.id), [(water.id, 48)], reason: 'napkins are not low');
+
+      await r.stock.setItemActive(water.id, active: false, by: owner);
+      final back = await io.previewStock('stock_item,on_hand\nBottled water,6\n');
+      expect(back.updatedItems, 1);
+      await io.applyStock(back, by: owner);
+      expect((await stockItem('Bottled water')).active, isTrue);
     });
 
     test('the export reads back in', () async {

@@ -162,6 +162,8 @@ class StockView extends GetView<StockController> {
         'cost': l.stockImportColCost,
         'on_hand': l.stockImportColOnHand,
         'low_below': l.stockImportColLowBelow,
+        'order_qty': l.stockImportColOrderQty,
+        'supplier': l.stockImportColSupplier,
       },
       requiredColumns: StockIo.requiredColumns,
       onSample: controller.downloadSample,
@@ -175,7 +177,10 @@ class StockView extends GetView<StockController> {
     await showImportPreview(
       title: l.stockImportTitle,
       summary: l.importSummary(preview.newItems, preview.updatedItems, preview.unchanged),
-      notes: [if (preview.recounted > 0) l.stockImportRecounted(preview.recounted)],
+      notes: [
+        if (preview.recounted > 0) l.stockImportRecounted(preview.recounted),
+        if (preview.newSuppliers.isNotEmpty) l.stockImportNewSuppliers(preview.newSuppliers.join(', ')),
+      ],
       problems: preview.problems,
       canApply: preview.canApply,
       onApply: () => controller.applyImport(preview),

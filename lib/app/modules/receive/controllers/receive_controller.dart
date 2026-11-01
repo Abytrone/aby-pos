@@ -2,7 +2,9 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '../../../core/permissions.dart';
+import '../../../core/settings.dart';
 import '../../../core/units.dart';
+import '../../../data/repositories/catalog_repository.dart';
 import '../../../data/repositories/purchase_order_repository.dart';
 import '../../../data/repositories/receiving_repository.dart';
 import '../../../data/repositories/stock_repository.dart';
@@ -12,15 +14,22 @@ import '../../../models/purchasing.dart';
 import '../../../models/stock.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
+import '../../../services/settings_service.dart';
+import '../../products/controllers/catalogue_controller.dart';
 import '../../../ui/l10n.dart';
 
 /// One line on the delivery form.
 class ReceiveLineForm {
-  ReceiveLineForm({this.stockItemId, String quantity = '', String total = '', this.unit})
+  ReceiveLineForm({this.stockItemId, String quantity = '', String total = '', this.unit, this.ordered, this.receivedBefore = 0})
       : quantity = TextEditingController(text: quantity),
         total = TextEditingController(text: total);
 
   String? stockItemId;
+
+  /// Base units on the order, and already received against it, when the
+  /// line comes from a purchase order. Such a line may be 0: not delivered.
+  final int? ordered;
+  final int receivedBefore;
   DisplayUnit? unit;
   final TextEditingController quantity;
 
@@ -99,6 +108,8 @@ class ReceiveController extends GetxController {
           unit: unit,
           quantity: quantityIn(ol.outstanding, unit),
           total: _plain((ol.outstanding * ol.unitCostMilli + 500) ~/ 1000),
+          ordered: ol.quantity,
+          receivedBefore: ol.received,
         ));
       }
     }
@@ -197,8 +208,10 @@ class ReceiveController extends GetxController {
     error = null;
     final drafts = <ReceiptLineDraft>[];
     for (final line in lines.where((x) => x.stockItemId != null)) {
-      final q = baseQuantity(line);
+      final q = line.ordered != null && line.quantity.text.trim().isEmpty ? 0 : baseQuantity(line);
       final t = parseMoney(line.total.text);
+      // An ordered item that did not come: left for a later delivery.
+      if (line.ordered != null && q == 0) continue;
       if (q == null || q <= 0 || t == null) {
         error = l.receiveLineInvalid(itemOf(line)?.name ?? '');
         update();
@@ -212,6 +225,11 @@ class ReceiveController extends GetxController {
         expiresOn: line.expiresOn,
       ));
     }
+    if (drafts.isEmpty) {
+      error = l.receiveNothing;
+      update();
+      return false;
+    }
     final paid = paidNow.text.trim().isEmpty ? 0 : parseMoney(paidNow.text);
     if (paid == null) {
       error = l.receivePaidInvalid;
@@ -222,6 +240,7 @@ class ReceiveController extends GetxController {
     if (auth == null) return false;
     saving = true;
     update();
+    final before = {for (final i in await _stock.items()) i.id: i};
     try {
       final receipt = await _receiving.receive(
         ReceiptDraft(
@@ -237,6 +256,7 @@ class ReceiveController extends GetxController {
       );
       lastReceipt = receipt;
       received = {for (final d in drafts) d.stockItemId: (received[d.stockItemId] ?? 0) + d.quantity};
+      summary = await _summarise(before, receipt);
       return true;
     } on StockException catch (e) {
       error = e.message;
@@ -251,4 +271,54 @@ class ReceiveController extends GetxController {
 
   /// Base units received per stock item, for labels.
   Map<String, int> received = const {};
+
+  /// What the saved delivery changed, for the screen after it.
+  DeliverySummary? summary;
+
+  Future<DeliverySummary> _summarise(Map<String, StockItem> before, StockReceipt receipt) async {
+    final after = {for (final i in await _stock.items()) i.id: i};
+    final changes = [
+      for (final id in received.keys)
+        if (before[id] != null && after[id] != null) (before[id]!, after[id]!),
+    ];
+    final id = purchaseOrderId;
+    final o = id == null ? null : await Get.find<PurchaseOrderRepository>().find(id);
+    final target = Get.find<SettingsService>().get(AppSettings.targetMarginPercent);
+    final catalogue = await Get.find<CatalogRepository>().load();
+    final low = [
+      for (final p in catalogue.products.where((p) => !p.archived))
+        if (p.variants.any((v) =>
+            v.recipe.any((r) => received.containsKey(r.stockItemId)) &&
+            (CatalogueController.marginOf(v.price, v.cost) ?? 100) < target))
+          p.name,
+    ];
+    return DeliverySummary(
+      number: receipt.displayNumber,
+      changes: changes,
+      order: o,
+      targetMargin: target,
+      belowMargin: low,
+    );
+  }
+}
+
+/// A saved delivery: each item's stock and cost before and after, how the
+/// order stands, and products whose margin the new costs pushed below the
+/// shop's target.
+class DeliverySummary {
+  const DeliverySummary({
+    required this.number,
+    required this.changes,
+    required this.targetMargin,
+    required this.belowMargin,
+    this.order,
+  });
+
+  final String number;
+  final List<(StockItem before, StockItem after)> changes;
+  final PurchaseOrder? order;
+  final int targetMargin;
+  final List<String> belowMargin;
+
+  int get stillWaiting => order?.lines.where((l) => l.outstanding > 0).length ?? 0;
 }

@@ -2680,11 +2680,11 @@ abstract class AppLocalizations {
   /// **'There is more'**
   String get stockMore;
 
-  /// No description provided for @stockHowMuch.
+  /// No description provided for @stockQuantity.
   ///
   /// In en, this message translates to:
-  /// **'How much'**
-  String get stockHowMuch;
+  /// **'Quantity'**
+  String get stockQuantity;
 
   /// No description provided for @stockNoteOptional.
   ///
@@ -2959,7 +2959,7 @@ abstract class AppLocalizations {
   /// No description provided for @receiveLineCost.
   ///
   /// In en, this message translates to:
-  /// **'Cost of these'**
+  /// **'Cost of this line'**
   String get receiveLineCost;
 
   /// No description provided for @receiveTotal.
@@ -12866,6 +12866,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Make products from stock'**
   String get fromStockReason;
+
+  /// No description provided for @receiveOrdered.
+  ///
+  /// In en, this message translates to:
+  /// **'Ordered {ordered}  ·  {received} received before'**
+  String receiveOrdered(String ordered, String received);
+
+  /// No description provided for @receiveOrderedOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Ordered {ordered}'**
+  String receiveOrderedOnly(String ordered);
+
+  /// No description provided for @receiveZeroHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Put 0 for what did not come. The order waits for it.'**
+  String get receiveZeroHelp;
+
+  /// No description provided for @receiveNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter what came: nothing on this delivery has a quantity.'**
+  String get receiveNothing;
+
+  /// No description provided for @receiveFromWhich.
+  ///
+  /// In en, this message translates to:
+  /// **'Is this delivery for an order?'**
+  String get receiveFromWhich;
+
+  /// No description provided for @receiveWithoutOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'No, receive without an order'**
+  String get receiveWithoutOrder;
+
+  /// No description provided for @receiveOrderLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{number}  ·  {supplier}  ·  {items}'**
+  String receiveOrderLine(String number, String supplier, String items);
+
+  /// No description provided for @receiveSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery {number} received'**
+  String receiveSummaryTitle(String number);
+
+  /// No description provided for @receiveSummaryStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock now'**
+  String get receiveSummaryStock;
+
+  /// No description provided for @receiveSummaryOnHand.
+  ///
+  /// In en, this message translates to:
+  /// **'{before} → {after}'**
+  String receiveSummaryOnHand(String before, String after);
+
+  /// No description provided for @receiveSummaryCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost {before} → {after} per {unit}'**
+  String receiveSummaryCost(String before, String after, String unit);
+
+  /// No description provided for @receiveSummaryOrderDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {number} is fully delivered.'**
+  String receiveSummaryOrderDone(String number);
+
+  /// No description provided for @receiveSummaryOrderWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Order {number} still waits for 1 item.} other{Order {number} still waits for {count} items.}}'**
+  String receiveSummaryOrderWaiting(int count, String number);
+
+  /// No description provided for @receiveSummaryLowMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 product is now below your {target}% margin: {names}.} other{{count} products are now below your {target}% margin: {names}.}}'**
+  String receiveSummaryLowMargin(int count, String target, String names);
+
+  /// No description provided for @receiveSummaryReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review prices'**
+  String get receiveSummaryReview;
+
+  /// No description provided for @receiveSummaryLabels.
+  ///
+  /// In en, this message translates to:
+  /// **'Print labels'**
+  String get receiveSummaryLabels;
+
+  /// No description provided for @stockImportColSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Who you buy it from. A new name becomes a new supplier.'**
+  String get stockImportColSupplier;
+
+  /// No description provided for @stockImportColOrderQty.
+  ///
+  /// In en, this message translates to:
+  /// **'How much you usually order, in cost_per units.'**
+  String get stockImportColOrderQty;
+
+  /// No description provided for @stockImportNewSuppliers.
+  ///
+  /// In en, this message translates to:
+  /// **'New suppliers: {names}'**
+  String stockImportNewSuppliers(String names);
 }
 
 class _AppLocalizationsDelegate

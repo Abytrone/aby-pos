@@ -1334,7 +1334,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stockMore => 'There is more';
 
   @override
-  String get stockHowMuch => 'How much';
+  String get stockQuantity => 'Quantity';
 
   @override
   String get stockNoteOptional => 'Note (optional)';
@@ -1478,7 +1478,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get receiveAddLine => 'Add item';
 
   @override
-  String get receiveLineCost => 'Cost of these';
+  String get receiveLineCost => 'Cost of this line';
 
   @override
   String get receiveTotal => 'Delivery total';
@@ -7649,4 +7649,97 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fromStockReason => 'Make products from stock';
+
+  @override
+  String receiveOrdered(String ordered, String received) {
+    return 'Ordered $ordered  ·  $received received before';
+  }
+
+  @override
+  String receiveOrderedOnly(String ordered) {
+    return 'Ordered $ordered';
+  }
+
+  @override
+  String get receiveZeroHelp =>
+      'Put 0 for what did not come. The order waits for it.';
+
+  @override
+  String get receiveNothing =>
+      'Enter what came: nothing on this delivery has a quantity.';
+
+  @override
+  String get receiveFromWhich => 'Is this delivery for an order?';
+
+  @override
+  String get receiveWithoutOrder => 'No, receive without an order';
+
+  @override
+  String receiveOrderLine(String number, String supplier, String items) {
+    return '$number  ·  $supplier  ·  $items';
+  }
+
+  @override
+  String receiveSummaryTitle(String number) {
+    return 'Delivery $number received';
+  }
+
+  @override
+  String get receiveSummaryStock => 'Stock now';
+
+  @override
+  String receiveSummaryOnHand(String before, String after) {
+    return '$before → $after';
+  }
+
+  @override
+  String receiveSummaryCost(String before, String after, String unit) {
+    return 'Cost $before → $after per $unit';
+  }
+
+  @override
+  String receiveSummaryOrderDone(String number) {
+    return 'Order $number is fully delivered.';
+  }
+
+  @override
+  String receiveSummaryOrderWaiting(int count, String number) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Order $number still waits for $count items.',
+      one: 'Order $number still waits for 1 item.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String receiveSummaryLowMargin(int count, String target, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count products are now below your $target% margin: $names.',
+      one: '1 product is now below your $target% margin: $names.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get receiveSummaryReview => 'Review prices';
+
+  @override
+  String get receiveSummaryLabels => 'Print labels';
+
+  @override
+  String get stockImportColSupplier =>
+      'Who you buy it from. A new name becomes a new supplier.';
+
+  @override
+  String get stockImportColOrderQty =>
+      'How much you usually order, in cost_per units.';
+
+  @override
+  String stockImportNewSuppliers(String names) {
+    return 'New suppliers: $names';
+  }
 }

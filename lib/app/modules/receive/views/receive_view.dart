@@ -11,7 +11,9 @@ import '../../../ui/dialogs.dart';
 import '../../../ui/l10n.dart';
 import '../../../ui/layout.dart';
 import '../../../ui/option_chip.dart';
+import '../../products/controllers/catalogue_controller.dart';
 import '../../products/widgets/labels_dialog.dart';
+import '../../shell/controllers/shell_controller.dart';
 import '../controllers/receive_controller.dart';
 
 String payMethodLabel(AppLocalizations l, SupplierPaymentMethod m) => switch (m) {
@@ -44,17 +46,8 @@ class ReceiveView extends StatelessWidget {
                     : () async {
                         if (await ctl.save()) {
                           goBack<void>();
-                          showMessage(l.receiveDone(ctl.lastReceipt!.displayNumber), tone: MessageTone.success);
-                          // Price stickers for what came in.
                           final counts = await labelCountsFor(ctl.received);
-                          if (counts.isNotEmpty &&
-                              await confirmDialog(
-                                title: l.labelsForDelivery,
-                                message: l.labelsForDeliveryBody(counts.length),
-                                confirmLabel: l.labelsTitle,
-                              )) {
-                            await showLabels(preset: counts);
-                          }
+                          await showDeliverySummary(ctl.summary!, labels: counts);
                         }
                       },
                 child: Text(l.receiveSave),
@@ -79,10 +72,13 @@ class ReceiveView extends StatelessWidget {
                     if (ctl.order != null)
                       Padding(
                         padding: const EdgeInsets.only(bottom: AbySpace.s3),
-                        child: Text(
-                          l.receiveAgainst(ctl.order!.displayNumber, ctl.order!.supplierName),
-                          style: AbyText.heading.copyWith(color: c.ink),
-                        ),
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text(
+                            l.receiveAgainst(ctl.order!.displayNumber, ctl.order!.supplierName),
+                            style: AbyText.heading.copyWith(color: c.ink),
+                          ),
+                          Text(l.receiveZeroHelp, style: AbyText.caption.copyWith(color: c.inkMuted)),
+                        ]),
                       ),
                     Wrap(spacing: AbySpace.s3, runSpacing: AbySpace.s3, children: [
                       SizedBox(
@@ -198,7 +194,11 @@ class _LineRow extends StatelessWidget {
               controller: line.quantity,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               onChanged: (_) => ctl.changed(),
-              decoration: InputDecoration(labelText: l.stockHowMuch, isDense: true),
+              decoration: InputDecoration(
+                labelText: l.stockQuantity,
+                suffixText: units.length > 1 ? null : line.unit?.symbol,
+                isDense: true,
+              ),
             ),
           ),
           if (units.length > 1)
@@ -206,9 +206,7 @@ class _LineRow extends StatelessWidget {
               value: line.unit,
               items: [for (final u in units) DropdownMenuItem(value: u, child: Text(u.symbol))],
               onChanged: (u) => u == null ? null : ctl.setUnit(line, u),
-            )
-          else if (line.unit != null)
-            Text(line.unit!.symbol, style: AbyText.body.copyWith(color: c.inkMuted)),
+            ),
           SizedBox(
             width: 140,
             child: TextField(
@@ -222,6 +220,16 @@ class _LineRow extends StatelessWidget {
             Text(l.stockCostEach(formatMoney(unitPrice), DisplayUnit.bulk(item.unit).symbol),
                 style: AbyText.caption.copyWith(color: c.inkMuted)),
           IconButton(tooltip: l.recipeRemove, icon: const Icon(Icons.close), onPressed: () => ctl.removeLine(line)),
+          if (line.ordered != null && item != null)
+            SizedBox(
+              width: double.infinity,
+              child: Text(
+                line.receivedBefore > 0
+                    ? l.receiveOrdered(formatQuantity(line.ordered!, item.unit), formatQuantity(line.receivedBefore, item.unit))
+                    : l.receiveOrderedOnly(formatQuantity(line.ordered!, item.unit)),
+                style: AbyText.caption.copyWith(color: c.blue),
+              ),
+            ),
           if (item?.tracksExpiry ?? false) ...[
             SizedBox(
               width: 160,
@@ -249,4 +257,98 @@ class _LineRow extends StatelessWidget {
       ),
     );
   }
+}
+
+/// After a delivery: each item's stock and cost before and after, how the
+/// order stands, products whose margin fell below the target (with a way to
+/// their prices), and price labels for what came in.
+Future<void> showDeliverySummary(DeliverySummary s, {Map<String, int> labels = const {}}) => Get.dialog<void>(Builder(builder: (context) {
+      final c = Theme.of(context).extension<AbyColors>()!;
+      final l = context.l10n;
+      final muted = AbyText.caption.copyWith(color: c.inkMuted);
+      final o = s.order;
+      return AlertDialog(
+        title: Text(l.receiveSummaryTitle(s.number)),
+        content: SizedBox(
+          width: 480,
+          child: SingleChildScrollView(
+            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              if (o != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AbySpace.s3),
+                  child: Text(
+                    s.stillWaiting == 0
+                        ? l.receiveSummaryOrderDone(o.displayNumber)
+                        : l.receiveSummaryOrderWaiting(s.stillWaiting, o.displayNumber),
+                    style: AbyText.body.copyWith(color: s.stillWaiting == 0 ? c.success : c.warning, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              Text(l.receiveSummaryStock.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
+              const SizedBox(height: AbySpace.s2),
+              for (final (before, after) in s.changes)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AbySpace.s1),
+                  child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Expanded(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(after.name, style: AbyText.body.copyWith(color: c.ink)),
+                        if (before.bulkPrice != after.bulkPrice)
+                          Text(
+                            l.receiveSummaryCost(
+                              formatMoney(before.bulkPrice),
+                              formatMoney(after.bulkPrice),
+                              DisplayUnit.bulk(after.unit).symbol,
+                            ),
+                            style: muted,
+                          ),
+                      ]),
+                    ),
+                    Text(
+                      l.receiveSummaryOnHand(before.onHandText, after.onHandText),
+                      style: AbyText.body.copyWith(color: c.ink, fontWeight: FontWeight.w700),
+                    ),
+                  ]),
+                ),
+              if (s.belowMargin.isNotEmpty)
+                Container(
+                  margin: const EdgeInsets.only(top: AbySpace.s3),
+                  padding: const EdgeInsets.all(AbySpace.s3),
+                  decoration: BoxDecoration(color: c.warningSoft, borderRadius: BorderRadius.circular(AbyRadius.md)),
+                  child: Text(
+                    l.receiveSummaryLowMargin(s.belowMargin.length, '${s.targetMargin}', s.belowMargin.take(5).join(', ')),
+                    style: AbyText.body.copyWith(color: c.warning),
+                  ),
+                ),
+            ]),
+          ),
+        ),
+        actions: [
+          DialogButtons(children: [
+            if (labels.isNotEmpty)
+              OutlinedButton.icon(
+                onPressed: () async {
+                  goBack<void>();
+                  await showLabels(preset: labels);
+                },
+                icon: const Icon(Icons.label_outline),
+                label: Text(l.receiveSummaryLabels),
+              ),
+            if (s.belowMargin.isNotEmpty)
+              OutlinedButton(
+                onPressed: () {
+                  goBack<void>();
+                  reviewLowMargins();
+                },
+                child: Text(l.receiveSummaryReview),
+              ),
+            FilledButton(onPressed: () => goBack<void>(), child: Text(l.commonDone)),
+          ]),
+        ],
+      );
+    }));
+
+/// Manage → Products, showing those below the target margin.
+void reviewLowMargins() {
+  if (Get.isRegistered<CatalogueController>()) Get.find<CatalogueController>().filter.value = ProductFilter.belowMargin;
+  if (Get.isRegistered<ShellController>()) Get.find<ShellController>().select(ShellSection.products);
 }

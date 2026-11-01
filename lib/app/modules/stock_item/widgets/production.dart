@@ -169,7 +169,7 @@ class _RecipeDialogState extends State<_RecipeDialog> {
                       controller: i.amount,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       decoration: InputDecoration(
-                        labelText: l.stockHowMuch,
+                        labelText: l.stockQuantity,
                         suffixText: i.itemId == null ? null : DisplayUnit.bulk(_ctl.unitOf(i.itemId!)).symbol,
                         isDense: true,
                       ),

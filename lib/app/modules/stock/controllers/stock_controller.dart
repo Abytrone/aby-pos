@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
 import '../../../data/repositories/stock_repository.dart';
+import '../../../data/repositories/supplier_repository.dart';
 import '../../../domain/catalogue_io.dart';
 import '../../../data/repositories/catalog_repository.dart' show CatalogueException;
 import '../../../domain/stock_io.dart';
@@ -109,7 +110,7 @@ class StockController extends GetxController {
     await exportDocument(
       io.stockDoc(items, shopName: Get.find<SettingsService>().get(AppSettings.shopName)),
       fileStem: 'stock-${DateTime.now().toIso8601String().substring(0, 10)}',
-      csv: io.exportStock(items),
+      csv: io.exportStock(items, suppliers: {for (final x in await Get.find<SupplierRepository>().list(includeInactive: true)) x.id: x.name}),
       csvImports: true,
     );
   }

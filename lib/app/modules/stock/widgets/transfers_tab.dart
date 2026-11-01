@@ -369,7 +369,7 @@ class _NewTransferState extends State<_NewTransfer> {
                       controller: line.quantity,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       decoration: InputDecoration(
-                        labelText: l.stockHowMuch,
+                        labelText: l.stockQuantity,
                         suffixText: _item(line.itemId) == null ? null : DisplayUnit.bulk(_item(line.itemId)!.unit).symbol,
                         isDense: true,
                       ),
