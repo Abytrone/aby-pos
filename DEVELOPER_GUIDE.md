@@ -1,6 +1,6 @@
 # Aby POS: Developer Guide
 
-*For engineers working on the Aby till app. Last updated 31 October 2026, at schema version 19.*
+*For engineers working on the Aby till app. Last updated 1 November 2026 (Aby 1.0.1), at schema version 21.*
 
 This guide explains how Aby POS is built: how the code is organised, how data moves through it,
 the rules the code follows, and how to make common changes safely. It sits beside two other
@@ -180,7 +180,7 @@ aby_pos/
 │       └── theme/                   the brand kit's Flutter theme (copied as-is)
 ├── test/                            unit, repository, service and widget tests
 │   └── generated_migrations/        drift schema snapshots for migration tests (generated)
-├── drift_schemas/                   drift_schema_v1.json … v19.json (one per schema version)
+├── drift_schemas/                   drift_schema_v1.json … v21.json (one per schema version)
 ├── tool/license.dart                developer-only licence signing CLI
 ├── installer/                       Inno Setup script (aby_pos.iss) and the EULA
 ├── build_windows.ps1                one-step Windows release + installer
@@ -750,18 +750,37 @@ difference is recorded as `sales.rounding`. The payments add up to `total + roun
 | `loyalty.dart` | stamps, points or Gold tier (one style per shop); rewards become promotions |
 | `inventory.dart` | weighted average cost, suggested low level, days of stock left |
 | `catalogue_rules.dart` | validation for every catalogue change (controllers call this, not the repository's write methods) |
-| `catalogue_io.dart` | CSV export and import with a preview; import never removes anything |
+| `catalogue_io.dart` | product CSV export and import with a preview; import never removes anything; also the stock export (`exportStock`, with `order_qty` and `supplier`) |
+| `stock_io.dart` | `StockIo`: stock CSV import (the export's columns plus spreadsheet aliases; counts that change become adjustments; unknown suppliers are created; retired items come back) and **products from stock** (`productPlans`, `createProducts` with a category per item, `suggestCategory` from the item's name; `priceFromCost` for margin or markup, rounded up) |
+| `delivery_updates.dart` | `DeliveryUpdates`: what a delivery would change on its stock items (cost, supplier, usual order), applying the ticked changes, and the audit entry that marks the delivery as used (`updatedAt`) |
 | `orders.dart` | queue numbers ("A23") per business day; which items need prep |
 | `business_templates.dart` | nine shop kinds (`BusinessType`) with starting categories and feature settings |
 | `sample_shops.dart` | the sample data training mode builds for each shop kind |
 | `audit_details.dart` | turns audit `details` JSON into readable before/after rows |
-| `customer_documents.dart`, `purchase_order_pdf.dart` | statements and purchase orders as PDF |
+| `customer_documents.dart`, `purchase_order_pdf.dart`, `delivery_pdf.dart` | statements, purchase orders and delivery notes as A4 PDF; quantity and unit in separate columns |
 | `labels.dart` | price and barcode labels (A4 sheets, rolls, receipt-printer stickers) |
 | `scale_reading.dart` | parses what serial and Bluetooth scales send |
 | `core/scale_barcode.dart` | EAN-13 barcodes printed by shop scales (prefix, item code, weight or price) |
 | `core/denominations.dart` | Ghana notes and coins; `CashCount` for drawer counts |
 | `core/period.dart` | report periods and `DateRange` (with the period before, for comparison) |
 | `core/csv.dart` | minimal RFC 4180 CSV (handles Excel's byte-order mark) |
+
+### 11.4b Purchasing: orders, deliveries and stock
+
+- **Orders** (`PurchaseOrderRepository`): lines in base units at the item's cost; `suggestions`
+  brings in a supplier's low items at their usual order (`reorderQty`). Statuses: open, partial,
+  received, cancelled.
+- **Deliveries** (`ReceivingRepository.receive`): one transaction adds stock movements
+  (`StockReason.restock`, `refId` = the delivery), moves each item's weighted average cost, writes
+  the supplier ledger, and with a `purchaseOrderId` calls `applyDelivery` to move the order to
+  partial or received. `detail(id)` gives a delivery with its lines for its page and PDF;
+  `forOrder` lists an order's deliveries; `byIds` feeds the stock item history's links.
+- **The delivery form** ([receive_controller.dart](lib/app/modules/receive/controllers/receive_controller.dart)):
+  from an order it starts with what is still to come; order lines may be 0 (left on the order).
+  "+ New stock items…" heads each line's item list and opens `showNewStockItems`, which saves one
+  or many items with one approval. Saving builds a `DeliverySummary` (stock and cost before and
+  after, order status, products now below the target margin).
+- **Updating stock items from a delivery**: `DeliveryUpdates` (see §11.4).
 
 ### 11.5 Receipts ([domain/receipt/](lib/app/domain/receipt/))
 
@@ -774,6 +793,10 @@ difference is recorded as `sales.rounding`. The payments add up to `total + roun
   drawer-kick pulse and a partial cut. Images print in bands of 128 rows for printers with small
   buffers.
 - `receipt_pdf.dart` gives the same receipt as a PDF (sent by WhatsApp, SMS or email).
+- Customer paper (sale and refund receipts, vouchers, statements) ends with `_signOff`: an `RMark`
+  block and "Powered by Aby". `RMark` is the Aby mark: printers draw it from its shapes
+  (`MonoBitmap.abyMark`, no image file), the preview and PDF use the SVG in `abyMarkSvg`, and plain
+  text keeps only the words. Internal paper (X/Z reports, kitchen tickets, badges) has no sign-off.
 - `receipt_code.dart` puts the sale ID plus a check code in the receipt's QR code. Scanning it at
   the till or in Refund opens the sale. Mistyped or made-up codes are refused.
 
@@ -784,7 +807,14 @@ difference is recorded as `sales.rounding`. The payments add up to `total + roun
 1. **Ring up** ([till_controller.dart](lib/app/modules/till/controllers/till_controller.dart),
    [cart_controller.dart](lib/app/modules/till/controllers/cart_controller.dart)). Taps, scans,
    short codes and scale barcodes add `CartLine`s. Weighed items ask `ScaleService` or the
-   cashier for grams. The cart is serialised to JSON and saved through `ParkedOrderRepository` on
+   cashier for grams. `TillController.tapProduct` adds straight away only when
+   `Product.oneTap` (one variant, no option groups); anything with options opens the picker sheet
+   with the defaults ticked, so extras are offered every time. A long press is the quick way:
+   `longPressProduct` adds a product as it stands when `Product.addsAsIs` (defaults cover every
+   required group) and opens the picker otherwise. A scale barcode for a product not sold by
+   weight goes through `tapProduct` too. The line editor
+   ([line_editor.dart](lib/app/modules/till/widgets/line_editor.dart)) shows a price field only for
+   open-price products or people with `overridePrice`; everyone else sees the price as text. The cart is serialised to JSON and saved through `ParkedOrderRepository` on
    every change, so a crash loses nothing. Removing lines or clearing the cart is audited.
 2. **Pricing** is recomputed reactively: `cart.pricing` is a `CartPricing` with the shop's
    promotions (filtered to those running now), loyalty for the attached customer, the order
@@ -973,6 +1003,9 @@ and keep verifying old entries with `'v1'`.
   the database file outside Aby.
 - `AuditAction` (in `models/audit.dart`) has about 90 values. Add a new one at the end; names are
   stored.
+- `list(entityId:)` returns one record's history: the sale page shows its timeline this way, and
+  `stockUpdatedFromDelivery` entries (entity `stock_receipts`) mark a delivery whose stock items
+  were updated from it, so the button is not offered twice.
 - Audit rows sync like any other row. Each device's chain stays intact because entries are keyed by
   `(deviceId, seq)`.
 
@@ -1366,6 +1399,12 @@ than throwing to the UI.
   `accounts.xlsx`, and a PDF summary, named `aby_accounts_<first>_<last>.zip`. **Keep the CSV
   headers stable**, because accountants' imports read them.
 - `ui/export_dialog.dart` is the shared "export as CSV, Excel or PDF, then share or save" dialog.
+- `ui/files.dart`: `shareOrSaveBytes` asks **Share**, **Save to a folder**, or, for PDFs on
+  desktops, **Open to print** (`FileDestination.open`: written to the temp folder and opened with
+  the system viewer through `url_launcher`).
+- `ui/import_dialogs.dart`: `showImportStart` (the file explained column by column, with a sample)
+  and `showImportPreview` (what would change, problems by row, Import). Product and stock import
+  both use them.
 
 ---
 
@@ -1387,6 +1426,7 @@ Build screens from these rather than from scratch:
 | `PinPad` | PIN entry (standard, shuffled or keyboard, per `device.pinPad`) |
 | `showApprovalPrompt` | manager-override prompt (wired into `PermissionService`) |
 | `PeriodBar`, `BranchPicker`, `CustomerPicker`, `PhotoPicker`, `OptionChip`, `StatusDot`, `StaffAvatar`, `ProductPicture`, `charts.dart` | common pieces |
+| `QueryField` | a list's search box bound to the controller's `query`: shows the search still in force when the screen comes back, with × to clear |
 | `format.dart` | `relativeTime`, `formatDateTime`, `formatDate` |
 | `*_labels.dart`, `*_text.dart` | readable names for permissions, settings, alerts, insights, loyalty |
 
@@ -1696,7 +1736,9 @@ Open product questions are listed in [FEATURES.md §20](docs/FEATURES.md).
 | **Variant** | a size or price point of a product (every product has at least one) |
 | **Option group** | modifiers such as Extras or Sugar level, with min, max and repeats; the group's name is the heading on the till's sheet |
 | **Stock item** | what is counted (pieces, g, ml); products use stock items through **recipes** |
-| **Movement** | one entry in the stock ledger |
+| **Movement** | one entry in the stock ledger; a delivery's movements carry its ID in `refId` |
+| **Delivery (DEL-0001)** | stock received (`stock_receipts`), with or without a purchase order; a goods received note in accounting terms |
+| **Margin / markup** | margin: profit as a share of the price (cost 6, 40%: 10.00); markup: added to the cost (cost 6, 40%: 8.40) |
 | **Outbox** | rows changed on this device and not yet sent |
 | **Hub / member** | the device serving the shop's Wi-Fi sync, and the devices syncing with it |
 | **Epoch** | the hub change log's generation; changes after a hub restore |

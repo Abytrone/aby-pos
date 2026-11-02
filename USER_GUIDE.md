@@ -4,8 +4,8 @@
 
 **Sell anyway.**
 
-*For shop owners, managers, cashiers and stock keepers. Covers Aby 1.0 on Windows, Android and Mac.
-October 2026.*
+*For shop owners, managers, cashiers and stock keepers. Covers Aby 1.0.1 on Windows, Android and
+Mac. November 2026.*
 
 Aby is the till for your shop. It keeps selling when the light goes off and the network drops. It
 counts your stock, your cash, your credit book and your MoMo, and it tells you only what you need
@@ -212,6 +212,10 @@ From left to right:
   MoMo reference), staff and actions. Type "close day", "add an expense" or "receive stock" and
   press Enter. You only see what you're allowed to do.
 - **The printer button:** reprints the last receipt.
+
+**Search boxes on lists** (Products, Stock, Customers, a stock count) remember what you typed. Come
+back to the screen and the search is still there, with the list it filters; tap **×** in the box to
+clear it.
 - **Your name:** **Switch user**, **Lock**, and **Clock in / Start a break / End the break /
   Clock out** if your shop uses the time clock.
 
@@ -921,8 +925,8 @@ After saving, Aby shows what the delivery changed:
 
 Stock → **Deliveries** lists every delivery with what is still owed. Tap one to see it: each item
 with its quantity, unit and cost, the total, paid and owed. **Save or print** makes its goods
-received note (a PDF with a line to sign) to share, save, or open to print. Tap an item's name to
-open the stock item.
+note (a PDF with a line to sign) to share, save, or open to print. Tap an item's name to open the
+stock item.
 
 **Update stock items** (on a delivery, or on the summary right after saving one) brings each stock
 item in line with the delivery. The stock it brought in is already counted; for each item you tick
@@ -1030,6 +1034,10 @@ Costs and profit only show for people with *See costs and profit*. With several 
 
 Every list and report can be exported as **Excel**, **PDF** or **CSV**, then shared or saved. Needs
 *Export data and backups*. The PDFs and workbooks carry your shop's name and logo in Aby's design.
+
+Wherever Aby makes a PDF (a purchase order, a delivery, a statement, a report) it asks where it
+goes: **Share** (WhatsApp, email…), **Save to a folder**, or, on a computer, **Open to print**, which
+opens it in your PDF viewer to print (Ctrl+P).
 
 ### 13.4 The accountant's pack
 
@@ -1636,8 +1644,11 @@ or getting your licence key.
 | **Cart** | The items being rung up |
 | **Close day / Z report** | The end-of-day count of the drawer |
 | **Credit book** | Customers who buy now and pay later |
+| **Delivery (DEL-0001)** | Stock that came in, with or without an order. Accountants call it a goods received note |
 | **Float** | The cash in the drawer before the first sale |
 | **Hub** | The till the others link to over Wi-Fi |
+| **Margin** | Profit as a share of the price: cost 6.00 at 40% sells at 10.00 |
+| **Markup** | Profit added to the cost: cost 6.00 at 40% sells at 8.40 |
 | **MoMo** | Mobile money: MTN MoMo, Telecel Cash, AT Money |
 | **No-sale** | Opening the drawer without a sale |
 | **Parked sale** | A sale put aside to finish later |

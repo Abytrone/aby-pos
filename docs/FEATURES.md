@@ -188,6 +188,8 @@ These replace today's fixed "variants + toppings" with a general system.
   totals round to the pesewa.
 - **Open-price products:** the price is entered at sale ("Miscellaneous", "Repairs"). There's an
   optional minimum and maximum, and permission controls who can use it.
+- **Changing a line's price:** in the cart's line editor the price is a field only for open-price
+  products and for people allowed to change prices; others see it as plain text.
 
 ### SEL-05 Cart actions [Standard]
 
@@ -293,6 +295,16 @@ What exists today is one payment per sale: cash, MoMo or credit. This extends it
   in the audit log. This catches "ring up, remove, pocket the cash".
 - **No-sale (open drawer without a sale):** needs permission, asks for a reason, and is counted
   per cashier in the shift report.
+
+### SEL-10b A sale in full
+
+- **Today's list:** each sale shows what was bought ("2 x Waffle, Vanilla cone +1 more"), who
+  sold it, the customer, how it was paid, any discount and any refund. A weighed line counts as
+  one item.
+- **Tap a sale** to see it in full: every line with its options and note, price changes (menu
+  price and who changed it), discounts with reason and approver, promotions, totals, payments,
+  profit and margin (for those who may see costs), refunds and its history from the activity log.
+  Print, send, refund or void from there.
 
 ### SEL-11 Order tickets and queue numbers [Beyond]
 
@@ -447,6 +459,13 @@ This is key for the ice cream shop.
 - Export the catalogue to CSV or Excel. Import from CSV, with a column mapping screen and a dry-run
   preview showing "34 new, 12 updated, 2 errors".
 - Lets a shop with 800 items set up from a spreadsheet instead of one by one.
+- **Stock import** works the same way, from the stock export's columns (`stock_item`, `unit`,
+  `cost_per`, `cost`, `on_hand`, `low_below`, `order_qty`, `supplier`). Counts that change are
+  recorded as adjustments; new supplier names become suppliers; retired items come back.
+- **Products from stock:** tick stock items sold as they are; each becomes a product whose recipe
+  uses it, priced from its cost at a **margin** or **markup** (starting at the target margin),
+  rounded up to 10p, 50p or GH₵ 1, with any price typed by hand. Each gets a category guessed from
+  its name, changeable per item.
 
 ### CAT-08 Labels and barcodes [Beyond]
 
@@ -472,8 +491,18 @@ What exists today: an append-only stock ledger written by sales and voids. This 
 
 ### INV-02 Receiving stock [Standard]
 
-- **Manage → Stock → Receive:** pick the supplier (optional), then scan or pick items, enter
-  quantities and the cost per unit. Optionally add a batch or expiry date (`INV-07`).
+- **Manage → Stock → Receive delivery:** when orders are waiting it asks which one the delivery
+  is for, and starts with what is still to come. Otherwise pick the supplier (optional), then pick
+  items and enter the **quantity** (in the item's unit) and the cost of the line. Optionally add a
+  batch or expiry date (`INV-07`). Items not in stock yet can be created from the line's item list
+  ("+ New stock items…"), one or many at once.
+- **After saving:** each item's stock and cost before and after, whether the order is complete, and
+  products whose margin fell below the target, with a way to their prices and to labels.
+- **Deliveries** are numbered DEL-0001. Each opens as a page (items, quantity, unit, cost, paid
+  and owed) with a delivery note PDF to share, save or print.
+- **Update stock items from a delivery:** per item, its cost (this delivery's price), supplier and
+  usual order can follow the delivery. Offered once per delivery. A stock item's history names the
+  delivery behind each receipt and opens it.
 - **Cost price** updates by weighted average cost (default) or last cost (setting).
 - **Supplier invoice:** a photo of it can be attached.
 - **Paying the supplier:** the delivery can be marked paid now (from the drawer, `CSH-03`, or by
@@ -484,8 +513,9 @@ What exists today: an append-only stock ledger written by sales and voids. This 
 - **Create a purchase order** for a supplier. Suggested quantities come from the reorder points
   (`INV-05`).
 - **Sending it:** the purchase order can be shared as a PDF or image to the supplier on WhatsApp.
-- **Receiving against it:** you receive against the order, partly or fully. What's still
-  outstanding is tracked.
+- **Receiving against it:** **Create delivery** on the order, partly or fully; put 0 for what
+  did not come. What's still outstanding is tracked, and the order lists its deliveries.
+- **The PDF** has quantity and unit in separate columns, and can be shared, saved or printed.
 
 ### INV-04 Suppliers and payables [Standard]
 
@@ -789,6 +819,8 @@ single zip of CSVs plus a PDF summary.
 - **Preview:** a live preview of how the receipt will look.
 - **Copies:** set per payment method (for example, credit sales print a customer copy and a shop
   copy for signing).
+- **Sign-off:** receipts, refunds, vouchers and statements end with the Aby mark and "Powered by
+  Aby".
 
 ### PRN-03 Digital receipts [Beyond]
 
