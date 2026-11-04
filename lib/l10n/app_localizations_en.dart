@@ -7417,6 +7417,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auditTimeEntryReviewed => 'Unconfirmed hours decided';
 
   @override
+  String get auditTimeEntryAutoClockOut => 'Clocked out automatically at close';
+
+  @override
+  String get closeAttendanceTitle => 'Still clocked in on this till';
+
+  @override
+  String get closeAttendanceCheck => 'Check again';
+
+  @override
+  String get closeAttendanceCorrect => 'Correct hours';
+
+  @override
+  String get closeAttendanceReview =>
+      'Closing leaves them clocked in and flags their hours. They are not paid until an owner decides. To set when someone really left, correct their hours (a reason is needed).';
+
+  @override
+  String get closeAttendanceBlock =>
+      'This shop closes only when everyone has clocked out. Ask each person to clock out on a till, or correct their hours with a reason, then check again.';
+
+  @override
+  String get closeAttendanceAllow =>
+      'Closing leaves them open, paid up to their last sale. To set when someone really left, correct their hours (a reason is needed).';
+
+  @override
+  String get closeAttendanceAuto =>
+      'Closing clocks them out at the closing time, recorded as automatic. To set when someone really left, correct their hours first.';
+
+  @override
+  String closeAttendanceSince(String time) {
+    return 'in since $time';
+  }
+
+  @override
+  String closedLeftOpenReview(String names) {
+    return 'Left clocked in, waiting for an owner to review their hours: $names.';
+  }
+
+  @override
+  String closedLeftOpenPaid(String names) {
+    return 'Left clocked in, paid up to their last sale: $names.';
+  }
+
+  @override
+  String closedAutoClockedOut(String names) {
+    return 'Clocked out automatically at closing time: $names.';
+  }
+
+  @override
   String get resetRequestDropped =>
       'Welcome back. Your PIN reset request is cancelled, so a reset code from your supplier won\'t work now. Let them know you don\'t need it.';
 

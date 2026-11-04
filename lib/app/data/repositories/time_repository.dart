@@ -426,6 +426,47 @@ class TimeRepository {
     return left;
   }
 
+  /// Shops that choose it: everyone still in on this till is clocked out at
+  /// the closing time, recorded as automatic (never as their own clock out)
+  /// and audited. Run it inside close day's transaction.
+  Future<List<TimesheetEntry>> clockOutAtClose({required Staff by, String? closeId}) async {
+    final now = _clock();
+    final out = <TimesheetEntry>[];
+    await _db.transaction(() async {
+      final rows = await (_db.select(_db.timeEntries)
+            ..where((t) =>
+                t.clockOut.isNull() &
+                t.closeSource.isNull() &
+                t.deletedAt.isNull() &
+                t.deviceId.equals(_device.deviceId)))
+          .get();
+      for (final r in rows) {
+        final onBreak = r.breakStartedAt == null ? 0 : now.difference(r.breakStartedAt!).inMinutes;
+        final updated = r.copyWith(
+          clockOut: Value(now),
+          closeSource: const Value(ClockOutSource.auto),
+          breakMinutes: r.breakMinutes + onBreak,
+          breakStartedAt: const Value(null),
+          leftOpenById: Value(by.id),
+          leftOpenByName: Value(by.name),
+          dayCloseId: Value(closeId),
+          updatedAt: now,
+        );
+        await _db.updateTracked(_db.timeEntries, updated);
+        await audit?.record(
+          action: AuditAction.timeEntryAutoClockOut,
+          actor: by,
+          entity: 'time_entries',
+          entityId: r.id,
+          summary: '${r.staffName} was clocked out automatically when the day closed (${_fmt(now)})',
+          details: {'in': _fmt(r.clockIn), 'out': _fmt(now)},
+        );
+        out.add(_entry(updated));
+      }
+    });
+    return out;
+  }
+
   /// The owner's decision on an unconfirmed stretch: how many minutes count
   /// for pay (0 refuses it), and why. The times themselves are not changed;
   /// to set when the person really left, use [correct].

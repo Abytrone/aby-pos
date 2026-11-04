@@ -722,6 +722,10 @@ void main() {
     await tester.enterText(find.widgetWithText(TextField, 'Float at the start'), '50');
     await tester.tap(find.widgetWithText(FilledButton, 'Start the day'));
     await _settle(tester);
+    // Starting the day does not clock anyone in: the owner is only asked.
+    expect(find.text('Clock in too?'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await _settle(tester);
     expect(find.textContaining('Day started by Kofi'), findsOneWidget);
 
     hideMessage(); // it covers the top right of the page
@@ -1214,14 +1218,15 @@ void main() {
     await _addPlain(tester, 'Waffle');
     await tester.tap(find.text('Pay GH₵ 12.00'));
     await _settle(tester);
-    // First the float, which the cashier may put in, then clocking in.
+    // First the float, then the opener is asked whether to clock in.
     expect(find.text('Start the day'), findsWidgets);
     await tester.enterText(find.widgetWithText(TextField, 'Float at the start'), '50');
     await tester.tap(find.widgetWithText(FilledButton, 'Start the day'));
     await _settle(tester);
-    expect(find.text('Clock in to sell'), findsOneWidget);
-    await tester.tap(find.text('Clock in').last);
+    expect(find.text('Clock in too?'), findsOneWidget);
+    await tester.tap(find.text('Clock in'));
     await _settle(tester);
+    expect(find.text('Clock in to sell'), findsNothing, reason: 'the opener already clocked in');
     await tester.enterText(find.widgetWithText(TextField, 'Cash given'), '12');
     await _settle(tester);
     await tester.tap(find.text('Complete sale'));

@@ -143,4 +143,5 @@ String auditActionLabel(AppLocalizations l, AuditAction a) => switch (a) {
   AuditAction.timeEntryCorrected => l.auditTimeEntryCorrected,
   AuditAction.timeEntryLeftOpen => l.auditTimeEntryLeftOpen,
   AuditAction.timeEntryReviewed => l.auditTimeEntryReviewed,
+  AuditAction.timeEntryAutoClockOut => l.auditTimeEntryAutoClockOut,
 };

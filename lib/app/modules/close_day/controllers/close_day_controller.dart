@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
+import '../../../core/attendance.dart';
 import '../../../core/denominations.dart';
 import '../../../core/permissions.dart';
 import '../../../core/period.dart';
@@ -23,6 +24,7 @@ import '../../../services/settings_service.dart';
 import '../../../services/status_service.dart';
 import '../../../ui/alert_text.dart';
 import '../../../ui/l10n.dart';
+import '../../staff/widgets/correct_hours_dialog.dart';
 import '../widgets/daily_summary.dart';
 import '../../../ui/dialogs.dart';
 
@@ -66,7 +68,16 @@ class CloseDayController extends GetxController {
   final oldParked = 0.obs;
 
   /// People who clocked in on this till and have not clocked out.
-  final stillClockedIn = <String>[].obs;
+  final stillClockedIn = <TimesheetEntry>[].obs;
+
+  /// What closing does with them: see [CloseWithOthersIn].
+  String get attendance => _settings.get(AppSettings.closeWithOthersIn);
+
+  /// Names of the people the close just left open or clocked out, and how.
+  final attendanceOutcome = Rxn<(String, List<String>)>();
+
+  /// Closing waits until everyone is out (strict shops).
+  bool get waitingForClockOut => attendance == CloseWithOthersIn.block && stillClockedIn.isNotEmpty;
 
   bool get blind => _settings.get(AppSettings.blindCount);
   int get varianceLimit => _settings.get(AppSettings.varianceLimit);
@@ -99,10 +110,19 @@ class CloseDayController extends GetxController {
     }
     final hours = _settings.get(AppSettings.parkedWarnHours);
     oldParked.value = await Get.find<ParkedOrderRepository>().olderThan(Duration(hours: hours));
-    if (Get.isRegistered<TimeRepository>()) {
-      final open = await Get.find<TimeRepository>().stillIn(deviceId: Get.find<DeviceService>().deviceId);
-      stillClockedIn.assignAll({for (final e in open) e.staffName});
-    }
+    await loadAttendance();
+  }
+
+  /// Who is still clocked in on this till; called again after someone
+  /// clocks out or their hours are corrected.
+  Future<void> loadAttendance() async {
+    if (!Get.isRegistered<TimeRepository>()) return;
+    stillClockedIn.assignAll(await Get.find<TimeRepository>().stillIn(deviceId: Get.find<DeviceService>().deviceId));
+  }
+
+  /// A manager sets when someone really left, with a reason (and approval).
+  Future<void> correctHours(TimesheetEntry entry) async {
+    if (await showCorrectHours(entry)) await loadAttendance();
   }
 
   /// From the open shift; otherwise typed (blank counts as zero).
@@ -144,6 +164,7 @@ class CloseDayController extends GetxController {
 
   bool get canClose =>
       !saving.value &&
+      !waitingForClockOut &&
       period.value != null &&
       openingFloat != null &&
       counted != null &&
@@ -154,6 +175,7 @@ class CloseDayController extends GetxController {
     if (!canClose) return;
     saving.value = true;
     error.value = null;
+    final mode = attendance;
     try {
       closed.value = await _closes.closeDay(
         openingFloat: openingFloat!,
@@ -162,10 +184,17 @@ class CloseDayController extends GetxController {
         note: noteField.text,
         cashCount: cashCount.value,
         varianceReason: needsReason ? reasonField.text : null,
+        attendance: mode,
       );
+      if (stillClockedIn.isNotEmpty && mode != CloseWithOthersIn.block) {
+        attendanceOutcome.value = (mode, [for (final e in stillClockedIn) e.staffName]);
+      }
       history.assignAll(await _closes.history());
       summary.value = await _summary(closed.value!);
       unawaited(_backUp());
+    } on TimeClockException catch (e) {
+      error.value = e.message;
+      await loadAttendance();
     } catch (_) {
       error.value = appL10n().closeFailed;
     } finally {

@@ -120,6 +120,7 @@ class InitialBinding extends Bindings {
         Get.find<CashEventRepository>(),
         Get.find<CustomerRepository>(),
         Get.find<ShiftRepository>(),
+        Get.find<TimeRepository>(),
       ),
       fenix: true,
     );

@@ -1,6 +1,7 @@
 import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
+import '../../core/attendance.dart';
 import '../../core/denominations.dart';
 import '../../models/audit.dart';
 import '../../models/day_close.dart';
@@ -14,13 +15,15 @@ import 'audit_repository.dart';
 import 'cash_event_repository.dart';
 import 'customer_repository.dart';
 import 'shift_repository.dart';
+import 'time_repository.dart';
 
 /// End-of-day cash-up for this device's drawer.
 class DayCloseRepository {
-  DayCloseRepository(this._db, this._device, this._audit, [this._cashEvents, this._customers, this._shifts]);
+  DayCloseRepository(this._db, this._device, this._audit, [this._cashEvents, this._customers, this._shifts, this._times]);
 
   final CustomerRepository? _customers;
   final ShiftRepository? _shifts;
+  final TimeRepository? _times;
 
   final CashEventRepository? _cashEvents;
 
@@ -135,11 +138,23 @@ class DayCloseRepository {
     String? note,
     CashCount? cashCount,
     String? varianceReason,
+    String attendance = CloseWithOthersIn.review,
   }) async {
     if (openingFloat < 0 || countedCash < 0) {
       throw ArgumentError('Amounts cannot be negative.');
     }
     return _db.transaction(() async {
+      // Strict shops: nobody may be left clocked in. Checked here, not only on
+      // the screen, so no other path can close around it.
+      if (attendance == CloseWithOthersIn.block && _times != null) {
+        final stillIn = await _times.stillIn(deviceId: _device.deviceId);
+        if (stillIn.isNotEmpty) {
+          throw TimeClockException(
+            'Still clocked in: ${stillIn.map((e) => e.staffName).join(', ')}. '
+            'Each person must clock out, or have their hours corrected with a reason.',
+          );
+        }
+      }
       final period = await openPeriod();
       final last = await closedUpTo();
       final lastRefund = (await _lastClose())?.lastRefundNumber ?? 0;
@@ -188,6 +203,20 @@ class DayCloseRepository {
         ),
       );
       if (period.shiftId != null) await _shifts!.close(period.shiftId!, row.id);
+      // People still in: never clocked out for them. They are left open (for
+      // review, or not), or clocked out as automatic, as the shop chose.
+      if (_times != null) {
+        switch (attendance) {
+          case CloseWithOthersIn.auto:
+            await _times.clockOutAtClose(by: closedBy, closeId: row.id);
+          case CloseWithOthersIn.allow:
+            await _times.leaveOpenAtClose(by: closedBy, closeId: row.id, needsReview: false);
+          case CloseWithOthersIn.block:
+            break;
+          default:
+            await _times.leaveOpenAtClose(by: closedBy, closeId: row.id);
+        }
+      }
       final close = _toModel(row);
       final diff = close.difference;
       await _audit.record(

@@ -12538,6 +12538,78 @@ abstract class AppLocalizations {
   /// **'Unconfirmed hours decided'**
   String get auditTimeEntryReviewed;
 
+  /// No description provided for @auditTimeEntryAutoClockOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Clocked out automatically at close'**
+  String get auditTimeEntryAutoClockOut;
+
+  /// No description provided for @closeAttendanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Still clocked in on this till'**
+  String get closeAttendanceTitle;
+
+  /// No description provided for @closeAttendanceCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check again'**
+  String get closeAttendanceCheck;
+
+  /// No description provided for @closeAttendanceCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct hours'**
+  String get closeAttendanceCorrect;
+
+  /// No description provided for @closeAttendanceReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing leaves them clocked in and flags their hours. They are not paid until an owner decides. To set when someone really left, correct their hours (a reason is needed).'**
+  String get closeAttendanceReview;
+
+  /// No description provided for @closeAttendanceBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'This shop closes only when everyone has clocked out. Ask each person to clock out on a till, or correct their hours with a reason, then check again.'**
+  String get closeAttendanceBlock;
+
+  /// No description provided for @closeAttendanceAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing leaves them open, paid up to their last sale. To set when someone really left, correct their hours (a reason is needed).'**
+  String get closeAttendanceAllow;
+
+  /// No description provided for @closeAttendanceAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing clocks them out at the closing time, recorded as automatic. To set when someone really left, correct their hours first.'**
+  String get closeAttendanceAuto;
+
+  /// No description provided for @closeAttendanceSince.
+  ///
+  /// In en, this message translates to:
+  /// **'in since {time}'**
+  String closeAttendanceSince(String time);
+
+  /// No description provided for @closedLeftOpenReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Left clocked in, waiting for an owner to review their hours: {names}.'**
+  String closedLeftOpenReview(String names);
+
+  /// No description provided for @closedLeftOpenPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Left clocked in, paid up to their last sale: {names}.'**
+  String closedLeftOpenPaid(String names);
+
+  /// No description provided for @closedAutoClockedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Clocked out automatically at closing time: {names}.'**
+  String closedAutoClockedOut(String names);
+
   /// No description provided for @resetRequestDropped.
   ///
   /// In en, this message translates to:

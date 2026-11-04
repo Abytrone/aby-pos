@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../../core/attendance.dart';
 import '../../../core/denominations.dart';
 import '../../../core/settings.dart';
 import '../../../domain/receipt/receipt_builder.dart';
@@ -99,8 +100,7 @@ class _CountForm extends GetView<CloseDayController> {
             Text(l.closeDayStartedBy(period.shiftOpenedBy!, formatMoney(period.shiftFloat!)),
                 style: AbyText.body.copyWith(color: c.inkMuted)),
           const SizedBox(height: AbySpace.s3),
-          if (controller.stillClockedIn.isNotEmpty)
-            _Warning(icon: Icons.schedule, text: l.closeStillClockedIn(controller.stillClockedIn.join(', '))),
+          if (controller.stillClockedIn.isNotEmpty) const _StillIn(),
           if (controller.oldParked.value > 0)
             Container(
               margin: const EdgeInsets.only(bottom: AbySpace.s3),
@@ -237,6 +237,17 @@ class _Closed extends StatelessWidget {
         Text(l.checkoutSavedHere, textAlign: TextAlign.center, style: AbyText.caption.copyWith(color: c.inkMuted)),
         const SizedBox(height: AbySpace.s4),
         Obx(() {
+          final o = Get.find<CloseDayController>().attendanceOutcome.value;
+          if (o == null) return const SizedBox.shrink();
+          final names = o.$2.join(', ');
+          final text = switch (o.$1) {
+            CloseWithOthersIn.auto => l.closedAutoClockedOut(names),
+            CloseWithOthersIn.allow => l.closedLeftOpenPaid(names),
+            _ => l.closedLeftOpenReview(names),
+          };
+          return _Warning(icon: Icons.schedule, text: text);
+        }),
+        Obx(() {
           final s = Get.find<CloseDayController>().summary.value;
           if (s == null) return const SizedBox.shrink();
           return Padding(padding: const EdgeInsets.only(bottom: AbySpace.s3), child: DailySummaryCard(summary: s));
@@ -306,6 +317,53 @@ class _Warning extends StatelessWidget {
         Icon(icon, color: c.warning),
         const SizedBox(width: AbySpace.s2),
         Expanded(child: Text(text, style: AbyText.body.copyWith(color: c.ink))),
+      ]),
+    );
+  }
+}
+
+/// Who is still clocked in, what closing will do about it, and a way for a
+/// manager to set when someone really left (with a reason).
+class _StillIn extends GetView<CloseDayController> {
+  const _StillIn();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).extension<AbyColors>()!;
+    final l = context.l10n;
+    final blocked = controller.waitingForClockOut;
+    final explain = switch (controller.attendance) {
+      CloseWithOthersIn.block => l.closeAttendanceBlock,
+      CloseWithOthersIn.allow => l.closeAttendanceAllow,
+      CloseWithOthersIn.auto => l.closeAttendanceAuto,
+      _ => l.closeAttendanceReview,
+    };
+    return Container(
+      margin: const EdgeInsets.only(bottom: AbySpace.s3),
+      padding: const EdgeInsets.all(AbySpace.s3),
+      decoration: BoxDecoration(
+        color: blocked ? c.dangerSoft : c.warningSoft,
+        borderRadius: BorderRadius.circular(AbyRadius.sm),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(children: [
+          Icon(Icons.schedule, color: blocked ? c.danger : c.warning),
+          const SizedBox(width: AbySpace.s2),
+          Expanded(child: Text(l.closeAttendanceTitle, style: AbyText.body.copyWith(color: c.ink, fontWeight: FontWeight.w600))),
+          TextButton(onPressed: controller.loadAttendance, child: Text(l.closeAttendanceCheck)),
+        ]),
+        Text(explain, style: AbyText.caption.copyWith(color: c.inkMuted)),
+        const SizedBox(height: AbySpace.s2),
+        for (final e in controller.stillClockedIn)
+          Row(children: [
+            Expanded(
+              child: Text(
+                '${e.staffName}  ·  ${l.closeAttendanceSince(formatTime(e.clockIn))}${e.missedClockOut() ? '  ·  ${l.timeMissedClockOut}' : ''}',
+                style: AbyText.body.copyWith(color: c.ink),
+              ),
+            ),
+            TextButton(onPressed: () => controller.correctHours(e), child: Text(l.closeAttendanceCorrect)),
+          ]),
       ]),
     );
   }

@@ -90,7 +90,8 @@ enum AuditAction {
   staffPinResetCancelled,
   timeEntryCorrected,
   timeEntryLeftOpen,
-  timeEntryReviewed;
+  timeEntryReviewed,
+  timeEntryAutoClockOut;
 
   /// Actions an owner should notice first.
   bool get isSensitive => const {
@@ -100,6 +101,7 @@ enum AuditAction {
         AuditAction.timeEntryCorrected,
         AuditAction.timeEntryLeftOpen,
         AuditAction.timeEntryReviewed,
+        AuditAction.timeEntryAutoClockOut,
         AuditAction.approvalRefused,
         AuditAction.saleVoided,
         AuditAction.staffRoleChanged,

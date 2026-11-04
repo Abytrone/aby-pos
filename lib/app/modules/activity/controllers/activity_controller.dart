@@ -66,6 +66,7 @@ enum ActivityFilter {
             AuditAction.timeEntryCorrected,
             AuditAction.timeEntryLeftOpen,
             AuditAction.timeEntryReviewed,
+            AuditAction.timeEntryAutoClockOut,
             AuditAction.staffRoleChanged,
             AuditAction.staffDeactivated,
             AuditAction.staffReactivated,
