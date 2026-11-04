@@ -56,6 +56,7 @@ void main() {
     final sheet = await times.timesheet(week);
     final e = sheet.single;
     expect(e.breakMinutes, 40);
+    expect(e.missedClockOut(), isFalse);
     expect(e.workedMinutes(), 8 * 60 + 18 - 40);
     expect(e.lateMinutes, 12);
     expect(e.earlyMinutes, 30);
@@ -97,6 +98,17 @@ void main() {
     final e = (await times.timesheet(DateRange.of(ReportPeriod.thisWeek, DateTime(2026, 10, 28)))).single;
     expect(e.lateMinutes, 150, reason: '00:30 is two and a half hours after 22:00');
     expect(e.earlyMinutes, 60);
+    expect(
+      TimesheetEntry(
+        id: 'overnight',
+        staffId: ama.id,
+        staffName: ama.name,
+        clockIn: DateTime(2026, 10, 26, 22),
+        clockOut: DateTime(2026, 10, 27, 6),
+      ).missedClockOut(),
+      isFalse,
+      reason: 'a completed overnight shift is not a missed clock out',
+    );
     expect(TimeRepository.minutesPast(22 * 60, DateTime(2026, 1, 1, 21, 50)), -10);
     expect(TimeRepository.minutesPast(6 * 60, DateTime(2026, 1, 1, 23, 0)), -7 * 60);
   });
@@ -110,6 +122,9 @@ void main() {
 
     final stale = (await times.stillIn()).single;
     expect(stale.tooLong(now), isTrue);
+    expect(stale.missedClockOut(DateTime(2026, 10, 26, 23, 59)), isFalse);
+    expect(stale.missedClockOut(now), isTrue);
+    expect((await times.currentEntry(ama.id))?.id, stale.id);
     expect(await times.stillIn(deviceId: 'another till'), isEmpty);
 
     Future<void> correct({DateTime? out, int breakMinutes = 30, String reason = 'Forgot to clock out'}) => times.correct(

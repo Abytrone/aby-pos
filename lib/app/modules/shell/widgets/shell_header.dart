@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../data/repositories/time_repository.dart';
+import '../../../services/auth_service.dart';
 import '../../../services/clock_service.dart';
 import '../../../services/printing/print_service.dart';
 import '../../../services/status_service.dart';
@@ -18,6 +19,7 @@ import '../../../ui/permission_labels.dart';
 import '../../../ui/staff_avatar.dart';
 import '../../../ui/status_dot.dart';
 import '../controllers/shell_controller.dart';
+import '../../staff/widgets/correct_hours_dialog.dart';
 import 'command_bar.dart';
 import 'quick_switch.dart';
 import 'status_centre.dart';
@@ -224,7 +226,12 @@ class _UserChip extends StatelessWidget {
               child: ListTile(
                 leading: Icon(clocked == null ? Icons.login : Icons.logout),
                 title: Text(clocked == null ? l.clockIn : l.clockOut),
-                subtitle: clocked == null ? null : Text(l.clockInSince(formatTime(clocked.since))),
+                subtitle: clocked == null
+                    ? null
+                    : Text([
+                        l.clockInSince(formatTime(clocked.since)),
+                        if (clocked.missedClockOut()) l.timeMissedClockOut,
+                      ].join('  ·  ')),
               ),
             ),
             if (clocked != null)
@@ -284,6 +291,28 @@ Future<void> _clock(ClockService clock, bool clockIn) async {
       await clock.clockIn();
       showMessage(l.clockedIn, tone: MessageTone.success);
     } else {
+      final clocked = clock.state.value;
+      if (clocked != null && clocked.missedClockOut() && clock.allowMissedClockOutEdit) {
+        final choice = await choiceDialog<_MissedClockOutChoice>(
+          title: l.missedClockOutTitle,
+          message: l.missedClockOutBody(formatDateTime(clocked.since)),
+          options: _MissedClockOutChoice.values,
+          label: (option) => switch (option) {
+            _MissedClockOutChoice.clockOutNow => l.clockOut,
+            _MissedClockOutChoice.correctTime => l.missedClockOutCorrect,
+          },
+        );
+        if (choice == null) return;
+        if (choice == _MissedClockOutChoice.correctTime) {
+          final entry = await Get.find<TimeRepository>().currentEntry(Get.find<AuthService>().user.id);
+          if (entry == null) {
+            await clock.refresh();
+            return;
+          }
+          await showCorrectMissedClockOut(entry);
+          return;
+        }
+      }
       await clock.clockOut();
       showMessage(l.clockedOut, tone: MessageTone.success);
     }
@@ -291,3 +320,5 @@ Future<void> _clock(ClockService clock, bool clockIn) async {
     showMessage(e.message, tone: MessageTone.error);
   }
 }
+
+enum _MissedClockOutChoice { clockOutNow, correctTime }

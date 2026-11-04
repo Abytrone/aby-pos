@@ -40,6 +40,8 @@ class ClockService extends GetxService {
 
   bool get clockedIn => state.value != null;
 
+  bool get allowMissedClockOutEdit => _settings.get(AppSettings.allowMissedClockOutEdit);
+
   /// Selling waits for clocking in when the shop asks for it.
   bool get mayNotSell => _settings.get(AppSettings.clockInToSell) && !clockedIn;
 
