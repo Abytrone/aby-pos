@@ -121,6 +121,18 @@ class TimesheetEntry {
     return workedMinutes(now);
   }
 
+  /// How this stretch ended and was decided, in words, for exports. Empty
+  /// for an ordinary stretch the person clocked out of themselves.
+  String get statusNote => [
+        if (stillIn) 'Still clocked in',
+        if (unconfirmed) 'Left clocked in at close, not confirmed',
+        if (closeSource == ClockOutSource.auto) 'Clocked out automatically at close',
+        if (needsReview) 'Not paid until reviewed',
+        if (review == TimeReview.approved && approvedByName != null)
+          'Decided by $approvedByName${approvalNote == null ? '' : ': $approvalNote'}',
+        if (note != null) 'Corrected: $note',
+      ].join('; ');
+
   /// Longer than anyone works in one go: most likely a forgotten clock out.
   bool tooLong([DateTime? now]) =>
       !unconfirmed && (clockOut ?? now ?? clock.now()).difference(clockIn) > TimeRepository.longestStretch;

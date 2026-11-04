@@ -1,5 +1,6 @@
 import 'package:aby_pos/app/core/period.dart';
 import 'package:aby_pos/app/data/database/app_database.dart';
+import 'package:aby_pos/app/domain/documents/report_docs.dart';
 import 'package:aby_pos/app/data/repositories/time_repository.dart';
 import 'package:aby_pos/app/models/models.dart';
 import 'package:clock/clock.dart';
@@ -145,5 +146,23 @@ void main() {
     expect(e.payableMinutes(now), 0);
     expect(e.approvalNote, 'Left without telling anyone');
     expect(e.review, TimeReview.approved);
+  });
+
+  test('the exported timesheet pays only what counts, and says how each stretch ended', () async {
+    await times.clockIn(ama);
+    await times.clockIn(kofi);
+    now = DateTime(2026, 11, 2, 16, 0);
+    await times.clockOut(kofi);
+    now = DateTime(2026, 11, 2, 18, 0);
+    await times.leaveOpenAtClose(by: owner);
+
+    final range = week;
+    final doc = ReportDocs.timesheet(await times.timesheet(range), shopName: 'Shop', range: range, now: now);
+    final rows = {for (final row in doc.sheets.single.rows) row[0] as String: row};
+    expect(rows['Kofi']![4], 480);
+    expect(rows['Kofi']![7], '');
+    expect(rows['Ama']![4], 0, reason: 'unconfirmed hours are not in the pay column');
+    expect(rows['Ama']![7], contains('not confirmed'));
+    expect(rows['Ama']![7], contains('Not paid until reviewed'));
   });
 }

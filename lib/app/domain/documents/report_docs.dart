@@ -269,13 +269,15 @@ abstract final class ReportDocs {
             DocColumn.bars('Worked', DocKind.minutes),
             DocColumn.total('Late', DocKind.minutes),
             DocColumn.total('Left early', DocKind.minutes),
+            DocColumn('Note'),
           ],
           rows: [
             for (final e in sorted)
-              [e.staffName, e.clockIn, e.clockOut, e.breakMinutes, e.workedMinutes(now), e.lateMinutes, e.earlyMinutes],
+              [e.staffName, e.clockIn, e.clockOut, e.breakMinutes, e.payableMinutes(now), e.lateMinutes, e.earlyMinutes, e.statusNote],
           ],
           groupBy: 0,
-          note: 'Hours and minutes. Still clocked in: worked until now.',
+          note: 'Hours and minutes that count for pay. Still clocked in: worked until now. '
+              'Hours left open at close count only once an owner has decided them.',
         ),
       ],
     );
