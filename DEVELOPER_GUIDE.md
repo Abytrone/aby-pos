@@ -182,6 +182,7 @@ aby_pos/
 │   └── generated_migrations/        drift schema snapshots for migration tests (generated)
 ├── drift_schemas/                   drift_schema_v1.json … v25.json (one per schema version)
 ├── tool/license.dart                developer-only licence signing CLI
+├── tool/build_guides.py             rebuilds USER_GUIDE.pdf and DEVELOPER_GUIDE.pdf from the Markdown (needs `pip install markdown` and Chrome or Edge)
 ├── installer/                       Inno Setup script (aby_pos.iss) and the EULA
 ├── build_windows.ps1                one-step Windows release + installer
 ├── docs/FEATURES.md                 product specification and phase plan
