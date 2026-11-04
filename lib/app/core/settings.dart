@@ -138,6 +138,14 @@ abstract final class AppSettings {
   /// shops turn it on (SetupController).
   static const clockInToSell = Setting<bool>('staff.clockInToSell', SettingScope.shop, false);
 
+  /// Staff may correct their own open shift's clock-out time after the
+  /// calendar day has changed. Off by default; changes are audited.
+  static const allowMissedClockOutEdit = Setting<bool>('staff.allowMissedClockOutEdit', SettingScope.shop, false);
+
+  /// What close day does with people still clocked in: review | block |
+  /// allow | auto (see CloseWithOthersIn).
+  static const closeWithOthersIn = Setting<String>('attendance.closeWithOthersIn', SettingScope.shop, 'review');
+
   /// off | percent | perProduct
   static const commissionMode = Setting<String>('staff.commissionMode', SettingScope.shop, 'off');
 
@@ -241,6 +249,8 @@ abstract final class AppSettings {
     accountsMonthly,
     accountsFolder,
     clockInToSell,
+    allowMissedClockOutEdit,
+    closeWithOthersIn,
     commissionMode,
     commissionPercent,
     ordersOn,

@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '../../../app.dart';
+import '../../../core/attendance.dart';
 import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
 import '../../../data/repositories/catalog_repository.dart';
@@ -81,8 +82,9 @@ class SetupController extends GetxController {
       await _settings.set(AppSettings.shopName, shopField.text.trim(), by: owner);
       // New shops count the float and clock in before selling; shops from
       // before these settings keep working as they did.
-      await _settings.set(AppSettings.startDayToSell, true, by: owner);
-      await _settings.set(AppSettings.clockInToSell, true, by: owner);
+      for (final (setting, value) in AttendanceMode.standard.preset) {
+        await _settings.set(setting, value, by: owner);
+      }
       await TemplateService(Get.find<CatalogRepository>(), _settings).apply(type.value, by: owner);
       final recoveryCode = await _staff.newRecoveryCode(owner.id, by: owner);
       _auth.signInAsNew(owner);

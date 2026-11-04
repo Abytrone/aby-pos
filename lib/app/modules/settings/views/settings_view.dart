@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../../core/app_version.dart';
+import '../../../core/attendance.dart';
 import '../../../core/settings.dart';
 import '../../../domain/business_templates.dart';
 import '../../../domain/loyalty.dart';
@@ -355,6 +356,29 @@ class SettingsView extends GetView<SettingsController> {
           'perProduct' => l.commissionPerProduct,
           _ => l.settingsOff,
         };
+    String attendanceModeLabel(AttendanceMode? m) => switch (m) {
+          AttendanceMode.solo => l.attendanceModeSolo,
+          AttendanceMode.standard => l.attendanceModeStandard,
+          AttendanceMode.strict => l.attendanceModeStrict,
+          null => l.attendanceModeCustom,
+        };
+    String attendanceModeHelp(AttendanceMode m) => switch (m) {
+          AttendanceMode.solo => l.attendanceModeSoloHelp,
+          AttendanceMode.standard => l.attendanceModeStandardHelp,
+          AttendanceMode.strict => l.attendanceModeStrictHelp,
+        };
+    String closeWithOthersLabel(String v) => switch (v) {
+          CloseWithOthersIn.block => l.closeWithOthersBlock,
+          CloseWithOthersIn.allow => l.closeWithOthersAllow,
+          CloseWithOthersIn.auto => l.closeWithOthersAuto,
+          _ => l.closeWithOthersReview,
+        };
+    String closeWithOthersHelp(String v) => switch (v) {
+          CloseWithOthersIn.block => l.closeWithOthersBlockHelp,
+          CloseWithOthersIn.allow => l.closeWithOthersAllowHelp,
+          CloseWithOthersIn.auto => l.closeWithOthersAutoHelp,
+          _ => l.closeWithOthersReviewHelp,
+        };
     final kitchen = PrinterTarget.decode(c.value(AppSettings.kitchenPrinter));
     final device = (l.settingsGroupDevice, SettingsTab.device);
     final screen = (l.settingsGroupScreen, SettingsTab.device);
@@ -633,10 +657,49 @@ class SettingsView extends GetView<SettingsController> {
           onTap: showScreenLinks,
         ), keywords: ['link', 'qr', 'display']),
       _Entry(features, InfoTile(
+        title: l.settingsAttendanceMode,
+        subtitle: l.settingsAttendanceModeHelp,
+        value: attendanceModeLabel(AttendanceMode.current(c.value)),
+        onTap: () async {
+          final mode = await choiceDialog<AttendanceMode>(
+            title: l.settingsAttendanceMode,
+            options: AttendanceMode.values,
+            label: attendanceModeLabel,
+            subtitle: attendanceModeHelp,
+            selected: AttendanceMode.current(c.value),
+          );
+          if (mode == null) return;
+          if (await c.saveAll(mode.preset)) c.saved();
+        },
+      ), keywords: ['attendance', 'clock', 'strict', 'shift', 'solo', 'mode']),
+      _Entry(features, InfoTile(
+        title: l.settingsCloseWithOthersIn,
+        subtitle: l.settingsCloseWithOthersInHelp,
+        value: closeWithOthersLabel(c.value(AppSettings.closeWithOthersIn)),
+        onTap: () async {
+          final v = await choiceDialog<String>(
+            title: l.settingsCloseWithOthersIn,
+            options: CloseWithOthersIn.all,
+            label: closeWithOthersLabel,
+            subtitle: closeWithOthersHelp,
+            selected: c.value(AppSettings.closeWithOthersIn),
+          );
+          if (v != null) await c.save(AppSettings.closeWithOthersIn, v);
+        },
+      ), keywords: ['clock', 'close day', 'attendance', 'still in', 'review']),
+      _Entry(features, InfoTile(
         title: l.settingsClockInToSell,
         subtitle: l.settingsClockInToSellHelp,
         trailing: Switch(value: c.value(AppSettings.clockInToSell), onChanged: (v) => c.save(AppSettings.clockInToSell, v)),
       ), keywords: ['clock', 'time', 'attendance', 'shift']),
+      _Entry(features, InfoTile(
+        title: l.settingsAllowMissedClockOutEdit,
+        subtitle: l.settingsAllowMissedClockOutEditHelp,
+        trailing: Switch(
+          value: c.value(AppSettings.allowMissedClockOutEdit),
+          onChanged: (v) => c.save(AppSettings.allowMissedClockOutEdit, v),
+        ),
+      ), keywords: ['clock', 'time', 'attendance', 'shift', 'missed clock out']),
       _Entry(features, InfoTile(
         title: l.settingsCommission,
         subtitle: l.settingsCommissionHelp,
