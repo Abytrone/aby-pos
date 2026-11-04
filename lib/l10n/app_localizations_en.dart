@@ -7417,6 +7417,95 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auditTimeEntryReviewed => 'Unconfirmed hours decided';
 
   @override
+  String get reviewQueueTitle => 'Waiting for your decision';
+
+  @override
+  String get reviewQueueHelp =>
+      'These people were still clocked in when a day closed. Their hours are not paid until you decide.';
+
+  @override
+  String reviewHoursTitle(String name) {
+    return 'Review hours: $name';
+  }
+
+  @override
+  String reviewHoursIn(String when) {
+    return 'Clocked in $when.';
+  }
+
+  @override
+  String reviewHoursLeftOpen(String by) {
+    return 'Still clocked in when the day was closed by $by.';
+  }
+
+  @override
+  String reviewHoursLastActivity(String when) {
+    return 'Last sale or refund by them on that till: $when.';
+  }
+
+  @override
+  String get reviewHoursNoActivity =>
+      'No sale or refund by them on that till after they clocked in.';
+
+  @override
+  String reviewHoursPayToActivity(String hours) {
+    return 'Pay up to the last activity ($hours)';
+  }
+
+  @override
+  String get reviewHoursPaySet => 'Pay a set time';
+
+  @override
+  String get reviewHoursMinutes => 'Minutes to pay';
+
+  @override
+  String get reviewHoursPayNone => 'Do not pay';
+
+  @override
+  String get reviewHoursSetReal => 'Set when they really left';
+
+  @override
+  String get reviewHoursReason => 'Reason (kept in the activity log)';
+
+  @override
+  String get reviewHoursApproval => 'Decide someone\'s unconfirmed hours.';
+
+  @override
+  String get reviewHoursSaved => 'Decision saved.';
+
+  @override
+  String get reviewHoursNeedChoice => 'Choose what to do with these hours.';
+
+  @override
+  String get reviewHoursMinutesInvalid => 'Enter the minutes to pay.';
+
+  @override
+  String get timeUnconfirmedShort => 'not confirmed';
+
+  @override
+  String get timeUnconfirmed => 'Left clocked in at close, not confirmed';
+
+  @override
+  String get timeNotPaidYet => 'Not paid yet';
+
+  @override
+  String get timeAutoClockOut => 'Clocked out automatically at close';
+
+  @override
+  String timeDecidedBy(String name, String note) {
+    return 'Decided by $name: $note';
+  }
+
+  @override
+  String timeWaitingCount(int count) {
+    return '$count waiting for review';
+  }
+
+  @override
+  String get closeDayNothing =>
+      'Nothing to close: no sales, refunds or cash movements since the last close.';
+
+  @override
   String get auditTimeEntryAutoClockOut => 'Clocked out automatically at close';
 
   @override

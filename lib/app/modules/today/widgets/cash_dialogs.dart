@@ -9,11 +9,13 @@ import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
 import '../../../data/repositories/day_close_repository.dart';
 import '../../../data/repositories/shift_repository.dart';
+import '../../../data/repositories/time_repository.dart';
 import '../../../domain/receipt/receipt_builder.dart';
 import '../../../models/day_close.dart';
 import '../../../models/discount.dart';
 import '../../../models/expense.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/clock_service.dart';
 import '../../../services/money.dart';
 import '../../../services/permission_service.dart';
 import '../../../services/settings_service.dart';
@@ -43,6 +45,22 @@ Future<bool> startDay() async {
     return true;
   }
   showMessage(l.dayStarted(formatMoney(opened.$1)), tone: MessageTone.success);
+  if (Get.isRegistered<ClockService>()) {
+    final clock = Get.find<ClockService>();
+    await clock.refresh();
+    if (!clock.clockedIn &&
+        await confirmDialog(
+          title: l.dayClockInTitle,
+          message: l.dayClockInBody,
+          confirmLabel: l.clockIn,
+        )) {
+      try {
+        await clock.clockIn();
+      } on TimeClockException catch (e) {
+        showMessage(e.message, tone: MessageTone.error);
+      }
+    }
+  }
   return true;
 }
 

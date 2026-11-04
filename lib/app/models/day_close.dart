@@ -88,6 +88,21 @@ class OpenPeriod {
 
   int get cashTakings => byMethod[PaymentMethod.cash] ?? 0;
 
+  /// Anything happened since the last close that a close would record: a
+  /// started day, sales (or voids), refunds, cash in or out, a no-sale, or
+  /// money from a customer. False means closing now would only write an empty
+  /// Z report.
+  bool get hasActivity =>
+      shiftId != null ||
+      salesCount > 0 ||
+      voidedCount > 0 ||
+      refundsCount > 0 ||
+      payIns > 0 ||
+      payOuts > 0 ||
+      safeDrops > 0 ||
+      noSaleCount > 0 ||
+      customerMoney.values.any((v) => v != 0);
+
   /// Cash that should be in the drawer for a given opening float: the float,
   /// plus cash taken and put in, minus cash given back, paid out and dropped
   /// to the safe.

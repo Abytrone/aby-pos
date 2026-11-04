@@ -6,6 +6,7 @@ import 'package:aby_pos/app/core/permissions.dart';
 import 'package:aby_pos/app/core/settings.dart';
 import 'package:aby_pos/app/data/database/app_database.dart';
 import 'package:aby_pos/app/data/repositories/settings_repository.dart';
+import 'package:aby_pos/app/data/repositories/time_repository.dart';
 import 'package:aby_pos/app/services/clock_service.dart';
 import 'package:aby_pos/app/ui/dialogs.dart';
 import 'package:flutter/material.dart';
@@ -1120,6 +1121,80 @@ void main() {
     expect(find.text('HOURS WORKED'), findsNothing);
     expect(find.text('Hours worked'), findsOneWidget);
     expect(find.textContaining('still in'), findsOneWidget);
+
+    await _dispose(tester);
+  });
+
+  testWidgets('hours left open at close wait in Staff, Timesheets for an owner, who decides with a reason', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    late TimeRepository times;
+    await tester.runAsync(() async {
+      final r = await Repos.open(db);
+      times = TimeRepository(db, r.device, audit: r.audit);
+      final ama = (await r.staff.list()).firstWhere((s) => s.name == 'Ama');
+      final kofi = (await r.staff.list()).firstWhere((s) => s.name == 'Kofi');
+      await times.clockIn(ama);
+      await times.leaveOpenAtClose(by: kofi);
+    });
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
+    await _settle(tester);
+    await _signIn(tester, '101', '1234');
+
+    await tester.tap(find.text('Staff'));
+    await _settle(tester);
+    await tester.tap(find.widgetWithText(Tab, 'Timesheets'));
+    await _settle(tester);
+    expect(find.text('WAITING FOR YOUR DECISION'), findsOneWidget);
+    expect(find.text('Not paid yet'), findsWidgets);
+
+    await tester.tap(find.textContaining('Ama').first);
+    await _settle(tester);
+    expect(find.text('Review hours: Ama'), findsOneWidget);
+    await tester.tap(find.text('Do not pay'));
+    await _settle(tester);
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await _settle(tester);
+    expect(find.text('Review hours: Ama'), findsOneWidget, reason: 'a reason is needed');
+    await tester.enterText(find.widgetWithText(TextField, 'Reason (kept in the activity log)'), 'Left without telling anyone');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await _settle(tester);
+
+    expect(find.text('WAITING FOR YOUR DECISION'), findsNothing);
+    expect(find.textContaining('Left without telling anyone'), findsOneWidget);
+
+    await _dispose(tester);
+  });
+
+  testWidgets('Today: Close day is off until something has happened since the last close', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final db = await _shopWithStaff(tester);
+    await tester.pumpWidget(AbyApp(openDatabase: () => db, requireLicense: false));
+    await _settle(tester);
+    await _signIn(tester, '101', '1234');
+
+    await tester.tap(find.text('Today'));
+    await _settle(tester);
+    FilledButton closeButton() => tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Close day'));
+    expect(closeButton().onPressed, isNull, reason: 'a fresh till has nothing to close');
+
+    // A started day is something to close.
+    await tester.tap(find.byTooltip('Cash'));
+    await _settle(tester);
+    await tester.tap(find.text('Start the day').last);
+    await _settle(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Float at the start'), '50');
+    await tester.tap(find.widgetWithText(FilledButton, 'Start the day'));
+    await _settle(tester);
+    await tester.tap(find.text('Cancel'));
+    await _settle(tester);
+    expect(closeButton().onPressed, isNotNull);
 
     await _dispose(tester);
   });

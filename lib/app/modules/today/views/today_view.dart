@@ -53,7 +53,13 @@ class TodayView extends GetView<TodayController> {
             ],
           );
         }),
-        FilledButton(onPressed: controller.openCloseDay, child: Text(l.closeDayButton)),
+        Obx(() {
+          final active = controller.hasActivity.value;
+          return Tooltip(
+            message: active ? '' : l.closeDayNothing,
+            child: FilledButton(onPressed: active ? controller.openCloseDay : null, child: Text(l.closeDayButton)),
+          );
+        }),
       ],
       child: Obx(() {
         if (controller.loading.value) {
@@ -205,6 +211,7 @@ class TodayView extends GetView<TodayController> {
       case 'noReceipt':
         await controller.openRefund(null);
     }
+    await controller.refreshCloseState();
     if (message != null) showMessage(message);
   }
 

@@ -54,6 +54,14 @@ class TodayController extends GetxController {
   /// The drawer's open shift, if one was opened.
   final shift = Rxn<Shift>();
 
+  /// Something has happened since the last close, so closing means something.
+  /// True until worked out, so the button is never wrongly off.
+  final hasActivity = true.obs;
+
+  /// Works out [hasActivity]; called when sales, refunds, cash or the shift
+  /// change.
+  Future<void> refreshCloseState() async => hasActivity.value = (await _closes.openPeriod()).hasActivity;
+
   bool get canManageCash => _auth.can(Permission.manageCash);
   final summary = const TodaySummary().obs;
   final loading = true.obs;
@@ -82,7 +90,10 @@ class TodayController extends GetxController {
     _loadShift();
   }
 
-  Future<void> _loadShift() async => shift.value = await _shifts.current();
+  Future<void> _loadShift() async {
+    shift.value = await _shifts.current();
+    await refreshCloseState();
+  }
 
   /// After the day is started (startDay).
   Future<void> reloadShift() => _loadShift();
@@ -148,6 +159,7 @@ class TodayController extends GetxController {
   Future<void> _loadRefunds() async {
     final start = sales.isEmpty ? null : sales.map((s) => s.createdAt).reduce((a, b) => a.isBefore(b) ? a : b);
     refunds.assignAll(await _refunds.list(from: start ?? DateTime.now().subtract(const Duration(days: 1))));
+    await refreshCloseState();
   }
 
   /// Opens the refund screen for a sale; null when there was no receipt.

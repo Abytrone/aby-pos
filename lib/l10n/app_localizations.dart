@@ -12538,6 +12538,150 @@ abstract class AppLocalizations {
   /// **'Unconfirmed hours decided'**
   String get auditTimeEntryReviewed;
 
+  /// No description provided for @reviewQueueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your decision'**
+  String get reviewQueueTitle;
+
+  /// No description provided for @reviewQueueHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'These people were still clocked in when a day closed. Their hours are not paid until you decide.'**
+  String get reviewQueueHelp;
+
+  /// No description provided for @reviewHoursTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review hours: {name}'**
+  String reviewHoursTitle(String name);
+
+  /// No description provided for @reviewHoursIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Clocked in {when}.'**
+  String reviewHoursIn(String when);
+
+  /// No description provided for @reviewHoursLeftOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Still clocked in when the day was closed by {by}.'**
+  String reviewHoursLeftOpen(String by);
+
+  /// No description provided for @reviewHoursLastActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Last sale or refund by them on that till: {when}.'**
+  String reviewHoursLastActivity(String when);
+
+  /// No description provided for @reviewHoursNoActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'No sale or refund by them on that till after they clocked in.'**
+  String get reviewHoursNoActivity;
+
+  /// No description provided for @reviewHoursPayToActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay up to the last activity ({hours})'**
+  String reviewHoursPayToActivity(String hours);
+
+  /// No description provided for @reviewHoursPaySet.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay a set time'**
+  String get reviewHoursPaySet;
+
+  /// No description provided for @reviewHoursMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes to pay'**
+  String get reviewHoursMinutes;
+
+  /// No description provided for @reviewHoursPayNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not pay'**
+  String get reviewHoursPayNone;
+
+  /// No description provided for @reviewHoursSetReal.
+  ///
+  /// In en, this message translates to:
+  /// **'Set when they really left'**
+  String get reviewHoursSetReal;
+
+  /// No description provided for @reviewHoursReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (kept in the activity log)'**
+  String get reviewHoursReason;
+
+  /// No description provided for @reviewHoursApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Decide someone\'s unconfirmed hours.'**
+  String get reviewHoursApproval;
+
+  /// No description provided for @reviewHoursSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Decision saved.'**
+  String get reviewHoursSaved;
+
+  /// No description provided for @reviewHoursNeedChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what to do with these hours.'**
+  String get reviewHoursNeedChoice;
+
+  /// No description provided for @reviewHoursMinutesInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the minutes to pay.'**
+  String get reviewHoursMinutesInvalid;
+
+  /// No description provided for @timeUnconfirmedShort.
+  ///
+  /// In en, this message translates to:
+  /// **'not confirmed'**
+  String get timeUnconfirmedShort;
+
+  /// No description provided for @timeUnconfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Left clocked in at close, not confirmed'**
+  String get timeUnconfirmed;
+
+  /// No description provided for @timeNotPaidYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not paid yet'**
+  String get timeNotPaidYet;
+
+  /// No description provided for @timeAutoClockOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Clocked out automatically at close'**
+  String get timeAutoClockOut;
+
+  /// No description provided for @timeDecidedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Decided by {name}: {note}'**
+  String timeDecidedBy(String name, String note);
+
+  /// No description provided for @timeWaitingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} waiting for review'**
+  String timeWaitingCount(int count);
+
+  /// No description provided for @closeDayNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to close: no sales, refunds or cash movements since the last close.'**
+  String get closeDayNothing;
+
   /// No description provided for @auditTimeEntryAutoClockOut.
   ///
   /// In en, this message translates to:
