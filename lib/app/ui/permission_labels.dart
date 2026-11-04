@@ -141,4 +141,6 @@ String auditActionLabel(AppLocalizations l, AuditAction a) => switch (a) {
   AuditAction.staffPinReset => l.auditStaffPinReset,
   AuditAction.staffPinResetCancelled => l.auditStaffPinResetCancelled,
   AuditAction.timeEntryCorrected => l.auditTimeEntryCorrected,
+  AuditAction.timeEntryLeftOpen => l.auditTimeEntryLeftOpen,
+  AuditAction.timeEntryReviewed => l.auditTimeEntryReviewed,
 };

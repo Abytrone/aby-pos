@@ -48,11 +48,12 @@ void main() {
     20,
     21,
     23,
+    24,
   ]) {
-    test('v$from to v24 gives exactly the v24 schema', () async {
+    test('v$from to v25 gives exactly the v25 schema', () async {
       final schema = await verifier.schemaAt(from);
       final db = AppDatabase(schema.newConnection(), false);
-      await verifier.migrateAndValidate(db, 24);
+      await verifier.migrateAndValidate(db, 25);
       await db.close();
     });
   }
@@ -646,6 +647,26 @@ void main() {
       [for (final r in rows) (r.name, r.staffNumber)],
       [('Ama', '102'), ('Kofi', '101')],
     );
+    await db.close();
+  });
+
+  test('v24 to v25 marks finished stretches as self-ended, or corrected when a manager changed them', () async {
+    final schema = await verifier.schemaAt(24);
+    final raw = schema.rawDatabase;
+    const t = 1761000000;
+    for (final (id, out, note) in [('a', t + 3600, null), ('b', t + 3600, "'forgot'"), ('c', null, null)]) {
+      raw.execute(
+        'INSERT INTO time_entries (id, created_at, updated_at, device_id, staff_id, staff_name, clock_in, clock_out, note) '
+        "VALUES ('$id', $t, $t, 'dev-1', 's1', 'Ama', $t, ${out ?? 'NULL'}, ${note ?? 'NULL'})",
+      );
+    }
+    final db = AppDatabase(schema.newConnection(), false);
+    final rows = await db.select(db.timeEntries).get();
+    final byId = {for (final r in rows) r.id: r};
+    expect(byId['a']!.closeSource, ClockOutSource.self);
+    expect(byId['b']!.closeSource, ClockOutSource.corrected);
+    expect(byId['c']!.closeSource, isNull);
+    expect(rows.every((r) => r.reviewStatus == TimeReview.ok), isTrue);
     await db.close();
   });
 }

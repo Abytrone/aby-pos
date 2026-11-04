@@ -287,7 +287,7 @@ class AppDatabase extends _$AppDatabase {
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 24;
+  int get schemaVersion => 25;
 
   Future<void> _createCatalogueNameIndexes() async {
     await customStatement(
@@ -874,6 +874,32 @@ class AppDatabase extends _$AppDatabase {
             [recipeId, now],
           );
         }
+      },
+      // v25: attendance accountability. Who ended each stretch of work, whether
+      // it counts for pay, and the owner's decision on stretches left open.
+      from24To25: (m, schema) async {
+        final t = schema.timeEntries;
+        for (final column in [
+          t.closeSource,
+          t.reviewStatus,
+          t.lastActivityAt,
+          t.leftOpenById,
+          t.leftOpenByName,
+          t.dayCloseId,
+          t.approvedById,
+          t.approvedByName,
+          t.approvedAt,
+          t.approvedMinutes,
+          t.approvalNote,
+        ]) {
+          await m.addColumn(t, column);
+        }
+        // Every finished stretch before this was ended by the person, or
+        // corrected by a manager (those carry a note).
+        await customStatement(
+          "UPDATE time_entries SET close_source = CASE WHEN note IS NOT NULL THEN 'corrected' ELSE 'self' END "
+          'WHERE clock_out IS NOT NULL',
+        );
       },
     ),
     beforeOpen: (details) async {

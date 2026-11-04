@@ -87,6 +87,16 @@ enum SafeEntryKind { drop, deposit, adjustment }
 
 enum ShiftStatus { open, closed }
 
+/// Who ended a stretch of work. [self]: the person clocked out with their own
+/// PIN. [corrected]: a manager set the end, with a reason. [unconfirmed]: the
+/// day closed while they were still in; the end is unknown until an owner
+/// reviews it. [auto]: the shop's setting clocked them out at closing time.
+enum ClockOutSource { self, corrected, unconfirmed, auto }
+
+/// Whether a stretch of work counts for pay. [needsReview] stretches are left
+/// out of paid hours until an owner decides.
+enum TimeReview { ok, needsReview, approved }
+
 /// A customer's two accounts: what they owe (credit book) and what the shop
 /// holds for them (wallet / store credit).
 /// The loyalty account counts stamps or points, not money.

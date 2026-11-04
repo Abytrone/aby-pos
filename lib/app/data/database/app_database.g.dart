@@ -33284,6 +33284,125 @@ class $TimeEntriesTable extends TimeEntries
     requiredDuringInsert: false,
   );
   @override
+  late final GeneratedColumnWithTypeConverter<ClockOutSource?, String>
+  closeSource = GeneratedColumn<String>(
+    'close_source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<ClockOutSource?>($TimeEntriesTable.$convertercloseSourcen);
+  @override
+  late final GeneratedColumnWithTypeConverter<TimeReview, String> reviewStatus =
+      GeneratedColumn<String>(
+        'review_status',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('ok'),
+      ).withConverter<TimeReview>($TimeEntriesTable.$converterreviewStatus);
+  static const VerificationMeta _lastActivityAtMeta = const VerificationMeta(
+    'lastActivityAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastActivityAt =
+      GeneratedColumn<DateTime>(
+        'last_activity_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _leftOpenByIdMeta = const VerificationMeta(
+    'leftOpenById',
+  );
+  @override
+  late final GeneratedColumn<String> leftOpenById = GeneratedColumn<String>(
+    'left_open_by_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _leftOpenByNameMeta = const VerificationMeta(
+    'leftOpenByName',
+  );
+  @override
+  late final GeneratedColumn<String> leftOpenByName = GeneratedColumn<String>(
+    'left_open_by_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dayCloseIdMeta = const VerificationMeta(
+    'dayCloseId',
+  );
+  @override
+  late final GeneratedColumn<String> dayCloseId = GeneratedColumn<String>(
+    'day_close_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _approvedByIdMeta = const VerificationMeta(
+    'approvedById',
+  );
+  @override
+  late final GeneratedColumn<String> approvedById = GeneratedColumn<String>(
+    'approved_by_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _approvedByNameMeta = const VerificationMeta(
+    'approvedByName',
+  );
+  @override
+  late final GeneratedColumn<String> approvedByName = GeneratedColumn<String>(
+    'approved_by_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _approvedAtMeta = const VerificationMeta(
+    'approvedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> approvedAt = GeneratedColumn<DateTime>(
+    'approved_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _approvedMinutesMeta = const VerificationMeta(
+    'approvedMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> approvedMinutes = GeneratedColumn<int>(
+    'approved_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _approvalNoteMeta = const VerificationMeta(
+    'approvalNote',
+  );
+  @override
+  late final GeneratedColumn<String> approvalNote = GeneratedColumn<String>(
+    'approval_note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     createdAt,
@@ -33298,6 +33417,17 @@ class $TimeEntriesTable extends TimeEntries
     breakMinutes,
     breakStartedAt,
     note,
+    closeSource,
+    reviewStatus,
+    lastActivityAt,
+    leftOpenById,
+    leftOpenByName,
+    dayCloseId,
+    approvedById,
+    approvedByName,
+    approvedAt,
+    approvedMinutes,
+    approvalNote,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -33406,6 +33536,84 @@ class $TimeEntriesTable extends TimeEntries
         note.isAcceptableOrUnknown(data['note']!, _noteMeta),
       );
     }
+    if (data.containsKey('last_activity_at')) {
+      context.handle(
+        _lastActivityAtMeta,
+        lastActivityAt.isAcceptableOrUnknown(
+          data['last_activity_at']!,
+          _lastActivityAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('left_open_by_id')) {
+      context.handle(
+        _leftOpenByIdMeta,
+        leftOpenById.isAcceptableOrUnknown(
+          data['left_open_by_id']!,
+          _leftOpenByIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('left_open_by_name')) {
+      context.handle(
+        _leftOpenByNameMeta,
+        leftOpenByName.isAcceptableOrUnknown(
+          data['left_open_by_name']!,
+          _leftOpenByNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('day_close_id')) {
+      context.handle(
+        _dayCloseIdMeta,
+        dayCloseId.isAcceptableOrUnknown(
+          data['day_close_id']!,
+          _dayCloseIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('approved_by_id')) {
+      context.handle(
+        _approvedByIdMeta,
+        approvedById.isAcceptableOrUnknown(
+          data['approved_by_id']!,
+          _approvedByIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('approved_by_name')) {
+      context.handle(
+        _approvedByNameMeta,
+        approvedByName.isAcceptableOrUnknown(
+          data['approved_by_name']!,
+          _approvedByNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('approved_at')) {
+      context.handle(
+        _approvedAtMeta,
+        approvedAt.isAcceptableOrUnknown(data['approved_at']!, _approvedAtMeta),
+      );
+    }
+    if (data.containsKey('approved_minutes')) {
+      context.handle(
+        _approvedMinutesMeta,
+        approvedMinutes.isAcceptableOrUnknown(
+          data['approved_minutes']!,
+          _approvedMinutesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('approval_note')) {
+      context.handle(
+        _approvalNoteMeta,
+        approvalNote.isAcceptableOrUnknown(
+          data['approval_note']!,
+          _approvalNoteMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -33467,6 +33675,54 @@ class $TimeEntriesTable extends TimeEntries
         DriftSqlType.string,
         data['${effectivePrefix}note'],
       ),
+      closeSource: $TimeEntriesTable.$convertercloseSourcen.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}close_source'],
+        ),
+      ),
+      reviewStatus: $TimeEntriesTable.$converterreviewStatus.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}review_status'],
+        )!,
+      ),
+      lastActivityAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_activity_at'],
+      ),
+      leftOpenById: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}left_open_by_id'],
+      ),
+      leftOpenByName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}left_open_by_name'],
+      ),
+      dayCloseId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}day_close_id'],
+      ),
+      approvedById: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}approved_by_id'],
+      ),
+      approvedByName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}approved_by_name'],
+      ),
+      approvedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}approved_at'],
+      ),
+      approvedMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}approved_minutes'],
+      ),
+      approvalNote: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}approval_note'],
+      ),
     );
   }
 
@@ -33474,6 +33730,15 @@ class $TimeEntriesTable extends TimeEntries
   $TimeEntriesTable createAlias(String alias) {
     return $TimeEntriesTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<ClockOutSource, String, String>
+  $convertercloseSource = const EnumNameConverter<ClockOutSource>(
+    ClockOutSource.values,
+  );
+  static JsonTypeConverter2<ClockOutSource?, String?, String?>
+  $convertercloseSourcen = JsonTypeConverter2.asNullable($convertercloseSource);
+  static JsonTypeConverter2<TimeReview, String, String> $converterreviewStatus =
+      const EnumNameConverter<TimeReview>(TimeReview.values);
 }
 
 class TimeEntryRow extends DataClass implements Insertable<TimeEntryRow> {
@@ -33494,6 +33759,27 @@ class TimeEntryRow extends DataClass implements Insertable<TimeEntryRow> {
   final int breakMinutes;
   final DateTime? breakStartedAt;
   final String? note;
+
+  /// Who ended the stretch; null while it is open. v25.
+  final ClockOutSource? closeSource;
+
+  /// Whether it counts for pay (an unconfirmed stretch waits for an owner). v25.
+  final TimeReview reviewStatus;
+
+  /// Left open when the day closed: the person's last sale or refund on this
+  /// till (evidence only, never their clock out), who closed the day, and
+  /// which close it was. v25.
+  final DateTime? lastActivityAt;
+  final String? leftOpenById;
+  final String? leftOpenByName;
+  final String? dayCloseId;
+
+  /// The owner's decision on a stretch that needed review. v25.
+  final String? approvedById;
+  final String? approvedByName;
+  final DateTime? approvedAt;
+  final int? approvedMinutes;
+  final String? approvalNote;
   const TimeEntryRow({
     required this.id,
     required this.createdAt,
@@ -33508,6 +33794,17 @@ class TimeEntryRow extends DataClass implements Insertable<TimeEntryRow> {
     required this.breakMinutes,
     this.breakStartedAt,
     this.note,
+    this.closeSource,
+    required this.reviewStatus,
+    this.lastActivityAt,
+    this.leftOpenById,
+    this.leftOpenByName,
+    this.dayCloseId,
+    this.approvedById,
+    this.approvedByName,
+    this.approvedAt,
+    this.approvedMinutes,
+    this.approvalNote,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -33535,6 +33832,43 @@ class TimeEntryRow extends DataClass implements Insertable<TimeEntryRow> {
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
     }
+    if (!nullToAbsent || closeSource != null) {
+      map['close_source'] = Variable<String>(
+        $TimeEntriesTable.$convertercloseSourcen.toSql(closeSource),
+      );
+    }
+    {
+      map['review_status'] = Variable<String>(
+        $TimeEntriesTable.$converterreviewStatus.toSql(reviewStatus),
+      );
+    }
+    if (!nullToAbsent || lastActivityAt != null) {
+      map['last_activity_at'] = Variable<DateTime>(lastActivityAt);
+    }
+    if (!nullToAbsent || leftOpenById != null) {
+      map['left_open_by_id'] = Variable<String>(leftOpenById);
+    }
+    if (!nullToAbsent || leftOpenByName != null) {
+      map['left_open_by_name'] = Variable<String>(leftOpenByName);
+    }
+    if (!nullToAbsent || dayCloseId != null) {
+      map['day_close_id'] = Variable<String>(dayCloseId);
+    }
+    if (!nullToAbsent || approvedById != null) {
+      map['approved_by_id'] = Variable<String>(approvedById);
+    }
+    if (!nullToAbsent || approvedByName != null) {
+      map['approved_by_name'] = Variable<String>(approvedByName);
+    }
+    if (!nullToAbsent || approvedAt != null) {
+      map['approved_at'] = Variable<DateTime>(approvedAt);
+    }
+    if (!nullToAbsent || approvedMinutes != null) {
+      map['approved_minutes'] = Variable<int>(approvedMinutes);
+    }
+    if (!nullToAbsent || approvalNote != null) {
+      map['approval_note'] = Variable<String>(approvalNote);
+    }
     return map;
   }
 
@@ -33561,6 +33895,37 @@ class TimeEntryRow extends DataClass implements Insertable<TimeEntryRow> {
           ? const Value.absent()
           : Value(breakStartedAt),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      closeSource: closeSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(closeSource),
+      reviewStatus: Value(reviewStatus),
+      lastActivityAt: lastActivityAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastActivityAt),
+      leftOpenById: leftOpenById == null && nullToAbsent
+          ? const Value.absent()
+          : Value(leftOpenById),
+      leftOpenByName: leftOpenByName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(leftOpenByName),
+      dayCloseId: dayCloseId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dayCloseId),
+      approvedById: approvedById == null && nullToAbsent
+          ? const Value.absent()
+          : Value(approvedById),
+      approvedByName: approvedByName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(approvedByName),
+      approvedAt: approvedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(approvedAt),
+      approvedMinutes: approvedMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(approvedMinutes),
+      approvalNote: approvalNote == null && nullToAbsent
+          ? const Value.absent()
+          : Value(approvalNote),
     );
   }
 
@@ -33583,6 +33948,21 @@ class TimeEntryRow extends DataClass implements Insertable<TimeEntryRow> {
       breakMinutes: serializer.fromJson<int>(json['breakMinutes']),
       breakStartedAt: serializer.fromJson<DateTime?>(json['breakStartedAt']),
       note: serializer.fromJson<String?>(json['note']),
+      closeSource: $TimeEntriesTable.$convertercloseSourcen.fromJson(
+        serializer.fromJson<String?>(json['closeSource']),
+      ),
+      reviewStatus: $TimeEntriesTable.$converterreviewStatus.fromJson(
+        serializer.fromJson<String>(json['reviewStatus']),
+      ),
+      lastActivityAt: serializer.fromJson<DateTime?>(json['lastActivityAt']),
+      leftOpenById: serializer.fromJson<String?>(json['leftOpenById']),
+      leftOpenByName: serializer.fromJson<String?>(json['leftOpenByName']),
+      dayCloseId: serializer.fromJson<String?>(json['dayCloseId']),
+      approvedById: serializer.fromJson<String?>(json['approvedById']),
+      approvedByName: serializer.fromJson<String?>(json['approvedByName']),
+      approvedAt: serializer.fromJson<DateTime?>(json['approvedAt']),
+      approvedMinutes: serializer.fromJson<int?>(json['approvedMinutes']),
+      approvalNote: serializer.fromJson<String?>(json['approvalNote']),
     );
   }
   @override
@@ -33602,6 +33982,21 @@ class TimeEntryRow extends DataClass implements Insertable<TimeEntryRow> {
       'breakMinutes': serializer.toJson<int>(breakMinutes),
       'breakStartedAt': serializer.toJson<DateTime?>(breakStartedAt),
       'note': serializer.toJson<String?>(note),
+      'closeSource': serializer.toJson<String?>(
+        $TimeEntriesTable.$convertercloseSourcen.toJson(closeSource),
+      ),
+      'reviewStatus': serializer.toJson<String>(
+        $TimeEntriesTable.$converterreviewStatus.toJson(reviewStatus),
+      ),
+      'lastActivityAt': serializer.toJson<DateTime?>(lastActivityAt),
+      'leftOpenById': serializer.toJson<String?>(leftOpenById),
+      'leftOpenByName': serializer.toJson<String?>(leftOpenByName),
+      'dayCloseId': serializer.toJson<String?>(dayCloseId),
+      'approvedById': serializer.toJson<String?>(approvedById),
+      'approvedByName': serializer.toJson<String?>(approvedByName),
+      'approvedAt': serializer.toJson<DateTime?>(approvedAt),
+      'approvedMinutes': serializer.toJson<int?>(approvedMinutes),
+      'approvalNote': serializer.toJson<String?>(approvalNote),
     };
   }
 
@@ -33619,6 +34014,17 @@ class TimeEntryRow extends DataClass implements Insertable<TimeEntryRow> {
     int? breakMinutes,
     Value<DateTime?> breakStartedAt = const Value.absent(),
     Value<String?> note = const Value.absent(),
+    Value<ClockOutSource?> closeSource = const Value.absent(),
+    TimeReview? reviewStatus,
+    Value<DateTime?> lastActivityAt = const Value.absent(),
+    Value<String?> leftOpenById = const Value.absent(),
+    Value<String?> leftOpenByName = const Value.absent(),
+    Value<String?> dayCloseId = const Value.absent(),
+    Value<String?> approvedById = const Value.absent(),
+    Value<String?> approvedByName = const Value.absent(),
+    Value<DateTime?> approvedAt = const Value.absent(),
+    Value<int?> approvedMinutes = const Value.absent(),
+    Value<String?> approvalNote = const Value.absent(),
   }) => TimeEntryRow(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -33635,6 +34041,25 @@ class TimeEntryRow extends DataClass implements Insertable<TimeEntryRow> {
         ? breakStartedAt.value
         : this.breakStartedAt,
     note: note.present ? note.value : this.note,
+    closeSource: closeSource.present ? closeSource.value : this.closeSource,
+    reviewStatus: reviewStatus ?? this.reviewStatus,
+    lastActivityAt: lastActivityAt.present
+        ? lastActivityAt.value
+        : this.lastActivityAt,
+    leftOpenById: leftOpenById.present ? leftOpenById.value : this.leftOpenById,
+    leftOpenByName: leftOpenByName.present
+        ? leftOpenByName.value
+        : this.leftOpenByName,
+    dayCloseId: dayCloseId.present ? dayCloseId.value : this.dayCloseId,
+    approvedById: approvedById.present ? approvedById.value : this.approvedById,
+    approvedByName: approvedByName.present
+        ? approvedByName.value
+        : this.approvedByName,
+    approvedAt: approvedAt.present ? approvedAt.value : this.approvedAt,
+    approvedMinutes: approvedMinutes.present
+        ? approvedMinutes.value
+        : this.approvedMinutes,
+    approvalNote: approvalNote.present ? approvalNote.value : this.approvalNote,
   );
   TimeEntryRow copyWithCompanion(TimeEntriesCompanion data) {
     return TimeEntryRow(
@@ -33655,6 +34080,39 @@ class TimeEntryRow extends DataClass implements Insertable<TimeEntryRow> {
           ? data.breakStartedAt.value
           : this.breakStartedAt,
       note: data.note.present ? data.note.value : this.note,
+      closeSource: data.closeSource.present
+          ? data.closeSource.value
+          : this.closeSource,
+      reviewStatus: data.reviewStatus.present
+          ? data.reviewStatus.value
+          : this.reviewStatus,
+      lastActivityAt: data.lastActivityAt.present
+          ? data.lastActivityAt.value
+          : this.lastActivityAt,
+      leftOpenById: data.leftOpenById.present
+          ? data.leftOpenById.value
+          : this.leftOpenById,
+      leftOpenByName: data.leftOpenByName.present
+          ? data.leftOpenByName.value
+          : this.leftOpenByName,
+      dayCloseId: data.dayCloseId.present
+          ? data.dayCloseId.value
+          : this.dayCloseId,
+      approvedById: data.approvedById.present
+          ? data.approvedById.value
+          : this.approvedById,
+      approvedByName: data.approvedByName.present
+          ? data.approvedByName.value
+          : this.approvedByName,
+      approvedAt: data.approvedAt.present
+          ? data.approvedAt.value
+          : this.approvedAt,
+      approvedMinutes: data.approvedMinutes.present
+          ? data.approvedMinutes.value
+          : this.approvedMinutes,
+      approvalNote: data.approvalNote.present
+          ? data.approvalNote.value
+          : this.approvalNote,
     );
   }
 
@@ -33673,13 +34131,24 @@ class TimeEntryRow extends DataClass implements Insertable<TimeEntryRow> {
           ..write('clockOut: $clockOut, ')
           ..write('breakMinutes: $breakMinutes, ')
           ..write('breakStartedAt: $breakStartedAt, ')
-          ..write('note: $note')
+          ..write('note: $note, ')
+          ..write('closeSource: $closeSource, ')
+          ..write('reviewStatus: $reviewStatus, ')
+          ..write('lastActivityAt: $lastActivityAt, ')
+          ..write('leftOpenById: $leftOpenById, ')
+          ..write('leftOpenByName: $leftOpenByName, ')
+          ..write('dayCloseId: $dayCloseId, ')
+          ..write('approvedById: $approvedById, ')
+          ..write('approvedByName: $approvedByName, ')
+          ..write('approvedAt: $approvedAt, ')
+          ..write('approvedMinutes: $approvedMinutes, ')
+          ..write('approvalNote: $approvalNote')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     createdAt,
     updatedAt,
@@ -33693,7 +34162,18 @@ class TimeEntryRow extends DataClass implements Insertable<TimeEntryRow> {
     breakMinutes,
     breakStartedAt,
     note,
-  );
+    closeSource,
+    reviewStatus,
+    lastActivityAt,
+    leftOpenById,
+    leftOpenByName,
+    dayCloseId,
+    approvedById,
+    approvedByName,
+    approvedAt,
+    approvedMinutes,
+    approvalNote,
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -33710,7 +34190,18 @@ class TimeEntryRow extends DataClass implements Insertable<TimeEntryRow> {
           other.clockOut == this.clockOut &&
           other.breakMinutes == this.breakMinutes &&
           other.breakStartedAt == this.breakStartedAt &&
-          other.note == this.note);
+          other.note == this.note &&
+          other.closeSource == this.closeSource &&
+          other.reviewStatus == this.reviewStatus &&
+          other.lastActivityAt == this.lastActivityAt &&
+          other.leftOpenById == this.leftOpenById &&
+          other.leftOpenByName == this.leftOpenByName &&
+          other.dayCloseId == this.dayCloseId &&
+          other.approvedById == this.approvedById &&
+          other.approvedByName == this.approvedByName &&
+          other.approvedAt == this.approvedAt &&
+          other.approvedMinutes == this.approvedMinutes &&
+          other.approvalNote == this.approvalNote);
 }
 
 class TimeEntriesCompanion extends UpdateCompanion<TimeEntryRow> {
@@ -33727,6 +34218,17 @@ class TimeEntriesCompanion extends UpdateCompanion<TimeEntryRow> {
   final Value<int> breakMinutes;
   final Value<DateTime?> breakStartedAt;
   final Value<String?> note;
+  final Value<ClockOutSource?> closeSource;
+  final Value<TimeReview> reviewStatus;
+  final Value<DateTime?> lastActivityAt;
+  final Value<String?> leftOpenById;
+  final Value<String?> leftOpenByName;
+  final Value<String?> dayCloseId;
+  final Value<String?> approvedById;
+  final Value<String?> approvedByName;
+  final Value<DateTime?> approvedAt;
+  final Value<int?> approvedMinutes;
+  final Value<String?> approvalNote;
   final Value<int> rowid;
   const TimeEntriesCompanion({
     this.id = const Value.absent(),
@@ -33742,6 +34244,17 @@ class TimeEntriesCompanion extends UpdateCompanion<TimeEntryRow> {
     this.breakMinutes = const Value.absent(),
     this.breakStartedAt = const Value.absent(),
     this.note = const Value.absent(),
+    this.closeSource = const Value.absent(),
+    this.reviewStatus = const Value.absent(),
+    this.lastActivityAt = const Value.absent(),
+    this.leftOpenById = const Value.absent(),
+    this.leftOpenByName = const Value.absent(),
+    this.dayCloseId = const Value.absent(),
+    this.approvedById = const Value.absent(),
+    this.approvedByName = const Value.absent(),
+    this.approvedAt = const Value.absent(),
+    this.approvedMinutes = const Value.absent(),
+    this.approvalNote = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TimeEntriesCompanion.insert({
@@ -33758,6 +34271,17 @@ class TimeEntriesCompanion extends UpdateCompanion<TimeEntryRow> {
     this.breakMinutes = const Value.absent(),
     this.breakStartedAt = const Value.absent(),
     this.note = const Value.absent(),
+    this.closeSource = const Value.absent(),
+    this.reviewStatus = const Value.absent(),
+    this.lastActivityAt = const Value.absent(),
+    this.leftOpenById = const Value.absent(),
+    this.leftOpenByName = const Value.absent(),
+    this.dayCloseId = const Value.absent(),
+    this.approvedById = const Value.absent(),
+    this.approvedByName = const Value.absent(),
+    this.approvedAt = const Value.absent(),
+    this.approvedMinutes = const Value.absent(),
+    this.approvalNote = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -33780,6 +34304,17 @@ class TimeEntriesCompanion extends UpdateCompanion<TimeEntryRow> {
     Expression<int>? breakMinutes,
     Expression<DateTime>? breakStartedAt,
     Expression<String>? note,
+    Expression<String>? closeSource,
+    Expression<String>? reviewStatus,
+    Expression<DateTime>? lastActivityAt,
+    Expression<String>? leftOpenById,
+    Expression<String>? leftOpenByName,
+    Expression<String>? dayCloseId,
+    Expression<String>? approvedById,
+    Expression<String>? approvedByName,
+    Expression<DateTime>? approvedAt,
+    Expression<int>? approvedMinutes,
+    Expression<String>? approvalNote,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -33796,6 +34331,17 @@ class TimeEntriesCompanion extends UpdateCompanion<TimeEntryRow> {
       if (breakMinutes != null) 'break_minutes': breakMinutes,
       if (breakStartedAt != null) 'break_started_at': breakStartedAt,
       if (note != null) 'note': note,
+      if (closeSource != null) 'close_source': closeSource,
+      if (reviewStatus != null) 'review_status': reviewStatus,
+      if (lastActivityAt != null) 'last_activity_at': lastActivityAt,
+      if (leftOpenById != null) 'left_open_by_id': leftOpenById,
+      if (leftOpenByName != null) 'left_open_by_name': leftOpenByName,
+      if (dayCloseId != null) 'day_close_id': dayCloseId,
+      if (approvedById != null) 'approved_by_id': approvedById,
+      if (approvedByName != null) 'approved_by_name': approvedByName,
+      if (approvedAt != null) 'approved_at': approvedAt,
+      if (approvedMinutes != null) 'approved_minutes': approvedMinutes,
+      if (approvalNote != null) 'approval_note': approvalNote,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -33814,6 +34360,17 @@ class TimeEntriesCompanion extends UpdateCompanion<TimeEntryRow> {
     Value<int>? breakMinutes,
     Value<DateTime?>? breakStartedAt,
     Value<String?>? note,
+    Value<ClockOutSource?>? closeSource,
+    Value<TimeReview>? reviewStatus,
+    Value<DateTime?>? lastActivityAt,
+    Value<String?>? leftOpenById,
+    Value<String?>? leftOpenByName,
+    Value<String?>? dayCloseId,
+    Value<String?>? approvedById,
+    Value<String?>? approvedByName,
+    Value<DateTime?>? approvedAt,
+    Value<int?>? approvedMinutes,
+    Value<String?>? approvalNote,
     Value<int>? rowid,
   }) {
     return TimeEntriesCompanion(
@@ -33830,6 +34387,17 @@ class TimeEntriesCompanion extends UpdateCompanion<TimeEntryRow> {
       breakMinutes: breakMinutes ?? this.breakMinutes,
       breakStartedAt: breakStartedAt ?? this.breakStartedAt,
       note: note ?? this.note,
+      closeSource: closeSource ?? this.closeSource,
+      reviewStatus: reviewStatus ?? this.reviewStatus,
+      lastActivityAt: lastActivityAt ?? this.lastActivityAt,
+      leftOpenById: leftOpenById ?? this.leftOpenById,
+      leftOpenByName: leftOpenByName ?? this.leftOpenByName,
+      dayCloseId: dayCloseId ?? this.dayCloseId,
+      approvedById: approvedById ?? this.approvedById,
+      approvedByName: approvedByName ?? this.approvedByName,
+      approvedAt: approvedAt ?? this.approvedAt,
+      approvedMinutes: approvedMinutes ?? this.approvedMinutes,
+      approvalNote: approvalNote ?? this.approvalNote,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -33876,6 +34444,43 @@ class TimeEntriesCompanion extends UpdateCompanion<TimeEntryRow> {
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
+    if (closeSource.present) {
+      map['close_source'] = Variable<String>(
+        $TimeEntriesTable.$convertercloseSourcen.toSql(closeSource.value),
+      );
+    }
+    if (reviewStatus.present) {
+      map['review_status'] = Variable<String>(
+        $TimeEntriesTable.$converterreviewStatus.toSql(reviewStatus.value),
+      );
+    }
+    if (lastActivityAt.present) {
+      map['last_activity_at'] = Variable<DateTime>(lastActivityAt.value);
+    }
+    if (leftOpenById.present) {
+      map['left_open_by_id'] = Variable<String>(leftOpenById.value);
+    }
+    if (leftOpenByName.present) {
+      map['left_open_by_name'] = Variable<String>(leftOpenByName.value);
+    }
+    if (dayCloseId.present) {
+      map['day_close_id'] = Variable<String>(dayCloseId.value);
+    }
+    if (approvedById.present) {
+      map['approved_by_id'] = Variable<String>(approvedById.value);
+    }
+    if (approvedByName.present) {
+      map['approved_by_name'] = Variable<String>(approvedByName.value);
+    }
+    if (approvedAt.present) {
+      map['approved_at'] = Variable<DateTime>(approvedAt.value);
+    }
+    if (approvedMinutes.present) {
+      map['approved_minutes'] = Variable<int>(approvedMinutes.value);
+    }
+    if (approvalNote.present) {
+      map['approval_note'] = Variable<String>(approvalNote.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -33898,6 +34503,17 @@ class TimeEntriesCompanion extends UpdateCompanion<TimeEntryRow> {
           ..write('breakMinutes: $breakMinutes, ')
           ..write('breakStartedAt: $breakStartedAt, ')
           ..write('note: $note, ')
+          ..write('closeSource: $closeSource, ')
+          ..write('reviewStatus: $reviewStatus, ')
+          ..write('lastActivityAt: $lastActivityAt, ')
+          ..write('leftOpenById: $leftOpenById, ')
+          ..write('leftOpenByName: $leftOpenByName, ')
+          ..write('dayCloseId: $dayCloseId, ')
+          ..write('approvedById: $approvedById, ')
+          ..write('approvedByName: $approvedByName, ')
+          ..write('approvedAt: $approvedAt, ')
+          ..write('approvedMinutes: $approvedMinutes, ')
+          ..write('approvalNote: $approvalNote, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -71954,6 +72570,17 @@ typedef $$TimeEntriesTableCreateCompanionBuilder =
       Value<int> breakMinutes,
       Value<DateTime?> breakStartedAt,
       Value<String?> note,
+      Value<ClockOutSource?> closeSource,
+      Value<TimeReview> reviewStatus,
+      Value<DateTime?> lastActivityAt,
+      Value<String?> leftOpenById,
+      Value<String?> leftOpenByName,
+      Value<String?> dayCloseId,
+      Value<String?> approvedById,
+      Value<String?> approvedByName,
+      Value<DateTime?> approvedAt,
+      Value<int?> approvedMinutes,
+      Value<String?> approvalNote,
       Value<int> rowid,
     });
 typedef $$TimeEntriesTableUpdateCompanionBuilder =
@@ -71971,6 +72598,17 @@ typedef $$TimeEntriesTableUpdateCompanionBuilder =
       Value<int> breakMinutes,
       Value<DateTime?> breakStartedAt,
       Value<String?> note,
+      Value<ClockOutSource?> closeSource,
+      Value<TimeReview> reviewStatus,
+      Value<DateTime?> lastActivityAt,
+      Value<String?> leftOpenById,
+      Value<String?> leftOpenByName,
+      Value<String?> dayCloseId,
+      Value<String?> approvedById,
+      Value<String?> approvedByName,
+      Value<DateTime?> approvedAt,
+      Value<int?> approvedMinutes,
+      Value<String?> approvalNote,
       Value<int> rowid,
     });
 
@@ -72045,6 +72683,63 @@ class $$TimeEntriesTableFilterComposer
 
   ColumnFilters<String> get note => $composableBuilder(
     column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ClockOutSource?, ClockOutSource, String>
+  get closeSource => $composableBuilder(
+    column: $table.closeSource,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<TimeReview, TimeReview, String>
+  get reviewStatus => $composableBuilder(
+    column: $table.reviewStatus,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastActivityAt => $composableBuilder(
+    column: $table.lastActivityAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get leftOpenById => $composableBuilder(
+    column: $table.leftOpenById,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get leftOpenByName => $composableBuilder(
+    column: $table.leftOpenByName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dayCloseId => $composableBuilder(
+    column: $table.dayCloseId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get approvedById => $composableBuilder(
+    column: $table.approvedById,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get approvedByName => $composableBuilder(
+    column: $table.approvedByName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get approvedAt => $composableBuilder(
+    column: $table.approvedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get approvedMinutes => $composableBuilder(
+    column: $table.approvedMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get approvalNote => $composableBuilder(
+    column: $table.approvalNote,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -72122,6 +72817,61 @@ class $$TimeEntriesTableOrderingComposer
     column: $table.note,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get closeSource => $composableBuilder(
+    column: $table.closeSource,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reviewStatus => $composableBuilder(
+    column: $table.reviewStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastActivityAt => $composableBuilder(
+    column: $table.lastActivityAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get leftOpenById => $composableBuilder(
+    column: $table.leftOpenById,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get leftOpenByName => $composableBuilder(
+    column: $table.leftOpenByName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dayCloseId => $composableBuilder(
+    column: $table.dayCloseId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get approvedById => $composableBuilder(
+    column: $table.approvedById,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get approvedByName => $composableBuilder(
+    column: $table.approvedByName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get approvedAt => $composableBuilder(
+    column: $table.approvedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get approvedMinutes => $composableBuilder(
+    column: $table.approvedMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get approvalNote => $composableBuilder(
+    column: $table.approvalNote,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$TimeEntriesTableAnnotationComposer
@@ -72175,6 +72925,63 @@ class $$TimeEntriesTableAnnotationComposer
 
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ClockOutSource?, String> get closeSource =>
+      $composableBuilder(
+        column: $table.closeSource,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<TimeReview, String> get reviewStatus =>
+      $composableBuilder(
+        column: $table.reviewStatus,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<DateTime> get lastActivityAt => $composableBuilder(
+    column: $table.lastActivityAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get leftOpenById => $composableBuilder(
+    column: $table.leftOpenById,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get leftOpenByName => $composableBuilder(
+    column: $table.leftOpenByName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get dayCloseId => $composableBuilder(
+    column: $table.dayCloseId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get approvedById => $composableBuilder(
+    column: $table.approvedById,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get approvedByName => $composableBuilder(
+    column: $table.approvedByName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get approvedAt => $composableBuilder(
+    column: $table.approvedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get approvedMinutes => $composableBuilder(
+    column: $table.approvedMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get approvalNote => $composableBuilder(
+    column: $table.approvalNote,
+    builder: (column) => column,
+  );
 }
 
 class $$TimeEntriesTableTableManager
@@ -72221,6 +73028,17 @@ class $$TimeEntriesTableTableManager
                 Value<int> breakMinutes = const Value.absent(),
                 Value<DateTime?> breakStartedAt = const Value.absent(),
                 Value<String?> note = const Value.absent(),
+                Value<ClockOutSource?> closeSource = const Value.absent(),
+                Value<TimeReview> reviewStatus = const Value.absent(),
+                Value<DateTime?> lastActivityAt = const Value.absent(),
+                Value<String?> leftOpenById = const Value.absent(),
+                Value<String?> leftOpenByName = const Value.absent(),
+                Value<String?> dayCloseId = const Value.absent(),
+                Value<String?> approvedById = const Value.absent(),
+                Value<String?> approvedByName = const Value.absent(),
+                Value<DateTime?> approvedAt = const Value.absent(),
+                Value<int?> approvedMinutes = const Value.absent(),
+                Value<String?> approvalNote = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TimeEntriesCompanion(
                 id: id,
@@ -72236,6 +73054,17 @@ class $$TimeEntriesTableTableManager
                 breakMinutes: breakMinutes,
                 breakStartedAt: breakStartedAt,
                 note: note,
+                closeSource: closeSource,
+                reviewStatus: reviewStatus,
+                lastActivityAt: lastActivityAt,
+                leftOpenById: leftOpenById,
+                leftOpenByName: leftOpenByName,
+                dayCloseId: dayCloseId,
+                approvedById: approvedById,
+                approvedByName: approvedByName,
+                approvedAt: approvedAt,
+                approvedMinutes: approvedMinutes,
+                approvalNote: approvalNote,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -72253,6 +73082,17 @@ class $$TimeEntriesTableTableManager
                 Value<int> breakMinutes = const Value.absent(),
                 Value<DateTime?> breakStartedAt = const Value.absent(),
                 Value<String?> note = const Value.absent(),
+                Value<ClockOutSource?> closeSource = const Value.absent(),
+                Value<TimeReview> reviewStatus = const Value.absent(),
+                Value<DateTime?> lastActivityAt = const Value.absent(),
+                Value<String?> leftOpenById = const Value.absent(),
+                Value<String?> leftOpenByName = const Value.absent(),
+                Value<String?> dayCloseId = const Value.absent(),
+                Value<String?> approvedById = const Value.absent(),
+                Value<String?> approvedByName = const Value.absent(),
+                Value<DateTime?> approvedAt = const Value.absent(),
+                Value<int?> approvedMinutes = const Value.absent(),
+                Value<String?> approvalNote = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TimeEntriesCompanion.insert(
                 id: id,
@@ -72268,6 +73108,17 @@ class $$TimeEntriesTableTableManager
                 breakMinutes: breakMinutes,
                 breakStartedAt: breakStartedAt,
                 note: note,
+                closeSource: closeSource,
+                reviewStatus: reviewStatus,
+                lastActivityAt: lastActivityAt,
+                leftOpenById: leftOpenById,
+                leftOpenByName: leftOpenByName,
+                dayCloseId: dayCloseId,
+                approvedById: approvedById,
+                approvedByName: approvedByName,
+                approvedAt: approvedAt,
+                approvedMinutes: approvedMinutes,
+                approvalNote: approvalNote,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

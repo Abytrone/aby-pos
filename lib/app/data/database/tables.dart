@@ -1108,6 +1108,27 @@ class TimeEntries extends Table with SyncColumns {
   IntColumn get breakMinutes => integer().withDefault(const Constant(0))();
   DateTimeColumn get breakStartedAt => dateTime().nullable()();
   TextColumn get note => text().nullable()();
+
+  /// Who ended the stretch; null while it is open. v25.
+  TextColumn get closeSource => textEnum<ClockOutSource>().nullable()();
+
+  /// Whether it counts for pay (an unconfirmed stretch waits for an owner). v25.
+  TextColumn get reviewStatus => textEnum<TimeReview>().withDefault(const Constant('ok'))();
+
+  /// Left open when the day closed: the person's last sale or refund on this
+  /// till (evidence only, never their clock out), who closed the day, and
+  /// which close it was. v25.
+  DateTimeColumn get lastActivityAt => dateTime().nullable()();
+  TextColumn get leftOpenById => text().nullable()();
+  TextColumn get leftOpenByName => text().nullable()();
+  TextColumn get dayCloseId => text().nullable()();
+
+  /// The owner's decision on a stretch that needed review. v25.
+  TextColumn get approvedById => text().nullable()();
+  TextColumn get approvedByName => text().nullable()();
+  DateTimeColumn get approvedAt => dateTime().nullable()();
+  IntColumn get approvedMinutes => integer().nullable()();
+  TextColumn get approvalNote => text().nullable()();
 }
 
 /// On the hub: every change from every device, in order (MDV-01). Members

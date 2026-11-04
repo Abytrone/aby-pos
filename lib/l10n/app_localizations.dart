@@ -5146,6 +5146,18 @@ abstract class AppLocalizations {
   /// **'Start the day'**
   String get dayStart;
 
+  /// No description provided for @dayClockInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock in too?'**
+  String get dayClockInTitle;
+
+  /// No description provided for @dayClockInBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The drawer shift is open for this till. Would you like to clock in for your own work hours?'**
+  String get dayClockInBody;
+
   /// No description provided for @dayStartHelp.
   ///
   /// In en, this message translates to:
@@ -8014,6 +8026,30 @@ abstract class AppLocalizations {
   /// **'The shop asks staff to clock in before selling. Clock in now?'**
   String get clockInToSellBody;
 
+  /// No description provided for @missedClockOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed clock out'**
+  String get missedClockOutTitle;
+
+  /// No description provided for @missedClockOutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You clocked in on {since}. Clock out now, or enter when you actually finished. Cancel to leave the shift open.'**
+  String missedClockOutBody(String since);
+
+  /// No description provided for @missedClockOutCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the time I finished'**
+  String get missedClockOutCorrect;
+
+  /// No description provided for @missedClockOutEditUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This clock-out can no longer be edited. Ask a manager to correct the timesheet.'**
+  String get missedClockOutEditUnavailable;
+
   /// No description provided for @timeTab.
   ///
   /// In en, this message translates to:
@@ -8038,6 +8074,18 @@ abstract class AppLocalizations {
   /// **'still in'**
   String get timeStillIn;
 
+  /// No description provided for @timeMissedClockOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed clock out'**
+  String get timeMissedClockOut;
+
+  /// No description provided for @timeClockOutBeforeBreak.
+  ///
+  /// In en, this message translates to:
+  /// **'The clock-out time cannot be before the break started.'**
+  String get timeClockOutBeforeBreak;
+
   /// No description provided for @reportItems.
   ///
   /// In en, this message translates to:
@@ -8061,6 +8109,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Staff clock in and out from their name at the top. Timesheets are in Staff.'**
   String get settingsClockInToSellHelp;
+
+  /// No description provided for @settingsAttendanceMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance mode'**
+  String get settingsAttendanceMode;
+
+  /// No description provided for @settingsAttendanceModeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'How strictly the shop tracks starting the day, clocking in and who is still in at close. Pick a mode, then adjust any setting on its own.'**
+  String get settingsAttendanceModeHelp;
+
+  /// No description provided for @attendanceModeSolo.
+  ///
+  /// In en, this message translates to:
+  /// **'Solo or family'**
+  String get attendanceModeSolo;
+
+  /// No description provided for @attendanceModeSoloHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing required. People still in at close are paid up to their last sale.'**
+  String get attendanceModeSoloHelp;
+
+  /// No description provided for @attendanceModeStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get attendanceModeStandard;
+
+  /// No description provided for @attendanceModeStandardHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the day and clock in to sell. People still in at close are flagged and not paid until an owner decides.'**
+  String get attendanceModeStandardHelp;
+
+  /// No description provided for @attendanceModeStrict.
+  ///
+  /// In en, this message translates to:
+  /// **'Strict'**
+  String get attendanceModeStrict;
+
+  /// No description provided for @attendanceModeStrictHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'As standard, but close day waits until everyone has clocked out or been corrected with a reason.'**
+  String get attendanceModeStrictHelp;
+
+  /// No description provided for @attendanceModeCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get attendanceModeCustom;
+
+  /// No description provided for @settingsCloseWithOthersIn.
+  ///
+  /// In en, this message translates to:
+  /// **'At close, people still clocked in'**
+  String get settingsCloseWithOthersIn;
+
+  /// No description provided for @settingsCloseWithOthersInHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'What close day does when someone has not clocked out. Their own clock-out is never overwritten.'**
+  String get settingsCloseWithOthersInHelp;
+
+  /// No description provided for @closeWithOthersReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Flag for review'**
+  String get closeWithOthersReview;
+
+  /// No description provided for @closeWithOthersReviewHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Left open. Their hours are not paid until an owner decides.'**
+  String get closeWithOthersReviewHelp;
+
+  /// No description provided for @closeWithOthersBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait for them'**
+  String get closeWithOthersBlock;
+
+  /// No description provided for @closeWithOthersBlockHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Close day is blocked until each person clocks out or is corrected with a reason.'**
+  String get closeWithOthersBlockHelp;
+
+  /// No description provided for @closeWithOthersAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave open, no review'**
+  String get closeWithOthersAllow;
+
+  /// No description provided for @closeWithOthersAllowHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid up to their last sale. For shops that do not track hours closely.'**
+  String get closeWithOthersAllowHelp;
+
+  /// No description provided for @closeWithOthersAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock out at closing time'**
+  String get closeWithOthersAuto;
+
+  /// No description provided for @closeWithOthersAutoHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded as automatic, never as their own clock-out.'**
+  String get closeWithOthersAutoHelp;
+
+  /// No description provided for @settingsAllowMissedClockOutEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Let staff edit a missed clock-out'**
+  String get settingsAllowMissedClockOutEdit;
+
+  /// No description provided for @settingsAllowMissedClockOutEditHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Off by default: a missed clock-out stays open and is flagged. Turn on to let staff enter when they actually finished; their reason is recorded in the activity log.'**
+  String get settingsAllowMissedClockOutEditHelp;
 
   /// No description provided for @settingsStartDayToSell.
   ///
@@ -12351,6 +12525,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hours corrected'**
   String get auditTimeEntryCorrected;
+
+  /// No description provided for @auditTimeEntryLeftOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock out left open at close'**
+  String get auditTimeEntryLeftOpen;
+
+  /// No description provided for @auditTimeEntryReviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unconfirmed hours decided'**
+  String get auditTimeEntryReviewed;
 
   /// No description provided for @resetRequestDropped.
   ///

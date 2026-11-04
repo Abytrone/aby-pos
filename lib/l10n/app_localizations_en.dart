@@ -2612,6 +2612,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dayStart => 'Start the day';
 
   @override
+  String get dayClockInTitle => 'Clock in too?';
+
+  @override
+  String get dayClockInBody =>
+      'The drawer shift is open for this till. Would you like to clock in for your own work hours?';
+
+  @override
   String get dayStartHelp =>
       'Count the float: the cash in the drawer before the first sale.';
 
@@ -4113,6 +4120,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'The shop asks staff to clock in before selling. Clock in now?';
 
   @override
+  String get missedClockOutTitle => 'Missed clock out';
+
+  @override
+  String missedClockOutBody(String since) {
+    return 'You clocked in on $since. Clock out now, or enter when you actually finished. Cancel to leave the shift open.';
+  }
+
+  @override
+  String get missedClockOutCorrect => 'Enter the time I finished';
+
+  @override
+  String get missedClockOutEditUnavailable =>
+      'This clock-out can no longer be edited. Ask a manager to correct the timesheet.';
+
+  @override
   String get timeTab => 'Timesheets';
 
   @override
@@ -4123,6 +4145,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get timeStillIn => 'still in';
+
+  @override
+  String get timeMissedClockOut => 'Missed clock out';
+
+  @override
+  String get timeClockOutBeforeBreak =>
+      'The clock-out time cannot be before the break started.';
 
   @override
   String get reportItems => 'Items sold';
@@ -4136,6 +4165,80 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsClockInToSellHelp =>
       'Staff clock in and out from their name at the top. Timesheets are in Staff.';
+
+  @override
+  String get settingsAttendanceMode => 'Attendance mode';
+
+  @override
+  String get settingsAttendanceModeHelp =>
+      'How strictly the shop tracks starting the day, clocking in and who is still in at close. Pick a mode, then adjust any setting on its own.';
+
+  @override
+  String get attendanceModeSolo => 'Solo or family';
+
+  @override
+  String get attendanceModeSoloHelp =>
+      'Nothing required. People still in at close are paid up to their last sale.';
+
+  @override
+  String get attendanceModeStandard => 'Standard';
+
+  @override
+  String get attendanceModeStandardHelp =>
+      'Start the day and clock in to sell. People still in at close are flagged and not paid until an owner decides.';
+
+  @override
+  String get attendanceModeStrict => 'Strict';
+
+  @override
+  String get attendanceModeStrictHelp =>
+      'As standard, but close day waits until everyone has clocked out or been corrected with a reason.';
+
+  @override
+  String get attendanceModeCustom => 'Custom';
+
+  @override
+  String get settingsCloseWithOthersIn => 'At close, people still clocked in';
+
+  @override
+  String get settingsCloseWithOthersInHelp =>
+      'What close day does when someone has not clocked out. Their own clock-out is never overwritten.';
+
+  @override
+  String get closeWithOthersReview => 'Flag for review';
+
+  @override
+  String get closeWithOthersReviewHelp =>
+      'Left open. Their hours are not paid until an owner decides.';
+
+  @override
+  String get closeWithOthersBlock => 'Wait for them';
+
+  @override
+  String get closeWithOthersBlockHelp =>
+      'Close day is blocked until each person clocks out or is corrected with a reason.';
+
+  @override
+  String get closeWithOthersAllow => 'Leave open, no review';
+
+  @override
+  String get closeWithOthersAllowHelp =>
+      'Paid up to their last sale. For shops that do not track hours closely.';
+
+  @override
+  String get closeWithOthersAuto => 'Clock out at closing time';
+
+  @override
+  String get closeWithOthersAutoHelp =>
+      'Recorded as automatic, never as their own clock-out.';
+
+  @override
+  String get settingsAllowMissedClockOutEdit =>
+      'Let staff edit a missed clock-out';
+
+  @override
+  String get settingsAllowMissedClockOutEditHelp =>
+      'Off by default: a missed clock-out stays open and is flagged. Turn on to let staff enter when they actually finished; their reason is recorded in the activity log.';
 
   @override
   String get settingsStartDayToSell => 'Start the day before selling';
@@ -7306,6 +7409,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auditTimeEntryCorrected => 'Hours corrected';
+
+  @override
+  String get auditTimeEntryLeftOpen => 'Clock out left open at close';
+
+  @override
+  String get auditTimeEntryReviewed => 'Unconfirmed hours decided';
 
   @override
   String get resetRequestDropped =>

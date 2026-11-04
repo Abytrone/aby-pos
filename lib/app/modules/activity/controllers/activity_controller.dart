@@ -64,6 +64,8 @@ enum ActivityFilter {
             AuditAction.staffRecoveryCodeMade,
             AuditAction.staffDetailsChanged,
             AuditAction.timeEntryCorrected,
+            AuditAction.timeEntryLeftOpen,
+            AuditAction.timeEntryReviewed,
             AuditAction.staffRoleChanged,
             AuditAction.staffDeactivated,
             AuditAction.staffReactivated,
