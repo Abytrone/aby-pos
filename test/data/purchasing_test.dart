@@ -5,6 +5,7 @@ import 'package:aby_pos/app/data/repositories/catalog_repository.dart';
 import 'package:aby_pos/app/data/repositories/receiving_repository.dart';
 import 'package:aby_pos/app/data/repositories/stock_count_repository.dart';
 import 'package:aby_pos/app/data/repositories/stock_repository.dart';
+import 'package:aby_pos/app/data/repositories/sale_repository.dart';
 import 'package:aby_pos/app/data/repositories/supplier_repository.dart';
 import 'package:aby_pos/app/domain/audit_details.dart';
 import 'package:aby_pos/app/domain/business_templates.dart';
@@ -34,16 +35,74 @@ void main() {
   });
   tearDown(() => db.close());
 
-  Future<StockItem> stockItem(String name) async => (await r.stock.items()).firstWhere((i) => i.name == name);
+  Future<StockItem> stockItem(String name) async =>
+      (await r.stock.items()).firstWhere((i) => i.name == name);
   Future<Product> product(String name) async =>
-      (await r.catalog.load(includeInactive: true)).products.firstWhere((p) => p.name == name);
+      (await r.catalog.load(includeInactive: true)).products
+          .firstWhere((p) => p.name == name);
+
+  test('stock item names are unique regardless of case', () async {
+    await expectLater(
+      r.stock.saveItem(
+        const StockItemDraft(
+          name: 'wafer CONES',
+          unit: StockUnit.piece,
+          costMilli: 0,
+        ),
+        by: owner,
+      ),
+      throwsA(isA<StockException>()),
+    );
+    final existing = await stockItem('Wafer cones');
+    await r.stock.saveItem(
+      StockItemDraft(
+        id: existing.id,
+        name: existing.name,
+        unit: existing.unit,
+        costMilli: existing.costMilli,
+      ),
+      by: owner,
+    );
+  });
 
   group('Inventory', () {
     test('weighted average cost, and a fresh start when stock had run out', () {
-      expect(Inventory.averageCost(onHand: 200, oldCostMilli: 80000, qty: 100, newCostMilli: 100000), 86667);
-      expect(Inventory.averageCost(onHand: 0, oldCostMilli: 80000, qty: 10, newCostMilli: 90000), 90000);
-      expect(Inventory.averageCost(onHand: -5, oldCostMilli: 80000, qty: 10, newCostMilli: 90000), 90000);
-      expect(Inventory.averageCost(onHand: 10, oldCostMilli: 80000, qty: 0, newCostMilli: 90000), 80000);
+      expect(
+        Inventory.averageCost(
+          onHand: 200,
+          oldCostMilli: 80000,
+          qty: 100,
+          newCostMilli: 100000,
+        ),
+        86667,
+      );
+      expect(
+        Inventory.averageCost(
+          onHand: 0,
+          oldCostMilli: 80000,
+          qty: 10,
+          newCostMilli: 90000,
+        ),
+        90000,
+      );
+      expect(
+        Inventory.averageCost(
+          onHand: -5,
+          oldCostMilli: 80000,
+          qty: 10,
+          newCostMilli: 90000,
+        ),
+        90000,
+      );
+      expect(
+        Inventory.averageCost(
+          onHand: 10,
+          oldCostMilli: 80000,
+          qty: 0,
+          newCostMilli: 90000,
+        ),
+        80000,
+      );
     });
 
     test('suggested low level and days left come from recent use', () {
@@ -90,7 +149,13 @@ void main() {
         ReceiptDraft(
           supplierId: supplierId,
           invoiceRef: 'INV-77',
-          lines: [ReceiptLineDraft(stockItemId: cones.id, quantity: 100, lineTotal: 10000)],
+          lines: [
+            ReceiptLineDraft(
+              stockItemId: cones.id,
+              quantity: 100,
+              lineTotal: 10000,
+            ),
+          ],
           paidNow: 4000,
           paidWith: SupplierPaymentMethod.momo,
         ),
@@ -111,26 +176,57 @@ void main() {
 
       // Updating the cones from the delivery record: its price (GH₵ 1.00
       // each, not the 0.87 average), its supplier and its quantity.
-      final plan = DeliveryUpdates.plan(detail, {for (final i in await r.stock.items()) i.id: i});
-      expect(plan.single.changes, {DeliveryChange.cost, DeliveryChange.supplier, DeliveryChange.orderQty});
+      final plan = DeliveryUpdates.plan(detail, {
+        for (final i in await r.stock.items()) i.id: i,
+      });
+      expect(plan.single.changes, {
+        DeliveryChange.cost,
+        DeliveryChange.supplier,
+        DeliveryChange.orderQty,
+      });
       expect(await DeliveryUpdates.updatedAt(r.audit, receipt), isNull);
       expect(
-        await DeliveryUpdates.apply(r.stock, r.audit, receipt, [(plan.single, {DeliveryChange.cost, DeliveryChange.supplier})], by: owner),
+        await DeliveryUpdates.apply(r.stock, r.audit, receipt, [
+          (plan.single, {DeliveryChange.cost, DeliveryChange.supplier}),
+        ], by: owner),
         1,
       );
-      expect(await DeliveryUpdates.updatedAt(r.audit, receipt), isNotNull, reason: 'the delivery is marked as used');
+      expect(
+        await DeliveryUpdates.updatedAt(r.audit, receipt),
+        isNotNull,
+        reason: 'the delivery is marked as used',
+      );
       final updated = await stockItem('Wafer cones');
       expect(updated.costMilli, 100000);
       expect(updated.supplierId, supplierId);
       expect(updated.reorderQty, isNot(100), reason: 'left unticked');
-      expect(updated.onHand, 300, reason: 'the stock count is the delivery itself, not changed again');
-      final again = DeliveryUpdates.plan(detail, {for (final i in await r.stock.items()) i.id: i});
+      expect(
+        updated.onHand,
+        300,
+        reason: 'the stock count is the delivery itself, not changed again',
+      );
+      final again = DeliveryUpdates.plan(detail, {
+        for (final i in await r.stock.items()) i.id: i,
+      });
       expect(again.single.changes, {DeliveryChange.orderQty});
-      await DeliveryUpdates.apply(r.stock, r.audit, receipt, [(again.single, {DeliveryChange.orderQty})], by: owner);
-      expect(DeliveryUpdates.plan(detail, {for (final i in await r.stock.items()) i.id: i}), isEmpty);
+      await DeliveryUpdates.apply(r.stock, r.audit, receipt, [
+        (again.single, {DeliveryChange.orderQty}),
+      ], by: owner);
+      expect(
+        DeliveryUpdates.plan(detail, {
+          for (final i in await r.stock.items()) i.id: i,
+        }),
+        isEmpty,
+      );
       // Back to the average for the checks below.
       await r.stock.saveItem(
-        StockItemDraft(id: updated.id, name: updated.name, unit: updated.unit, costMilli: 86667, reorderPoint: updated.reorderPoint),
+        StockItemDraft(
+          id: updated.id,
+          name: updated.name,
+          unit: updated.unit,
+          costMilli: 86667,
+          reorderPoint: updated.reorderPoint,
+        ),
         by: owner,
       );
 
@@ -145,7 +241,12 @@ void main() {
       final ledger = await suppliers.ledger(supplierId);
       expect(ledger.map((e) => e.amount), unorderedEquals([10000, -4000]));
 
-      await suppliers.recordPayment(supplierId, amount: 6000, method: SupplierPaymentMethod.cash, by: owner);
+      await suppliers.recordPayment(
+        supplierId,
+        amount: 6000,
+        method: SupplierPaymentMethod.cash,
+        by: owner,
+      );
       expect((await suppliers.find(supplierId))!.balance, 0);
       expect(await suppliers.ledger(supplierId), hasLength(3));
 
@@ -159,7 +260,13 @@ void main() {
     test('delivery numbers count up', () async {
       final milk = await stockItem('Milk');
       ReceiptDraft paid(int total) => ReceiptDraft(
-        lines: [ReceiptLineDraft(stockItemId: milk.id, quantity: 1000, lineTotal: total)],
+        lines: [
+          ReceiptLineDraft(
+            stockItemId: milk.id,
+            quantity: 1000,
+            lineTotal: total,
+          ),
+        ],
         paidNow: total,
       );
       await receiving.receive(paid(2500), by: owner);
@@ -168,18 +275,42 @@ void main() {
     });
 
     test('rejects bad deliveries without saving anything', () async {
-      final supplierId = await suppliers.save(const SupplierDraft(name: 'Dairy Co'), by: owner);
+      final supplierId = await suppliers.save(
+        const SupplierDraft(name: 'Dairy Co'),
+        by: owner,
+      );
       final milk = await stockItem('Milk');
-      final line = ReceiptLineDraft(stockItemId: milk.id, quantity: 1000, lineTotal: 2500);
+      final line = ReceiptLineDraft(
+        stockItemId: milk.id,
+        quantity: 1000,
+        lineTotal: 2500,
+      );
       final bad = [
         const ReceiptDraft(lines: []),
-        ReceiptDraft(lines: [line], paidNow: 1000), // no supplier, not paid in full
-        ReceiptDraft(supplierId: supplierId, lines: [line], paidNow: 3000), // paid more than the total
-        ReceiptDraft(supplierId: supplierId, lines: [line, line]), // same item twice
-        ReceiptDraft(lines: [ReceiptLineDraft(stockItemId: milk.id, quantity: 0, lineTotal: 0)]),
+        ReceiptDraft(
+          lines: [line],
+          paidNow: 1000,
+        ), // no supplier, not paid in full
+        ReceiptDraft(
+          supplierId: supplierId,
+          lines: [line],
+          paidNow: 3000,
+        ), // paid more than the total
+        ReceiptDraft(
+          supplierId: supplierId,
+          lines: [line, line],
+        ), // same item twice
+        ReceiptDraft(
+          lines: [
+            ReceiptLineDraft(stockItemId: milk.id, quantity: 0, lineTotal: 0),
+          ],
+        ),
       ];
       for (final d in bad) {
-        await expectLater(receiving.receive(d, by: owner), throwsA(isA<StockException>()));
+        await expectLater(
+          receiving.receive(d, by: owner),
+          throwsA(isA<StockException>()),
+        );
       }
       expect(await receiving.list(), isEmpty);
       expect((await stockItem('Milk')).onHand, 10000);
@@ -187,63 +318,107 @@ void main() {
     });
 
     test('a payment must be more than nothing', () async {
-      final supplierId = await suppliers.save(const SupplierDraft(name: 'Dairy Co'), by: owner);
+      final supplierId = await suppliers.save(
+        const SupplierDraft(name: 'Dairy Co'),
+        by: owner,
+      );
       await expectLater(
-        suppliers.recordPayment(supplierId, amount: 0, method: SupplierPaymentMethod.cash, by: owner),
+        suppliers.recordPayment(
+          supplierId,
+          amount: 0,
+          method: SupplierPaymentMethod.cash,
+          by: owner,
+        ),
         throwsA(isA<StockException>()),
       );
     });
   });
 
   group('Stock counts', () {
-    test('posting sets stock to what was found and values the difference', () async {
-      final cones = await stockItem('Wafer cones');
-      final sprinkles = await stockItem('Sprinkles');
-      final id = await counts.start(blind: true, by: owner);
-      await expectLater(counts.start(blind: false, by: owner), throwsA(isA<StockException>()));
+    test(
+      'posting sets stock to what was found and values the difference',
+      () async {
+        final cones = await stockItem('Wafer cones');
+        final sprinkles = await stockItem('Sprinkles');
+        final id = await counts.start(blind: true, by: owner);
+        await expectLater(
+          counts.start(blind: false, by: owner),
+          throwsA(isA<StockException>()),
+        );
 
-      await counts.setCount(id, cones.id, 195, by: cashier);
-      await counts.setCount(id, cones.id, 190, by: cashier); // corrected
-      await counts.setCount(id, sprinkles.id, 2000, by: cashier);
-      final lines = await counts.lines(id);
-      expect(lines.firstWhere((l) => l.stockItemId == cones.id).difference, -10);
-      expect(lines.where((l) => l.counted != null), hasLength(2));
-      expect((await counts.open())!.lineCount, 2);
+        await counts.setCount(id, cones.id, 195, by: cashier);
+        await counts.setCount(id, cones.id, 190, by: cashier); // corrected
+        await counts.setCount(id, sprinkles.id, 2000, by: cashier);
+        final lines = await counts.lines(id);
+        expect(
+          lines.firstWhere((l) => l.stockItemId == cones.id).difference,
+          -10,
+        );
+        expect(lines.where((l) => l.counted != null), hasLength(2));
+        expect((await counts.open())!.lineCount, 2);
 
-      final value = await counts.post(id, by: owner);
-      expect(value, costOf(-10, cones.costMilli));
-      expect(value, -800);
-      expect((await stockItem('Wafer cones')).onHand, 190);
-      expect((await stockItem('Sprinkles')).onHand, 2000);
-      expect((await r.stock.movements(cones.id)).first.reason, StockReason.count);
-      expect((await r.stock.movements(sprinkles.id)), hasLength(1), reason: 'no movement when the count matched');
+        final value = await counts.post(id, by: owner);
+        expect(value, costOf(-10, cones.costMilli));
+        expect(value, -800);
+        expect((await stockItem('Wafer cones')).onHand, 190);
+        expect((await stockItem('Sprinkles')).onHand, 2000);
+        expect(
+          (await r.stock.movements(cones.id)).first.reason,
+          StockReason.count,
+        );
+        expect(
+          (await r.stock.movements(sprinkles.id)),
+          hasLength(1),
+          reason: 'no movement when the count matched',
+        );
 
-      expect(await counts.open(), isNull);
-      expect((await counts.find(id))!.status, StockCountStatus.posted);
-      await expectLater(counts.post(id, by: owner), throwsA(isA<StockException>()));
-      await expectLater(counts.setCount(id, cones.id, 1, by: owner), throwsA(isA<StockException>()));
-    });
+        expect(await counts.open(), isNull);
+        expect((await counts.find(id))!.status, StockCountStatus.posted);
+        await expectLater(
+          counts.post(id, by: owner),
+          throwsA(isA<StockException>()),
+        );
+        await expectLater(
+          counts.setCount(id, cones.id, 1, by: owner),
+          throwsA(isA<StockException>()),
+        );
+      },
+    );
 
     test('sales during a count stay on top of the correction', () async {
       final tubs = await stockItem('Ice cream tubs, 500 ml');
       final id = await counts.start(blind: false, by: owner);
       await counts.setCount(id, tubs.id, 20, by: owner); // till expected 24
-      await r.stock.adjust(tubs.id, -2, note: 'sold', by: owner); // after counting
+      await r.stock.adjust(
+        tubs.id,
+        -2,
+        note: 'sold',
+        by: owner,
+      ); // after counting
       await counts.post(id, by: owner);
       expect((await stockItem('Ice cream tubs, 500 ml')).onHand, 18);
     });
 
-    test('nothing counted cannot be posted; a cancelled count changes nothing', () async {
-      final id = await counts.start(blind: false, by: owner);
-      await expectLater(counts.post(id, by: owner), throwsA(isA<StockException>()));
-      final cones = await stockItem('Wafer cones');
-      await counts.setCount(id, cones.id, 5, by: owner);
-      await counts.cancel(id, by: owner);
-      expect(await counts.open(), isNull);
-      expect((await counts.find(id))!.status, StockCountStatus.cancelled);
-      expect((await stockItem('Wafer cones')).onHand, 200);
-      expect(await r.audit.list(actions: {AuditAction.stockCountCancelled}), hasLength(1));
-    });
+    test(
+      'nothing counted cannot be posted; a cancelled count changes nothing',
+      () async {
+        final id = await counts.start(blind: false, by: owner);
+        await expectLater(
+          counts.post(id, by: owner),
+          throwsA(isA<StockException>()),
+        );
+        final cones = await stockItem('Wafer cones');
+        await counts.setCount(id, cones.id, 5, by: owner);
+        await counts.cancel(id, by: owner);
+        expect(await counts.open(), isNull);
+        expect((await counts.find(id))!.status, StockCountStatus.cancelled);
+        expect((await stockItem('Wafer cones')).onHand, 200);
+        expect(
+          await r.audit.list(actions: {AuditAction.stockCountCancelled}),
+          hasLength(1),
+        );
+      },
+    );
   });
 
   group('Pricing', () {
@@ -258,22 +433,48 @@ void main() {
       expect(await r.catalog.applyDuePrices(), 0);
       expect((await product('Waffle')).variants.single.price, 1200);
 
-      expect(await r.catalog.applyDuePrices(now: day.add(const Duration(hours: 1))), 1);
+      expect(
+        await r.catalog.applyDuePrices(now: day.add(const Duration(hours: 1))),
+        1,
+      );
       expect((await product('Waffle')).variants.single.price, 1400);
       expect(await r.catalog.scheduledPrices(), isEmpty);
-      expect(await r.audit.list(actions: {AuditAction.priceChanged}), hasLength(1));
+      expect(
+        await r.audit.list(actions: {AuditAction.priceChanged}),
+        hasLength(1),
+      );
     });
 
     test('a cancelled schedule never applies; today is not allowed', () async {
       final waffle = await product('Waffle');
       final variantId = waffle.variants.single.id;
-      final id = await r.catalog.schedulePrice(variantId, 1400, DateTime.now().add(const Duration(days: 2)), by: owner);
+      final id = await r.catalog.schedulePrice(
+        variantId,
+        1400,
+        DateTime.now().add(const Duration(days: 2)),
+        by: owner,
+      );
       await r.catalog.cancelScheduledPrice(id, by: owner);
       expect(await r.catalog.scheduledPrices(), isEmpty);
-      expect(await r.catalog.applyDuePrices(now: DateTime.now().add(const Duration(days: 5))), 0);
-      expect((await r.audit.list(actions: {AuditAction.priceScheduleCancelled})).single.summary, startsWith('Waffle: GH₵ 14.00'));
+      expect(
+        await r.catalog.applyDuePrices(
+          now: DateTime.now().add(const Duration(days: 5)),
+        ),
+        0,
+      );
+      expect(
+        (await r.audit.list(actions: {AuditAction.priceScheduleCancelled}))
+            .single
+            .summary,
+        startsWith('Waffle: GH₵ 14.00'),
+      );
       await expectLater(
-        r.catalog.schedulePrice(variantId, 1400, DateTime.now().subtract(const Duration(minutes: 1)), by: owner),
+        r.catalog.schedulePrice(
+          variantId,
+          1400,
+          DateTime.now().subtract(const Duration(minutes: 1)),
+          by: owner,
+        ),
         throwsA(isA<CatalogueException>()),
       );
     });
@@ -290,9 +491,14 @@ void main() {
         description: '+GH₵ 1.00',
         by: owner,
       );
-      expect((await product('Vanilla cone')).variants.map((v) => v.price), [1600, 2200]);
+      expect((await product('Vanilla cone')).variants.map((v) => v.price), [
+        1600,
+        2200,
+      ]);
       expect((await product('Waffle')).variants.single.price, 1300);
-      final entries = await r.audit.list(actions: {AuditAction.pricesBulkChanged});
+      final entries = await r.audit.list(
+        actions: {AuditAction.pricesBulkChanged},
+      );
       expect(entries.single.summary, contains('2 prices'));
       // Names are kept with the prices, so the entry reads after a rename.
       final details = describeAuditDetails(entries.single) as PriceChanges;
@@ -305,10 +511,19 @@ void main() {
 
   group('CatalogueIo', () {
     late CatalogueIo io;
-    setUp(() => io = CatalogueIo(r.catalog, CatalogueRules(r.catalog), r.audit));
+    setUp(
+      () => io = CatalogueIo(
+        r.catalog,
+        CatalogueRules(r.catalog),
+        r.stock,
+        r.audit,
+      ),
+    );
 
     test('export has one row per variant and reads back unchanged', () async {
-      final csv = io.exportProducts(await r.catalog.load(includeInactive: true));
+      final csv = await io.exportProducts(
+        await r.catalog.load(includeInactive: true),
+      );
       final rows = Csv.decode(csv);
       expect(rows.first, CatalogueIo.productColumns);
       expect(rows.where((x) => x[1] == 'Ice cream cup'), hasLength(3));
@@ -321,7 +536,11 @@ void main() {
     test('every kind of shop gets a sample that imports as it is', () async {
       for (final type in BusinessType.values) {
         final csv = io.sampleProducts(type);
-        expect(Csv.decode(csv).first, CatalogueIo.productColumns, reason: type.name);
+        expect(
+          Csv.decode(csv).first,
+          CatalogueIo.productColumns,
+          reason: type.name,
+        );
         final preview = await io.previewProducts(csv);
         expect(preview.problems, isEmpty, reason: type.name);
         expect(preview.canApply, isTrue, reason: type.name);
@@ -329,16 +548,29 @@ void main() {
     });
 
     test('the provision shop sample makes products with sizes, barcodes and pictured categories', () async {
-      final preview = await io.previewProducts(io.sampleProducts(BusinessType.provision));
+      final preview = await io.previewProducts(
+        io.sampleProducts(BusinessType.provision),
+      );
       await io.applyProducts(preview, by: owner);
       final rice = await product('Rice');
-      expect(rice.variants.map((v) => (v.name, v.price)), [('1 kg', 2500), ('5 kg', 11500)]);
-      expect((await product('Bottled water')).variants.single.barcodes, hasLength(2));
+      expect(rice.variants.map((v) => (v.name, v.price)), [
+        ('1 kg', 2500),
+        ('5 kg', 11500),
+      ]);
+      expect(
+        (await product('Bottled water')).variants.single.barcodes,
+        hasLength(2),
+      );
       expect((await product('Biscuits')).active, isFalse);
       final catalogue = await r.catalog.load(includeInactive: true);
-      final toiletries = catalogue.categories.firstWhere((c) => c.name == 'Toiletries');
+      final toiletries = catalogue.categories.firstWhere(
+        (c) => c.name == 'Toiletries',
+      );
       expect(toiletries.picture, 'shopping-bag');
-      expect(catalogue.categories.firstWhere((c) => c.name == 'Drinks').picture, 'cup-soda');
+      expect(
+        catalogue.categories.firstWhere((c) => c.name == 'Drinks').picture,
+        'cup-soda',
+      );
     });
 
     test('a price list with its own headings imports too', () async {
@@ -352,37 +584,227 @@ void main() {
       expect(sobolo.variants.single.price, 500);
       expect(sobolo.variants.single.manualCost, 200);
       expect(sobolo.variants.single.barcodes, ['6001234567890']);
+      expect(
+        sobolo.variants.single.recipe,
+        isEmpty,
+        reason: 'older price lists do not opt into stock tracking',
+      );
     });
 
-    test('import adds and updates, keeps recipes, and creates new categories', () async {
-      const csv =
-          'category,product,variant,price,cost\n'
-          'Snacks,Waffle,,13.00,\n'
-          'Drinks,Sobolo,,5.00,2.00\n'
-          'Pastries,Meat pie,,8.00,\n'
-          'Cones,Vanilla cone,Single scoop,15.00,\n';
+    test(
+      'product counts create direct stock that is deducted and blocked at zero',
+      () async {
+        final preview = await io.previewProducts(
+          'category,product,variant,price,cost,barcodes,tile_line,on_till,on_hand,low_below\n'
+          'Drinks,Imported soda,,3.00,1.00,,,yes,2,3\n',
+        );
+        expect(preview.problems, isEmpty);
+        expect(preview.newStockItems, 1);
+        expect(preview.recountedStockItems, 1);
+        await io.applyProducts(preview, by: owner);
+
+        var soda = await product('Imported soda');
+        expect(soda.variants.single.stockLink?.stockItemName, 'Imported soda');
+        expect(soda.variants.single.stockLink?.quantity, 1);
+        var stock = (await r.stock.items()).singleWhere(
+          (item) => item.name == 'Imported soda',
+        );
+        expect((stock.onHand, stock.reorderPoint, stock.isLow), (2, 3, true));
+        await expectLater(
+          r.sales.completeSale(
+            lines: [CartLine(product: soda, quantity: 3)],
+            payment: const PaymentInput.cash(tendered: 1000),
+            cashier: cashier,
+          ),
+          throwsA(isA<SaleException>()),
+        );
+        expect(await db.select(db.sales).get(), isEmpty);
+        expect(await r.stock.onHand(stock.id), 2);
+
+        await r.sales.completeSale(
+          lines: [CartLine(product: soda)],
+          payment: const PaymentInput.cash(tendered: 500),
+          cashier: cashier,
+        );
+        stock = (await r.stock.items()).singleWhere(
+          (item) => item.id == stock.id,
+        );
+        expect(stock.onHand, 1);
+        soda = await product('Imported soda');
+        await r.sales.completeSale(
+          lines: [CartLine(product: soda)],
+          payment: const PaymentInput.cash(tendered: 500),
+          cashier: cashier,
+        );
+        expect(
+          (await r.stock.items())
+              .singleWhere((item) => item.id == stock.id)
+              .onHand,
+          0,
+        );
+
+        soda = await product('Imported soda');
+        await expectLater(
+          r.sales.completeSale(
+            lines: [CartLine(product: soda)],
+            payment: const PaymentInput.cash(tendered: 500),
+            cashier: cashier,
+          ),
+          throwsA(isA<SaleException>()),
+        );
+        expect(await db.select(db.sales).get(), hasLength(2));
+        expect(await r.stock.onHand(stock.id), 0);
+
+        final exported = Csv.decode(
+          await io.exportProducts(await r.catalog.load(includeInactive: true)),
+        );
+        final row = exported.singleWhere((line) => line[1] == 'Imported soda');
+        expect(row[4], '1.00');
+        expect(row.sublist(8), ['0', '3', 'Imported soda', '1', 'each']);
+        final again = await io.previewProducts(Csv.encode(exported));
+        expect(again.problems, isEmpty);
+        expect(again.drafts, isEmpty);
+        expect(again.stockItems, isEmpty);
+      },
+    );
+
+    test('product CSV links arbitrary stock items and updates linked cost-only edits', () async {
+      final csv = Csv.encode([
+        CatalogueIo.productColumns,
+        [
+          'Drinks',
+          'Imported multipack',
+          '',
+          '10.00',
+          '4.80',
+          '',
+          '',
+          'yes',
+          '',
+          '',
+          'Wafer cones',
+          '6',
+          'each',
+        ],
+      ]);
       final preview = await io.previewProducts(csv);
       expect(preview.problems, isEmpty);
-      expect(preview.newProducts, 2);
-      expect(preview.updatedProducts, 1);
-      expect(preview.unchanged, 1);
-      expect(preview.newCategories, ['Pastries']);
-
       await io.applyProducts(preview, by: owner);
-      final waffle = await product('Waffle');
-      expect(waffle.variants.single.price, 1300);
-      expect(waffle.variants.single.recipe, isNotEmpty);
-      expect(waffle.groups, isNotEmpty);
-      expect((await product('Sobolo')).variants.single.manualCost, 200);
-      final catalogue = await r.catalog.load(includeInactive: true);
-      final pie = catalogue.products.firstWhere((p) => p.name == 'Meat pie');
-      expect(catalogue.category(pie.categoryId)!.name, 'Pastries');
-      expect((await product('Vanilla cone')).variants, hasLength(2));
-      expect(await r.audit.list(actions: {AuditAction.catalogueImported}), hasLength(1));
+
+      var multipack = await product('Imported multipack');
+      expect(multipack.variants.single.stockLink?.stockItemName, 'Wafer cones');
+      expect(multipack.variants.single.stockLink?.quantity, 6);
+      expect(multipack.variants.single.cost, 480);
+
+      final costOnly = await io.previewProducts(
+        'product,price,cost\nImported multipack,10.00,6.00\n',
+      );
+      expect(costOnly.problems, isEmpty);
+      expect(costOnly.updatedProducts, 1);
+      await io.applyProducts(costOnly, by: owner);
+      multipack = await product('Imported multipack');
+      expect(multipack.variants.single.cost, 600);
+      expect((await stockItem('Wafer cones')).costMilli, 100000);
+
+      final exported = Csv.decode(
+        await io.exportProducts(await r.catalog.load(includeInactive: true)),
+      );
+      final row = exported.singleWhere(
+        (line) => line[1] == 'Imported multipack',
+      );
+      expect(row.sublist(10), ['Wafer cones', '6', 'each']);
+      final unchanged = await io.previewProducts(Csv.encode(exported));
+      expect(unchanged.problems, isEmpty);
+      expect(unchanged.drafts, isEmpty);
+      expect(unchanged.stockItems, isEmpty);
     });
 
+    test('a separately created stock item is not linked by name alone', () async {
+      final preview = await io.previewProducts(
+        'category,product,price,cost\nDrinks,Imported stock match,3.00,1.00\n',
+      );
+      await io.applyProducts(preview, by: owner);
+      final soda = await product('Imported stock match');
+      expect(soda.variants.single.recipe, isEmpty);
+      final stockId = await r.stock.saveItem(
+        const StockItemDraft(
+          name: 'Imported stock match',
+          unit: StockUnit.piece,
+          costMilli: 1000,
+        ),
+        by: owner,
+      );
+      await r.stock.adjust(stockId, 2, note: 'Opening count', by: owner);
+
+      await r.sales.completeSale(
+        lines: [CartLine(product: soda)],
+        payment: const PaymentInput.cash(tendered: 500),
+        cashier: cashier,
+      );
+      expect(await r.stock.onHand(stockId), 2);
+
+      final variant = soda.variants.single;
+      await r.catalog.saveProduct(
+        ProductDraft(
+          id: soda.id,
+          categoryId: soda.categoryId,
+          name: soda.name,
+          variants: [
+            VariantDraft(
+              id: variant.id,
+              price: variant.price,
+              stockItemId: stockId,
+            ),
+          ],
+        ),
+        by: owner,
+      );
+      final linkedSoda = await product('Imported stock match');
+      expect(linkedSoda.variants.single.stockLink?.stockItemId, stockId);
+      await r.sales.completeSale(
+        lines: [CartLine(product: linkedSoda)],
+        payment: const PaymentInput.cash(tendered: 500),
+        cashier: cashier,
+      );
+      expect(await r.stock.onHand(stockId), 1);
+    });
+
+    test(
+      'import adds and updates, keeps recipes, and creates new categories',
+      () async {
+        const csv =
+            'category,product,variant,price,cost\n'
+            'Snacks,Waffle,,13.00,\n'
+            'Drinks,Sobolo,,5.00,2.00\n'
+            'Pastries,Meat pie,,8.00,\n'
+            'Cones,Vanilla cone,Single scoop,15.00,\n';
+        final preview = await io.previewProducts(csv);
+        expect(preview.problems, isEmpty);
+        expect(preview.newProducts, 2);
+        expect(preview.updatedProducts, 1);
+        expect(preview.unchanged, 1);
+        expect(preview.newCategories, ['Pastries']);
+
+        await io.applyProducts(preview, by: owner);
+        final waffle = await product('Waffle');
+        expect(waffle.variants.single.price, 1300);
+        expect(waffle.variants.single.recipe, isNotEmpty);
+        expect(waffle.groups, isNotEmpty);
+        expect((await product('Sobolo')).variants.single.manualCost, 200);
+        final catalogue = await r.catalog.load(includeInactive: true);
+        final pie = catalogue.products.firstWhere((p) => p.name == 'Meat pie');
+        expect(catalogue.category(pie.categoryId)!.name, 'Pastries');
+        expect((await product('Vanilla cone')).variants, hasLength(2));
+        expect(
+          await r.audit.list(actions: {AuditAction.catalogueImported}),
+          hasLength(1),
+        );
+      },
+    );
+
     test('problems are reported by row and block the import', () async {
-      const csv = 'category,product,price\nSnacks,Waffle,abc\nSnacks,,5.00\nDrinks,Sobolo,5.00\nDrinks,Kelewele,\n';
+      const csv =
+          'category,product,price\nSnacks,Waffle,abc\nSnacks,,5.00\nDrinks,Sobolo,5.00\nDrinks,Kelewele,\n';
       final preview = await io.previewProducts(csv);
       expect(preview.problems.map((p) => p.row), containsAll([2, 3, 5]));
       expect(
@@ -391,8 +813,14 @@ void main() {
         reason: 'Sobolo is fine; the file still cannot be imported',
       );
       expect(preview.canApply, isFalse);
-      await expectLater(io.applyProducts(preview, by: owner), throwsA(isA<CatalogueException>()));
-      expect((await r.catalog.load()).products.where((p) => p.name == 'Sobolo'), isEmpty);
+      await expectLater(
+        io.applyProducts(preview, by: owner),
+        throwsA(isA<CatalogueException>()),
+      );
+      expect(
+        (await r.catalog.load()).products.where((p) => p.name == 'Sobolo'),
+        isEmpty,
+      );
     });
 
     test('a file without product and price columns is refused', () async {

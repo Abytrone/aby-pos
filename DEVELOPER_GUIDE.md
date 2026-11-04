@@ -180,7 +180,7 @@ aby_pos/
 │       └── theme/                   the brand kit's Flutter theme (copied as-is)
 ├── test/                            unit, repository, service and widget tests
 │   └── generated_migrations/        drift schema snapshots for migration tests (generated)
-├── drift_schemas/                   drift_schema_v1.json … v21.json (one per schema version)
+├── drift_schemas/                   drift_schema_v1.json … v23.json (one per schema version)
 ├── tool/license.dart                developer-only licence signing CLI
 ├── installer/                       Inno Setup script (aby_pos.iss) and the EULA
 ├── build_windows.ps1                one-step Windows release + installer

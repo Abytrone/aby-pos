@@ -13,9 +13,16 @@ import 'category_dot.dart';
 /// What a tile or row says about one product, worked out once for both
 /// views so they never disagree.
 class _Facts {
-  _Facts(BuildContext context, Product p, int? left)
+  _Facts(BuildContext context, Product p, int? left, bool low)
     : out = left != null && left <= 0,
-      stock = left == null ? null : (left <= 0 ? context.l10n.tileOut : context.l10n.tileLeft(left)),
+      stock = left == null
+          ? null
+          : (left <= 0
+                ? context.l10n.tileOut
+                : low
+                ? context.l10n.tileLowLeft(left)
+                : context.l10n.tileLeft(left)),
+      low = low,
       price = p.openPrice
           ? context.l10n.tileOpenPrice
           : [
@@ -24,10 +31,12 @@ class _Facts {
             ].join();
 
   final bool out;
+  final bool low;
   final String? stock;
   final String price;
 
-  String semantics(Product p, int inCart) => '${p.name}, $price${stock != null ? ', $stock' : ''}${inCart > 0 ? ', $inCart in cart' : ''}';
+  String semantics(Product p, int inCart) =>
+      '${p.name}, $price${stock != null ? ', $stock' : ''}${inCart > 0 ? ', $inCart in cart' : ''}';
 }
 
 /// The line under the name: stock when it is low ("3 left" in warning),
@@ -50,7 +59,14 @@ class _Detail extends StatelessWidget {
         facts.stock!,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: AbyText.caption.copyWith(fontWeight: FontWeight.w700, color: facts.out ? c.danger : c.warning),
+        style: AbyText.caption.copyWith(
+          fontWeight: FontWeight.w700,
+          color: facts.out
+              ? c.danger
+              : facts.low
+              ? c.warning
+              : c.inkMuted,
+        ),
       );
     }
     if (product.sizeLine.isEmpty) return const SizedBox.shrink();
@@ -72,6 +88,7 @@ class ProductTile extends StatelessWidget {
     required this.icon,
     required this.inCart,
     this.left,
+    this.low = false,
     this.photo,
     this.detailLines = 1,
     required this.onTap,
@@ -91,6 +108,7 @@ class ProductTile extends StatelessWidget {
 
   /// How many can still be made, when the till can tell.
   final int? left;
+  final bool low;
   final ImageProvider? photo;
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
@@ -128,7 +146,7 @@ class ProductTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).extension<AbyColors>()!;
-    final f = _Facts(context, product, left);
+    final f = _Facts(context, product, left, low);
     final scaler = MediaQuery.textScalerOf(context);
     return Semantics(
       button: true,
@@ -190,7 +208,11 @@ class ProductTile extends StatelessWidget {
                       FittedBox(
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerLeft,
-                        child: Text(f.price, maxLines: 1, style: AbyText.price.copyWith(color: f.out ? c.inkMuted : c.ink)),
+                        child: Text(
+                          f.price,
+                          maxLines: 1,
+                          style: AbyText.price.copyWith(color: f.out ? c.inkMuted : c.ink),
+                        ),
                       ),
                     ],
                   ),
@@ -215,6 +237,7 @@ class ProductListRow extends StatelessWidget {
     required this.icon,
     required this.inCart,
     this.left,
+    this.low = false,
     this.photo,
     required this.onTap,
     this.onLongPress,
@@ -225,6 +248,7 @@ class ProductListRow extends StatelessWidget {
   final String icon;
   final int inCart;
   final int? left;
+  final bool low;
   final ImageProvider? photo;
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
@@ -232,7 +256,7 @@ class ProductListRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).extension<AbyColors>()!;
-    final f = _Facts(context, product, left);
+    final f = _Facts(context, product, left, low);
     return Semantics(
       button: true,
       label: f.semantics(product, inCart),
@@ -241,10 +265,7 @@ class ProductListRow extends StatelessWidget {
         color: c.surfaceRaised,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AbyRadius.md),
-          side: BorderSide(
-            color: inCart > 0 ? c.primary : c.line,
-            width: 1.5,
-          ),
+          side: BorderSide(color: inCart > 0 ? c.primary : c.line, width: 1.5),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -263,8 +284,8 @@ class ProductListRow extends StatelessWidget {
                   const SizedBox(width: AbySpace.s3),
                   Expanded(
                     flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Row(
@@ -274,8 +295,8 @@ class ProductListRow extends StatelessWidget {
                             Flexible(
                               child: Text(
                                 product.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: _nameStyle.copyWith(color: f.out ? c.inkMuted : c.ink),
                               ),
                             ),
@@ -294,8 +315,11 @@ class ProductListRow extends StatelessWidget {
                       alignment: Alignment.centerRight,
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: Text(f.price, maxLines: 1,
-                          style: AbyText.price.copyWith(color: f.out ? c.inkMuted : c.ink)),
+                        child: Text(
+                          f.price,
+                          maxLines: 1,
+                          style: AbyText.price.copyWith(color: f.out ? c.inkMuted : c.ink),
+                        ),
                       ),
                     ),
                   ),

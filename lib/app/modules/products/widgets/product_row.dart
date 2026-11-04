@@ -45,9 +45,15 @@ class ProductRow extends StatelessWidget {
     final priceText = prices.first == prices.last
         ? formatMoney(prices.first)
         : '${formatMoney(prices.first)} – ${formatMoney(prices.last)}';
-    final margins = [for (final v in product.variants) CatalogueController.marginOf(v.price, v.cost)];
-    final known = margins.whereType<int>().toList();
-    final lowest = known.isEmpty ? null : known.reduce((a, b) => a < b ? a : b);
+    final margins = <(int, int)>[];
+    for (final variant in product.variants) {
+      final cost = variant.cost;
+      final percent = CatalogueController.marginOf(variant.price, cost);
+      if (cost != null && percent != null) margins.add((percent, variant.price - cost));
+    }
+    final lowest = margins.isEmpty
+        ? null
+        : margins.reduce((a, b) => a.$1 < b.$1 || (a.$1 == b.$1 && a.$2 <= b.$2) ? a : b);
     final status = product.archived
         ? l.productsFilterArchived
         : !product.active
@@ -57,11 +63,11 @@ class ProductRow extends StatelessWidget {
     final margin = !showCost
         ? null
         : Text(
-            lowest == null ? l.productsNoCost : l.productsMargin(lowest),
+            lowest == null ? l.productsNoCost : '${l.productsMargin(lowest.$1)} · ${formatMoney(lowest.$2)}',
             style: AbyText.caption.copyWith(
               color: lowest == null
                   ? c.inkMuted
-                  : lowest < targetMargin
+                  : lowest.$1 < targetMargin
                       ? c.danger
                       : c.success,
               fontWeight: FontWeight.w700,

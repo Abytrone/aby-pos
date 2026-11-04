@@ -46,7 +46,11 @@ void main() {
       expect(formatQuantity(-1500, StockUnit.ml), '-1.5 L');
       expect(parseQuantity('2.5', DisplayUnit.kg), 2500);
       expect(parseQuantity('80', DisplayUnit.ml), 80);
-      expect(parseQuantity('1.5', DisplayUnit.g), isNull, reason: 'no fractions of a gram');
+      expect(
+        parseQuantity('1.5', DisplayUnit.g),
+        isNull,
+        reason: 'no fractions of a gram',
+      );
       expect(parseQuantity('abc', DisplayUnit.l), isNull);
     });
 
@@ -77,94 +81,238 @@ void main() {
       catalog = CatalogRepository(db, r.device, r.audit);
       rules = CatalogueRules(catalog);
       categoryId = (await catalog.categories()).first.id;
-      cones = (await r.stock.items()).firstWhere((s) => s.name == 'Wafer cones').id;
+      cones = (await r.stock.items())
+          .firstWhere((s) => s.name == 'Wafer cones')
+          .id;
     });
 
     tearDown(() => db.close());
 
-    test('a new product with sizes, recipes and barcodes is saved and audited', () async {
-      final id = await rules.saveProduct(
+    test(
+      'a new product with sizes, recipes and barcodes is saved and audited',
+      () async {
+        final id = await rules.saveProduct(
+          ProductDraft(
+            categoryId: categoryId,
+            name: 'Kids cone',
+            variants: [
+              VariantDraft(
+                name: 'Small',
+                price: 800,
+                barcodes: ['600123'],
+                recipe: [RecipeDraftLine(stockItemId: cones, quantity: 1)],
+              ),
+              const VariantDraft(name: 'Big', price: 1000, manualCost: 300),
+            ],
+          ),
+          by: owner,
+        );
+        final p = (await catalog.load()).products.firstWhere((x) => x.id == id);
+        expect(p.variants.map((v) => v.name), ['Small', 'Big']);
+        expect(p.variants.first.cost, 80);
+        expect(p.variants.last.cost, 300);
+        expect(p.variants.first.barcodes, ['600123']);
+        expect(await catalog.findBarcode('600123'), (id, p.variants.first.id));
+        expect((await r.audit.list()).first.action, AuditAction.productCreated);
+      },
+    );
+
+    test(
+      'a direct stock link supplies cost and deducts its configured quantity',
+      () async {
+        final before = await r.stock.onHand(cones);
+        final id = await rules.saveProduct(
+          ProductDraft(
+            categoryId: categoryId,
+            name: 'Soda six-pack',
+            variants: [
+              VariantDraft(price: 300, stockItemId: cones, stockQuantity: 6),
+            ],
+          ),
+          by: owner,
+        );
+        final product = (await catalog.load()).products.singleWhere(
+          (p) => p.id == id,
+        );
+        expect(product.variants.single.recipe, isEmpty);
+        expect(product.variants.single.stockLink?.quantity, 6);
+        expect(product.variants.single.cost, 480);
+        expect(await r.stock.usedBy(cones), contains('Soda six-pack'));
+
+        await r.sales.completeSale(
+          lines: [CartLine(product: product)],
+          payment: const PaymentInput.cash(tendered: 500),
+          cashier: cashier,
+        );
+        expect(await r.stock.onHand(cones), before - 6);
+
+        await rules.saveProduct(
+          ProductDraft(
+            id: id,
+            categoryId: product.categoryId,
+            name: product.name,
+            variants: [
+              VariantDraft(
+                id: product.variants.single.id,
+                price: product.variants.single.price,
+                stockItemId: cones,
+                stockQuantity: 5,
+              ),
+            ],
+          ),
+          by: owner,
+        );
+        final linkAudit = (await r.audit.list(
+          actions: {AuditAction.productUpdated},
+        )).single;
+        expect(linkAudit.summary, contains('inventory quantity'));
+      },
+    );
+
+    test('rules: names, duplicate sizes, barcodes already used', () async {
+      Future<void> fails(ProductDraft d) => expectLater(
+        rules.saveProduct(d, by: owner),
+        throwsA(isA<CatalogueException>()),
+      );
+      await fails(
         ProductDraft(
           categoryId: categoryId,
-          name: 'Kids cone',
-          variants: [
-            VariantDraft(name: 'Small', price: 800, barcodes: ['600123'], recipe: [RecipeDraftLine(stockItemId: cones, quantity: 1)]),
-            const VariantDraft(name: 'Big', price: 1000, manualCost: 300),
+          name: ' ',
+          variants: const [VariantDraft(price: 100)],
+        ),
+      );
+      await fails(
+        ProductDraft(
+          categoryId: 'nope',
+          name: 'X',
+          variants: const [VariantDraft(price: 100)],
+        ),
+      );
+      await fails(
+        ProductDraft(categoryId: categoryId, name: 'X', variants: const []),
+      );
+      await fails(
+        ProductDraft(
+          categoryId: categoryId,
+          name: 'X',
+          variants: const [
+            VariantDraft(name: 'Small', price: 100),
+            VariantDraft(name: 'small', price: 200),
+          ],
+        ),
+      );
+      await rules.saveProduct(
+        ProductDraft(
+          categoryId: categoryId,
+          name: 'A',
+          variants: const [
+            VariantDraft(price: 100, barcodes: ['111']),
           ],
         ),
         by: owner,
       );
-      final p = (await catalog.load()).products.firstWhere((x) => x.id == id);
-      expect(p.variants.map((v) => v.name), ['Small', 'Big']);
-      expect(p.variants.first.cost, 80);
-      expect(p.variants.last.cost, 300);
-      expect(p.variants.first.barcodes, ['600123']);
-      expect(await catalog.findBarcode('600123'), (id, p.variants.first.id));
-      expect((await r.audit.list()).first.action, AuditAction.productCreated);
-    });
-
-    test('rules: names, duplicate sizes, barcodes already used', () async {
-      Future<void> fails(ProductDraft d) =>
-          expectLater(rules.saveProduct(d, by: owner), throwsA(isA<CatalogueException>()));
-      await fails(ProductDraft(categoryId: categoryId, name: ' ', variants: const [VariantDraft(price: 100)]));
-      await fails(ProductDraft(categoryId: 'nope', name: 'X', variants: const [VariantDraft(price: 100)]));
-      await fails(ProductDraft(categoryId: categoryId, name: 'X', variants: const []));
-      await fails(ProductDraft(
-        categoryId: categoryId,
-        name: 'X',
-        variants: const [VariantDraft(name: 'Small', price: 100), VariantDraft(name: 'small', price: 200)],
-      ));
-      await rules.saveProduct(
-        ProductDraft(categoryId: categoryId, name: 'A', variants: const [VariantDraft(price: 100, barcodes: ['111'])]),
-        by: owner,
+      await fails(
+        ProductDraft(
+          categoryId: categoryId,
+          name: ' a ',
+          variants: const [VariantDraft(price: 100)],
+        ),
       );
-      await fails(ProductDraft(
-        categoryId: categoryId,
-        name: 'B',
-        variants: const [VariantDraft(price: 100, barcodes: ['111'])],
-      ));
+      await fails(
+        ProductDraft(
+          categoryId: categoryId,
+          name: 'B',
+          variants: const [
+            VariantDraft(price: 100, barcodes: [' 111 ']),
+          ],
+        ),
+      );
     });
 
     test('changing a price is recorded with before and after; removed sizes are retired', () async {
-      final cone = (await catalog.load()).products.firstWhere((p) => p.name == 'Vanilla cone');
+      final cone = (await catalog.load()).products.firstWhere(
+        (p) => p.name == 'Vanilla cone',
+      );
       final single = cone.variants.first;
       await rules.saveProduct(
         ProductDraft(
           id: cone.id,
           categoryId: cone.categoryId,
           name: cone.name,
-          variants: [VariantDraft(id: single.id, name: single.name, price: 1600)],
+          variants: [
+            VariantDraft(id: single.id, name: single.name, price: 1600),
+          ],
           groupIds: [for (final g in cone.groups) g.id],
         ),
         by: owner,
       );
-      final after = (await catalog.load()).products.firstWhere((p) => p.id == cone.id);
+      final after = (await catalog.load()).products.firstWhere(
+        (p) => p.id == cone.id,
+      );
       expect(after.variants.single.price, 1600);
-      expect(after.variants.single.recipe, isEmpty, reason: 'the recipe was not in the draft');
-      final price = (await r.audit.list(actions: {AuditAction.priceChanged})).single;
+      expect(
+        after.variants.single.recipe,
+        isEmpty,
+        reason: 'the recipe was not in the draft',
+      );
+      final price = (await r.audit.list(actions: {AuditAction.priceChanged}))
+          .single;
       expect(price.details, {'before': 1500, 'after': 1600});
-      expect((await r.audit.list(actions: {AuditAction.productUpdated})).single.summary, contains('removed Double scoop'));
+      expect(
+        (await r.audit.list(actions: {AuditAction.productUpdated}))
+            .single
+            .summary,
+        contains('removed Double scoop'),
+      );
     });
 
     test('archived products leave the till but stay readable', () async {
-      final waffle = (await catalog.load()).products.firstWhere((p) => p.name == 'Waffle');
+      final waffle = (await catalog.load()).products.firstWhere(
+        (p) => p.name == 'Waffle',
+      );
       await catalog.setArchived(waffle.id, archived: true, by: owner);
-      expect((await catalog.load()).products.any((p) => p.id == waffle.id), isFalse);
-      expect((await catalog.load(includeArchived: true)).products.firstWhere((p) => p.id == waffle.id).archived, isTrue);
+      expect(
+        (await catalog.load()).products.any((p) => p.id == waffle.id),
+        isFalse,
+      );
+      expect(
+        (await catalog.load(includeArchived: true)).products
+            .firstWhere((p) => p.id == waffle.id)
+            .archived,
+        isTrue,
+      );
     });
 
     test('option groups: rules are checked', () async {
-      Future<void> fails(OptionGroupDraft d) =>
-          expectLater(rules.saveOptionGroup(d, by: owner), throwsA(isA<CatalogueException>()));
+      Future<void> fails(OptionGroupDraft d) => expectLater(
+        rules.saveOptionGroup(d, by: owner),
+        throwsA(isA<CatalogueException>()),
+      );
       await fails(const OptionGroupDraft(name: 'Sugar', options: []));
-      await fails(const OptionGroupDraft(name: 'Sugar', minSelect: 2, maxSelect: 1, options: [OptionDraft(name: 'Less')]));
-      await fails(const OptionGroupDraft(name: 'Sugar', minSelect: 2, options: [OptionDraft(name: 'Less')]));
+      await fails(
+        const OptionGroupDraft(
+          name: 'Sugar',
+          minSelect: 2,
+          maxSelect: 1,
+          options: [OptionDraft(name: 'Less')],
+        ),
+      );
+      await fails(
+        const OptionGroupDraft(
+          name: 'Sugar',
+          minSelect: 2,
+          options: [OptionDraft(name: 'Less')],
+        ),
+      );
       final id = await rules.saveOptionGroup(
         const OptionGroupDraft(
           name: 'Sugar',
           minSelect: 1,
           maxSelect: 1,
-          options: [OptionDraft(name: 'Normal', isDefault: true), OptionDraft(name: 'Less')],
+          options: [
+            OptionDraft(name: 'Normal', isDefault: true),
+            OptionDraft(name: 'Less'),
+          ],
         ),
         by: owner,
       );
@@ -176,10 +324,19 @@ void main() {
     });
 
     test('categories go two levels deep at most', () async {
-      final top = await rules.saveCategory(const CategoryDraft(name: 'Ice cream', tone: CategoryTone.blue), by: owner);
-      final sub = await rules.saveCategory(CategoryDraft(name: 'Cones', tone: CategoryTone.coral, parentId: top), by: owner);
+      final top = await rules.saveCategory(
+        const CategoryDraft(name: 'Ice cream', tone: CategoryTone.blue),
+        by: owner,
+      );
+      final sub = await rules.saveCategory(
+        CategoryDraft(name: 'Cones', tone: CategoryTone.coral, parentId: top),
+        by: owner,
+      );
       await expectLater(
-        rules.saveCategory(CategoryDraft(name: 'Deep', tone: CategoryTone.coral, parentId: sub), by: owner),
+        rules.saveCategory(
+          CategoryDraft(name: 'Deep', tone: CategoryTone.coral, parentId: sub),
+          by: owner,
+        ),
         throwsA(isA<CatalogueException>()),
       );
     });
@@ -191,27 +348,63 @@ void main() {
       expect(waffle.addsAsIs, isTrue, reason: 'a plain waffle is fine');
       expect(vanillaCone.oneTap, isFalse, reason: 'two sizes');
       expect(vanillaCone.addsAsIs, isFalse);
-      const sugar = OptionGroup(id: 'g', name: 'Sugar', minSelect: 1, maxSelect: 1, options: [
-        Option(id: 'a', groupId: 'g', name: 'Normal'),
-      ]);
-      const tea = Product(id: 't', categoryId: 'c', name: 'Tea', variants: [Variant(id: 'vt', price: 500)], groups: [sugar]);
+      const sugar = OptionGroup(
+        id: 'g',
+        name: 'Sugar',
+        minSelect: 1,
+        maxSelect: 1,
+        options: [Option(id: 'a', groupId: 'g', name: 'Normal')],
+      );
+      const tea = Product(
+        id: 't',
+        categoryId: 'c',
+        name: 'Tea',
+        variants: [Variant(id: 'vt', price: 500)],
+        groups: [sugar],
+      );
       expect(tea.oneTap, isFalse);
       expect(tea.addsAsIs, isFalse, reason: 'sugar must be chosen');
-      const sugarWithDefault = OptionGroup(id: 'g', name: 'Sugar', minSelect: 1, maxSelect: 1, options: [
-        Option(id: 'a', groupId: 'g', name: 'Normal', isDefault: true),
-      ]);
-      const tea2 = Product(id: 't', categoryId: 'c', name: 'Tea', variants: [Variant(id: 'vt', price: 500)], groups: [sugarWithDefault]);
+      const sugarWithDefault = OptionGroup(
+        id: 'g',
+        name: 'Sugar',
+        minSelect: 1,
+        maxSelect: 1,
+        options: [
+          Option(id: 'a', groupId: 'g', name: 'Normal', isDefault: true),
+        ],
+      );
+      const tea2 = Product(
+        id: 't',
+        categoryId: 'c',
+        name: 'Tea',
+        variants: [Variant(id: 'vt', price: 500)],
+        groups: [sugarWithDefault],
+      );
       expect(tea2.oneTap, isFalse);
       expect(tea2.addsAsIs, isTrue);
-      const water = Product(id: 'w', categoryId: 'c', name: 'Water', variants: [Variant(id: 'vw', price: 300)]);
+      const water = Product(
+        id: 'w',
+        categoryId: 'c',
+        name: 'Water',
+        variants: [Variant(id: 'vw', price: 300)],
+      );
       expect(water.oneTap, isTrue);
     });
 
     test('repeated options price and key correctly', () {
-      final line = CartLine(product: waffle, options: [sprinkles, sprinkles, crunch]);
+      final line = CartLine(
+        product: waffle,
+        options: [sprinkles, sprinkles, crunch],
+      );
       expect(line.unitPrice, 1200 + 300 + 300 + 500);
       expect(line.optionsLine, 'Groundnut crunch, Sprinkles ×2');
-      expect(CartLine(product: waffle, options: [crunch, sprinkles, sprinkles]).pickKey, line.pickKey);
+      expect(
+        CartLine(
+          product: waffle,
+          options: [crunch, sprinkles, sprinkles],
+        ).pickKey,
+        line.pickKey,
+      );
     });
   });
 }

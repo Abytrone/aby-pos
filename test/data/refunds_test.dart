@@ -111,6 +111,49 @@ void main() {
   });
 
   group('Refunds', () {
+    test('a direct stock link is restored on refund', () async {
+      final stockId = await r.stock.saveItem(
+        const StockItemDraft(
+          name: 'Bottled water',
+          unit: StockUnit.piece,
+          costMilli: 1000,
+        ),
+        by: owner,
+      );
+      await r.stock.adjust(stockId, 4, note: 'Opening count', by: owner);
+      await r.catalog.saveProduct(
+        ProductDraft(
+          categoryId: menu.categories.first.id,
+          name: 'Water bottle',
+          variants: [
+            VariantDraft(price: 300, stockItemId: stockId, stockQuantity: 2),
+          ],
+        ),
+        by: owner,
+      );
+      menu = await r.catalog.load();
+      final done = await sell([CartLine(product: named('Water bottle'))]);
+      expect(await r.stock.onHand(stockId), 2);
+
+      final line = (await r.refunds.refundable(done.saleId))!.lines.single;
+      await r.refunds.refund(
+        RefundDraft(
+          saleId: done.saleId,
+          reason: 'Wrong item',
+          lines: [
+            RefundLineDraft(
+              saleLineId: line.saleLineId,
+              name: line.title,
+              quantity: 1,
+            ),
+          ],
+        ),
+        payments: [cashBack(300)],
+        actor: owner,
+      );
+      expect(await r.stock.onHand(stockId), 4);
+    });
+
     test('part of a line comes back at what was paid, and goes back into stock', () async {
       final cone = named('Vanilla cone');
       final done = await sell([

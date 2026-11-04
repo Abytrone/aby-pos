@@ -4,7 +4,8 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:drift/drift.dart' show OrderingTerm, UpdateKind, Value, Variable;
+import 'package:drift/drift.dart'
+    show OrderingTerm, UpdateKind, Value, Variable;
 import 'package:get/get.dart' hide Value;
 
 import '../../core/app_version.dart';
@@ -22,7 +23,12 @@ enum HubRole { none, hub, member }
 /// A one-time offer to join the hub: shown as a QR code (and typed by hand
 /// when there is no camera).
 class PairingOffer {
-  const PairingOffer({required this.code, required this.hubId, required this.urls, required this.expires});
+  const PairingOffer({
+    required this.code,
+    required this.hubId,
+    required this.urls,
+    required this.expires,
+  });
 
   final String code;
   final String hubId;
@@ -39,7 +45,8 @@ class PairingOffer {
 
   /// A typed code as the hub made it: capitals, without the dash or
   /// spaces people type ("abcd-efgh" is "ABCDEFGH").
-  static String normalizeCode(String typed) => typed.toUpperCase().replaceAll(RegExp('[^A-Z0-9]'), '');
+  static String normalizeCode(String typed) =>
+      typed.toUpperCase().replaceAll(RegExp('[^A-Z0-9]'), '');
 
   /// "ABCD-EFGH": easier to read out across a counter.
   static String formatCode(String code) {
@@ -53,7 +60,11 @@ class PairingOffer {
     if (!t.startsWith(_prefix)) return null;
     try {
       final m = jsonDecode(t.substring(_prefix.length)) as Map<String, dynamic>;
-      return ((m['u'] as List).cast<String>(), m['c'] as String, m['h'] as String);
+      return (
+        (m['u'] as List).cast<String>(),
+        m['c'] as String,
+        m['h'] as String,
+      );
     } on Object {
       return null;
     }
@@ -74,14 +85,27 @@ class FoundHub {
 
 /// What went wrong between a device and its hub; shown in the device's
 /// language, so it goes over the wire by name.
-enum HubError { alreadyLinked, noCode, tooManyTries, wrongCode, notPaired, revoked, unreachable, refused, noSeats }
+enum HubError {
+  alreadyLinked,
+  noCode,
+  tooManyTries,
+  wrongCode,
+  notPaired,
+  revoked,
+  unreachable,
+  refused,
+  noSeats,
+}
 
 class HubException implements Exception {
   const HubException(this.error);
 
   factory HubException.from(String body) {
     try {
-      return HubException(HubError.values.asNameMap()[(jsonDecode(body) as Map)['error']] ?? HubError.refused);
+      return HubException(
+        HubError.values.asNameMap()[(jsonDecode(body) as Map)['error']] ??
+            HubError.refused,
+      );
     } on Object {
       return const HubException(HubError.refused);
     }
@@ -99,9 +123,15 @@ class HubException implements Exception {
 /// is sealed with the device's own secret. When the network drops, each
 /// device carries on and catches up later.
 class HubService extends GetxService {
-  HubService(this._db, this._device,
-      {this.sync, this.licenses, this.port = 8787, this.beaconPort = 47878, this.every = const Duration(seconds: 3)})
-      : store = RowStore(_db);
+  HubService(
+    this._db,
+    this._device, {
+    this.sync,
+    this.licenses,
+    this.port = 8787,
+    this.beaconPort = 47878,
+    this.every = const Duration(seconds: 3),
+  }) : store = RowStore(_db);
 
   /// Shown in the header and status centre.
   final SyncService? sync;
@@ -119,7 +149,11 @@ class HubService extends GetxService {
   final int beaconPort;
   final Duration every;
 
-  static const _kRole = 'hub.role', _kUrl = 'hub.url', _kSecret = 'hub.secret', _kId = 'hub.id', _kCursor = 'hub.cursor';
+  static const _kRole = 'hub.role',
+      _kUrl = 'hub.url',
+      _kSecret = 'hub.secret',
+      _kId = 'hub.id',
+      _kCursor = 'hub.cursor';
   static const _kName = 'hub.name';
 
   /// The hub's change log generation: a new one after a restore tells
@@ -135,7 +169,16 @@ class HubService extends GetxService {
 
   /// What links this device to a hub. A restore keeps this device's, not
   /// the backup's (BackupService).
-  static const linkKeys = [_kRole, _kUrl, _kSecret, _kId, _kCursor, _kName, _kSeen, LicenseService.hubLicenseKey];
+  static const linkKeys = [
+    _kRole,
+    _kUrl,
+    _kSecret,
+    _kId,
+    _kCursor,
+    _kName,
+    _kSeen,
+    LicenseService.hubLicenseKey,
+  ];
   static const epochKey = _kEpoch, cursorKey = _kCursor, roleKey = _kRole;
 
   final role = HubRole.none.obs;
@@ -179,8 +222,10 @@ class HubService extends GetxService {
 
   /// On app start: carries on as hub or member.
   Future<void> start() async {
-    role.value = HubRole.values.asNameMap()[await _db.readMeta(_kRole)] ?? HubRole.none;
-    if (role.value != HubRole.none && await _db.readMeta(resyncKey) == '1') await _resync();
+    role.value =
+        HubRole.values.asNameMap()[await _db.readMeta(_kRole)] ?? HubRole.none;
+    if (role.value != HubRole.none && await _db.readMeta(resyncKey) == '1')
+      await _resync();
     if (role.value == HubRole.hub) await _startHub();
     if (role.value == HubRole.member) _startMember();
   }
@@ -213,17 +258,22 @@ class HubService extends GetxService {
 
   /// Makes this device the hub: its data starts the change log.
   Future<void> becomeHub() async {
-    if (role.value != HubRole.none) throw const HubException(HubError.alreadyLinked);
+    if (role.value != HubRole.none)
+      throw const HubException(HubError.alreadyLinked);
     final now = DateTime.now();
     await _db.transaction(() async {
       await for (final w in store.everything()) {
-        await _db.into(_db.hubChanges).insert(HubChangesCompanion.insert(
-              entity: w.entity,
-              recordId: w.id,
-              row: jsonEncode(w.row),
-              originDevice: _device.deviceId,
-              at: now,
-            ));
+        await _db
+            .into(_db.hubChanges)
+            .insert(
+              HubChangesCompanion.insert(
+                entity: w.entity,
+                recordId: w.id,
+                row: jsonEncode(w.row),
+                originDevice: _device.deviceId,
+                at: now,
+              ),
+            );
       }
       // All of it is in the log now.
       await _db.delete(_db.outbox).go();
@@ -236,10 +286,15 @@ class HubService extends GetxService {
   }
 
   Future<void> _startHub() async {
-    _server ??= await HttpServer.bind(InternetAddress.anyIPv4, port, shared: true);
+    _server ??= await HttpServer.bind(
+      InternetAddress.anyIPv4,
+      port,
+      shared: true,
+    );
     _server!.listen((r) => unawaited(_handle(r)));
     try {
-      _beacon ??= await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0)..broadcastEnabled = true;
+      _beacon ??= await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0)
+        ..broadcastEnabled = true;
     } on SocketException {
       _beacon = null;
     }
@@ -256,7 +311,9 @@ class HubService extends GetxService {
       await drainOwnOutbox();
       final b = _beacon;
       if (b != null) {
-        final msg = utf8.encode(jsonEncode({'aby': 'hub', 'h': _device.deviceId, 'p': boundPort}));
+        final msg = utf8.encode(
+          jsonEncode({'aby': 'hub', 'h': _device.deviceId, 'p': boundPort}),
+        );
         try {
           b.send(msg, InternetAddress('255.255.255.255'), beaconPort);
         } on Object {
@@ -276,13 +333,17 @@ class HubService extends GetxService {
       final now = DateTime.now();
       await _db.transaction(() async {
         for (final w in batch.rows) {
-          await _db.into(_db.hubChanges).insert(HubChangesCompanion.insert(
-                entity: w.entity,
-                recordId: w.id,
-                row: jsonEncode(w.row),
-                originDevice: _device.deviceId,
-                at: now,
-              ));
+          await _db
+              .into(_db.hubChanges)
+              .insert(
+                HubChangesCompanion.insert(
+                  entity: w.entity,
+                  recordId: w.id,
+                  row: jsonEncode(w.row),
+                  originDevice: _device.deviceId,
+                  at: now,
+                ),
+              );
         }
         await store.acknowledge(batch.outboxSeqs);
       });
@@ -294,34 +355,57 @@ class HubService extends GetxService {
   Future<PairingOffer> offerPairing() async {
     const chars = PairingOffer.codeChars;
     final r = Random.secure();
-    final code = List.generate(PairingOffer.codeLength, (_) => chars[r.nextInt(chars.length)]).join();
+    final code = List.generate(
+      PairingOffer.codeLength,
+      (_) => chars[r.nextInt(chars.length)],
+    ).join();
     final p = boundPort ?? port;
     final urls = [for (final a in await addresses()) 'http://$a:$p'];
     _pairTries = 0;
-    return offer.value = PairingOffer(code: code, hubId: _device.deviceId, urls: urls, expires: DateTime.now().add(const Duration(minutes: 10)));
+    return offer.value = PairingOffer(
+      code: code,
+      hubId: _device.deviceId,
+      urls: urls,
+      expires: DateTime.now().add(const Duration(minutes: 10)),
+    );
   }
 
   static Future<List<String>> addresses() async => [
-        for (final i in await NetworkInterface.list(type: InternetAddressType.IPv4))
-          for (final a in i.addresses)
-            if (!a.isLoopback) a.address,
-      ];
+    for (final i in await NetworkInterface.list(type: InternetAddressType.IPv4))
+      for (final a in i.addresses)
+        if (!a.isLoopback) a.address,
+  ];
 
   /// Devices sharing this hub's license: itself and every member not
   /// removed.
-  Future<int> deviceCount() async => 1 + (await devices()).where((d) => d.revokedAt == null).length;
+  Future<int> deviceCount() async =>
+      1 + (await devices()).where((d) => d.revokedAt == null).length;
 
-  Future<List<HubDeviceRow>> devices() => (_db.select(_db.hubDevices)..orderBy([(d) => OrderingTerm(expression: d.pairedAt)])).get();
+  Future<List<HubDeviceRow>> devices() => (_db.select(
+    _db.hubDevices,
+  )..orderBy([(d) => OrderingTerm(expression: d.pairedAt)])).get();
 
-  Future<void> updateDevice(String deviceId, {String? name, String? role}) async {
-    final d = await (_db.select(_db.hubDevices)..where((x) => x.deviceId.equals(deviceId))).getSingle();
-    await _db.update(_db.hubDevices).replace(d.copyWith(name: name ?? d.name, role: role ?? d.role));
+  Future<void> updateDevice(
+    String deviceId, {
+    String? name,
+    String? role,
+  }) async {
+    final d = await (_db.select(
+      _db.hubDevices,
+    )..where((x) => x.deviceId.equals(deviceId))).getSingle();
+    await _db
+        .update(_db.hubDevices)
+        .replace(d.copyWith(name: name ?? d.name, role: role ?? d.role));
   }
 
   /// A lost device can no longer reach the hub; what it sent is kept.
   Future<void> revoke(String deviceId) async {
-    final d = await (_db.select(_db.hubDevices)..where((x) => x.deviceId.equals(deviceId))).getSingle();
-    await _db.update(_db.hubDevices).replace(d.copyWith(revokedAt: Value(DateTime.now())));
+    final d = await (_db.select(
+      _db.hubDevices,
+    )..where((x) => x.deviceId.equals(deviceId))).getSingle();
+    await _db
+        .update(_db.hubDevices)
+        .replace(d.copyWith(revokedAt: Value(DateTime.now())));
   }
 
   Future<void> _handle(HttpRequest r) async {
@@ -330,7 +414,14 @@ class HubService extends GetxService {
     try {
       final path = r.uri.path;
       if (r.method == 'GET' && path == '/hello') {
-        res.write(jsonEncode({'aby': 'hub', 'h': _device.deviceId, 'name': await _db.readMeta('shop_name') ?? 'Aby', 'v': appVersion}));
+        res.write(
+          jsonEncode({
+            'aby': 'hub',
+            'h': _device.deviceId,
+            'name': await _db.readMeta('shop_name') ?? 'Aby',
+            'v': appVersion,
+          }),
+        );
         return;
       }
       if (r.contentLength > maxBody) {
@@ -355,7 +446,9 @@ class HubService extends GetxService {
       res.write(jsonEncode({'error': e.error.name}));
     } on Object catch (e, stack) {
       // The reason stays here: the network only learns that it failed.
-      unawaited(CrashLog.record(e, stack, context: 'Hub ${r.method} ${r.uri.path}'));
+      unawaited(
+        CrashLog.record(e, stack, context: 'Hub ${r.method} ${r.uri.path}'),
+      );
       res.statusCode = HttpStatus.internalServerError;
       res.write(jsonEncode({'error': 'failed'}));
     } finally {
@@ -379,7 +472,8 @@ class HubService extends GetxService {
 
   Future<String> _pair(String deviceId, String body) async {
     final o = offer.value;
-    if (o == null || DateTime.now().isAfter(o.expires)) throw const HubException(HubError.noCode);
+    if (o == null || DateTime.now().isAfter(o.expires))
+      throw const HubException(HubError.noCode);
     if (++_pairTries > 5) {
       offer.value = null;
       throw const HubException(HubError.tooManyTries);
@@ -394,30 +488,43 @@ class HubService extends GetxService {
     if (hello['d'] != deviceId) throw const HubException(HubError.wrongCode);
     final seats = licenses?.seats;
     if (seats != null) {
-      final others = (await devices()).where((d) => d.revokedAt == null && d.deviceId != deviceId).length;
+      final others = (await devices())
+          .where((d) => d.revokedAt == null && d.deviceId != deviceId)
+          .length;
       if (1 + others >= seats) throw const HubException(HubError.noSeats);
     }
     final secret = SealedBox.newSecret();
     final now = DateTime.now();
-    await _db.into(_db.hubDevices).insertOnConflictUpdate(HubDevicesCompanion.insert(
-          deviceId: deviceId,
-          name: (hello['n'] as String?)?.trim().isNotEmpty ?? false ? hello['n'] as String : 'Device',
-          secret: secret,
-          pairedAt: now,
-          lastSeenAt: Value(now),
-          appVersion: Value(hello['v'] as String?),
-          revokedAt: const Value(null),
-        ));
+    await _db
+        .into(_db.hubDevices)
+        .insertOnConflictUpdate(
+          HubDevicesCompanion.insert(
+            deviceId: deviceId,
+            name: (hello['n'] as String?)?.trim().isNotEmpty ?? false
+                ? hello['n'] as String
+                : 'Device',
+            secret: secret,
+            pairedAt: now,
+            lastSeenAt: Value(now),
+            appVersion: Value(hello['v'] as String?),
+            revokedAt: const Value(null),
+          ),
+        );
     offer.value = null;
     return SealedBox.seal({'s': secret, 'h': _device.deviceId}, key);
   }
 
   Future<String> _sync(String deviceId, String body) async {
-    final d = await (_db.select(_db.hubDevices)..where((x) => x.deviceId.equals(deviceId))).getSingleOrNull();
+    final d = await (_db.select(
+      _db.hubDevices,
+    )..where((x) => x.deviceId.equals(deviceId))).getSingleOrNull();
     if (d == null) throw const HubException(HubError.notPaired);
     if (d.revokedAt != null) throw const HubException(HubError.revoked);
     final req = (await SealedBox.open(body, d.secret))! as Map<String, dynamic>;
-    final push = [for (final j in (req['push'] as List? ?? const [])) WireRow.fromJson((j as Map).cast<String, dynamic>())];
+    final push = [
+      for (final j in (req['push'] as List? ?? const []))
+        WireRow.fromJson((j as Map).cast<String, dynamic>()),
+    ];
     final since = req['since'] as int? ?? 0;
     // A restored member takes back its own changes too.
     final own = req['own'] == true;
@@ -425,45 +532,60 @@ class HubService extends GetxService {
     var rejected = 0;
     await _db.transaction(() async {
       for (final w in push) {
+        var logged = w;
         try {
-          await store.apply(w);
+          logged = await store.uniqueNameRow(w);
+          await store.apply(logged);
         } on Object {
           rejected++;
         }
         // Every version goes in the log, the losing ones too (history).
-        await _db.into(_db.hubChanges).insert(HubChangesCompanion.insert(
-              entity: w.entity,
-              recordId: w.id,
-              row: jsonEncode(w.row),
-              originDevice: deviceId,
-              at: now,
-            ));
+        await _db
+            .into(_db.hubChanges)
+            .insert(
+              HubChangesCompanion.insert(
+                entity: logged.entity,
+                recordId: logged.id,
+                row: jsonEncode(logged.row),
+                originDevice: deviceId,
+                at: now,
+              ),
+            );
       }
-      await _db.update(_db.hubDevices).replace(d.copyWith(lastSeenAt: Value(now), appVersion: Value(req['v'] as String? ?? d.appVersion)));
+      await _db
+          .update(_db.hubDevices)
+          .replace(
+            d.copyWith(
+              lastSeenAt: Value(now),
+              appVersion: Value(req['v'] as String? ?? d.appVersion),
+            ),
+          );
     });
-    final rows = await _db.customSelect(
-      'SELECT * FROM hub_changes WHERE seq > ? ORDER BY seq LIMIT 400',
-      variables: [Variable.withInt(since)],
-      readsFrom: {_db.hubChanges},
-    ).get();
+    final rows = await _db
+        .customSelect(
+          'SELECT * FROM hub_changes WHERE seq > ? ORDER BY seq LIMIT 400',
+          variables: [Variable.withInt(since)],
+          readsFrom: {_db.hubChanges},
+        )
+        .get();
     final pull = [
       for (final r in rows)
         if (own || r.read<String>('origin_device') != deviceId)
-          WireRow(r.read<String>('entity'), r.read<String>('record_id'), (jsonDecode(r.read<String>('row')) as Map).cast<String, Object?>())
-              .toJson(),
+          WireRow(
+            r.read<String>('entity'),
+            r.read<String>('record_id'),
+            (jsonDecode(r.read<String>('row')) as Map).cast<String, Object?>(),
+          ).toJson(),
     ];
     final cursor = rows.isEmpty ? since : rows.last.read<int>('seq');
-    return SealedBox.seal(
-      {
-        'pull': pull,
-        'cursor': cursor,
-        'more': rows.length == 400,
-        'rejected': rejected,
-        'epoch': await _epoch(),
-        if (licenses?.seats != null) 'license': licenses!.ownKey,
-      },
-      d.secret,
-    );
+    return SealedBox.seal({
+      'pull': pull,
+      'cursor': cursor,
+      'more': rows.length == 400,
+      'rejected': rejected,
+      'epoch': await _epoch(),
+      if (licenses?.seats != null) 'license': licenses!.ownKey,
+    }, d.secret);
   }
 
   /// This hub's log generation, made on first use (hubs from before it, or
@@ -488,15 +610,24 @@ class HubService extends GetxService {
   /// [fresh]: a new install joining from its first screen. It has only the
   /// starting defaults, which would otherwise win over the hub's edits (they
   /// are newer) or appear twice, so they are cleared and nothing is sent.
-  Future<void> join(List<String> urls, String code, {String? hubId, String? deviceName, bool fresh = false}) async {
-    if (role.value != HubRole.none) throw const HubException(HubError.alreadyLinked);
+  Future<void> join(
+    List<String> urls,
+    String code, {
+    String? hubId,
+    String? deviceName,
+    bool fresh = false,
+  }) async {
+    if (role.value != HubRole.none)
+      throw const HubException(HubError.alreadyLinked);
     final client = HttpClient()..connectionTimeout = const Duration(seconds: 5);
     try {
       String? url;
       String? id = hubId;
       for (final u in urls) {
         try {
-          final hello = jsonDecode(await _get(client, '$u/hello')) as Map<String, dynamic>;
+          final hello = jsonDecode(
+            await _get(client, '$u/hello'),
+          ) as Map<String, dynamic>;
           if (hello['aby'] == 'hub' && (id == null || hello['h'] == id)) {
             url = u;
             id = hello['h'] as String;
@@ -506,14 +637,31 @@ class HubService extends GetxService {
           continue;
         }
       }
-      if (url == null || id == null) throw const HubException(HubError.unreachable);
-      final key = await SealedBox.keyFromCode(PairingOffer.normalizeCode(code), id);
-      final body = await SealedBox.seal({'d': _device.deviceId, 'n': deviceName ?? '', 'v': appVersion}, key);
-      final (status, text) = await _post(client, '$url/pair', body, deviceId: _device.deviceId);
+      if (url == null || id == null)
+        throw const HubException(HubError.unreachable);
+      final key = await SealedBox.keyFromCode(
+        PairingOffer.normalizeCode(code),
+        id,
+      );
+      final body = await SealedBox.seal({
+        'd': _device.deviceId,
+        'n': deviceName ?? '',
+        'v': appVersion,
+      }, key);
+      final (status, text) = await _post(
+        client,
+        '$url/pair',
+        body,
+        deviceId: _device.deviceId,
+      );
       if (status != 200) throw HubException.from(text);
       final reply = (await SealedBox.open(text, key))! as Map<String, dynamic>;
       // Set up more recently, they would otherwise win over the hub's.
-      await _db.customUpdate("DELETE FROM settings WHERE scope = 'shop'", updates: {_db.settings}, updateKind: UpdateKind.delete);
+      await _db.customUpdate(
+        "DELETE FROM settings WHERE scope = 'shop'",
+        updates: {_db.settings},
+        updateKind: UpdateKind.delete,
+      );
       if (fresh) {
         await _clearDefaults();
       } else {
@@ -540,7 +688,8 @@ class HubService extends GetxService {
     try {
       await _db.transaction(() async {
         for (final name in store.synced.keys) {
-          if (name != _db.settings.actualTableName) await _db.customStatement('DELETE FROM $name');
+          if (name != _db.settings.actualTableName)
+            await _db.customStatement('DELETE FROM $name');
         }
         await _db.delete(_db.outbox).go();
       });
@@ -568,14 +717,25 @@ class HubService extends GetxService {
         final batch = await store.pending();
         final since = int.tryParse(await _db.readMeta(_kCursor) ?? '0') ?? 0;
         final own = await _db.readMeta(resyncKey) != null;
-        final body = await SealedBox.seal(
-          {'push': [for (final w in batch.rows) w.toJson()], 'since': since, 'own': own, 'v': appVersion},
-          secret,
+        final body = await SealedBox.seal({
+          'push': [for (final w in batch.rows) w.toJson()],
+          'since': since,
+          'own': own,
+          'v': appVersion,
+        }, secret);
+        final (status, text) = await _post(
+          client,
+          '$url/sync',
+          body,
+          deviceId: _device.deviceId,
         );
-        final (status, text) = await _post(client, '$url/sync', body, deviceId: _device.deviceId);
         if (status != 200) throw HubException.from(text);
-        final reply = (await SealedBox.open(text, secret))! as Map<String, dynamic>;
-        final pull = [for (final j in reply['pull'] as List) WireRow.fromJson((j as Map).cast<String, dynamic>())];
+        final reply =
+            (await SealedBox.open(text, secret))! as Map<String, dynamic>;
+        final pull = [
+          for (final j in reply['pull'] as List)
+            WireRow.fromJson((j as Map).cast<String, dynamic>()),
+        ];
         // The hub's log was restored: our place in it no longer holds.
         final epoch = reply['epoch'] as String?;
         final seen = await _db.readMeta(_kSeen);
@@ -583,7 +743,7 @@ class HubService extends GetxService {
         await _db.transaction(() async {
           for (final w in pull) {
             try {
-              await store.apply(w);
+              await store.apply(w, preferIncomingName: true);
             } on Object {
               // A row this device cannot take (a newer version of Aby, say).
             }
@@ -594,7 +754,10 @@ class HubService extends GetxService {
           if (restarted) await _resync();
         });
         await licenses?.fromHub(reply['license'] as String?);
-        more = restarted || reply['more'] == true || batch.outboxSeqs.length >= 300;
+        more =
+            restarted ||
+            reply['more'] == true ||
+            batch.outboxSeqs.length >= 300;
         if (!more && own) await _db.deleteMeta(resyncKey);
       }
       online.value = true;
@@ -604,7 +767,8 @@ class HubService extends GetxService {
       online.value = false;
       problem.value = e.error;
       // Removed from the hub: its license no longer covers this device.
-      if (e.error == HubError.revoked || e.error == HubError.notPaired) await licenses?.fromHub(null);
+      if (e.error == HubError.revoked || e.error == HubError.notPaired)
+        await licenses?.fromHub(null);
     } on Object {
       online.value = false;
       problem.value = HubError.unreachable;
@@ -619,14 +783,23 @@ class HubService extends GetxService {
   /// (a hub calls out every few seconds). Each is checked by asking it to
   /// say hello, so only a hub that answers is offered. Empty when none is
   /// heard, or when this network blocks broadcasts.
-  Future<List<FoundHub>> discover({Duration listen = const Duration(seconds: 4)}) async {
+  Future<List<FoundHub>> discover({
+    Duration listen = const Duration(seconds: 4),
+  }) async {
     final heard = <String, String>{};
     RawDatagramSocket? s;
     try {
-      s = await RawDatagramSocket.bind(InternetAddress.anyIPv4, beaconPort, reuseAddress: true);
+      s = await RawDatagramSocket.bind(
+        InternetAddress.anyIPv4,
+        beaconPort,
+        reuseAddress: true,
+      );
       final socket = s;
       final done = Completer<void>();
-      final timer = Timer(listen, () => done.isCompleted ? null : done.complete());
+      final timer = Timer(
+        listen,
+        () => done.isCompleted ? null : done.complete(),
+      );
       socket.listen((e) {
         if (e != RawSocketEvent.read) return;
         final d = socket.receive();
@@ -653,9 +826,17 @@ class HubService extends GetxService {
       final found = <FoundHub>[];
       for (final MapEntry(key: id, value: url) in heard.entries) {
         try {
-          final hello = jsonDecode(await _get(client, '$url/hello')) as Map<String, dynamic>;
+          final hello = jsonDecode(
+            await _get(client, '$url/hello'),
+          ) as Map<String, dynamic>;
           if (hello['aby'] == 'hub' && hello['h'] == id) {
-            found.add(FoundHub(id: id, url: url, name: hello['name'] as String? ?? 'Aby'));
+            found.add(
+              FoundHub(
+                id: id,
+                url: url,
+                name: hello['name'] as String? ?? 'Aby',
+              ),
+            );
           }
         } on Object {
           continue;
@@ -673,7 +854,11 @@ class HubService extends GetxService {
     if (hubId == null) return;
     RawDatagramSocket? s;
     try {
-      s = await RawDatagramSocket.bind(InternetAddress.anyIPv4, beaconPort, reuseAddress: true);
+      s = await RawDatagramSocket.bind(
+        InternetAddress.anyIPv4,
+        beaconPort,
+        reuseAddress: true,
+      );
       final found = Completer<String?>();
       s.listen((e) {
         if (e != RawSocketEvent.read || found.isCompleted) return;
@@ -681,12 +866,16 @@ class HubService extends GetxService {
         if (d == null) return;
         try {
           final m = jsonDecode(utf8.decode(d.data)) as Map<String, dynamic>;
-          if (m['aby'] == 'hub' && m['h'] == hubId) found.complete('http://${d.address.address}:${m['p']}');
+          if (m['aby'] == 'hub' && m['h'] == hubId)
+            found.complete('http://${d.address.address}:${m['p']}');
         } on Object {
           // Not ours.
         }
       });
-      final url = await found.future.timeout(const Duration(seconds: 8), onTimeout: () => null);
+      final url = await found.future.timeout(
+        const Duration(seconds: 8),
+        onTimeout: () => null,
+      );
       if (url != null) await _db.writeMeta(_kUrl, url);
     } on Object {
       // Cannot listen here; try again next time.
@@ -710,23 +899,38 @@ class HubService extends GetxService {
   /// tidy up by hand.
   Future<List<(String, String)>> duplicates() async {
     final out = <(String, String)>[];
-    for (final (table, kind) in [('products', 'product'), ('customers', 'customer'), ('staff', 'staff')]) {
-      final rows = await _db.customSelect(
-        'SELECT MIN(name) AS name FROM $table WHERE deleted_at IS NULL GROUP BY LOWER(TRIM(name)) HAVING COUNT(*) > 1',
-      ).get();
+    for (final (table, kind) in [
+      ('products', 'product'),
+      ('customers', 'customer'),
+      ('staff', 'staff'),
+    ]) {
+      final rows = await _db
+          .customSelect(
+            'SELECT MIN(name) AS name FROM $table WHERE deleted_at IS NULL GROUP BY LOWER(TRIM(name)) HAVING COUNT(*) > 1',
+          )
+          .get();
       out.addAll([for (final r in rows) (kind, r.read<String>('name'))]);
     }
     return out;
   }
 
   static Future<String> _get(HttpClient c, String url) async {
-    final req = await c.getUrl(Uri.parse(url)).timeout(const Duration(seconds: 5));
+    final req = await c
+        .getUrl(Uri.parse(url))
+        .timeout(const Duration(seconds: 5));
     final res = await req.close().timeout(const Duration(seconds: 10));
     return utf8.decoder.bind(res).join();
   }
 
-  static Future<(int, String)> _post(HttpClient c, String url, String body, {String? deviceId}) async {
-    final req = await c.postUrl(Uri.parse(url)).timeout(const Duration(seconds: 5));
+  static Future<(int, String)> _post(
+    HttpClient c,
+    String url,
+    String body, {
+    String? deviceId,
+  }) async {
+    final req = await c
+        .postUrl(Uri.parse(url))
+        .timeout(const Duration(seconds: 5));
     req.headers.contentType = ContentType.json;
     if (deviceId != null) req.headers.set('x-aby-device', deviceId);
     req.write(body);

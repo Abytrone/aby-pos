@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Product _product(String name, List<String> sizes) => Product(
-      id: name,
-      categoryId: 'c',
-      name: name,
-      variants: [for (final (i, s) in sizes.indexed) Variant(id: '$name-$i', name: s, price: 1500 + i * 500)],
-      groups: const [],
-      taxes: const [],
-    );
+  id: name,
+  categoryId: 'c',
+  name: name,
+  variants: [for (final (i, s) in sizes.indexed) Variant(id: '$name-$i', name: s, price: 1500 + i * 500)],
+  groups: const [],
+  taxes: const [],
+);
 
 void main() {
   final long = _product('Ice cream cup', ['Small', 'Medium', 'Large', 'Family size', 'Party bucket']);
@@ -20,22 +20,26 @@ void main() {
 
   Future<BuildContext> pump(WidgetTester tester, Widget child, {double width = 180}) async {
     late BuildContext ctx;
-    await tester.pumpWidget(MaterialApp(
-      theme: AbyTheme.light,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Scaffold(
-        body: Center(
-          child: SizedBox(
-            width: width,
-            child: Builder(builder: (context) {
-              ctx = context;
-              return child;
-            }),
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AbyTheme.light,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: width,
+              child: Builder(
+                builder: (context) {
+                  ctx = context;
+                  return child;
+                },
+              ),
+            ),
           ),
         ),
       ),
-    ));
+    );
     return ctx;
   }
 
@@ -47,6 +51,22 @@ void main() {
     expect(ProductTile.detailLinesFor(context, [long], 40), 3, reason: 'never more than 3');
   });
 
+  testWidgets('the tile marks tracked stock below its reorder point as low', (tester) async {
+    await pump(
+      tester,
+      ProductTile(
+        product: _product('Stocked item', ['Each']),
+        tone: CategoryTone.blue,
+        icon: 'waffle',
+        inCart: 0,
+        left: 2,
+        low: true,
+        onTap: () {},
+      ),
+    );
+    expect(find.text('2 left · low'), findsOneWidget);
+  });
+
   testWidgets('a long size line wraps on the tile and the row, without overflowing', (tester) async {
     final context = await pump(tester, const SizedBox());
     final lines = ProductTile.detailLinesFor(context, [long], ProductTile.textWidth(180));
@@ -55,7 +75,14 @@ void main() {
       tester,
       SizedBox(
         height: height,
-        child: ProductTile(product: long, tone: CategoryTone.blue, icon: 'ice-cream-bowl', inCart: 0, detailLines: lines, onTap: () {}),
+        child: ProductTile(
+          product: long,
+          tone: CategoryTone.blue,
+          icon: 'ice-cream-bowl',
+          inCart: 0,
+          detailLines: lines,
+          onTap: () {},
+        ),
       ),
     );
     final detail = tester.widget<Text>(find.text(long.sizeLine));

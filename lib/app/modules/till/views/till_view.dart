@@ -232,9 +232,17 @@ class _Menu extends StatelessWidget {
             );
           }),
           toggle: Obx(
-            () => ViewToggle(value: _viewFor(context, controller.productView), onChanged: (v) => controller.setProductView(v.name)),
+            () => ViewToggle(
+              value: _viewFor(context, controller.productView),
+              onChanged: (v) => controller.setProductView(v.name),
+            ),
           ),
-          count: Obx(() => Text(l.tillProductCount(controller.visibleProducts.length), style: AbyText.caption.copyWith(color: c.inkMuted))),
+          count: Obx(
+            () => Text(
+              l.tillProductCount(controller.visibleProducts.length),
+              style: AbyText.caption.copyWith(color: c.inkMuted),
+            ),
+          ),
         ),
         Expanded(
           child: Obx(() {
@@ -245,11 +253,11 @@ class _Menu extends StatelessWidget {
             // Read eagerly: the grid builds lazily, outside this Obx.
             final inCart = {for (final p in products) p.id: controller.cart.countFor(p.id)};
             final left = {for (final p in products) p.id: controller.leftOf(p)};
+            final low = {for (final p in products) p.id: controller.isLowOf(p)};
             final photos = Map.of(controller.photos);
             if (products.isEmpty) {
               final query = controller.query.value.trim();
-              if (
-                        controller.filterText.isNotEmpty) {
+              if (controller.filterText.isNotEmpty) {
                 return _TillEmpty(
                   icon: AbyIcons.search,
                   title: l.tillNoMatchTitle(query),
@@ -260,9 +268,7 @@ class _Menu extends StatelessWidget {
               }
               return _TillEmpty(
                 icon: onQuick ? AbyIcons.star : AbyIcons.package,
-                title: onQuick
-                            ? l.tillQuickEmpty
-                            : l.tillNothingHere,
+                title: onQuick ? l.tillQuickEmpty : l.tillNothingHere,
                 action: onQuick && controller.canEditProducts ? l.quickArrange : null,
                 onAction: () => showQuickArrange(controller),
               );
@@ -285,6 +291,7 @@ class _Menu extends StatelessWidget {
                       icon: icon,
                       inCart: inCart[p.id] ?? 0,
                       left: left[p.id],
+                      low: low[p.id] ?? false,
                       photo: photos[p.id],
                       detailLines: detailLines,
                       onTap: tap,
@@ -296,6 +303,7 @@ class _Menu extends StatelessWidget {
                       icon: icon,
                       inCart: inCart[p.id] ?? 0,
                       left: left[p.id],
+                      low: low[p.id] ?? false,
                       photo: photos[p.id],
                       onTap: tap,
                       onLongPress: longPress,
@@ -349,8 +357,7 @@ class _Menu extends StatelessWidget {
                       ),
                     ),
                   ),
-                Expanded(
-                  child: list),
+                Expanded(child: list),
               ],
             );
           }),
@@ -379,7 +386,7 @@ class _MenuHeader extends StatelessWidget {
         children: [
           strip,
           Padding(
-                    padding: const EdgeInsets.fromLTRB(AbySpace.s4, 0, AbySpace.s4, AbySpace.s3),
+            padding: const EdgeInsets.fromLTRB(AbySpace.s4, 0, AbySpace.s4, AbySpace.s3),
             child: Row(
               children: [
                 Expanded(child: count),
@@ -462,8 +469,7 @@ class _TillEmpty extends StatelessWidget {
                 decoration: BoxDecoration(color: c.surfaceSunken, shape: BoxShape.circle),
                 child: AbyIcon(icon, size: 28, color: c.inkMuted),
               ),
-              const SizedBox(height: AbySpace.s3,
-                    ),
+              const SizedBox(height: AbySpace.s3),
               Text(
                 title,
                 textAlign: TextAlign.center,
@@ -477,7 +483,10 @@ class _TillEmpty extends StatelessWidget {
                   style: AbyText.body.copyWith(color: c.inkMuted),
                 ),
               ],
-              if (action != null) ...[const SizedBox(height: AbySpace.s3), OutlinedButton(onPressed: onAction, child: Text(action!))],
+              if (action != null) ...[
+                const SizedBox(height: AbySpace.s3),
+                OutlinedButton(onPressed: onAction, child: Text(action!)),
+              ],
             ],
           ),
         ),

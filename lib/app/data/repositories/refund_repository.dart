@@ -316,9 +316,9 @@ class RefundRepository {
         }
       }
 
-      await add(await _stock.recipe(variantId: l.variantId));
+      await add(await _stock.variantUsage(l.variantId!));
       for (final a in saleLine?.addons ?? const <SoldAddon>[]) {
-        await add(await _stock.recipe(optionId: a.id));
+        await add(await _stock.optionUsage(a.id));
       }
     }
     for (final MapEntry(key: item, value: qty) in back.entries) {

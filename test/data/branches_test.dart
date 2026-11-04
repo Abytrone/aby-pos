@@ -31,7 +31,10 @@ void main() {
     main = await Repos.open(db);
     osu = Repos.onDevice(db, 'dev-osu');
     branches = BranchRepository(db, main.device, main.audit);
-    osuId = await branches.save(const BranchDraft(name: 'Osu', phone: '0244000000'), by: owner);
+    osuId = await branches.save(
+      const BranchDraft(name: 'Osu', phone: '0244000000'),
+      by: owner,
+    );
     await BranchRepository(db, osu.device, osu.audit).placeDevice(osuId, deviceName: 'Osu till', by: owner);
     cones = (await main.stock.items()).firstWhere((i) => i.onHand > 0);
   });
@@ -43,8 +46,11 @@ void main() {
     expect(await branches.currentId(), mainBranchId);
     expect(await BranchRepository(db, osu.device, osu.audit).currentId(), osuId);
     await expectLater(branches.save(const BranchDraft(name: 'osu'), by: owner), throwsA(isA<BranchException>()));
-    await expectLater(branches.setActive(osuId, active: false, by: owner), throwsA(isA<BranchException>()),
-        reason: 'a device is still there');
+    await expectLater(
+      branches.setActive(osuId, active: false, by: owner),
+      throwsA(isA<BranchException>()),
+      reason: 'a device is still there',
+    );
     await expectLater(branches.setActive(mainBranchId, active: false, by: owner), throwsA(isA<BranchException>()));
   });
 
@@ -73,8 +79,15 @@ void main() {
     expect(t.toName, 'Osu');
     expect(await main.stock.onHand(cones.id), before - 30);
     expect(await osu.stock.onHand(cones.id), 0, reason: 'in transit');
-    await expectLater(transfers.receive(t.id, by: owner), throwsA(isA<StockException>()), reason: 'not the receiving branch');
-    await expectLater(transfers.send(toBranch: mainBranchId, lines: {cones.id: 1}, by: owner), throwsA(isA<StockException>()));
+    await expectLater(
+      transfers.receive(t.id, by: owner),
+      throwsA(isA<StockException>()),
+      reason: 'not the receiving branch',
+    );
+    await expectLater(
+      transfers.send(toBranch: mainBranchId, lines: {cones.id: 1}, by: owner),
+      throwsA(isA<StockException>()),
+    );
 
     final got = await atOsu.receive(t.id, received: {t.lines.single.id: 28}, by: cashier);
     expect(got.status, TransferStatus.received);
@@ -100,14 +113,18 @@ void main() {
     final menu = await main.catalog.load();
     final waffle = menu.products.firstWhere((x) => x.name == 'Waffle');
     Future<CompletedSale> sell(Repos at) => at.sales.completeSale(
-          lines: [CartLine(product: waffle)],
-          payments: [const PaymentInput.cash(tendered: 5000)],
-          cashier: cashier,
-        );
+      lines: [CartLine(product: waffle)],
+      payments: [const PaymentInput.cash(tendered: 5000)],
+      cashier: cashier,
+      allowNegativeStock: true,
+    );
     await sell(main);
     await sell(main);
     final there = await sell(osu);
-    final today = DateRange(DateTime.now().subtract(const Duration(days: 1)), DateTime.now().add(const Duration(days: 1)));
+    final today = DateRange(
+      DateTime.now().subtract(const Duration(days: 1)),
+      DateTime.now().add(const Duration(days: 1)),
+    );
     expect((await reports.sales(today)).count, 3);
     looking = osuId;
     expect((await reports.sales(today)).count, 1);

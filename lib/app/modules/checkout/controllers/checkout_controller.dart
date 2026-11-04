@@ -138,7 +138,8 @@ class CheckoutController extends GetxController {
         ? await Get.find<PayMethodRepository>().list()
         : [
             for (final (key, name, kind, on, reference) in builtInPayMethods)
-              if (on) PayMethod(id: payMethodRowId(key), name: name, kind: kind, builtIn: key, needsReference: reference),
+              if (on)
+                PayMethod(id: payMethodRowId(key), name: name, kind: kind, builtIn: key, needsReference: reference),
           ];
     methods.assignAll(list);
     selected.value ??= list.firstWhereOrNull((m) => m.isCash) ?? list.firstOrNull;
@@ -201,7 +202,8 @@ class CheckoutController extends GetxController {
     if (m == null) return false;
     if (needsCustomer && customer == null) return false;
     if (m.kind == PaymentMethod.wallet && (amount ?? 0) > (customer?.wallet ?? 0)) return false;
-    if (m.kind == PaymentMethod.voucher && (voucher.value == null || (amount ?? 0) > voucher.value!.balance)) return false;
+    if (m.kind == PaymentMethod.voucher && (voucher.value == null || (amount ?? 0) > voucher.value!.balance))
+      return false;
     if (m.needsReference && _referenceText.value.trim().isEmpty) return false;
     return true;
   }
@@ -292,7 +294,9 @@ class CheckoutController extends GetxController {
     final c = customer;
     final credit = _creditIn(payments);
     if (c != null && credit > 0 && c.creditLimit != null && c.owed + credit > c.creditLimit!) {
-      final rule = Get.isRegistered<SettingsService>() ? Get.find<SettingsService>().get(AppSettings.creditOverLimit) : 'approve';
+      final rule = Get.isRegistered<SettingsService>()
+          ? Get.find<SettingsService>().get(AppSettings.creditOverLimit)
+          : 'approve';
       if (rule == 'block') {
         error.value = l.checkoutOverLimit(c.name, formatMoney(c.creditLimit!));
         return;
@@ -338,6 +342,8 @@ class CheckoutController extends GetxController {
         promotions: cart.promotions.toList(),
         loyalty: cart.loyalty,
         orders: orders,
+        allowNegativeStock:
+            Get.isRegistered<SettingsService>() && Get.find<SettingsService>().get(AppSettings.allowNegativeStock),
       );
       unawaited(printService?.afterSale(completed.value!.saleId, prep: prep));
       final done = completed.value!;

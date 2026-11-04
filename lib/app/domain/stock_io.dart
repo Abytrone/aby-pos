@@ -19,7 +19,12 @@ import 'catalogue_rules.dart';
 /// One stock item an import would add or change. [setOnHand] is the
 /// count the file gives (base units), null to leave it as it is.
 class StockImportItem {
-  const StockImportItem({required this.draft, required this.onHandNow, this.setOnHand, this.reactivate = false});
+  const StockImportItem({
+    required this.draft,
+    required this.onHandNow,
+    this.setOnHand,
+    this.reactivate = false,
+  });
 
   /// [StockItemDraft.supplierId] is "new:Name" for a supplier the import
   /// adds.
@@ -110,16 +115,23 @@ class StockProductPlan {
 
   /// "per kg", "per L", or nothing for pieces.
   String get per => switch (sellBy) {
-        SellBy.each => '',
-        SellBy.kg => 'kg',
-        SellBy.litre => 'L',
-      };
+    SellBy.each => '',
+    SellBy.kg => 'kg',
+    SellBy.litre => 'L',
+  };
 }
 
 /// Stock items to and from CSV (the same columns stock export writes), and
 /// products made from stock items in bulk, priced at a margin.
 class StockIo {
-  StockIo(this._db, this._stock, this._suppliers, this._catalog, this._rules, this._audit);
+  StockIo(
+    this._db,
+    this._stock,
+    this._suppliers,
+    this._catalog,
+    this._rules,
+    this._audit,
+  );
 
   final AppDatabase _db;
   final StockRepository _stock;
@@ -128,7 +140,16 @@ class StockIo {
   final CatalogueRules _rules;
   final AuditRepository _audit;
 
-  static const stockColumns = ['stock_item', 'unit', 'cost_per', 'cost', 'on_hand', 'low_below', 'order_qty', 'supplier'];
+  static const stockColumns = [
+    'stock_item',
+    'unit',
+    'cost_per',
+    'cost',
+    'on_hand',
+    'low_below',
+    'order_qty',
+    'supplier',
+  ];
 
   static const requiredColumns = {'stock_item'};
 
@@ -170,50 +191,90 @@ class StockIo {
   };
 
   static String columnFor(String heading) {
-    final h = heading.trim().toLowerCase().replaceAll(RegExp(r'[\s\-]+'), '_').replaceAll(RegExp(r'[^a-z_]'), '');
+    final h = heading
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'[\s\-]+'), '_')
+        .replaceAll(RegExp(r'[^a-z_]'), '');
     return _aliases[h] ?? h;
   }
 
   /// "kg" → kg, "pieces" → piece; null when not a unit.
-  static DisplayUnit? displayUnitFor(String text) => switch (text.trim().toLowerCase().replaceAll('.', '')) {
-        'piece' || 'pieces' || 'pcs' || 'pc' || 'each' || 'unit' || 'units' || 'ea' => DisplayUnit.piece,
-        'g' || 'gram' || 'grams' || 'gm' => DisplayUnit.g,
-        'kg' || 'kgs' || 'kilo' || 'kilos' || 'kilogram' || 'kilograms' => DisplayUnit.kg,
-        'ml' || 'millilitre' || 'millilitres' || 'milliliter' || 'milliliters' => DisplayUnit.ml,
-        'l' || 'litre' || 'litres' || 'liter' || 'liters' || 'ltr' => DisplayUnit.l,
-        _ => null,
-      };
+  static DisplayUnit? displayUnitFor(String text) => switch (text
+      .trim()
+      .toLowerCase()
+      .replaceAll('.', '')) {
+    'piece' ||
+    'pieces' ||
+    'pcs' ||
+    'pc' ||
+    'each' ||
+    'unit' ||
+    'units' ||
+    'ea' => DisplayUnit.piece,
+    'g' || 'gram' || 'grams' || 'gm' => DisplayUnit.g,
+    'kg' ||
+    'kgs' ||
+    'kilo' ||
+    'kilos' ||
+    'kilogram' ||
+    'kilograms' => DisplayUnit.kg,
+    'ml' ||
+    'millilitre' ||
+    'millilitres' ||
+    'milliliter' ||
+    'milliliters' => DisplayUnit.ml,
+    'l' || 'litre' || 'litres' || 'liter' || 'liters' || 'ltr' => DisplayUnit.l,
+    _ => null,
+  };
 
   /// A filled-in example to start from.
   String sampleStock() => Csv.encode([
-        stockColumns,
-        ['Vanilla ice cream', 'ml', 'L', '45.00', '20', '5', '20', 'Accra Dairy'],
-        ['Wafer cones', 'piece', 'pcs', '0.60', '400', '100', '500', 'Accra Dairy'],
-        ['Sugar', 'g', 'kg', '14.00', '12.5', '2', '10', 'Makola Wholesale'],
-        ['Bottled water', 'piece', 'pcs', '2.10', '48', '12', '48', 'Makola Wholesale'],
-      ]);
+    stockColumns,
+    ['Vanilla ice cream', 'ml', 'L', '45.00', '20', '5', '20', 'Accra Dairy'],
+    ['Wafer cones', 'piece', 'pcs', '0.60', '400', '100', '500', 'Accra Dairy'],
+    ['Sugar', 'g', 'kg', '14.00', '12.5', '2', '10', 'Makola Wholesale'],
+    [
+      'Bottled water',
+      'piece',
+      'pcs',
+      '2.10',
+      '48',
+      '12',
+      '48',
+      'Makola Wholesale',
+    ],
+  ]);
 
   /// Reads a CSV and works out what would change. Nothing is saved.
   Future<StockImportPreview> previewStock(String csv) async {
     final rows = Csv.decode(csv);
     StockImportPreview fail(String message) => StockImportPreview(
-          items: const [],
-          newItems: 0,
-          updatedItems: 0,
-          unchanged: 0,
-          problems: [ImportProblem(1, message)],
-        );
+      items: const [],
+      newItems: 0,
+      updatedItems: 0,
+      unchanged: 0,
+      problems: [ImportProblem(1, message)],
+    );
     if (rows.isEmpty) return fail('The file is empty.');
     final header = [for (final h in rows.first) columnFor(h)];
     int col(String name) => header.indexOf(name);
-    if (col('stock_item') < 0) return fail('The first row needs at least a "stock_item" column.');
+    if (col('stock_item') < 0) {
+      return fail('The first row needs at least a "stock_item" column.');
+    }
     String cell(List<String> r, String name) {
       final i = col(name);
       return i < 0 || i >= r.length ? '' : r[i].trim();
     }
 
-    final existing = {for (final i in await _stock.items(includeInactive: true)) i.name.toLowerCase(): i};
-    final suppliers = {for (final x in await _suppliers.list(includeInactive: true)) x.name.toLowerCase(): x.id};
+    final existing = {
+      for (final i in await _stock.items(includeInactive: true))
+        i.name.toLowerCase(): i,
+    };
+    final suppliers = {
+      for (final x in await _suppliers.list(includeInactive: true))
+        x.name.toLowerCase(): x.id,
+    };
     final newSuppliers = <String, String>{};
     final problems = <ImportProblem>[];
     final items = <StockImportItem>[];
@@ -239,21 +300,46 @@ class StockIo {
       final unitAsTyped = unitText.isEmpty ? null : displayUnitFor(unitText);
       final per = perText.isEmpty ? null : displayUnitFor(perText);
       if (unitText.isNotEmpty && unitAsTyped == null) {
-        problems.add(ImportProblem(rowNo, 'Check the unit for $name: piece, g or ml.'));
+        problems.add(
+          ImportProblem(rowNo, 'Check the unit for $name: piece, g or ml.'),
+        );
         continue;
       }
       if (perText.isNotEmpty && per == null) {
-        problems.add(ImportProblem(rowNo, 'Check cost_per for $name: pcs, g, kg, ml or L.'));
+        problems.add(
+          ImportProblem(
+            rowNo,
+            'Check cost_per for $name: pcs, g, kg, ml or L.',
+          ),
+        );
         continue;
       }
-      final unit = unitAsTyped?.base ?? per?.base ?? old?.unit ?? StockUnit.piece;
-      final counted = per ?? (unitAsTyped != null && unitAsTyped.factor > 1 ? unitAsTyped : DisplayUnit.bulk(unit));
+      final unit =
+          unitAsTyped?.base ?? per?.base ?? old?.unit ?? StockUnit.piece;
+      final counted =
+          per ??
+          (unitAsTyped != null && unitAsTyped.factor > 1
+              ? unitAsTyped
+              : DisplayUnit.bulk(unit));
       if (counted.base != unit) {
-        problems.add(ImportProblem(rowNo, '$name is kept in ${unit.name} but costed per ${counted.symbol}.'));
+        problems.add(
+          ImportProblem(
+            rowNo,
+            '$name is kept in ${unit.name} but costed per ${counted.symbol}.',
+          ),
+        );
         continue;
       }
-      if (old != null && old.unit != unit && old.onHand != 0) {
-        problems.add(ImportProblem(rowNo, '$name has stock in ${old.unit.name}: count it to 0 before changing its unit.'));
+      if (old != null &&
+          old.unit != unit &&
+          (old.onHand != 0 || await _stock.hasProductUsage(old.id))) {
+        problems.add(
+          ImportProblem(
+            rowNo,
+            '$name is in use by a product or recipe, or still has stock. '
+            'Its unit cannot be changed by import.',
+          ),
+        );
         continue;
       }
 
@@ -264,7 +350,9 @@ class StockIo {
         continue;
       }
       final onHandText = cell(r, 'on_hand');
-      final onHand = onHandText.isEmpty ? null : parseQuantity(onHandText, counted);
+      final onHand = onHandText.isEmpty
+          ? null
+          : parseQuantity(onHandText, counted);
       if (onHandText.isNotEmpty && (onHand == null || onHand < 0)) {
         problems.add(ImportProblem(rowNo, 'Check on_hand for $name.'));
         continue;
@@ -277,7 +365,9 @@ class StockIo {
       }
 
       final orderText = cell(r, 'order_qty');
-      final orderQty = orderText.isEmpty ? null : parseQuantity(orderText, counted);
+      final orderQty = orderText.isEmpty
+          ? null
+          : parseQuantity(orderText, counted);
       if (orderText.isNotEmpty && (orderQty == null || orderQty <= 0)) {
         problems.add(ImportProblem(rowNo, 'Check order_qty for $name.'));
         continue;
@@ -287,7 +377,10 @@ class StockIo {
       if (supplierName.isNotEmpty) {
         supplierId = suppliers[supplierName.toLowerCase()];
         if (supplierId == null) {
-          final spelled = newSuppliers.putIfAbsent(supplierName.toLowerCase(), () => supplierName);
+          final spelled = newSuppliers.putIfAbsent(
+            supplierName.toLowerCase(),
+            () => supplierName,
+          );
           supplierId = 'new:$spelled';
         }
       }
@@ -296,7 +389,9 @@ class StockIo {
         id: old?.id,
         name: old?.name ?? name,
         unit: unit,
-        costMilli: cost == null ? (old?.costMilli ?? 0) : costMilliFromPrice(cost, counted),
+        costMilli: cost == null
+            ? (old?.costMilli ?? 0)
+            : costMilliFromPrice(cost, counted),
         reorderPoint: lowText.isEmpty ? old?.reorderPoint : low,
         reorderQty: orderText.isEmpty ? old?.reorderQty : orderQty,
         supplierId: supplierId,
@@ -336,11 +431,16 @@ class StockIo {
 
   /// Saves a preview: all of it, or none of it. Counts that change are
   /// recorded as adjustments, so the stock history shows the import.
-  Future<void> applyStock(StockImportPreview preview, {required Staff by}) async {
-    if (!preview.canApply) throw const StockException('Fix the problems in the file first.');
+  Future<void> applyStock(
+    StockImportPreview preview, {
+    required Staff by,
+  }) async {
+    if (!preview.canApply)
+      throw const StockException('Fix the problems in the file first.');
     await _db.transaction(() async {
       final added = {
-        for (final name in preview.newSuppliers) 'new:$name': await _suppliers.save(SupplierDraft(name: name), by: by),
+        for (final name in preview.newSuppliers)
+          'new:$name': await _suppliers.save(SupplierDraft(name: name), by: by),
       };
       for (final i in preview.items) {
         final d = i.draft;
@@ -358,12 +458,14 @@ class StockIo {
           by: by,
         );
         if (i.reactivate) await _stock.setItemActive(id, active: true, by: by);
-        if (i.change != 0) await _stock.adjust(id, i.change, note: 'Stock import', by: by);
+        if (i.change != 0)
+          await _stock.adjust(id, i.change, note: 'Stock import', by: by);
       }
       await _audit.record(
         action: AuditAction.stockImported,
         actor: by,
-        summary: 'Imported ${preview.newItems} new and ${preview.updatedItems} changed stock items',
+        summary:
+            'Imported ${preview.newItems} new and ${preview.updatedItems} changed stock items',
       );
     });
   }
@@ -375,7 +477,11 @@ class StockIo {
   /// a category named in it ("Vanilla ice cream": Ice cream), else the
   /// category of a product named in it ("Cones": the Cone product's).
   /// Longest match wins; null when nothing matches.
-  static String? suggestCategory(String itemName, List<Category> categories, List<Product> products) {
+  static String? suggestCategory(
+    String itemName,
+    List<Category> categories,
+    List<Product> products,
+  ) {
     final name = ' ${itemName.toLowerCase()} ';
     bool names(String word) {
       final w = word.trim().toLowerCase();
@@ -400,7 +506,10 @@ class StockIo {
     }
 
     return best([for (final c in categories) (c.name, c.id)]) ??
-        best([for (final p in products.where((p) => !p.archived)) (p.name, p.categoryId)]);
+        best([
+          for (final p in products.where((p) => !p.archived))
+            (p.name, p.categoryId),
+        ]);
   }
 
   /// A plan for each active stock item that is not made here: what the
@@ -408,19 +517,26 @@ class StockIo {
   Future<List<StockProductPlan>> productPlans() async {
     final items = (await _stock.items()).where((i) => i.active && !i.madeHere);
     final used = {
-      for (final r in await _db
-          .customSelect(
-            'SELECT DISTINCT r.stock_item_id AS id FROM recipe_items r '
-            'JOIN product_variants v ON v.id = r.variant_id AND v.active = 1 '
-            'JOIN products p ON p.id = v.product_id AND p.archived_at IS NULL '
-            'WHERE r.deleted_at IS NULL',
-            readsFrom: {_db.recipeItems, _db.productVariants, _db.products},
-          )
-          .get())
+      for (final r
+          in await _db
+              .customSelect(
+                'SELECT DISTINCT r.stock_item_id AS id FROM recipe_items r '
+                'JOIN product_variants v ON v.id = r.variant_id AND v.active = 1 '
+                'JOIN products p ON p.id = v.product_id AND p.archived_at IS NULL '
+                'WHERE r.deleted_at IS NULL '
+                'UNION SELECT DISTINCT v.stock_item_id AS id FROM product_variants v '
+                'JOIN products p ON p.id = v.product_id AND p.archived_at IS NULL '
+                'WHERE v.stock_item_id IS NOT NULL AND v.active = 1 AND v.deleted_at IS NULL',
+                readsFrom: {_db.recipeItems, _db.productVariants, _db.products},
+              )
+              .get())
         r.read<String>('id'),
     };
     final names = {
-      for (final p in (await _catalog.load(includeInactive: true)).products.where((p) => !p.archived)) p.name.toLowerCase(),
+      for (final p in (await _catalog.load(
+        includeInactive: true,
+      )).products.where((p) => !p.archived))
+        p.name.toLowerCase(),
     };
     return [
       for (final i in items)
@@ -459,18 +575,29 @@ class StockIo {
     bool onTill = true,
     required Staff by,
   }) async {
-    if (plans.isEmpty) throw const CatalogueException('Tick at least one stock item.');
+    if (plans.isEmpty)
+      throw const CatalogueException('Tick at least one stock item.');
     final rest = plans.where((p) => !categoryFor.containsKey(p.item.id));
-    if (rest.isNotEmpty && categoryId == null && (newCategory == null || newCategory.trim().isEmpty)) {
+    if (rest.isNotEmpty &&
+        categoryId == null &&
+        (newCategory == null || newCategory.trim().isEmpty)) {
       throw CatalogueException('Pick a category for ${rest.first.item.name}.');
     }
     for (final p in plans) {
-      if (prices[p.item.id] == null) throw CatalogueException('Enter a price for ${p.item.name}.');
+      if (prices[p.item.id] == null)
+        throw CatalogueException('Enter a price for ${p.item.name}.');
     }
     return _db.transaction(() async {
       final fallback = rest.isEmpty
           ? null
-          : categoryId ?? await _rules.saveCategory(CategoryDraft(name: newCategory!.trim(), tone: CategoryTone.blue), by: by);
+          : categoryId ??
+                await _rules.saveCategory(
+                  CategoryDraft(
+                    name: newCategory!.trim(),
+                    tone: CategoryTone.blue,
+                  ),
+                  by: by,
+                );
       for (final p in plans) {
         await _rules.saveProduct(
           ProductDraft(
@@ -481,7 +608,8 @@ class StockIo {
             variants: [
               VariantDraft(
                 price: prices[p.item.id]!,
-                recipe: [RecipeDraftLine(stockItemId: p.item.id, quantity: p.recipeQuantity)],
+                stockItemId: p.item.id,
+                stockQuantity: p.recipeQuantity,
               ),
             ],
           ),

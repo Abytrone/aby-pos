@@ -2344,6 +2344,12 @@ abstract class AppLocalizations {
   /// **'From the recipe'**
   String get editorCostFromRecipe;
 
+  /// No description provided for @editorCostFromStock.
+  ///
+  /// In en, this message translates to:
+  /// **'From the stock item'**
+  String get editorCostFromStock;
+
   /// No description provided for @editorCostHelp.
   ///
   /// In en, this message translates to:
@@ -2452,16 +2458,88 @@ abstract class AppLocalizations {
   /// **'Change prices.'**
   String get editorPriceReason;
 
+  /// No description provided for @editorStockUsageMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Inventory tracking'**
+  String get editorStockUsageMode;
+
+  /// No description provided for @editorStockModeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how a sale affects stock. Use a recipe for a product made from multiple stock items.'**
+  String get editorStockModeHelp;
+
+  /// No description provided for @editorStockUsageNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not tracked'**
+  String get editorStockUsageNone;
+
+  /// No description provided for @editorStockUsageItem.
+  ///
+  /// In en, this message translates to:
+  /// **'One stock item'**
+  String get editorStockUsageItem;
+
+  /// No description provided for @editorStockUsageRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipe'**
+  String get editorStockUsageRecipe;
+
+  /// No description provided for @editorStockItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock item'**
+  String get editorStockItem;
+
+  /// No description provided for @editorStockItemNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a stock item'**
+  String get editorStockItemNone;
+
+  /// No description provided for @editorStockItemHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Each sale uses this amount from the item. Cost comes from its current stock cost.'**
+  String get editorStockItemHelp;
+
+  /// No description provided for @editorStockQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Per sale unit'**
+  String get editorStockQuantity;
+
+  /// No description provided for @editorStockItemMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a stock item.'**
+  String get editorStockItemMissing;
+
+  /// No description provided for @editorStockQuantityInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount greater than zero.'**
+  String get editorStockQuantityInvalid;
+
+  /// No description provided for @editorStockUnitMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a stock item measured in pieces for each, grams for kg, or millilitres for litre.'**
+  String get editorStockUnitMismatch;
+
   /// No description provided for @recipeUses.
   ///
   /// In en, this message translates to:
-  /// **'What it uses'**
+  /// **'Recipe ingredients'**
   String get recipeUses;
 
   /// No description provided for @recipeHelp.
   ///
   /// In en, this message translates to:
-  /// **'Each sale takes these from stock and works out the cost.'**
+  /// **'Each sale takes these ingredients from stock and works out their cost.'**
   String get recipeHelp;
 
   /// No description provided for @recipeItem.
@@ -3925,7 +4003,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsNegativeStockHelp.
   ///
   /// In en, this message translates to:
-  /// **'The till warns but still sells. Off: it refuses.'**
+  /// **'On: warn but allow the sale. Off: refuse when stock is insufficient.'**
   String get settingsNegativeStockHelp;
 
   /// No description provided for @settingsDiscounts.
@@ -9394,6 +9472,12 @@ abstract class AppLocalizations {
   /// **'{count} left'**
   String tileLeft(int count);
 
+  /// No description provided for @tileLowLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} left · low'**
+  String tileLowLeft(Object count);
+
   /// No description provided for @pickerAdd.
   ///
   /// In en, this message translates to:
@@ -11251,7 +11335,7 @@ abstract class AppLocalizations {
   /// No description provided for @importIntro.
   ///
   /// In en, this message translates to:
-  /// **'Add or update many products at once from a spreadsheet: one row per product, or one per size when it has several prices.'**
+  /// **'Add or update products from a spreadsheet, one row per size when needed. Add on_hand and low_below columns to track each SKU and stop selling at zero.'**
   String get importIntro;
 
   /// No description provided for @importStep1.
@@ -11338,10 +11422,28 @@ abstract class AppLocalizations {
   /// **'yes or no. No keeps it off the till for now.'**
   String get importColOnTill;
 
+  /// No description provided for @importColOnHand.
+  ///
+  /// In en, this message translates to:
+  /// **'Count in pieces. Enter it to track the SKU and deduct one per sale; on updates it sets the new counted total. 0 starts out of stock.'**
+  String get importColOnHand;
+
+  /// No description provided for @importColLowBelow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low-stock threshold in pieces. Only applies when the SKU is stock-tracked.'**
+  String get importColLowBelow;
+
+  /// No description provided for @importStockSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock: {created} new, {updated} updated, {recounted} counts changed.'**
+  String importStockSummary(int created, int updated, int recounted);
+
   /// No description provided for @importNeverRemoves.
   ///
   /// In en, this message translates to:
-  /// **'Importing adds products and updates prices, costs and barcodes. It never removes anything.'**
+  /// **'Importing adds products and updates prices, costs, barcodes and optional stock counts. Blank stock fields leave existing stock unchanged; new SKUs stay untracked when both are blank.'**
   String get importNeverRemoves;
 
   /// No description provided for @importFixHint.

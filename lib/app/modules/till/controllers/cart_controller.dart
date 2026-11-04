@@ -82,16 +82,15 @@ class CartController extends GetxController {
   /// Promotions are worked out for now: a happy hour starts or ends with
   /// the next change to the cart.
   CartPricing get pricing => CartPricing.of(
-        lines,
-        orderDiscount: orderDiscount.value,
-        taxMode: taxMode,
-        promotions: Loyalty.apply(lines, promotions, DateTime.now(), loyalty, loyaltyStatus.value),
-      );
+    lines,
+    orderDiscount: orderDiscount.value,
+    taxMode: taxMode,
+    promotions: Loyalty.apply(lines, promotions, DateTime.now(), loyalty, loyaltyStatus.value),
+  );
 
   /// The shop's loyalty rules (off when settings are not loaded).
-  LoyaltyConfig get loyalty => Get.isRegistered<SettingsService>()
-      ? LoyaltyConfig.read(Get.find<SettingsService>().get)
-      : const LoyaltyConfig();
+  LoyaltyConfig get loyalty =>
+      Get.isRegistered<SettingsService>() ? LoyaltyConfig.read(Get.find<SettingsService>().get) : const LoyaltyConfig();
 
   /// Queue numbers and prep, when the shop uses them (SEL-11).
   OrderConfig? get orders {
@@ -133,8 +132,10 @@ class CartController extends GetxController {
   bool get isEmpty => lines.isEmpty;
 
   /// How many of a product are in the cart, across all its lines.
-  int countFor(String productId) =>
-      lines.where((l) => l.product.id == productId).fold(0, (sum, l) => sum + l.count);
+  int countFor(String productId) => lines.where((l) => l.product.id == productId).fold(0, (sum, l) => sum + l.count);
+
+  int countForVariant(String variantId) =>
+      lines.where((l) => l.variant.id == variantId).fold(0, (sum, l) => sum + l.count);
 
   /// Change to give back, or 0 when the cash given does not cover the total.
   int changeDue(int tendered) => tendered > total ? tendered - total : 0;
@@ -197,7 +198,9 @@ class CartController extends GetxController {
     lines[index] = updated;
     if (quantity < old.quantity) {
       final gone = old.copyWith(quantity: old.quantity - quantity);
-      _recordRemoval('Took ${gone.quantityText} × ${old.title} (${formatMoney(old.lineTotal - updated.lineTotal)}) off the cart');
+      _recordRemoval(
+        'Took ${gone.quantityText} × ${old.title} (${formatMoney(old.lineTotal - updated.lineTotal)}) off the cart',
+      );
     }
   }
 
@@ -240,18 +243,18 @@ class CartController extends GetxController {
   /// Swaps the size or options, keeping quantity, note and discount. An
   /// overridden price goes back to the menu price for the new pick.
   void replacePick(String key, {required Variant variant, required List<Option> options}) => _update(
-        key,
-        (l) => CartLine(
-          id: l.id,
-          product: l.product,
-          variant: variant,
-          options: options,
-          quantity: l.quantity,
-          customPrice: l.product.openPrice ? l.customPrice : null,
-          note: l.note,
-          discount: l.discount,
-        ),
-      );
+    key,
+    (l) => CartLine(
+      id: l.id,
+      product: l.product,
+      variant: variant,
+      options: options,
+      quantity: l.quantity,
+      customPrice: l.product.openPrice ? l.customPrice : null,
+      note: l.note,
+      discount: l.discount,
+    ),
+  );
 
   void setOrderNote(String? text) => note.value = text == null || text.trim().isEmpty ? null : text.trim();
 
@@ -275,13 +278,13 @@ class CartController extends GetxController {
 
   /// Everything in the cart, as JSON (saved cart and parked orders).
   Map<String, dynamic> snapshot() => {
-        'lines': [for (final l in lines) l.toJson()],
-        if (orderDiscount.value != null) 'orderDiscount': orderDiscount.value!.toJson(),
-        'note': ?note.value,
-        'orderType': ?orderType.value?.name,
-        if (customer.value != null)
-          'customer': {'id': customer.value!.id, 'name': customer.value!.name, 'phone': ?customer.value!.phone},
-      };
+    'lines': [for (final l in lines) l.toJson()],
+    if (orderDiscount.value != null) 'orderDiscount': orderDiscount.value!.toJson(),
+    'note': ?note.value,
+    'orderType': ?orderType.value?.name,
+    if (customer.value != null)
+      'customer': {'id': customer.value!.id, 'name': customer.value!.name, 'phone': ?customer.value!.phone},
+  };
 
   /// Replaces the cart with [json], looked up against [products]. Returns
   /// how many lines were dropped because they are no longer on the menu.

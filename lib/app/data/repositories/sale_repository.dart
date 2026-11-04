@@ -86,6 +86,7 @@ class SaleRepository {
   /// one-payment shorthand. [roundTo] rounds a final cash payment to the
   /// nearest 10 or 50 pesewas. With [exchange], the returned items are
   /// refunded in the same transaction and their value pays first.
+  /// [allowNegativeStock] lets a shop explicitly sell past available stock.
   Future<CompletedSale> completeSale({
     required List<CartLine> lines,
     PaymentInput? payment,
@@ -103,6 +104,7 @@ class SaleRepository {
     List<Promotion> promotions = const [],
     LoyaltyConfig loyalty = const LoyaltyConfig(),
     OrderConfig? orders,
+    bool allowNegativeStock = false,
   }) async {
     if (lines.isEmpty) throw const SaleException('The cart is empty.');
     if (lines.any((l) => l.quantity < 1)) {
@@ -135,14 +137,14 @@ class SaleRepository {
     // Credit and wallet payments are on the attached customer's account.
     PaymentInput forCustomer(PaymentInput p) =>
         customer == null || p.method != PaymentMethod.credit || (p.customer ?? '').trim().isNotEmpty
-            ? p
-            : PaymentInput(
-                method: p.method,
-                methodId: p.methodId,
-                methodName: p.methodName,
-                amount: p.amount,
-                customer: customer.name,
-              );
+        ? p
+        : PaymentInput(
+            method: p.method,
+            methodId: p.methodId,
+            methodName: p.methodName,
+            amount: p.amount,
+            customer: customer.name,
+          );
     final tenders = [
       if (fromExchange > 0) PaymentInput(method: PaymentMethod.exchange, methodName: 'Exchange', amount: fromExchange),
       for (final p in [...payments, ?payment]) forCustomer(p),
@@ -188,6 +190,53 @@ class SaleRepository {
       final number = await _nextSaleNumber();
       final orderNumber = orders != null && orders.needsPrep(lines) ? await _nextOrderNumber(orders, now) : null;
 
+      final used = <String, int>{};
+      final costs = <String, int>{};
+      final lineCosts = <int>[];
+      final lineStockUsed = <Map<String, int>>[];
+      for (final priced in pricing.lines) {
+        final line = priced.line;
+        var lineCost = 0;
+        final lineUsed = <String, int>{};
+        Future<void> consume(List<(String, int, int)> recipe) async {
+          for (final (item, qty, costMilli) in recipe) {
+            final take = line.weighed ? (qty * line.quantity + 500) ~/ 1000 : qty * line.quantity;
+            used[item] = (used[item] ?? 0) + take;
+            lineUsed[item] = (lineUsed[item] ?? 0) + take;
+            costs[item] = costMilli;
+            lineCost += costOf(take, costMilli);
+          }
+        }
+
+        final productUsage = await _stock.variantUsage(line.variant.id);
+        await consume(productUsage);
+        for (final option in line.options) {
+          await consume(await _stock.optionUsage(option.id));
+        }
+        final manual = line.variant.manualCost;
+        if (productUsage.isEmpty && manual != null) {
+          lineCost += line.weighed ? (manual * line.quantity + 500) ~/ 1000 : manual * line.quantity;
+        }
+        lineCosts.add(lineCost);
+        lineStockUsed.add(lineUsed);
+      }
+
+      if (!allowNegativeStock && used.isNotEmpty) {
+        final items = {for (final item in await _stock.items(includeInactive: true)) item.id: item};
+        for (final entry in used.entries) {
+          final item = items[entry.key];
+          final have = item?.onHand ?? 0;
+          if (have < entry.value) {
+            final name = item?.name ?? 'Stock item';
+            final unit = item?.unit ?? StockUnit.piece;
+            throw SaleException(
+              'Not enough $name: ${formatQuantity(have, unit)} on hand, '
+              '${formatQuantity(entry.value, unit)} needed.',
+            );
+          }
+        }
+      }
+
       await _db.insertTracked(
         _db.sales,
         SalesCompanion.insert(
@@ -216,36 +265,9 @@ class SaleRepository {
         ),
       );
 
-      // Stock used, summed per stock item across the sale.
-      final used = <String, int>{};
-      final costs = <String, int>{};
-      for (final priced in pricing.lines) {
+      for (final (i, priced) in pricing.lines.indexed) {
         final line = priced.line;
-        var lineCost = 0;
-        final lineUsed = <String, int>{};
-        // Recipes are per one sold, or per kg / litre for weighed lines.
-        Future<void> consume(List<(String, int, int)> recipe) async {
-          for (final (item, qty, costMilli) in recipe) {
-            final take = line.weighed ? (qty * line.quantity + 500) ~/ 1000 : qty * line.quantity;
-            used[item] = (used[item] ?? 0) + take;
-            lineUsed[item] = (lineUsed[item] ?? 0) + take;
-            costs[item] = costMilli;
-            lineCost += costOf(take, costMilli);
-          }
-        }
-
-        await consume(await _stock.recipe(variantId: line.variant.id));
-        for (final option in line.options) {
-          final own = await _stock.recipe(optionId: option.id);
-          // A combo part with no recipe of its own uses its product's.
-          final linked = option.variantId;
-          await consume(own.isEmpty && linked != null ? await _stock.recipe(variantId: linked) : own);
-        }
-        // No recipe: the cost typed on the product (per one, or per kg / litre).
-        final manual = line.variant.manualCost;
-        if (line.variant.recipe.isEmpty && manual != null) {
-          lineCost += line.weighed ? (manual * line.quantity + 500) ~/ 1000 : manual * line.quantity;
-        }
+        final lineCost = lineCosts[i];
 
         await _db.insertTracked(
           _db.saleLines,
@@ -262,9 +284,7 @@ class SaleRepository {
             quantity: line.quantity,
             unitPrice: line.unitPrice,
             lineTotal: line.lineTotal,
-            addons: Value([
-              for (final o in line.options) SoldAddon(id: o.id, name: o.name, price: o.priceDelta),
-            ]),
+            addons: Value([for (final o in line.options) SoldAddon(id: o.id, name: o.name, price: o.priceDelta)]),
             costTotal: Value(lineCost),
             taxTotal: Value(priced.tax.taxTotal),
             sellBy: Value(line.product.sellBy),
@@ -277,7 +297,7 @@ class SaleRepository {
             orderDiscountShare: Value(priced.orderShare),
             discountDetail: Value(line.discount == null ? null : jsonEncode(line.discount!.toJson())),
             note: Value(line.note?.trim().isEmpty ?? true ? null : line.note!.trim()),
-            stockUsed: Value(lineUsed.isEmpty ? null : jsonEncode(lineUsed)),
+            stockUsed: Value(lineStockUsed[i].isEmpty ? null : jsonEncode(lineStockUsed[i])),
           ),
         );
       }
@@ -365,7 +385,13 @@ class SaleRepository {
             amount: p.amount,
             tendered: Value(input.method == PaymentMethod.cash ? (input.tendered ?? p.amount) : null),
             changeGiven: Value(input.method == PaymentMethod.cash ? p.change - (p.change > 0 ? kept : 0) : null),
-            momoReference: Value(input.method == PaymentMethod.exchange ? returned?.displayNumber : (ref?.isEmpty ?? true) ? null : ref),
+            momoReference: Value(
+              input.method == PaymentMethod.exchange
+                  ? returned?.displayNumber
+                  : (ref?.isEmpty ?? true)
+                  ? null
+                  : ref,
+            ),
             customer: Value(input.customer?.trim()),
             methodId: Value(input.methodId),
             methodName: Value(input.methodName ?? input.method.label),
@@ -456,7 +482,8 @@ class SaleRepository {
       await _auditAdjustments(pricing, orderDiscount, saleId: saleId, number: number, cashier: cashier);
 
       // The checkout hands the saved sale to PrintService.afterSale.
-      final main = settlement.payments.where((p) => p.input.method != PaymentMethod.exchange).firstOrNull ??
+      final main =
+          settlement.payments.where((p) => p.input.method != PaymentMethod.exchange).firstOrNull ??
           settlement.payments.first;
       return CompletedSale(
         saleId: saleId,
@@ -516,22 +543,21 @@ class SaleRepository {
     }
   }
 
-  static String _discountText(Discount d) => [
-        d.name ?? d.label,
-        d.reason,
-        if (d.approvedBy != null) 'approved by ${d.approvedBy}',
-      ].join(', ');
+  static String _discountText(Discount d) =>
+      [d.name ?? d.label, d.reason, if (d.approvedBy != null) 'approved by ${d.approvedBy}'].join(', ');
 
   /// The products sold most recently on this till, newest first.
   Future<List<String>> recentProductIds({int limit = 8}) async {
-    final rows = await _db.customSelect(
-      'SELECT l.product_id AS id, MAX(s.number) AS last FROM sale_lines l '
-      'JOIN sales s ON s.id = l.sale_id '
-      'WHERE s.device_id = ? AND s.deleted_at IS NULL AND l.deleted_at IS NULL '
-      'GROUP BY l.product_id ORDER BY last DESC LIMIT ?',
-      variables: [Variable.withString(_device.deviceId), Variable.withInt(limit)],
-      readsFrom: {_db.sales, _db.saleLines},
-    ).get();
+    final rows = await _db
+        .customSelect(
+          'SELECT l.product_id AS id, MAX(s.number) AS last FROM sale_lines l '
+          'JOIN sales s ON s.id = l.sale_id '
+          'WHERE s.device_id = ? AND s.deleted_at IS NULL AND l.deleted_at IS NULL '
+          'GROUP BY l.product_id ORDER BY last DESC LIMIT ?',
+          variables: [Variable.withString(_device.deviceId), Variable.withInt(limit)],
+          readsFrom: {_db.sales, _db.saleLines},
+        )
+        .get();
     return [for (final r in rows) r.read<String>('id')];
   }
 
@@ -552,29 +578,35 @@ class SaleRepository {
     if (!p.needsReference || p.reference == null) return;
     final ref = Settlement.cleanReference(p.reference!);
     if (ref.isEmpty) return;
-    final rows = await _db.customSelect(
-      'SELECT s.number AS number, s.device_id AS device FROM payments p JOIN sales s ON s.id = p.sale_id '
-      "WHERE UPPER(REPLACE(p.momo_reference, ' ', '')) = ? AND s.status = 'completed' "
-      'AND p.deleted_at IS NULL AND s.deleted_at IS NULL AND p.created_at >= ? LIMIT 1',
-      variables: [
-        Variable.withString(ref),
-        Variable.withDateTime(p.shortReference ? clock.now().subtract(shortReferenceWindow) : DateTime(2000)),
-      ],
-      readsFrom: {_db.payments, _db.sales},
-    ).get();
+    final rows = await _db
+        .customSelect(
+          'SELECT s.number AS number, s.device_id AS device FROM payments p JOIN sales s ON s.id = p.sale_id '
+          "WHERE UPPER(REPLACE(p.momo_reference, ' ', '')) = ? AND s.status = 'completed' "
+          'AND p.deleted_at IS NULL AND s.deleted_at IS NULL AND p.created_at >= ? LIMIT 1',
+          variables: [
+            Variable.withString(ref),
+            Variable.withDateTime(p.shortReference ? clock.now().subtract(shortReferenceWindow) : DateTime(2000)),
+          ],
+          readsFrom: {_db.payments, _db.sales},
+        )
+        .get();
     if (rows.isNotEmpty) {
-      throw SaleException('This reference was already used on sale ${formatSaleNumber(rows.first.read<int>('number'))}.');
+      throw SaleException(
+        'This reference was already used on sale ${formatSaleNumber(rows.first.read<int>('number'))}.',
+      );
     }
   }
 
   /// The next queue number on this device in today's business day.
   Future<int> _nextOrderNumber(OrderConfig orders, DateTime now) async {
     final day = BusinessDay.containing(now, startMinutes: orders.dayStartMinutes);
-    final row = await _db.customSelect(
-      'SELECT COALESCE(MAX(order_number), 0) AS n FROM sales WHERE device_id = ? AND created_at >= ? AND deleted_at IS NULL',
-      variables: [Variable.withString(_device.deviceId), Variable.withDateTime(day.start)],
-      readsFrom: {_db.sales},
-    ).getSingle();
+    final row = await _db
+        .customSelect(
+          'SELECT COALESCE(MAX(order_number), 0) AS n FROM sales WHERE device_id = ? AND created_at >= ? AND deleted_at IS NULL',
+          variables: [Variable.withString(_device.deviceId), Variable.withDateTime(day.start)],
+          readsFrom: {_db.sales},
+        )
+        .getSingle();
     return row.read<int>('n') + 1;
   }
 
@@ -594,24 +626,21 @@ class SaleRepository {
   Future<void> voidSale(String saleId, {required Staff actor, Staff? approver, String? reason}) {
     final by = approver ?? actor;
     return _db.transaction(() async {
-      final sale = await (_db.select(_db.sales)
-            ..where((s) => s.id.equals(saleId)))
-          .getSingleOrNull();
+      final sale = await (_db.select(_db.sales)..where((s) => s.id.equals(saleId))).getSingleOrNull();
       if (sale == null) throw const SaleException('Sale not found.');
       if (sale.status == SaleStatus.voided) {
         throw const SaleException('This sale is already voided.');
       }
-      final refunded = await (_db.select(_db.refunds)
-            ..where((r) => r.saleId.equals(saleId) & r.deletedAt.isNull())
-            ..limit(1))
-          .getSingleOrNull();
+      final refunded =
+          await (_db.select(_db.refunds)
+                ..where((r) => r.saleId.equals(saleId) & r.deletedAt.isNull())
+                ..limit(1))
+              .getSingleOrNull();
       if (refunded != null) {
         throw const SaleException('Part of this sale was refunded, so it cannot be voided. Refund the rest instead.');
       }
-      if (sale.deviceId == _device.deviceId &&
-          sale.number <= await _closes.closedUpTo()) {
-        throw const SaleException(
-            "This sale is in a closed day, so it can't be voided.");
+      if (sale.deviceId == _device.deviceId && sale.number <= await _closes.closedUpTo()) {
+        throw const SaleException("This sale is in a closed day, so it can't be voided.");
       }
 
       final now = clock.now();
@@ -628,9 +657,9 @@ class SaleRepository {
 
       // Put back exactly what the sale took (stock items from v5, products
       // for older sales).
-      final taken = await (_db.select(_db.stockMovements)
-            ..where((m) => m.saleId.equals(saleId) & m.reason.equalsValue(StockReason.sale)))
-          .get();
+      final taken = await (_db.select(
+        _db.stockMovements,
+      )..where((m) => m.saleId.equals(saleId) & m.reason.equalsValue(StockReason.sale))).get();
       for (final m in taken) {
         await _stock.record(
           stockItemId: m.stockItemId,
@@ -654,7 +683,8 @@ class SaleRepository {
         approver: approver,
         entity: 'sales',
         entityId: saleId,
-        summary: 'Voided ${formatSaleNumber(sale.number)} (${formatMoney(sale.total)})'
+        summary:
+            'Voided ${formatSaleNumber(sale.number)} (${formatMoney(sale.total)})'
             '${reason == null || reason.trim().isEmpty ? '' : ': ${reason.trim()}'}',
       );
     });
@@ -665,10 +695,7 @@ class SaleRepository {
   /// change.
   Stream<List<Sale>> watchSales({required DateTime from, required DateTime to}) async* {
     final query = _db.select(_db.sales)
-      ..where((s) =>
-          s.deletedAt.isNull() &
-          s.createdAt.isBiggerOrEqualValue(from) &
-          s.createdAt.isSmallerThanValue(to))
+      ..where((s) => s.deletedAt.isNull() & s.createdAt.isBiggerOrEqualValue(from) & s.createdAt.isSmallerThanValue(to))
       ..orderBy([
         (s) => OrderingTerm(expression: s.createdAt, mode: OrderingMode.desc),
         (s) => OrderingTerm(expression: s.number, mode: OrderingMode.desc),
@@ -689,52 +716,53 @@ class SaleRepository {
     if (rows.isEmpty) return const [];
     final ids = rows.map((r) => r.id).toList();
 
-    final payments = await (_db.select(_db.payments)
-          ..where((p) => p.saleId.isIn(ids) & p.deletedAt.isNull()))
-        .get();
+    final payments = await (_db.select(_db.payments)..where((p) => p.saleId.isIn(ids) & p.deletedAt.isNull())).get();
     final paymentsBySale = <String, List<Payment>>{};
     for (final p in payments) {
-      paymentsBySale.putIfAbsent(p.saleId, () => []).add(Payment(
-            id: p.id,
-            method: p.method,
-            methodName: p.methodName,
-            amount: p.amount,
-            tendered: p.tendered,
-            changeGiven: p.changeGiven,
-            momoReference: p.momoReference,
-            customer: p.customer,
-          ));
+      paymentsBySale
+          .putIfAbsent(p.saleId, () => [])
+          .add(
+            Payment(
+              id: p.id,
+              method: p.method,
+              methodName: p.methodName,
+              amount: p.amount,
+              tendered: p.tendered,
+              changeGiven: p.changeGiven,
+              momoReference: p.momoReference,
+              customer: p.customer,
+            ),
+          );
     }
 
     // A weighed line is one item, not its grams.
-    final lines = await (_db.select(_db.saleLines)
-          ..where((l) => l.saleId.isIn(ids) & l.deletedAt.isNull())
-          ..orderBy([(l) => OrderingTerm(expression: l.createdAt), (l) => OrderingTerm(expression: l.id)]))
-        .get();
+    final lines =
+        await (_db.select(_db.saleLines)
+              ..where((l) => l.saleId.isIn(ids) & l.deletedAt.isNull())
+              ..orderBy([(l) => OrderingTerm(expression: l.createdAt), (l) => OrderingTerm(expression: l.id)]))
+            .get();
     final counts = <String, int>{};
     final items = <String, List<String>>{};
     for (final l in lines) {
       final each = l.sellBy == SellBy.each;
       counts[l.saleId] = (counts[l.saleId] ?? 0) + (each ? l.quantity : 1);
-      final title = l.variantName == null || l.variantName!.isEmpty ? l.productName : '${l.productName} (${l.variantName})';
+      final title = l.variantName == null || l.variantName!.isEmpty
+          ? l.productName
+          : '${l.productName} (${l.variantName})';
       items.putIfAbsent(l.saleId, () => []).add(each && l.quantity > 1 ? '${l.quantity} x $title' : title);
     }
 
     final customerIds = {for (final r in rows) ?r.customerId};
     final customers = customerIds.isEmpty
         ? const <String, String>{}
-        : {
-            for (final c in await (_db.select(_db.customers)..where((c) => c.id.isIn(customerIds))).get()) c.id: c.name,
-          };
+        : {for (final c in await (_db.select(_db.customers)..where((c) => c.id.isIn(customerIds))).get()) c.id: c.name};
 
     final refundSum = _db.refunds.total.sum();
     final refundQuery = _db.selectOnly(_db.refunds)
       ..addColumns([_db.refunds.saleId, refundSum])
       ..where(_db.refunds.saleId.isIn(ids) & _db.refunds.deletedAt.isNull())
       ..groupBy([_db.refunds.saleId]);
-    final refunded = {
-      for (final r in await refundQuery.get()) r.read(_db.refunds.saleId)!: r.read(refundSum) ?? 0,
-    };
+    final refunded = {for (final r in await refundQuery.get()) r.read(_db.refunds.saleId)!: r.read(refundSum) ?? 0};
 
     return [
       for (final r in rows)

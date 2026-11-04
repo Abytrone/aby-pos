@@ -281,9 +281,9 @@ makes tiles smaller or larger.
 If a scanned barcode isn't known, Aby offers **New product with this barcode** to people allowed
 to add products.
 
-**Low and out of stock:** a tile can say "3 left" or "Out of stock". You can still sell it,
-because you may know there's more in the freezer. To refuse sales of out-of-stock items, turn off
-Settings → Selling → **Sell when out of stock**.
+**Stock:** tracked products show how many can be sold; low quantities are marked and out-of-stock
+items are refused by default. To allow selling past zero, turn on Settings → Selling →
+**Sell when out of stock**.
 
 ### 3.3 Changing a line in the cart
 
@@ -696,6 +696,10 @@ needs *Add and edit products*. Changing prices needs *Change prices*.
 Tap **Add** (or a product to edit it):
 
 - **Name** and **category**.
+- Product names are unique (ignoring case and surrounding spaces). A stock item
+  linked to a product may use the same name; names are unique within each list.
+  If an older database has duplicate names, Aby keeps both records and adds a
+  numbered suffix to the later name.
 - **Sizes and prices:** every product has at least one price. Add sizes ("Single scoop GH₵ 15.00",
   "Double scoop GH₵ 22.00") for more.
 - **Sold by:** each, by the kg, or by the litre.
@@ -703,7 +707,11 @@ Tap **Add** (or a product to edit it):
 - **Options:** add option groups such as Extras or Sugar level (9.3).
 - **Barcodes:** scan them in, or type them. A short code (like `12`) works as a barcode too.
 - **Photo:** take one or pick one. Without a photo, the tile shows the category's picture.
-- **Cost:** what it costs you, or a **recipe** that uses stock (10.3). Aby uses this for profit.
+- **Inventory tracking:** leave it off for products you do not count, choose **One stock item** for
+  ordinary retail products, or choose **Recipe** for products made from multiple stock items.
+  Stock links are saved by record ID, not inferred from matching names. If you add the stock item
+  later, edit the product and select it; matching names alone will not link them. Aby uses the
+  linked stock cost or recipe to work out profit.
 - **Tax** (9.4).
 - **On the Quick tab** and **On the till** (switch off to hide it from the till without deleting
   it).
@@ -757,9 +765,29 @@ All price changes go in the activity log.
 Import** brings a CSV back:
 
 - You see a **preview** first.
-- It **adds** new products and **updates** prices, costs, barcodes and what shows on the till.
+- It **adds** new products and **updates** prices, costs, barcodes, stock counts and what shows on the till.
 - It **never removes** anything.
 - If any row has a problem, **nothing** is imported. Fix the row and try again.
+- `on_hand` tracks each product or size in pieces; each sale deducts one. `low_below` marks the
+  quantity at which that SKU is shown as low. New SKUs with both fields blank remain untracked;
+  blank fields on an existing SKU leave its stock settings unchanged. On an update, `on_hand` is the
+  new counted total and is recorded as a stock adjustment.
+- The exported CSV also includes `stock_item`, `stock_quantity` and `sell_by`. `stock_item` is the
+  exact name of an existing item from Stock; import the stock list first if needed. `stock_quantity`
+  is the positive whole number of base units consumed per sale (pieces, grams or millilitres), and
+  `sell_by` is `each`, `kg` or `litre`. These columns preserve direct stock links, including weighed
+  products, when moving the product list. If `cost` is supplied for a linked product, it updates the
+  linked stock item's cost to match the cost per sale. An empty `cost` leaves that cost unchanged.
+  `on_hand` and `low_below` remain piece counts; use **Import stock** for bulk counts of weighed
+  stock items.
+- For a regular retail item, choose **One stock item** under Inventory tracking in the product
+  form, then select the stock item and amount used per sale. This explicit link controls the stock
+  deduction and uses the stock item's current cost.
+- For products made from several ingredients, choose **Recipe** instead. Recipes continue to deduct
+  their ingredients and options when sold.
+- When `on_hand` is supplied for a simple SKU, import can match or create its piece-based stock
+  item by product name (or `product - variant`) and save that as an explicit link. Sales no longer
+  match products to stock items by name.
 
 ### 9.7 Products from stock
 
@@ -777,8 +805,12 @@ products: Products → Tools → **Products from stock** (also on Stock → Tool
   it. **Category for the rest** (an existing one, or a new one) is for items Aby could not place.
 - **Make products**.
 
-Each product takes its stock item off when sold. Items kept in grams or millilitres become
-products sold by the kg or litre.
+Each product is explicitly linked to its stock item, so a sale deducts the correct amount and uses
+that item's cost. Items kept in grams or millilitres become products sold by the kg or litre.
+
+Stock item names are unique too. Importing an existing name updates that stock record; making a
+product from stock keeps the relationship tied to its record ID. Products and their linked stock
+item can share a name.
 
 ### 9.8 Labels and barcodes
 
@@ -806,8 +838,9 @@ in **pieces**, **grams** or **millilitres** (shown as kg and L when large).
 Each item shows what is **on hand**, what it cost on average, its history, how much is used a day,
 **how long it will last**, and a **suggested low level**.
 
-> **You don't have to count stock.** Products with no stock items simply sell. Add stock items only
-> for what you want to track.
+> Product imports can start tracking individual SKUs with `on_hand` and `low_below`. Direct stock
+> links are included in product CSV exports. For products made from multiple ingredients, use
+> recipes instead. Products with neither remain untracked and simply sell.
 
 **Import stock** (Stock → Tools → **Import stock**) works like the product import: download the
 sample (or export your stock to start from it), fill it in Excel or Google Sheets, and pick the CSV.

@@ -12,8 +12,7 @@ import '../../../ui/import_dialogs.dart';
 
 /// Raise or lower many prices at once (the products in view), rounded,
 /// with a preview before anything changes.
-Future<void> showBulkPrices(CatalogueController controller) =>
-    Get.dialog<void>(_BulkPrices(controller: controller));
+Future<void> showBulkPrices(CatalogueController controller) => Get.dialog<void>(_BulkPrices(controller: controller));
 
 class _BulkPrices extends StatefulWidget {
   const _BulkPrices({required this.controller});
@@ -58,65 +57,102 @@ class _BulkPricesState extends State<_BulkPrices> {
       title: Text(l.bulkTitle),
       content: SizedBox(
         width: 520,
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(l.bulkScope(widget.controller.visibleProducts.length), style: AbyText.caption.copyWith(color: c.inkMuted)),
-          const SizedBox(height: AbySpace.s3),
-          Wrap(spacing: AbySpace.s2, runSpacing: AbySpace.s2, crossAxisAlignment: WrapCrossAlignment.center, children: [
-            SegmentedButton<bool>(
-              segments: [ButtonSegment(value: true, label: Text(l.bulkRaise)), ButtonSegment(value: false, label: Text(l.bulkLower))],
-              selected: {_raise},
-              onSelectionChanged: (s) => setState(() => _raise = s.first),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l.bulkScope(widget.controller.visibleProducts.length),
+              style: AbyText.caption.copyWith(color: c.inkMuted),
             ),
-            SizedBox(
-              width: 110,
-              child: TextField(
-                controller: _value,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(isDense: true, prefixText: _percent ? null : 'GH₵ ', suffixText: _percent ? '%' : null),
+            const SizedBox(height: AbySpace.s3),
+            Wrap(
+              spacing: AbySpace.s2,
+              runSpacing: AbySpace.s2,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                SegmentedButton<bool>(
+                  segments: [
+                    ButtonSegment(value: true, label: Text(l.bulkRaise)),
+                    ButtonSegment(value: false, label: Text(l.bulkLower)),
+                  ],
+                  selected: {_raise},
+                  onSelectionChanged: (s) => setState(() => _raise = s.first),
+                ),
+                SizedBox(
+                  width: 110,
+                  child: TextField(
+                    controller: _value,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      prefixText: _percent ? null : 'GH₵ ',
+                      suffixText: _percent ? '%' : null,
+                    ),
+                  ),
+                ),
+                SegmentedButton<bool>(
+                  segments: const [
+                    ButtonSegment(value: true, label: Text('%')),
+                    ButtonSegment(value: false, label: Text('GH₵')),
+                  ],
+                  selected: {_percent},
+                  onSelectionChanged: (s) => setState(() => _percent = s.first),
+                ),
+              ],
+            ),
+            const SizedBox(height: AbySpace.s3),
+            Wrap(
+              spacing: AbySpace.s2,
+              children: [
+                for (final s in const [0, 10, 50, 100])
+                  ChoiceChip(
+                    label: Text(stepLabel(s)),
+                    selected: _step == s,
+                    onSelected: (_) => setState(() => _step = s),
+                  ),
+              ],
+            ),
+            const SizedBox(height: AbySpace.s3),
+            Text(l.bulkPreview(changes.length).toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 260),
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  for (final (_, label, before, after) in changes)
+                    ListTile(
+                      dense: true,
+                      title: Text(label),
+                      trailing: Text(
+                        '${formatMoney(before)}  →  ${formatMoney(after)}',
+                        style: AbyText.body.copyWith(color: c.ink, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                ],
               ),
             ),
-            SegmentedButton<bool>(
-              segments: const [ButtonSegment(value: true, label: Text('%')), ButtonSegment(value: false, label: Text('GH₵'))],
-              selected: {_percent},
-              onSelectionChanged: (s) => setState(() => _percent = s.first),
-            ),
-          ]),
-          const SizedBox(height: AbySpace.s3),
-          Wrap(spacing: AbySpace.s2, children: [
-            for (final s in const [0, 10, 50, 100])
-              ChoiceChip(label: Text(stepLabel(s)), selected: _step == s, onSelected: (_) => setState(() => _step = s)),
-          ]),
-          const SizedBox(height: AbySpace.s3),
-          Text(l.bulkPreview(changes.length).toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 260),
-            child: ListView(shrinkWrap: true, children: [
-              for (final (_, label, before, after) in changes)
-                ListTile(
-                  dense: true,
-                  title: Text(label),
-                  trailing: Text('${formatMoney(before)}  →  ${formatMoney(after)}',
-                      style: AbyText.body.copyWith(color: c.ink, fontWeight: FontWeight.w700)),
-                ),
-            ]),
-          ),
-        ]),
+          ],
+        ),
       ),
       actions: [
-        DialogButtons(children: [
-              OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
-          FilledButton(
-            onPressed: changes.isEmpty
-                ? null
-                : () async {
-                    final description = '${_raise ? '+' : '−'}${_value.text.trim()}${_percent ? '%' : ' GH₵'}'
-                        '${_step == 0 ? '' : ', rounded to ${formatMoney(_step)}'}';
-                    if (await widget.controller.applyBulk(changes, description)) goBack<void>();
-                  },
-            child: Text(l.bulkApply(changes.length)),
-          ),
-        ]),
+        DialogButtons(
+          children: [
+            OutlinedButton(onPressed: () => goBack<void>(), child: Text(l.commonCancel)),
+            FilledButton(
+              onPressed: changes.isEmpty
+                  ? null
+                  : () async {
+                      final description =
+                          '${_raise ? '+' : '−'}${_value.text.trim()}${_percent ? '%' : ' GH₵'}'
+                          '${_step == 0 ? '' : ', rounded to ${formatMoney(_step)}'}';
+                      if (await widget.controller.applyBulk(changes, description)) goBack<void>();
+                    },
+              child: Text(l.bulkApply(changes.length)),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -139,6 +175,8 @@ Future<void> runImport(CatalogueController controller) async {
       'barcodes': l.importColBarcodes,
       'tile_line': l.importColTileLine,
       'on_till': l.importColOnTill,
+      'on_hand': l.importColOnHand,
+      'low_below': l.importColLowBelow,
     },
     requiredColumns: CatalogueIo.requiredColumns,
     onSample: controller.downloadSample,
@@ -152,7 +190,11 @@ Future<void> runImport(CatalogueController controller) async {
   await showImportPreview(
     title: l.importTitle,
     summary: l.importSummary(preview.newProducts, preview.updatedProducts, preview.unchanged),
-    notes: [if (preview.newCategories.isNotEmpty) l.importNewCategories(preview.newCategories.join(', '))],
+    notes: [
+      if (preview.newCategories.isNotEmpty) l.importNewCategories(preview.newCategories.join(', ')),
+      if (preview.newStockItems > 0 || preview.updatedStockItems > 0 || preview.recountedStockItems > 0)
+        l.importStockSummary(preview.newStockItems, preview.updatedStockItems, preview.recountedStockItems),
+    ],
     problems: preview.problems,
     canApply: preview.canApply,
     onApply: () => controller.applyImport(preview),

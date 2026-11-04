@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import '../../models/audit.dart';
 import '../../models/catalog.dart';
 import '../../models/drafts.dart';
+import '../../models/enums.dart';
 import '../../models/staff.dart';
 import '../../services/device_service.dart';
 import '../../services/ids.dart';
@@ -13,14 +14,20 @@ import 'audit_repository.dart';
 
 /// Everything on the menu, read in one go.
 class Catalogue {
-  const Catalogue({required this.categories, required this.products, required this.groups, required this.taxRates});
+  const Catalogue({
+    required this.categories,
+    required this.products,
+    required this.groups,
+    required this.taxRates,
+  });
 
   final List<Category> categories;
   final List<Product> products;
   final List<OptionGroup> groups;
   final List<TaxRate> taxRates;
 
-  Category? category(String id) => categories.where((c) => c.id == id).firstOrNull;
+  Category? category(String id) =>
+      categories.where((c) => c.id == id).firstOrNull;
 }
 
 class CatalogueException implements Exception {
@@ -67,21 +74,40 @@ class CatalogRepository {
   Future<List<Category>> categories({bool includeInactive = false}) async {
     final query = _db.select(_db.categories)
       ..where((c) => c.deletedAt.isNull())
-      ..orderBy([(c) => OrderingTerm(expression: c.sortOrder), (c) => OrderingTerm(expression: c.name)]);
+      ..orderBy([
+        (c) => OrderingTerm(expression: c.sortOrder),
+        (c) => OrderingTerm(expression: c.name),
+      ]);
     if (!includeInactive) query.where((c) => c.active.equals(true));
     return [
       for (final r in await query.get())
-        Category(id: r.id, name: r.name, tone: r.tone, parentId: r.parentId, active: r.active, sortOrder: r.sortOrder, icon: r.icon),
+        Category(
+          id: r.id,
+          name: r.name,
+          tone: r.tone,
+          parentId: r.parentId,
+          active: r.active,
+          sortOrder: r.sortOrder,
+          icon: r.icon,
+        ),
     ];
   }
 
   /// The menu. The till uses the default (sellable products only);
   /// Manage → Products asks for everything.
-  Future<Catalogue> load({bool includeInactive = false, bool includeArchived = false}) async {
+  Future<Catalogue> load({
+    bool includeInactive = false,
+    bool includeArchived = false,
+  }) async {
     final stock = {
-      for (final s in await (_db.select(_db.stockItems)..where((s) => s.deletedAt.isNull())).get()) s.id: s,
+      for (final s in await (_db.select(
+        _db.stockItems,
+      )..where((s) => s.deletedAt.isNull())).get())
+        s.id: s,
     };
-    final recipeRows = await (_db.select(_db.recipeItems)..where((r) => r.deletedAt.isNull())).get();
+    final recipeRows = await (_db.select(
+      _db.recipeItems,
+    )..where((r) => r.deletedAt.isNull())).get();
     List<RecipeLine> recipe(bool Function(RecipeItemRow) match) => [
       for (final r in recipeRows.where(match))
         if (stock[r.stockItemId] case final s?)
@@ -93,8 +119,23 @@ class CatalogRepository {
             costMilli: s.costMilli,
           ),
     ];
+    VariantStockLink? stockLink(VariantRow variant) {
+      final stockItemId = variant.stockItemId;
+      final item = stockItemId == null ? null : stock[stockItemId];
+      return item == null
+          ? null
+          : VariantStockLink(
+              stockItemId: item.id,
+              stockItemName: item.name,
+              unit: item.unit,
+              quantity: variant.stockQuantity,
+              costMilli: item.costMilli,
+            );
+    }
 
-    final barcodeRows = await (_db.select(_db.barcodes)..where((b) => b.deletedAt.isNull())).get();
+    final barcodeRows = await (_db.select(
+      _db.barcodes,
+    )..where((b) => b.deletedAt.isNull())).get();
     final barcodesByVariant = <String, List<String>>{};
     for (final b in barcodeRows) {
       barcodesByVariant.putIfAbsent(b.variantId, () => []).add(b.code);
@@ -108,7 +149,10 @@ class CatalogRepository {
     final groupRows =
         await (_db.select(_db.optionGroups)
               ..where((g) => g.deletedAt.isNull())
-              ..orderBy([(g) => OrderingTerm(expression: g.sortOrder), (g) => OrderingTerm(expression: g.name)]))
+              ..orderBy([
+                (g) => OrderingTerm(expression: g.sortOrder),
+                (g) => OrderingTerm(expression: g.name),
+              ]))
             .get();
     final groups = [
       for (final g in groupRows)
@@ -147,7 +191,13 @@ class CatalogRepository {
     final taxRates = [
       for (final t in taxRows)
         if (includeInactive || t.active)
-          TaxRate(id: t.id, name: t.name, rateBp: t.rateBp, compound: t.compound, active: t.active),
+          TaxRate(
+            id: t.id,
+            name: t.name,
+            rateBp: t.rateBp,
+            compound: t.compound,
+            active: t.active,
+          ),
     ];
     final taxById = {for (final t in taxRates) t.id: t};
 
@@ -161,11 +211,16 @@ class CatalogRepository {
               ..where((l) => l.deletedAt.isNull())
               ..orderBy([(l) => OrderingTerm(expression: l.sortOrder)]))
             .get();
-    final productTaxRows = await (_db.select(_db.productTaxes)..where((t) => t.deletedAt.isNull())).get();
+    final productTaxRows = await (_db.select(
+      _db.productTaxes,
+    )..where((t) => t.deletedAt.isNull())).get();
 
     final productQuery = _db.select(_db.products)
       ..where((p) => p.deletedAt.isNull())
-      ..orderBy([(p) => OrderingTerm(expression: p.sortOrder), (p) => OrderingTerm(expression: p.name)]);
+      ..orderBy([
+        (p) => OrderingTerm(expression: p.sortOrder),
+        (p) => OrderingTerm(expression: p.name),
+      ]);
     if (!includeInactive) productQuery.where((p) => p.active.equals(true));
     if (!includeArchived) productQuery.where((p) => p.archivedAt.isNull());
 
@@ -178,6 +233,7 @@ class CatalogRepository {
             name: v.name,
             price: v.price,
             manualCost: v.manualCost,
+            stockLink: stockLink(v),
             recipe: recipe((r) => r.variantId == v.id),
             barcodes: barcodesByVariant[v.id] ?? const [],
           ),
@@ -201,7 +257,9 @@ class CatalogRepository {
           variants: variants,
           groups: [
             for (final l in linkRows.where((l) => l.productId == p.id))
-              if (groupsById[l.groupId] case final g? when g.active || includeInactive) g,
+              if (groupsById[l.groupId] case final g?
+                  when g.active || includeInactive)
+                g,
           ],
           taxes: [
             for (final t in productTaxRows.where((t) => t.productId == p.id))
@@ -226,7 +284,10 @@ class CatalogRepository {
   Future<(String productId, String variantId)?> findBarcode(String code) async {
     final row =
         await (_db.select(_db.barcodes).join([
-              innerJoin(_db.productVariants, _db.productVariants.id.equalsExp(_db.barcodes.variantId)),
+              innerJoin(
+                _db.productVariants,
+                _db.productVariants.id.equalsExp(_db.barcodes.variantId),
+              ),
             ])..where(
               _db.barcodes.code.equals(code.trim()) &
                   _db.barcodes.deletedAt.isNull() &
@@ -239,16 +300,23 @@ class CatalogRepository {
   }
 
   /// The product name using [code], other than [exceptVariantIds].
-  Future<String?> barcodeOwner(String code, {Set<String> exceptVariantIds = const {}}) async {
+  Future<String?> barcodeOwner(
+    String code, {
+    Set<String> exceptVariantIds = const {},
+  }) async {
     final rows =
         await (_db.select(_db.barcodes).join([
-              innerJoin(_db.productVariants, _db.productVariants.id.equalsExp(_db.barcodes.variantId)),
-              innerJoin(_db.products, _db.products.id.equalsExp(_db.productVariants.productId)),
+              innerJoin(
+                _db.productVariants,
+                _db.productVariants.id.equalsExp(_db.barcodes.variantId),
+              ),
+              innerJoin(
+                _db.products,
+                _db.products.id.equalsExp(_db.productVariants.productId),
+              ),
             ])..where(
-              _db.barcodes.code.equals(code) &
-                  _db.barcodes.deletedAt.isNull() &
-                  _db.productVariants.active.equals(true) &
-                  _db.products.archivedAt.isNull(),
+              _db.barcodes.code.lower().equals(code.trim().toLowerCase()) &
+                  _db.barcodes.deletedAt.isNull(),
             ))
             .get();
     for (final r in rows) {
@@ -259,11 +327,29 @@ class CatalogRepository {
     return null;
   }
 
-  Future<Uint8List?> photo(String productId) async =>
-      (await (_db.select(_db.productPhotos)..where((p) => p.productId.equals(productId))).getSingleOrNull())?.image;
+  /// The existing product with this name, including inactive or archived
+  /// products. A linked stock item may intentionally share the same name.
+  Future<String?> productNameOwner(
+    String name, {
+    String? exceptProductId,
+  }) async {
+    final rows =
+        await (_db.select(_db.products)..where(
+              (p) =>
+                  p.deletedAt.isNull() &
+                  p.name.lower().equals(name.trim().toLowerCase()),
+            ))
+            .get();
+    return rows.where((p) => p.id != exceptProductId).firstOrNull?.name;
+  }
+
+  Future<Uint8List?> photo(String productId) async => (await (_db.select(
+    _db.productPhotos,
+  )..where((p) => p.productId.equals(productId))).getSingleOrNull())?.image;
 
   Future<Map<String, Uint8List>> allPhotos() async => {
-    for (final p in await _db.select(_db.productPhotos).get()) p.productId: p.image,
+    for (final p in await _db.select(_db.productPhotos).get())
+      p.productId: p.image,
   };
 
   // ---------------------------------------------------------------------------
@@ -276,7 +362,38 @@ class CatalogRepository {
       final now = clock.now();
       final isNew = d.id == null;
       final productId = d.id ?? newId();
-      String? clean(String? v) => v == null || v.trim().isEmpty ? null : v.trim();
+      final nameOwner = await productNameOwner(d.name, exceptProductId: d.id);
+      if (nameOwner != null) {
+        throw CatalogueException(
+          'A product named "$nameOwner" already exists.',
+        );
+      }
+      for (final variant in d.variants) {
+        final stockItemId = variant.stockItemId;
+        if (stockItemId == null) continue;
+        if (variant.recipe.isNotEmpty || variant.stockQuantity <= 0) {
+          throw const CatalogueException(
+            'A variant can use either a linked stock item or a recipe, with a positive quantity.',
+          );
+        }
+        final item =
+            await (_db.select(_db.stockItems)..where(
+                  (s) => s.id.equals(stockItemId) & s.deletedAt.isNull(),
+                ))
+                .getSingleOrNull();
+        final expectedUnit = switch (d.sellBy) {
+          SellBy.each => StockUnit.piece,
+          SellBy.kg => StockUnit.g,
+          SellBy.litre => StockUnit.ml,
+        };
+        if (item == null || item.unit != expectedUnit) {
+          throw const CatalogueException(
+            'Choose a stock item with units that match how this product is sold.',
+          );
+        }
+      }
+      String? clean(String? v) =>
+          v == null || v.trim().isEmpty ? null : v.trim();
       final changes = <String>[];
 
       Future<int?> quickOrder(int? current) async {
@@ -310,7 +427,9 @@ class CatalogRepository {
           ),
         );
       } else {
-        final row = await (_db.select(_db.products)..where((p) => p.id.equals(productId))).getSingle();
+        final row = await (_db.select(
+          _db.products,
+        )..where((p) => p.id.equals(productId))).getSingle();
         final updated = row.copyWith(
           categoryId: d.categoryId,
           name: d.name.trim(),
@@ -325,30 +444,50 @@ class CatalogRepository {
           commission: Value(d.commission),
         );
         if (updated != row) {
-          if (row.sellBy != updated.sellBy) changes.add('sold by ${updated.sellBy.name}');
+          if (row.sellBy != updated.sellBy)
+            changes.add('sold by ${updated.sellBy.name}');
           if (row.openPrice != updated.openPrice ||
               row.minPrice != updated.minPrice ||
               row.maxPrice != updated.maxPrice) {
-            changes.add(updated.openPrice ? 'price typed at the till' : 'fixed price');
+            changes.add(
+              updated.openPrice ? 'price typed at the till' : 'fixed price',
+            );
           }
           if ((row.quickOrder == null) != (updated.quickOrder == null)) {
-            changes.add(updated.quickOrder == null ? 'off the Quick tab' : 'on the Quick tab');
+            changes.add(
+              updated.quickOrder == null
+                  ? 'off the Quick tab'
+                  : 'on the Quick tab',
+            );
           }
           if (row.name != updated.name) changes.add('name');
           if (row.categoryId != updated.categoryId) changes.add('category');
-          if (row.active != updated.active) changes.add(updated.active ? 'back on the till' : 'off the till');
-          if (row.detail != updated.detail || row.description != updated.description) changes.add('description');
-          await _db.updateTracked(_db.products, updated.copyWith(updatedAt: now));
+          if (row.active != updated.active)
+            changes.add(updated.active ? 'back on the till' : 'off the till');
+          if (row.detail != updated.detail ||
+              row.description != updated.description)
+            changes.add('description');
+          await _db.updateTracked(
+            _db.products,
+            updated.copyWith(updatedAt: now),
+          );
         }
       }
 
       // Variants: update those kept, add new ones, retire the rest.
-      final existing = await (_db.select(
-        _db.productVariants,
-      )..where((v) => v.productId.equals(productId) & v.deletedAt.isNull() & v.active.equals(true))).get();
+      final existing =
+          await (_db.select(_db.productVariants)..where(
+                (v) =>
+                    v.productId.equals(productId) &
+                    v.deletedAt.isNull() &
+                    v.active.equals(true),
+              ))
+              .get();
       final keptIds = <String>{};
       for (final (index, vd) in d.variants.indexed) {
-        final current = vd.id == null ? null : existing.where((e) => e.id == vd.id).firstOrNull;
+        final current = vd.id == null
+            ? null
+            : existing.where((e) => e.id == vd.id).firstOrNull;
         final variantId = current?.id ?? newId();
         keptIds.add(variantId);
         if (current == null) {
@@ -363,6 +502,8 @@ class CatalogRepository {
               name: Value(clean(vd.name)),
               price: vd.price,
               manualCost: Value(vd.manualCost),
+              stockItemId: Value(vd.stockItemId),
+              stockQuantity: Value(vd.stockQuantity),
               sortOrder: Value(index),
             ),
           );
@@ -372,10 +513,15 @@ class CatalogRepository {
             name: Value(clean(vd.name)),
             price: vd.price,
             manualCost: Value(vd.manualCost),
+            stockItemId: Value(vd.stockItemId),
+            stockQuantity: vd.stockQuantity,
             sortOrder: index,
           );
           if (updated != current) {
-            await _db.updateTracked(_db.productVariants, updated.copyWith(updatedAt: now));
+            await _db.updateTracked(
+              _db.productVariants,
+              updated.copyWith(updatedAt: now),
+            );
           }
           if (current.price != vd.price) {
             await _audit.record(
@@ -390,12 +536,23 @@ class CatalogRepository {
             );
           }
           if (current.manualCost != vd.manualCost) changes.add('cost');
+          if (current.stockItemId != vd.stockItemId) {
+            changes.add('inventory stock item');
+          }
+          if (current.stockQuantity != vd.stockQuantity) {
+            changes.add('inventory quantity');
+          }
         }
-        if (await _replaceBarcodes(variantId, vd.barcodes)) changes.add('barcodes');
-        if (await _replaceRecipe(variantId: variantId, lines: vd.recipe)) changes.add('recipe');
+        if (await _replaceBarcodes(variantId, vd.barcodes))
+          changes.add('barcodes');
+        if (await _replaceRecipe(variantId: variantId, lines: vd.recipe))
+          changes.add('recipe');
       }
       for (final old in existing.where((e) => !keptIds.contains(e.id))) {
-        await _db.updateTracked(_db.productVariants, old.copyWith(active: false, updatedAt: now));
+        await _db.updateTracked(
+          _db.productVariants,
+          old.copyWith(active: false, updatedAt: now),
+        );
         changes.add('removed ${old.name ?? 'a variant'}');
       }
 
@@ -426,17 +583,28 @@ class CatalogRepository {
   /// True when the set changed.
   /// Gives every listed variant that has no barcode an internal one
   /// (CAT-08): "ABY00001" and up, printed as Code 128. Returns how many.
-  Future<int> generateBarcodes(Iterable<String> variantIds, {required Staff by}) {
+  Future<int> generateBarcodes(
+    Iterable<String> variantIds, {
+    required Staff by,
+  }) {
     return _db.transaction(() async {
       final have = {
-        for (final b in await (_db.select(_db.barcodes)..where((b) => b.deletedAt.isNull())).get()) b.variantId,
+        for (final b in await (_db.select(
+          _db.barcodes,
+        )..where((b) => b.deletedAt.isNull())).get())
+          b.variantId,
       };
-      final need = [for (final id in variantIds) if (!have.contains(id)) id];
+      final need = [
+        for (final id in variantIds)
+          if (!have.contains(id)) id,
+      ];
       if (need.isEmpty) return 0;
-      final last = await _db.customSelect(
-        "SELECT COALESCE(MAX(CAST(SUBSTR(code, 4) AS INTEGER)), 0) AS n FROM barcodes WHERE code GLOB 'ABY[0-9]*'",
-        readsFrom: {_db.barcodes},
-      ).getSingle();
+      final last = await _db
+          .customSelect(
+            "SELECT COALESCE(MAX(CAST(SUBSTR(code, 4) AS INTEGER)), 0) AS n FROM barcodes WHERE code GLOB 'ABY[0-9]*'",
+            readsFrom: {_db.barcodes},
+          )
+          .getSingle();
       var next = last.read<int>('n');
       final now = clock.now();
       for (final variantId in need) {
@@ -458,7 +626,8 @@ class CatalogRepository {
         actor: by,
         entity: 'barcodes',
         entityId: need.first,
-        summary: 'Made ${need.length} internal barcode${need.length == 1 ? '' : 's'}',
+        summary:
+            'Made ${need.length} internal barcode${need.length == 1 ? '' : 's'}',
       );
       return need.length;
     });
@@ -466,9 +635,11 @@ class CatalogRepository {
 
   Future<bool> _replaceBarcodes(String variantId, List<String> codes) async {
     final want = codes.map((c) => c.trim()).where((c) => c.isNotEmpty).toSet();
-    final rows = await (_db.select(
-      _db.barcodes,
-    )..where((b) => b.variantId.equals(variantId) & b.deletedAt.isNull())).get();
+    final rows =
+        await (_db.select(_db.barcodes)..where(
+              (b) => b.variantId.equals(variantId) & b.deletedAt.isNull(),
+            ))
+            .get();
     final have = rows.map((r) => r.code).toSet();
     if (have.length == want.length && have.containsAll(want)) return false;
     for (final r in rows.where((r) => !want.contains(r.code))) {
@@ -492,17 +663,29 @@ class CatalogRepository {
   }
 
   /// Replaces a variant's or an option's recipe. True when it changed.
-  Future<bool> _replaceRecipe({String? variantId, String? optionId, required List<RecipeDraftLine> lines}) async {
+  Future<bool> _replaceRecipe({
+    String? variantId,
+    String? optionId,
+    required List<RecipeDraftLine> lines,
+  }) async {
     final rows =
         await (_db.select(_db.recipeItems)..where(
               (r) =>
                   r.deletedAt.isNull() &
-                  (variantId != null ? r.variantId.equals(variantId) : r.optionId.equals(optionId!)),
+                  (variantId != null
+                      ? r.variantId.equals(variantId)
+                      : r.optionId.equals(optionId!)),
             ))
             .get();
     String key(String item, int qty) => '$item:$qty';
-    final have = rows.map((r) => key(r.stockItemId, r.quantity)).toList()..sort();
-    final want = lines.where((l) => l.quantity > 0).map((l) => key(l.stockItemId, l.quantity)).toList()..sort();
+    final have = rows.map((r) => key(r.stockItemId, r.quantity)).toList()
+      ..sort();
+    final want =
+        lines
+            .where((l) => l.quantity > 0)
+            .map((l) => key(l.stockItemId, l.quantity))
+            .toList()
+          ..sort();
     if (have.join(',') == want.join(',')) return false;
     for (final r in rows) {
       await _db.softDeleteTracked(_db.recipeItems, r.id);
@@ -529,10 +712,13 @@ class CatalogRepository {
   Future<bool> _replaceLinks(String productId, List<String> groupIds) async {
     final rows =
         await (_db.select(_db.productOptionGroups)
-              ..where((l) => l.productId.equals(productId) & l.deletedAt.isNull())
+              ..where(
+                (l) => l.productId.equals(productId) & l.deletedAt.isNull(),
+              )
               ..orderBy([(l) => OrderingTerm(expression: l.sortOrder)]))
             .get();
-    if (rows.map((r) => r.groupId).join(',') == groupIds.join(',')) return false;
+    if (rows.map((r) => r.groupId).join(',') == groupIds.join(','))
+      return false;
     for (final r in rows) {
       await _db.softDeleteTracked(_db.productOptionGroups, r.id);
     }
@@ -555,9 +741,11 @@ class CatalogRepository {
   }
 
   Future<bool> _replaceTaxes(String productId, List<String> taxIds) async {
-    final rows = await (_db.select(
-      _db.productTaxes,
-    )..where((t) => t.productId.equals(productId) & t.deletedAt.isNull())).get();
+    final rows =
+        await (_db.select(_db.productTaxes)..where(
+              (t) => t.productId.equals(productId) & t.deletedAt.isNull(),
+            ))
+            .get();
     final have = rows.map((r) => r.taxRateId).toSet();
     final want = taxIds.toSet();
     if (have.length == want.length && have.containsAll(want)) return false;
@@ -583,13 +771,24 @@ class CatalogRepository {
 
   /// Archived products disappear from the till and lists but stay in
   /// history and reports.
-  Future<void> setArchived(String productId, {required bool archived, required Staff by}) {
+  Future<void> setArchived(
+    String productId, {
+    required bool archived,
+    required Staff by,
+  }) {
     return _db.transaction(() async {
-      final row = await (_db.select(_db.products)..where((p) => p.id.equals(productId))).getSingle();
+      final row = await (_db.select(
+        _db.products,
+      )..where((p) => p.id.equals(productId))).getSingle();
       final now = clock.now();
-      await _db.updateTracked(_db.products, row.copyWith(archivedAt: Value(archived ? now : null), updatedAt: now));
+      await _db.updateTracked(
+        _db.products,
+        row.copyWith(archivedAt: Value(archived ? now : null), updatedAt: now),
+      );
       await _audit.record(
-        action: archived ? AuditAction.productArchived : AuditAction.productRestored,
+        action: archived
+            ? AuditAction.productArchived
+            : AuditAction.productRestored,
         actor: by,
         entity: 'products',
         entityId: productId,
@@ -600,12 +799,18 @@ class CatalogRepository {
 
   Future<void> setPhoto(String productId, Uint8List? image) async {
     if (image == null) {
-      await (_db.delete(_db.productPhotos)..where((p) => p.productId.equals(productId))).go();
+      await (_db.delete(
+        _db.productPhotos,
+      )..where((p) => p.productId.equals(productId))).go();
     } else {
       await _db
           .into(_db.productPhotos)
           .insertOnConflictUpdate(
-            ProductPhotosCompanion.insert(productId: productId, image: image, updatedAt: clock.now()),
+            ProductPhotosCompanion.insert(
+              productId: productId,
+              image: image,
+              updatedAt: clock.now(),
+            ),
           );
     }
   }
@@ -630,10 +835,18 @@ class CatalogRepository {
           ),
         );
       } else {
-        final row = await (_db.select(_db.categories)..where((c) => c.id.equals(id))).getSingle();
+        final row = await (_db.select(
+          _db.categories,
+        )..where((c) => c.id.equals(id))).getSingle();
         await _db.updateTracked(
           _db.categories,
-          row.copyWith(name: d.name.trim(), tone: d.tone, parentId: Value(d.parentId), icon: Value(d.icon), updatedAt: now),
+          row.copyWith(
+            name: d.name.trim(),
+            tone: d.tone,
+            parentId: Value(d.parentId),
+            icon: Value(d.icon),
+            updatedAt: now,
+          ),
         );
       }
       await _audit.record(
@@ -641,16 +854,26 @@ class CatalogRepository {
         actor: by,
         entity: 'categories',
         entityId: id,
-        summary: '${d.id == null ? 'Added' : 'Changed'} category ${d.name.trim()}',
+        summary:
+            '${d.id == null ? 'Added' : 'Changed'} category ${d.name.trim()}',
       );
       return id;
     });
   }
 
-  Future<void> setCategoryActive(String id, {required bool active, required Staff by}) {
+  Future<void> setCategoryActive(
+    String id, {
+    required bool active,
+    required Staff by,
+  }) {
     return _db.transaction(() async {
-      final row = await (_db.select(_db.categories)..where((c) => c.id.equals(id))).getSingle();
-      await _db.updateTracked(_db.categories, row.copyWith(active: active, updatedAt: clock.now()));
+      final row = await (_db.select(
+        _db.categories,
+      )..where((c) => c.id.equals(id))).getSingle();
+      await _db.updateTracked(
+        _db.categories,
+        row.copyWith(active: active, updatedAt: clock.now()),
+      );
       await _audit.record(
         action: AuditAction.categorySaved,
         actor: by,
@@ -667,7 +890,10 @@ class CatalogRepository {
         .customSelect(
           'SELECT COUNT(*) AS n FROM products p LEFT JOIN categories c ON c.id = p.category_id '
           'WHERE p.deleted_at IS NULL AND p.archived_at IS NULL AND (p.category_id = ? OR c.parent_id = ?)',
-          variables: [Variable.withString(categoryId), Variable.withString(categoryId)],
+          variables: [
+            Variable.withString(categoryId),
+            Variable.withString(categoryId),
+          ],
           readsFrom: {_db.products, _db.categories},
         )
         .getSingle();
@@ -693,7 +919,9 @@ class CatalogRepository {
           ),
         );
       } else {
-        final row = await (_db.select(_db.optionGroups)..where((g) => g.id.equals(groupId))).getSingle();
+        final row = await (_db.select(
+          _db.optionGroups,
+        )..where((g) => g.id.equals(groupId))).getSingle();
         await _db.updateTracked(
           _db.optionGroups,
           row.copyWith(
@@ -705,12 +933,19 @@ class CatalogRepository {
           ),
         );
       }
-      final existing = await (_db.select(
-        _db.optionItems,
-      )..where((o) => o.groupId.equals(groupId) & o.deletedAt.isNull() & o.active.equals(true))).get();
+      final existing =
+          await (_db.select(_db.optionItems)..where(
+                (o) =>
+                    o.groupId.equals(groupId) &
+                    o.deletedAt.isNull() &
+                    o.active.equals(true),
+              ))
+              .get();
       final kept = <String>{};
       for (final (i, od) in d.options.indexed) {
-        final current = od.id == null ? null : existing.where((e) => e.id == od.id).firstOrNull;
+        final current = od.id == null
+            ? null
+            : existing.where((e) => e.id == od.id).firstOrNull;
         final optionId = current?.id ?? newId();
         kept.add(optionId);
         if (current == null) {
@@ -737,28 +972,45 @@ class CatalogRepository {
             sortOrder: i,
             variantId: Value(od.variantId),
           );
-          if (updated != current) await _db.updateTracked(_db.optionItems, updated.copyWith(updatedAt: now));
+          if (updated != current)
+            await _db.updateTracked(
+              _db.optionItems,
+              updated.copyWith(updatedAt: now),
+            );
         }
         await _replaceRecipe(optionId: optionId, lines: od.recipe);
       }
       for (final old in existing.where((e) => !kept.contains(e.id))) {
-        await _db.updateTracked(_db.optionItems, old.copyWith(active: false, updatedAt: now));
+        await _db.updateTracked(
+          _db.optionItems,
+          old.copyWith(active: false, updatedAt: now),
+        );
       }
       await _audit.record(
         action: AuditAction.optionGroupSaved,
         actor: by,
         entity: 'option_groups',
         entityId: groupId,
-        summary: '${d.id == null ? 'Added' : 'Changed'} options ${d.name.trim()}',
+        summary:
+            '${d.id == null ? 'Added' : 'Changed'} options ${d.name.trim()}',
       );
       return groupId;
     });
   }
 
-  Future<void> setOptionGroupActive(String id, {required bool active, required Staff by}) {
+  Future<void> setOptionGroupActive(
+    String id, {
+    required bool active,
+    required Staff by,
+  }) {
     return _db.transaction(() async {
-      final row = await (_db.select(_db.optionGroups)..where((g) => g.id.equals(id))).getSingle();
-      await _db.updateTracked(_db.optionGroups, row.copyWith(active: active, updatedAt: clock.now()));
+      final row = await (_db.select(
+        _db.optionGroups,
+      )..where((g) => g.id.equals(id))).getSingle();
+      await _db.updateTracked(
+        _db.optionGroups,
+        row.copyWith(active: active, updatedAt: clock.now()),
+      );
       await _audit.record(
         action: AuditAction.optionGroupSaved,
         actor: by,
@@ -773,14 +1025,26 @@ class CatalogRepository {
   // Price changes
 
   /// A new price from the start of [effectiveOn] (a business-day start).
-  Future<String> schedulePrice(String variantId, int newPrice, DateTime effectiveOn, {required Staff by}) async {
-    if (newPrice < 0) throw const CatalogueException('Enter a price from GH₵ 0.00.');
+  Future<String> schedulePrice(
+    String variantId,
+    int newPrice,
+    DateTime effectiveOn, {
+    required Staff by,
+  }) async {
+    if (newPrice < 0)
+      throw const CatalogueException('Enter a price from GH₵ 0.00.');
     if (!effectiveOn.isAfter(clock.now())) {
-      throw const CatalogueException('Pick a day after today. To change it now, edit the price.');
+      throw const CatalogueException(
+        'Pick a day after today. To change it now, edit the price.',
+      );
     }
     return _db.transaction(() async {
-      final v = await (_db.select(_db.productVariants)..where((x) => x.id.equals(variantId))).getSingle();
-      final p = await (_db.select(_db.products)..where((x) => x.id.equals(v.productId))).getSingle();
+      final v = await (_db.select(
+        _db.productVariants,
+      )..where((x) => x.id.equals(variantId))).getSingle();
+      final p = await (_db.select(
+        _db.products,
+      )..where((x) => x.id.equals(v.productId))).getSingle();
       final now = clock.now();
       final id = newId();
       await _db.insertTracked(
@@ -812,11 +1076,14 @@ class CatalogRepository {
 
   Future<void> cancelScheduledPrice(String id, {required Staff by}) {
     return _db.transaction(() async {
-    final row = await (_db.select(_db.priceChanges)..where((c) => c.id.equals(id))).getSingle();
-    if (row.appliedAt != null || row.cancelledAt != null) return;
-    await _db.updateTracked(
-      _db.priceChanges,
-      row.copyWith(cancelledAt: Value(clock.now()), updatedAt: clock.now()));
+      final row = await (_db.select(
+        _db.priceChanges,
+      )..where((c) => c.id.equals(id))).getSingle();
+      if (row.appliedAt != null || row.cancelledAt != null) return;
+      await _db.updateTracked(
+        _db.priceChanges,
+        row.copyWith(cancelledAt: Value(clock.now()), updatedAt: clock.now()),
+      );
       final label = (await variantLabels([row.variantId]))[row.variantId];
       await _audit.record(
         action: AuditAction.priceScheduleCancelled,
@@ -834,16 +1101,26 @@ class CatalogRepository {
   Future<List<ScheduledPrice>> scheduledPrices({String? productId}) async {
     final rows =
         await (_db.select(_db.priceChanges).join([
-                innerJoin(_db.productVariants, _db.productVariants.id.equalsExp(_db.priceChanges.variantId)),
-                innerJoin(_db.products, _db.products.id.equalsExp(_db.productVariants.productId)),
+                innerJoin(
+                  _db.productVariants,
+                  _db.productVariants.id.equalsExp(_db.priceChanges.variantId),
+                ),
+                innerJoin(
+                  _db.products,
+                  _db.products.id.equalsExp(_db.productVariants.productId),
+                ),
               ])
               ..where(
                 _db.priceChanges.appliedAt.isNull() &
                     _db.priceChanges.cancelledAt.isNull() &
                     _db.priceChanges.deletedAt.isNull() &
-                    (productId == null ? const Constant(true) : _db.products.id.equals(productId)),
+                    (productId == null
+                        ? const Constant(true)
+                        : _db.products.id.equals(productId)),
               )
-              ..orderBy([OrderingTerm(expression: _db.priceChanges.effectiveOn)]))
+              ..orderBy([
+                OrderingTerm(expression: _db.priceChanges.effectiveOn),
+              ]))
             .get();
     return [
       for (final r in rows)
@@ -867,16 +1144,27 @@ class CatalogRepository {
       var applied = 0;
       for (final s in await scheduledPrices()) {
         if (s.effectiveOn.isAfter(at)) continue;
-        final v = await (_db.select(_db.productVariants)..where((x) => x.id.equals(s.variantId))).getSingle();
-        await _db.updateTracked(_db.productVariants, v.copyWith(price: s.newPrice, updatedAt: at));
-        final c = await (_db.select(_db.priceChanges)..where((x) => x.id.equals(s.id))).getSingle();
-        await _db.updateTracked(_db.priceChanges, c.copyWith(appliedAt: Value(at), updatedAt: at));
+        final v = await (_db.select(
+          _db.productVariants,
+        )..where((x) => x.id.equals(s.variantId))).getSingle();
+        await _db.updateTracked(
+          _db.productVariants,
+          v.copyWith(price: s.newPrice, updatedAt: at),
+        );
+        final c = await (_db.select(
+          _db.priceChanges,
+        )..where((x) => x.id.equals(s.id))).getSingle();
+        await _db.updateTracked(
+          _db.priceChanges,
+          c.copyWith(appliedAt: Value(at), updatedAt: at),
+        );
         await _audit.record(
           action: AuditAction.priceChanged,
           actorName: s.createdByName,
           entity: 'product_variants',
           entityId: s.variantId,
-          summary: '${s.label}: ${formatMoney(s.oldPrice)} to ${formatMoney(s.newPrice)} (scheduled)',
+          summary:
+              '${s.label}: ${formatMoney(s.oldPrice)} to ${formatMoney(s.newPrice)} (scheduled)',
           details: {'before': s.oldPrice, 'after': s.newPrice},
         );
         applied++;
@@ -890,11 +1178,17 @@ class CatalogRepository {
     final ids = variantIds.toSet();
     if (ids.isEmpty) return {};
     final rows = await (_db.select(_db.productVariants).join([
-      innerJoin(_db.products, _db.products.id.equalsExp(_db.productVariants.productId)),
+      innerJoin(
+        _db.products,
+        _db.products.id.equalsExp(_db.productVariants.productId),
+      ),
     ])..where(_db.productVariants.id.isIn(ids))).get();
     return {
       for (final r in rows)
-        r.readTable(_db.productVariants).id: [r.readTable(_db.products).name, ?r.readTable(_db.productVariants).name].join(', '),
+        r.readTable(_db.productVariants).id: [
+          r.readTable(_db.products).name,
+          ?r.readTable(_db.productVariants).name,
+        ].join(', '),
     };
   }
 
@@ -903,22 +1197,43 @@ class CatalogRepository {
   Future<Map<String, String>> itemNames(Iterable<String> ids) async {
     final wanted = ids.toSet();
     if (wanted.isEmpty) return {};
-    final products = await (_db.select(_db.products)..where((p) => p.id.isIn(wanted))).get();
-    final categories = await (_db.select(_db.categories)..where((c) => c.id.isIn(wanted))).get();
-    return {for (final c in categories) c.id: c.name, for (final p in products) p.id: p.name};
+    final products = await (_db.select(
+      _db.products,
+    )..where((p) => p.id.isIn(wanted))).get();
+    final categories = await (_db.select(
+      _db.categories,
+    )..where((c) => c.id.isIn(wanted))).get();
+    return {
+      for (final c in categories) c.id: c.name,
+      for (final p in products) p.id: p.name,
+    };
   }
 
   /// Many prices at once (one audit entry listing them all).
-  Future<void> bulkSetPrices(Map<String, int> newPrices, {required String description, required Staff by}) {
+  Future<void> bulkSetPrices(
+    Map<String, int> newPrices, {
+    required String description,
+    required Staff by,
+  }) {
     return _db.transaction(() async {
       final now = clock.now();
       final labels = await variantLabels(newPrices.keys);
       final changes = <Map<String, Object?>>[];
       for (final MapEntry(key: variantId, value: price) in newPrices.entries) {
-        final v = await (_db.select(_db.productVariants)..where((x) => x.id.equals(variantId))).getSingle();
+        final v = await (_db.select(
+          _db.productVariants,
+        )..where((x) => x.id.equals(variantId))).getSingle();
         if (v.price == price) continue;
-        changes.add({'id': variantId, 'name': labels[variantId], 'before': v.price, 'after': price});
-        await _db.updateTracked(_db.productVariants, v.copyWith(price: price, updatedAt: now));
+        changes.add({
+          'id': variantId,
+          'name': labels[variantId],
+          'before': v.price,
+          'after': price,
+        });
+        await _db.updateTracked(
+          _db.productVariants,
+          v.copyWith(price: price, updatedAt: now),
+        );
       }
       if (changes.isEmpty) return;
       await _audit.record(
@@ -935,19 +1250,25 @@ class CatalogRepository {
   Future<void> setQuickTab(List<String> productIds) {
     return _db.transaction(() async {
       final now = clock.now();
-      final rows = await (_db.select(_db.products)..where((p) => p.quickOrder.isNotNull() | p.id.isIn(productIds))).get();
+      final rows = await (_db.select(
+        _db.products,
+      )..where((p) => p.quickOrder.isNotNull() | p.id.isIn(productIds))).get();
       for (final row in rows) {
         final index = productIds.indexOf(row.id);
         final order = index == -1 ? null : index;
         if (order != row.quickOrder) {
-          await _db.updateTracked(_db.products, row.copyWith(quickOrder: Value(order), updatedAt: now));
+          await _db.updateTracked(
+            _db.products,
+            row.copyWith(quickOrder: Value(order), updatedAt: now),
+          );
         }
       }
     });
   }
 
   /// Runs [action] in one transaction (imports).
-  Future<T> transaction<T>(Future<T> Function() action) => _db.transaction(action);
+  Future<T> transaction<T>(Future<T> Function() action) =>
+      _db.transaction(action);
 
   Future<String> saveTaxRate(TaxRateDraft d, {required Staff by}) {
     return _db.transaction(() async {
@@ -968,11 +1289,22 @@ class CatalogRepository {
           ),
         );
       } else {
-        final row = await (_db.select(_db.taxRates)..where((t) => t.id.equals(id))).getSingle();
-        before = {'name': row.name, 'rateBp': row.rateBp, 'compound': row.compound};
+        final row = await (_db.select(
+          _db.taxRates,
+        )..where((t) => t.id.equals(id))).getSingle();
+        before = {
+          'name': row.name,
+          'rateBp': row.rateBp,
+          'compound': row.compound,
+        };
         await _db.updateTracked(
           _db.taxRates,
-          row.copyWith(name: d.name.trim(), rateBp: d.rateBp, compound: d.compound, updatedAt: now),
+          row.copyWith(
+            name: d.name.trim(),
+            rateBp: d.rateBp,
+            compound: d.compound,
+            updatedAt: now,
+          ),
         );
       }
       await _audit.record(
@@ -983,17 +1315,30 @@ class CatalogRepository {
         summary: '${d.id == null ? 'Added' : 'Changed'} tax ${d.name.trim()}',
         details: {
           'before': ?before,
-          'after': {'name': d.name.trim(), 'rateBp': d.rateBp, 'compound': d.compound},
+          'after': {
+            'name': d.name.trim(),
+            'rateBp': d.rateBp,
+            'compound': d.compound,
+          },
         },
       );
       return id;
     });
   }
 
-  Future<void> setTaxRateActive(String id, {required bool active, required Staff by}) {
+  Future<void> setTaxRateActive(
+    String id, {
+    required bool active,
+    required Staff by,
+  }) {
     return _db.transaction(() async {
-      final row = await (_db.select(_db.taxRates)..where((t) => t.id.equals(id))).getSingle();
-      await _db.updateTracked(_db.taxRates, row.copyWith(active: active, updatedAt: clock.now()));
+      final row = await (_db.select(
+        _db.taxRates,
+      )..where((t) => t.id.equals(id))).getSingle();
+      await _db.updateTracked(
+        _db.taxRates,
+        row.copyWith(active: active, updatedAt: clock.now()),
+      );
       await _audit.record(
         action: AuditAction.taxRateSaved,
         actor: by,

@@ -37,19 +37,14 @@ class FakeSaleRepository implements SaleRepository {
     List<Promotion> promotions = const [],
     LoyaltyConfig loyalty = const LoyaltyConfig(),
     OrderConfig? orders,
+    bool allowNegativeStock = false,
   }) async {
     if (failWith != null) throw failWith!;
     final all = [...payments, ?payment];
     calls.add((all, cashier));
     final total = lines.fold(0, (sum, l) => sum + l.lineTotal);
     final settled = Settlement.of(total, all, roundTo: roundTo);
-    return CompletedSale(
-      saleId: 's1',
-      number: 7,
-      total: total,
-      method: all.last.method,
-      changeDue: settled.change,
-    );
+    return CompletedSale(saleId: 's1', number: 7, total: total, method: all.last.method, changeDue: settled.change);
   }
 
   @override

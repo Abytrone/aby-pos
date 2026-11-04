@@ -30,12 +30,15 @@ abstract final class MetaKeys {
 
 /// Where the on-device database lives. The backup and restore code uses the
 /// same path, so keep this the single source.
-Future<File> databaseFile() async => File(p.join(await _dataFolder(), 'aby_pos.sqlite'));
+Future<File> databaseFile() async =>
+    File(p.join(await _dataFolder(), 'aby_pos.sqlite'));
 
 /// Training mode (APP-05) runs on a copy, opened while this marker exists.
-Future<File> trainingMarkerFile() async => File(p.join(await _dataFolder(), 'aby_pos.training'));
+Future<File> trainingMarkerFile() async =>
+    File(p.join(await _dataFolder(), 'aby_pos.training'));
 
-Future<File> trainingDatabaseFile() async => File(p.join(await _dataFolder(), 'aby_pos_training.sqlite'));
+Future<File> trainingDatabaseFile() async =>
+    File(p.join(await _dataFolder(), 'aby_pos_training.sqlite'));
 
 /// The folder holding the database files. On Windows and Linux the
 /// documents folder is the user's own Documents, which OneDrive and the
@@ -46,26 +49,33 @@ Future<File> trainingDatabaseFile() async => File(p.join(await _dataFolder(), 'a
 /// When the move fails (the files are locked, the disk is full) this run
 /// uses the old folder, and the next one tries again.
 Future<String> _dataFolder() => _dataFolderOnce ??= () async {
-      final documents = (await getApplicationDocumentsDirectory()).path;
-      if (!Platform.isWindows && !Platform.isLinux) return documents;
-      final folder = (await getApplicationSupportDirectory()).path;
-      try {
-        await moveDatabaseFiles(from: documents, to: folder);
-        return folder;
-      } on FileSystemException {
-        return File(p.join(documents, 'aby_pos.sqlite')).existsSync() ? documents : folder;
-      }
-    }();
+  final documents = (await getApplicationDocumentsDirectory()).path;
+  if (!Platform.isWindows && !Platform.isLinux) return documents;
+  final folder = (await getApplicationSupportDirectory()).path;
+  try {
+    await moveDatabaseFiles(from: documents, to: folder);
+    return folder;
+  } on FileSystemException {
+    return File(p.join(documents, 'aby_pos.sqlite')).existsSync()
+        ? documents
+        : folder;
+  }
+}();
 Future<String>? _dataFolderOnce;
 
 /// Moves the databases in [from] to [to], each with SQLite's journal files,
 /// and the training marker. A database already in [to] is never replaced:
 /// the old one stays where it was. Every file of a database is copied
 /// before any is deleted, so a failure leaves [from] as it was.
-Future<void> moveDatabaseFiles({required String from, required String to}) async {
+Future<void> moveDatabaseFiles({
+  required String from,
+  required String to,
+}) async {
   await Directory(to).create(recursive: true);
   for (final name in const ['aby_pos.sqlite', 'aby_pos_training.sqlite']) {
-    if (!await File(p.join(from, name)).exists() || await File(p.join(to, name)).exists()) continue;
+    if (!await File(p.join(from, name)).exists() ||
+        await File(p.join(to, name)).exists())
+      continue;
     final files = [
       for (final suffix in const ['', '-wal', '-shm', '-journal'])
         if (await File(p.join(from, '$name$suffix')).exists()) '$name$suffix',
@@ -89,7 +99,8 @@ Future<void> moveDatabaseFiles({required String from, required String to}) async
   }
   final marker = File(p.join(from, 'aby_pos.training'));
   if (await marker.exists()) {
-    if (!await File(p.join(to, 'aby_pos.training')).exists()) await marker.copy(p.join(to, 'aby_pos.training'));
+    if (!await File(p.join(to, 'aby_pos.training')).exists())
+      await marker.copy(p.join(to, 'aby_pos.training'));
     await marker.delete();
   }
 }
@@ -97,14 +108,18 @@ Future<void> moveDatabaseFiles({required String from, required String to}) async
 /// The file the app opens: the training copy while training, else the
 /// real one.
 Future<File> activeDatabaseFile() async =>
-    await (await trainingMarkerFile()).exists() ? trainingDatabaseFile() : databaseFile();
+    await (await trainingMarkerFile()).exists()
+    ? trainingDatabaseFile()
+    : databaseFile();
 
 /// Stable row ID for a setting, so every device of a shop writes the same
 /// row for a shop setting, and one row per device for device settings.
 String settingRowId(String key, SettingScope scope, String deviceId) =>
     const Uuid().v5(
       Namespace.url.value,
-      scope == SettingScope.shop ? 'aby:setting:shop:$key' : 'aby:setting:$deviceId:$key',
+      scope == SettingScope.shop
+          ? 'aby:setting:shop:$key'
+          : 'aby:setting:$deviceId:$key',
     );
 
 /// Stable row ID for a built-in reason, so every device creates the same row.
@@ -112,7 +127,8 @@ String reasonRowId(ReasonKind kind, String name) =>
     const Uuid().v5(Namespace.url.value, 'aby:reason:${kind.name}:$name');
 
 /// Stable row ID for a built-in expense category.
-String expenseCategoryRowId(String name) => const Uuid().v5(Namespace.url.value, 'aby:expense-category:$name');
+String expenseCategoryRowId(String name) =>
+    const Uuid().v5(Namespace.url.value, 'aby:expense-category:$name');
 
 /// Expense categories every shop starts with.
 const defaultExpenseCategories = [
@@ -131,16 +147,40 @@ const defaultExpenseCategories = [
 
 /// Reasons every shop starts with; the owner can add, rename or retire them.
 const defaultReasons = {
-  ReasonKind.discount: ['Regular customer', 'Staff', 'Damaged item', 'Late or wrong order', 'Other'],
-  ReasonKind.voidSale: ['Customer changed their mind', 'Wrong item rung up', 'Payment did not go through', 'Training', 'Other'],
-  ReasonKind.refund: ['Customer not happy', 'Wrong item', 'Damaged or melted', 'Other'],
+  ReasonKind.discount: [
+    'Regular customer',
+    'Staff',
+    'Damaged item',
+    'Late or wrong order',
+    'Other',
+  ],
+  ReasonKind.voidSale: [
+    'Customer changed their mind',
+    'Wrong item rung up',
+    'Payment did not go through',
+    'Training',
+    'Other',
+  ],
+  ReasonKind.refund: [
+    'Customer not happy',
+    'Wrong item',
+    'Damaged or melted',
+    'Other',
+  ],
   ReasonKind.noSale: ['Give change', 'Check the float', 'Other'],
   ReasonKind.payIn: ['Change from the bank', 'Owner put money in', 'Other'],
-  ReasonKind.payOut: ['Ice', 'Transport', 'Supplies', 'Owner took money', 'Other'],
+  ReasonKind.payOut: [
+    'Ice',
+    'Transport',
+    'Supplies',
+    'Owner took money',
+    'Other',
+  ],
 };
 
 /// Stable row ID for a built-in payment method.
-String payMethodRowId(String key) => const Uuid().v5(Namespace.url.value, 'aby:paymethod:$key');
+String payMethodRowId(String key) =>
+    const Uuid().v5(Namespace.url.value, 'aby:paymethod:$key');
 
 /// Payment methods every shop starts with: (key, name, kind, on, needs a
 /// reference). The owner renames them, switches them on and adds their own.
@@ -161,429 +201,566 @@ const builtInPayMethods = [
 /// Every shop has this branch; devices not placed elsewhere are in it.
 const mainBranchId = 'main';
 
-@DriftDatabase(tables: [
-  Categories,
-  Products,
-  ProductVariants,
-  OptionGroups,
-  OptionItems,
-  ProductOptionGroups,
-  StockItems,
-  RecipeItems,
-  TaxRates,
-  ProductTaxes,
-  Barcodes,
-  ProductPhotos,
-  PriceChanges,
-  Suppliers,
-  SupplierLedger,
-  StockReceipts,
-  StockReceiptLines,
-  StockCounts,
-  StockCountLines,
-  Sales,
-  SaleLines,
-  SaleTaxes,
-  Payments,
-  PayMethods,
-  Customers,
-  CustomerLedger,
-  Refunds,
-  RefundLines,
-  RefundPayments,
-  CashEvents,
-  ReceiptPhotos,
-  Shifts,
-  SafeEntries,
-  MomoChecks,
-  MomoCharges,
-  ExpenseCategories,
-  Expenses,
-  RecurringExpenses,
-  Promotions,
-  GiftVouchers,
-  PurchaseOrders,
-  PurchaseOrderLines,
-  StockBatches,
-  TimeEntries,
-  HubChanges,
-  HubDevices,
-  VoucherEntries,
-  OwnerMoney,
-  Discounts,
-  Reasons,
-  ParkedOrders,
-  StockMovements,
-  Roles,
-  StaffMembers,
-  StaffPhotos,
-  DayCloses,
-  AuditLog,
-  Settings,
-  Outbox,
-  Meta,
-  Branches,
-  DeviceBranches,
-  StockTransfers,
-  StockTransferLines,
-])
+@DriftDatabase(
+  tables: [
+    Categories,
+    Products,
+    ProductVariants,
+    OptionGroups,
+    OptionItems,
+    ProductOptionGroups,
+    StockItems,
+    RecipeItems,
+    TaxRates,
+    ProductTaxes,
+    Barcodes,
+    ProductPhotos,
+    PriceChanges,
+    Suppliers,
+    SupplierLedger,
+    StockReceipts,
+    StockReceiptLines,
+    StockCounts,
+    StockCountLines,
+    Sales,
+    SaleLines,
+    SaleTaxes,
+    Payments,
+    PayMethods,
+    Customers,
+    CustomerLedger,
+    Refunds,
+    RefundLines,
+    RefundPayments,
+    CashEvents,
+    ReceiptPhotos,
+    Shifts,
+    SafeEntries,
+    MomoChecks,
+    MomoCharges,
+    ExpenseCategories,
+    Expenses,
+    RecurringExpenses,
+    Promotions,
+    GiftVouchers,
+    PurchaseOrders,
+    PurchaseOrderLines,
+    StockBatches,
+    TimeEntries,
+    HubChanges,
+    HubDevices,
+    VoucherEntries,
+    OwnerMoney,
+    Discounts,
+    Reasons,
+    ParkedOrders,
+    StockMovements,
+    Roles,
+    StaffMembers,
+    StaffPhotos,
+    DayCloses,
+    AuditLog,
+    Settings,
+    Outbox,
+    Meta,
+    Branches,
+    DeviceBranches,
+    StockTransfers,
+    StockTransferLines,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   /// Opens the on-device database. Pass [executor] in tests
   /// (`NativeDatabase.memory()`). A brand-new database starts empty;
   /// [seedDemoShop] fills it with the Scoops Tamale menu (tests only).
   AppDatabase([QueryExecutor? executor, this.seedDemoShop = false])
-      : super(executor ??
+    : super(
+        executor ??
             driftDatabase(
               name: 'aby_pos',
               native: DriftNativeOptions(
                 databasePath: () async => (await activeDatabaseFile()).path,
               ),
-            ));
+            ),
+      );
 
   final bool seedDemoShop;
 
   @override
-  int get schemaVersion => 21;
+  int get schemaVersion => 24;
+
+  Future<void> _createCatalogueNameIndexes() async {
+    await customStatement(
+      'CREATE UNIQUE INDEX IF NOT EXISTS products_name_unique '
+      'ON products (lower(trim(name))) WHERE deleted_at IS NULL',
+    );
+    await customStatement(
+      'CREATE UNIQUE INDEX IF NOT EXISTS stock_items_name_unique '
+      'ON stock_items (lower(trim(name))) WHERE deleted_at IS NULL',
+    );
+  }
+
+  Future<void> _deduplicateCatalogueNames(String table) async {
+    final rows = await customSelect(
+      'SELECT id, name FROM $table WHERE deleted_at IS NULL ORDER BY created_at, id',
+    ).get();
+    final reserved = {
+      for (final row in rows) row.read<String>('name').trim().toLowerCase(),
+    };
+    final claimed = <String>{};
+
+    for (final row in rows) {
+      final id = row.read<String>('id');
+      final original = row.read<String>('name');
+      final trimmed = original.trim();
+      final name = trimmed.isEmpty
+          ? (table == 'products' ? 'Unnamed product' : 'Unnamed stock item')
+          : trimmed;
+      final nameKey = name.toLowerCase();
+      var replacement = name;
+      if (claimed.contains(nameKey) ||
+          (trimmed.isEmpty && reserved.contains(nameKey))) {
+        var suffix = 2;
+        do {
+          replacement = '$name ($suffix)';
+          suffix++;
+        } while (reserved.contains(replacement.toLowerCase()) ||
+            !claimed.add(replacement.toLowerCase()));
+        reserved.add(replacement.toLowerCase());
+      } else {
+        claimed.add(nameKey);
+      }
+      if (replacement != original) {
+        await customUpdate(
+          'UPDATE $table SET name = ? WHERE id = ?',
+          variables: [
+            Variable.withString(replacement),
+            Variable.withString(id),
+          ],
+        );
+      }
+    }
+  }
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (m) async {
-          await m.createAll();
-          await m.createIndex(Index('outbox_entity',
-              'CREATE INDEX outbox_entity ON outbox (entity, record_id)'));
-          await m.createIndex(Index('sales_created',
-              'CREATE INDEX sales_created ON sales (created_at)'));
-        },
-        onUpgrade: stepByStep(
-          // v2: staff sign-in and day close.
-          from1To2: (m, schema) async {
-            await m.createTable(schema.staff);
-            await m.createTable(schema.dayCloses);
-            await m.addColumn(schema.sales, schema.sales.cashierId);
-            await m.addColumn(schema.sales, schema.sales.voidedById);
-            await customStatement("DELETE FROM meta WHERE key = 'cashier_name'");
-          },
-          // v3: roles and permissions, audit log, settings.
-          from2To3: (m, schema) async {
-            final deviceId = await _ensureDeviceId();
-            await m.createTable(schema.roles);
-            await _insertBuiltInRoles(deviceId);
-            await m.alterTable(TableMigration(
-              schema.staff,
-              columnTransformer: {
-                schema.staff.roleId: CustomExpression<String>(
-                  "CASE role WHEN 'owner' THEN '${BuiltInRole.owner.id}' "
-                  "ELSE '${BuiltInRole.cashier.id}' END",
-                ),
-              },
-              newColumns: [schema.staff.roleId],
-            ));
-            await m.createTable(schema.auditLog);
-            await m.createTable(schema.settings);
-            final shopName = await readMeta('shop_name');
-            if (shopName != null) {
-              await writeSettingRow(
-                  'shop.name', SettingScope.shop, jsonEncode(shopName), deviceId);
-              await customStatement("DELETE FROM meta WHERE key = 'shop_name'");
-            }
-          },
-          // v4: staff profiles and photos.
-          from3To4: (m, schema) async {
-            final staff = schema.staff;
-            for (final column in [
-              staff.phone,
-              staff.email,
-              staff.address,
-              staff.emergencyName,
-              staff.emergencyPhone,
-              staff.idNumber,
-              staff.dateOfBirth,
-              staff.startedOn,
-              staff.notes,
-            ]) {
-              await m.addColumn(staff, column);
-            }
-            await m.createTable(schema.staffPhotos);
-          },
-          // v5: catalogue and stock (variants for everything, option groups,
-          // stock items and recipes, taxes, suppliers, deliveries, counts).
-          from4To5: (m, schema) async {
-            final deviceId = await _ensureDeviceId();
-            final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-            for (final table in [
-              schema.optionGroups,
-              schema.optionItems,
-              schema.productOptionGroups,
-              schema.stockItems,
-              schema.recipeItems,
-              schema.taxRates,
-              schema.productTaxes,
-              schema.barcodes,
-              schema.productPhotos,
-              schema.priceChanges,
-              schema.suppliers,
-              schema.supplierLedger,
-              schema.stockReceipts,
-              schema.stockReceiptLines,
-              schema.stockCounts,
-              schema.stockCountLines,
-              schema.saleTaxes,
-            ]) {
-              await m.createTable(table);
-            }
-            await m.addColumn(schema.categories, schema.categories.parentId);
-            await m.addColumn(schema.categories, schema.categories.active);
+    onCreate: (m) async {
+      await m.createAll();
+      await _createCatalogueNameIndexes();
+      await m.createIndex(
+        Index(
+          'outbox_entity',
+          'CREATE INDEX outbox_entity ON outbox (entity, record_id)',
+        ),
+      );
+      await m.createIndex(
+        Index(
+          'sales_created',
+          'CREATE INDEX sales_created ON sales (created_at)',
+        ),
+      );
+    },
+    onUpgrade: stepByStep(
+      // v2: staff sign-in and day close.
+      from1To2: (m, schema) async {
+        await m.createTable(schema.staff);
+        await m.createTable(schema.dayCloses);
+        await m.addColumn(schema.sales, schema.sales.cashierId);
+        await m.addColumn(schema.sales, schema.sales.voidedById);
+        await customStatement("DELETE FROM meta WHERE key = 'cashier_name'");
+      },
+      // v3: roles and permissions, audit log, settings.
+      from2To3: (m, schema) async {
+        final deviceId = await _ensureDeviceId();
+        await m.createTable(schema.roles);
+        await _insertBuiltInRoles(deviceId);
+        await m.alterTable(
+          TableMigration(
+            schema.staff,
+            columnTransformer: {
+              schema.staff.roleId: CustomExpression<String>(
+                "CASE role WHEN 'owner' THEN '${BuiltInRole.owner.id}' "
+                "ELSE '${BuiltInRole.cashier.id}' END",
+              ),
+            },
+            newColumns: [schema.staff.roleId],
+          ),
+        );
+        await m.createTable(schema.auditLog);
+        await m.createTable(schema.settings);
+        final shopName = await readMeta('shop_name');
+        if (shopName != null) {
+          await writeSettingRow(
+            'shop.name',
+            SettingScope.shop,
+            jsonEncode(shopName),
+            deviceId,
+          );
+          await customStatement("DELETE FROM meta WHERE key = 'shop_name'");
+        }
+      },
+      // v4: staff profiles and photos.
+      from3To4: (m, schema) async {
+        final staff = schema.staff;
+        for (final column in [
+          staff.phone,
+          staff.email,
+          staff.address,
+          staff.emergencyName,
+          staff.emergencyPhone,
+          staff.idNumber,
+          staff.dateOfBirth,
+          staff.startedOn,
+          staff.notes,
+        ]) {
+          await m.addColumn(staff, column);
+        }
+        await m.createTable(schema.staffPhotos);
+      },
+      // v5: catalogue and stock (variants for everything, option groups,
+      // stock items and recipes, taxes, suppliers, deliveries, counts).
+      from4To5: (m, schema) async {
+        final deviceId = await _ensureDeviceId();
+        final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+        for (final table in [
+          schema.optionGroups,
+          schema.optionItems,
+          schema.productOptionGroups,
+          schema.stockItems,
+          schema.recipeItems,
+          schema.taxRates,
+          schema.productTaxes,
+          schema.barcodes,
+          schema.productPhotos,
+          schema.priceChanges,
+          schema.suppliers,
+          schema.supplierLedger,
+          schema.stockReceipts,
+          schema.stockReceiptLines,
+          schema.stockCounts,
+          schema.stockCountLines,
+          schema.saleTaxes,
+        ]) {
+          await m.createTable(table);
+        }
+        await m.addColumn(schema.categories, schema.categories.parentId);
+        await m.addColumn(schema.categories, schema.categories.active);
 
-            // Variant names become optional; cost and active are new.
-            await m.alterTable(TableMigration(
-              schema.productVariants,
-              newColumns: [schema.productVariants.manualCost, schema.productVariants.active],
-            ));
-            // Every product needs a variant: simple products get one at their
-            // old base price (read before that column goes).
-            final simple = await customSelect(
-              'SELECT id, base_price FROM products p WHERE NOT EXISTS '
-              '(SELECT 1 FROM product_variants v WHERE v.product_id = p.id)',
-            ).get();
-            for (final row in simple) {
-              await customStatement(
-                'INSERT INTO product_variants (id, created_at, updated_at, device_id, product_id, '
-                'name, price, sort_order, active) VALUES (?, ?, ?, ?, ?, NULL, ?, 0, 1)',
-                [newId(), now, now, deviceId, row.read<String>('id'), row.read<int>('base_price')],
-              );
-            }
-            await m.alterTable(TableMigration(
-              schema.products,
-              newColumns: [schema.products.description, schema.products.archivedAt],
-            ));
+        // Variant names become optional; cost and active are new.
+        await m.alterTable(
+          TableMigration(
+            schema.productVariants,
+            newColumns: [
+              schema.productVariants.manualCost,
+              schema.productVariants.active,
+            ],
+          ),
+        );
+        // Every product needs a variant: simple products get one at their
+        // old base price (read before that column goes).
+        final simple = await customSelect(
+          'SELECT id, base_price FROM products p WHERE NOT EXISTS '
+          '(SELECT 1 FROM product_variants v WHERE v.product_id = p.id)',
+        ).get();
+        for (final row in simple) {
+          await customStatement(
+            'INSERT INTO product_variants (id, created_at, updated_at, device_id, product_id, '
+            'name, price, sort_order, active) VALUES (?, ?, ?, ?, ?, NULL, ?, 0, 1)',
+            [
+              newId(),
+              now,
+              now,
+              deviceId,
+              row.read<String>('id'),
+              row.read<int>('base_price'),
+            ],
+          );
+        }
+        await m.alterTable(
+          TableMigration(
+            schema.products,
+            newColumns: [
+              schema.products.description,
+              schema.products.archivedAt,
+            ],
+          ),
+        );
 
-            // Add-ons become options in one "Options" group. Same IDs, so
-            // the add-ons on old sale lines still match.
-            final addons = await customSelect(
-              'SELECT id, name, price, active, sort_order FROM addons WHERE deleted_at IS NULL',
-            ).get();
-            if (addons.isNotEmpty) {
-              final groupId = newId();
-              await customStatement(
-                'INSERT INTO option_groups (id, created_at, updated_at, device_id, name, '
-                'min_select, max_select, allow_repeat, active, sort_order) '
-                "VALUES (?, ?, ?, ?, 'Options', 0, NULL, 0, 1, 0)",
-                [groupId, now, now, deviceId],
-              );
-              for (final a in addons) {
-                await customStatement(
-                  'INSERT INTO option_items (id, created_at, updated_at, device_id, group_id, name, '
-                  'price_delta, is_default, active, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?)',
-                  [
-                    a.read<String>('id'),
-                    now,
-                    now,
-                    deviceId,
-                    groupId,
-                    a.read<String>('name'),
-                    a.read<int>('price'),
-                    a.read<int>('active'),
-                    a.read<int>('sort_order'),
-                  ],
-                );
-              }
-              final linked = await customSelect(
-                'SELECT DISTINCT product_id FROM product_addons WHERE deleted_at IS NULL',
-              ).get();
-              for (final l in linked) {
-                await customStatement(
-                  'INSERT INTO product_option_groups (id, created_at, updated_at, device_id, '
-                  'product_id, group_id, sort_order) VALUES (?, ?, ?, ?, ?, ?, 0)',
-                  [newId(), now, now, deviceId, l.read<String>('product_id'), groupId],
-                );
-              }
-            }
-            await customStatement('DROP TABLE product_addons');
-            await customStatement('DROP TABLE addons');
+        // Add-ons become options in one "Options" group. Same IDs, so
+        // the add-ons on old sale lines still match.
+        final addons = await customSelect(
+          'SELECT id, name, price, active, sort_order FROM addons WHERE deleted_at IS NULL',
+        ).get();
+        if (addons.isNotEmpty) {
+          final groupId = newId();
+          await customStatement(
+            'INSERT INTO option_groups (id, created_at, updated_at, device_id, name, '
+            'min_select, max_select, allow_repeat, active, sort_order) '
+            "VALUES (?, ?, ?, ?, 'Options', 0, NULL, 0, 1, 0)",
+            [groupId, now, now, deviceId],
+          );
+          for (final a in addons) {
+            await customStatement(
+              'INSERT INTO option_items (id, created_at, updated_at, device_id, group_id, name, '
+              'price_delta, is_default, active, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?)',
+              [
+                a.read<String>('id'),
+                now,
+                now,
+                deviceId,
+                groupId,
+                a.read<String>('name'),
+                a.read<int>('price'),
+                a.read<int>('active'),
+                a.read<int>('sort_order'),
+              ],
+            );
+          }
+          final linked = await customSelect(
+            'SELECT DISTINCT product_id FROM product_addons WHERE deleted_at IS NULL',
+          ).get();
+          for (final l in linked) {
+            await customStatement(
+              'INSERT INTO product_option_groups (id, created_at, updated_at, device_id, '
+              'product_id, group_id, sort_order) VALUES (?, ?, ?, ?, ?, ?, 0)',
+              [
+                newId(),
+                now,
+                now,
+                deviceId,
+                l.read<String>('product_id'),
+                groupId,
+              ],
+            );
+          }
+        }
+        await customStatement('DROP TABLE product_addons');
+        await customStatement('DROP TABLE addons');
 
-            await m.addColumn(schema.sales, schema.sales.taxTotal);
-            await m.addColumn(schema.saleLines, schema.saleLines.costTotal);
-            await m.addColumn(schema.saleLines, schema.saleLines.taxTotal);
+        await m.addColumn(schema.sales, schema.sales.taxTotal);
+        await m.addColumn(schema.saleLines, schema.saleLines.costTotal);
+        await m.addColumn(schema.saleLines, schema.saleLines.taxTotal);
 
-            // Movements are per stock item from now on; product is optional.
-            final moves = schema.stockMovements;
-            await m.alterTable(TableMigration(moves, newColumns: [
+        // Movements are per stock item from now on; product is optional.
+        final moves = schema.stockMovements;
+        await m.alterTable(
+          TableMigration(
+            moves,
+            newColumns: [
               moves.stockItemId,
               moves.subReason,
               moves.unitCostMilli,
               moves.refId,
               moves.byName,
-            ]));
-          },
-          // v6: selling (open price and weighed products, the Quick tab,
-          // discounts and reasons, notes, parked orders).
-          from5To6: (m, schema) async {
-            final deviceId = await _ensureDeviceId();
-            for (final table in [schema.discounts, schema.reasons, schema.parkedOrders]) {
-              await m.createTable(table);
-            }
-            await _insertDefaultReasons(deviceId);
-            final products = schema.products;
-            for (final column in [products.sellBy, products.openPrice, products.minPrice, products.maxPrice, products.quickOrder]) {
-              await m.addColumn(products, column);
-            }
-            final sales = schema.sales;
-            for (final column in [sales.discountTotal, sales.orderDiscount, sales.note, sales.orderType]) {
-              await m.addColumn(sales, column);
-            }
-            final lines = schema.saleLines;
-            for (final column in [
-              lines.sellBy,
-              lines.listPrice,
-              lines.priceOverriddenBy,
-              lines.discount,
-              lines.orderDiscountShare,
-              lines.discountDetail,
-              lines.note,
-            ]) {
-              await m.addColumn(lines, column);
-            }
-          },
-          // v7: payment methods, split payments, cash rounding, refunds and
-          // exchanges, no-sales.
-          from6To7: (m, schema) async {
-            final deviceId = await _ensureDeviceId();
-            for (final table in [
-              schema.payMethods,
-              schema.refunds,
-              schema.refundLines,
-              schema.refundPayments,
-              schema.cashEvents,
-            ]) {
-              await m.createTable(table);
-            }
-            await _insertBuiltInPayMethods(deviceId);
-            await m.addColumn(schema.sales, schema.sales.rounding);
-            await m.addColumn(schema.saleLines, schema.saleLines.stockUsed);
-            await m.addColumn(schema.payments, schema.payments.methodId);
-            await m.addColumn(schema.payments, schema.payments.methodName);
-            final closes = schema.dayCloses;
-            for (final column in [
-              closes.lastRefundNumber,
-              closes.refundsTotal,
-              closes.cashRefunds,
-              closes.otherTakings,
-              closes.roundingTotal,
-              closes.noSaleCount,
-            ]) {
-              await m.addColumn(closes, column);
-            }
-            // Old payments point at the built-in method of their kind.
-            for (final (kind, key) in [('cash', 'cash'), ('momo', 'mtn'), ('credit', 'credit')]) {
-              await customStatement(
-                'UPDATE payments SET method_id = ?, method_name = (SELECT name FROM pay_methods WHERE id = ?) '
-                'WHERE method = ? AND method_id IS NULL',
-                [payMethodRowId(key), payMethodRowId(key), kind],
-              );
-            }
-          },
-          // v8: customers, the credit book and wallets.
-          from7To8: (m, schema) async {
-            final deviceId = await _ensureDeviceId();
-            await m.createTable(schema.customers);
-            await m.createTable(schema.customerLedger);
-            await m.addColumn(schema.sales, schema.sales.customerId);
-            await m.addColumn(schema.dayCloses, schema.dayCloses.customerCash);
-            await _insertBuiltInPayMethods(deviceId);
-            // Managers look after customers too.
-            await _grantToManager(Permission.manageCustomers);
-            await _customersFromCreditBook(deviceId);
-          },
-          // v9: shifts, notes and coins counts, pay in / out, the safe, MoMo
-          // reconciliation.
-          from8To9: (m, schema) async {
-            final deviceId = await _ensureDeviceId();
-            for (final table in [
-              schema.receiptPhotos,
-              schema.shifts,
-              schema.safeEntries,
-              schema.momoChecks,
-              schema.momoCharges,
-            ]) {
-              await m.createTable(table);
-            }
-            await m.addColumn(schema.cashEvents, schema.cashEvents.note);
-            final closes = schema.dayCloses;
-            for (final column in [
-              closes.shiftId,
-              closes.floatCount,
-              closes.cashCount,
-              closes.varianceReason,
-              closes.payIns,
-              closes.payOuts,
-              closes.safeDrops,
-              closes.discountTotal,
-            ]) {
-              await m.addColumn(closes, column);
-            }
-            await _insertDefaultReasons(deviceId);
-            await _grantToManager(Permission.manageCash);
-          },
-          // v10: expenses, recurring expenses, owner drawings and capital.
-          from9To10: (m, schema) async {
-            final deviceId = await _ensureDeviceId();
-            for (final table in [schema.expenseCategories, schema.expenses, schema.recurringExpenses, schema.ownerMoney]) {
-              await m.createTable(table);
-            }
-            await _insertExpenseCategories(deviceId);
-            await _insertTaxPresets(deviceId);
-            await _grantToManager(Permission.manageExpenses);
-          },
-          // v11: automatic promotions, promotion amounts on sale lines, and
-          // combo parts linked to products.
-          from10To11: (m, schema) async {
-            await m.createTable(schema.promotions);
-            await m.addColumn(schema.saleLines, schema.saleLines.promotion);
-            await m.addColumn(schema.saleLines, schema.saleLines.promotionName);
-            await m.addColumn(schema.optionItems, schema.optionItems.variantId);
-          },
-          // v12: gift vouchers, and the gift voucher payment method.
-          from11To12: (m, schema) async {
-            await m.createTable(schema.giftVouchers);
-            await m.createTable(schema.voucherEntries);
-            await _insertBuiltInPayMethods(await _ensureDeviceId());
-          },
-          // v13: queue numbers and prep status on sales.
-          from12To13: (m, schema) async {
-            await m.addColumn(schema.sales, schema.sales.orderNumber);
-            await m.addColumn(schema.sales, schema.sales.orderStatus);
-            await m.addColumn(schema.sales, schema.sales.orderStatusAt);
-          },
-          // v14: purchase orders, batches and expiry, production.
-          from13To14: (m, schema) async {
-            for (final table in [schema.purchaseOrders, schema.purchaseOrderLines, schema.stockBatches]) {
-              await m.createTable(table);
-            }
-            await m.addColumn(schema.stockItems, schema.stockItems.tracksExpiry);
-            await m.addColumn(schema.stockItems, schema.stockItems.batchYield);
-            await m.addColumn(schema.recipeItems, schema.recipeItems.madeItemId);
-            await m.addColumn(schema.stockReceipts, schema.stockReceipts.purchaseOrderId);
-          },
-          // v15: badges, usual hours, the time clock, commission per product.
-          from14To15: (m, schema) async {
-            await m.createTable(schema.timeEntries);
-            await m.addColumn(schema.staff, schema.staff.badgeCode);
-            await m.addColumn(schema.staff, schema.staff.workStart);
-            await m.addColumn(schema.staff, schema.staff.workEnd);
-            await m.addColumn(schema.products, schema.products.commission);
-          },
-          // v16: the local hub's change log and paired devices.
-          from15To16: (m, schema) async {
-            await m.createTable(schema.hubChanges);
-            await m.createTable(schema.hubDevices);
-          },
-          // v17: branches, devices in branches, staff per branch, transfers.
-          from16To17: (m, schema) async {
-            for (final table in [schema.branches, schema.deviceBranches, schema.stockTransfers, schema.stockTransferLines]) {
-              await m.createTable(table);
-            }
-            await m.addColumn(schema.staff, schema.staff.branchId);
-          },
+            ],
+          ),
+        );
+      },
+      // v6: selling (open price and weighed products, the Quick tab,
+      // discounts and reasons, notes, parked orders).
+      from5To6: (m, schema) async {
+        final deviceId = await _ensureDeviceId();
+        for (final table in [
+          schema.discounts,
+          schema.reasons,
+          schema.parkedOrders,
+        ]) {
+          await m.createTable(table);
+        }
+        await _insertDefaultReasons(deviceId);
+        final products = schema.products;
+        for (final column in [
+          products.sellBy,
+          products.openPrice,
+          products.minPrice,
+          products.maxPrice,
+          products.quickOrder,
+        ]) {
+          await m.addColumn(products, column);
+        }
+        final sales = schema.sales;
+        for (final column in [
+          sales.discountTotal,
+          sales.orderDiscount,
+          sales.note,
+          sales.orderType,
+        ]) {
+          await m.addColumn(sales, column);
+        }
+        final lines = schema.saleLines;
+        for (final column in [
+          lines.sellBy,
+          lines.listPrice,
+          lines.priceOverriddenBy,
+          lines.discount,
+          lines.orderDiscountShare,
+          lines.discountDetail,
+          lines.note,
+        ]) {
+          await m.addColumn(lines, column);
+        }
+      },
+      // v7: payment methods, split payments, cash rounding, refunds and
+      // exchanges, no-sales.
+      from6To7: (m, schema) async {
+        final deviceId = await _ensureDeviceId();
+        for (final table in [
+          schema.payMethods,
+          schema.refunds,
+          schema.refundLines,
+          schema.refundPayments,
+          schema.cashEvents,
+        ]) {
+          await m.createTable(table);
+        }
+        await _insertBuiltInPayMethods(deviceId);
+        await m.addColumn(schema.sales, schema.sales.rounding);
+        await m.addColumn(schema.saleLines, schema.saleLines.stockUsed);
+        await m.addColumn(schema.payments, schema.payments.methodId);
+        await m.addColumn(schema.payments, schema.payments.methodName);
+        final closes = schema.dayCloses;
+        for (final column in [
+          closes.lastRefundNumber,
+          closes.refundsTotal,
+          closes.cashRefunds,
+          closes.otherTakings,
+          closes.roundingTotal,
+          closes.noSaleCount,
+        ]) {
+          await m.addColumn(closes, column);
+        }
+        // Old payments point at the built-in method of their kind.
+        for (final (kind, key) in [
+          ('cash', 'cash'),
+          ('momo', 'mtn'),
+          ('credit', 'credit'),
+        ]) {
+          await customStatement(
+            'UPDATE payments SET method_id = ?, method_name = (SELECT name FROM pay_methods WHERE id = ?) '
+            'WHERE method = ? AND method_id IS NULL',
+            [payMethodRowId(key), payMethodRowId(key), kind],
+          );
+        }
+      },
+      // v8: customers, the credit book and wallets.
+      from7To8: (m, schema) async {
+        final deviceId = await _ensureDeviceId();
+        await m.createTable(schema.customers);
+        await m.createTable(schema.customerLedger);
+        await m.addColumn(schema.sales, schema.sales.customerId);
+        await m.addColumn(schema.dayCloses, schema.dayCloses.customerCash);
+        await _insertBuiltInPayMethods(deviceId);
+        // Managers look after customers too.
+        await _grantToManager(Permission.manageCustomers);
+        await _customersFromCreditBook(deviceId);
+      },
+      // v9: shifts, notes and coins counts, pay in / out, the safe, MoMo
+      // reconciliation.
+      from8To9: (m, schema) async {
+        final deviceId = await _ensureDeviceId();
+        for (final table in [
+          schema.receiptPhotos,
+          schema.shifts,
+          schema.safeEntries,
+          schema.momoChecks,
+          schema.momoCharges,
+        ]) {
+          await m.createTable(table);
+        }
+        await m.addColumn(schema.cashEvents, schema.cashEvents.note);
+        final closes = schema.dayCloses;
+        for (final column in [
+          closes.shiftId,
+          closes.floatCount,
+          closes.cashCount,
+          closes.varianceReason,
+          closes.payIns,
+          closes.payOuts,
+          closes.safeDrops,
+          closes.discountTotal,
+        ]) {
+          await m.addColumn(closes, column);
+        }
+        await _insertDefaultReasons(deviceId);
+        await _grantToManager(Permission.manageCash);
+      },
+      // v10: expenses, recurring expenses, owner drawings and capital.
+      from9To10: (m, schema) async {
+        final deviceId = await _ensureDeviceId();
+        for (final table in [
+          schema.expenseCategories,
+          schema.expenses,
+          schema.recurringExpenses,
+          schema.ownerMoney,
+        ]) {
+          await m.createTable(table);
+        }
+        await _insertExpenseCategories(deviceId);
+        await _insertTaxPresets(deviceId);
+        await _grantToManager(Permission.manageExpenses);
+      },
+      // v11: automatic promotions, promotion amounts on sale lines, and
+      // combo parts linked to products.
+      from10To11: (m, schema) async {
+        await m.createTable(schema.promotions);
+        await m.addColumn(schema.saleLines, schema.saleLines.promotion);
+        await m.addColumn(schema.saleLines, schema.saleLines.promotionName);
+        await m.addColumn(schema.optionItems, schema.optionItems.variantId);
+      },
+      // v12: gift vouchers, and the gift voucher payment method.
+      from11To12: (m, schema) async {
+        await m.createTable(schema.giftVouchers);
+        await m.createTable(schema.voucherEntries);
+        await _insertBuiltInPayMethods(await _ensureDeviceId());
+      },
+      // v13: queue numbers and prep status on sales.
+      from12To13: (m, schema) async {
+        await m.addColumn(schema.sales, schema.sales.orderNumber);
+        await m.addColumn(schema.sales, schema.sales.orderStatus);
+        await m.addColumn(schema.sales, schema.sales.orderStatusAt);
+      },
+      // v14: purchase orders, batches and expiry, production.
+      from13To14: (m, schema) async {
+        for (final table in [
+          schema.purchaseOrders,
+          schema.purchaseOrderLines,
+          schema.stockBatches,
+        ]) {
+          await m.createTable(table);
+        }
+        await m.addColumn(schema.stockItems, schema.stockItems.tracksExpiry);
+        await m.addColumn(schema.stockItems, schema.stockItems.batchYield);
+        await m.addColumn(schema.recipeItems, schema.recipeItems.madeItemId);
+        await m.addColumn(
+          schema.stockReceipts,
+          schema.stockReceipts.purchaseOrderId,
+        );
+      },
+      // v15: badges, usual hours, the time clock, commission per product.
+      from14To15: (m, schema) async {
+        await m.createTable(schema.timeEntries);
+        await m.addColumn(schema.staff, schema.staff.badgeCode);
+        await m.addColumn(schema.staff, schema.staff.workStart);
+        await m.addColumn(schema.staff, schema.staff.workEnd);
+        await m.addColumn(schema.products, schema.products.commission);
+      },
+      // v16: the local hub's change log and paired devices.
+      from15To16: (m, schema) async {
+        await m.createTable(schema.hubChanges);
+        await m.createTable(schema.hubDevices);
+      },
+      // v17: branches, devices in branches, staff per branch, transfers.
+      from16To17: (m, schema) async {
+        for (final table in [
+          schema.branches,
+          schema.deviceBranches,
+          schema.stockTransfers,
+          schema.stockTransferLines,
+        ]) {
+          await m.createTable(table);
+        }
+        await m.addColumn(schema.staff, schema.staff.branchId);
+      },
       // v18: a picture for each category, for products without a photo.
       from17To18: (m, schema) async {
         await m.addColumn(schema.categories, schema.categories.icon);
@@ -601,21 +778,118 @@ class AppDatabase extends _$AppDatabase {
       from20To21: (m, schema) async {
         await m.addColumn(schema.staff, schema.staff.recoveryHash);
       },
+      // v22: product and stock item names are unique within their own lists.
+      from21To22: (m, schema) async {
+        await _deduplicateCatalogueNames('products');
+        await _deduplicateCatalogueNames('stock_items');
+        await _createCatalogueNameIndexes();
+      },
+      // v23: explicit stock links for retail variants. Preserve the old
+      // exact-name, piece-item fallback as a real link before removing it.
+      from22To23: (m, schema) async {
+        await m.addColumn(
+          schema.productVariants,
+          schema.productVariants.stockItemId,
+        );
+        await m.addColumn(
+          schema.productVariants,
+          schema.productVariants.stockQuantity,
+        );
+        await customStatement(
+          'UPDATE product_variants '
+          'SET stock_item_id = ('
+          '  SELECT s.id FROM stock_items s '
+          '  JOIN products p ON p.id = product_variants.product_id '
+          '  WHERE s.deleted_at IS NULL AND s.active = 1 AND s.unit = ? '
+          '    AND lower(trim(s.name)) = lower(trim('
+          "      CASE WHEN product_variants.name IS NULL OR trim(product_variants.name) = '' "
+          '      THEN p.name ELSE p.name || ? || product_variants.name END'
+          '    ))'
+          '  LIMIT 1'
+          ') '
+          'WHERE stock_item_id IS NULL '
+          '  AND NOT EXISTS ('
+          '    SELECT 1 FROM recipe_items r '
+          '    WHERE r.variant_id = product_variants.id AND r.deleted_at IS NULL'
+          '  ) '
+          '  AND EXISTS ('
+          '    SELECT 1 FROM stock_items s '
+          '    JOIN products p ON p.id = product_variants.product_id '
+          '    WHERE s.deleted_at IS NULL AND s.active = 1 AND s.unit = ? '
+          '      AND lower(trim(s.name)) = lower(trim('
+          "        CASE WHEN product_variants.name IS NULL OR trim(product_variants.name) = '' "
+          '        THEN p.name ELSE p.name || ? || product_variants.name END'
+          '      ))'
+          '  )',
+          ['piece', ' - ', 'piece', ' - '],
+        );
+      },
+      // v24: convert the remaining legacy one-item "product uses itself"
+      // recipes into explicit links, including weighed retail products.
+      from23To24: (m, schema) async {
+        const matchingVariants = '''
+          SELECT v.id, r.id AS recipe_id, r.stock_item_id, r.quantity
+          FROM product_variants v
+          JOIN products p ON p.id = v.product_id
+          JOIN recipe_items r ON r.variant_id = v.id AND r.deleted_at IS NULL
+          JOIN stock_items s ON s.id = r.stock_item_id AND s.deleted_at IS NULL
+          WHERE v.deleted_at IS NULL AND v.stock_item_id IS NULL
+            AND r.option_id IS NULL AND r.made_item_id IS NULL
+            AND (SELECT COUNT(*) FROM recipe_items rx
+                 WHERE rx.variant_id = v.id AND rx.deleted_at IS NULL) = 1
+            AND lower(trim(s.name)) = lower(trim(
+              CASE WHEN v.name IS NULL OR trim(v.name) = '' THEN p.name
+                   ELSE p.name || ' - ' || v.name END
+            ))
+            AND (
+              (p.sell_by = 'each' AND s.unit = 'piece' AND r.quantity = 1)
+              OR (p.sell_by = 'kg' AND s.unit = 'g' AND r.quantity = 1000)
+              OR (p.sell_by = 'litre' AND s.unit = 'ml' AND r.quantity = 1000)
+            )
+        ''';
+        final rows = await customSelect(matchingVariants).get();
+        final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+        for (final row in rows) {
+          final variantId = row.read<String>('id');
+          final recipeId = row.read<String>('recipe_id');
+          final stockItemId = row.read<String>('stock_item_id');
+          final quantity = row.read<int>('quantity');
+          await customStatement(
+            'UPDATE product_variants SET stock_item_id = ?, stock_quantity = ?, updated_at = ? '
+            'WHERE id = ? AND stock_item_id IS NULL',
+            [stockItemId, quantity, now, variantId],
+          );
+          await customStatement(
+            'UPDATE recipe_items SET deleted_at = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL',
+            [now, now, recipeId],
+          );
+          await customStatement(
+            'INSERT INTO outbox (entity, record_id, operation, payload, created_at) '
+            "VALUES ('product_variants', ?, 'update', '{}', ?)",
+            [variantId, now],
+          );
+          await customStatement(
+            'INSERT INTO outbox (entity, record_id, operation, payload, created_at) '
+            "VALUES ('recipe_items', ?, 'update', '{}', ?)",
+            [recipeId, now],
+          );
+        }
+      },
     ),
-        beforeOpen: (details) async {
-          await customStatement('PRAGMA foreign_keys = ON');
-          final deviceId = await _ensureDeviceId();
-          if (details.versionNow >= 17) await _ensureMainBranch(deviceId);
-          if (details.wasCreated) {
-            await _insertBuiltInRoles(deviceId);
-            await _insertDefaultReasons(deviceId);
-            await _insertBuiltInPayMethods(deviceId);
-            await _insertExpenseCategories(deviceId);
-            await _insertTaxPresets(deviceId);
-            if (seedDemoShop) await seedScoopsTamale(this, deviceId: deviceId);
-          }
-        },
-      );
+    beforeOpen: (details) async {
+      await customStatement('PRAGMA foreign_keys = ON');
+      final deviceId = await _ensureDeviceId();
+      if (details.versionNow >= 17) await _ensureMainBranch(deviceId);
+      if (details.wasCreated) {
+        await _insertBuiltInRoles(deviceId);
+        await _insertDefaultReasons(deviceId);
+        await _insertBuiltInPayMethods(deviceId);
+        await _insertExpenseCategories(deviceId);
+        await _insertTaxPresets(deviceId);
+        if (seedDemoShop) await seedScoopsTamale(this, deviceId: deviceId);
+      }
+    },
+  );
 
   /// Adds a new permission to the built-in Manager role (raw SQL, so it
   /// works in any migration step).
@@ -623,9 +897,14 @@ class AppDatabase extends _$AppDatabase {
   /// has the same staff, so every device gives the same numbers; nothing
   /// goes in the outbox.
   Future<void> _numberStaff() async {
-    final rows = await customSelect('SELECT id FROM staff ORDER BY created_at, id').get();
+    final rows = await customSelect(
+      'SELECT id FROM staff ORDER BY created_at, id',
+    ).get();
     for (final (i, row) in rows.indexed) {
-      await customStatement('UPDATE staff SET staff_number = ? WHERE id = ?', ['${101 + i}', row.read<String>('id')]);
+      await customStatement('UPDATE staff SET staff_number = ? WHERE id = ?', [
+        '${101 + i}',
+        row.read<String>('id'),
+      ]);
     }
   }
 
@@ -635,7 +914,8 @@ class AppDatabase extends _$AppDatabase {
       variables: [Variable.withString(BuiltInRole.manager.id)],
     ).getSingleOrNull();
     if (manager == null) return;
-    final perms = (jsonDecode(manager.read<String>('permissions')) as List).cast<String>();
+    final perms = (jsonDecode(manager.read<String>('permissions')) as List)
+        .cast<String>();
     if (perms.contains(permission.name)) return;
     await customStatement('UPDATE roles SET permissions = ? WHERE id = ?', [
       jsonEncode([...perms, permission.name]),
@@ -674,19 +954,31 @@ class AppDatabase extends _$AppDatabase {
         'INSERT INTO customer_ledger (id, created_at, updated_at, device_id, customer_id, account, kind, amount, '
         "sale_id, method_name, note, by_name) VALUES (?, ?, ?, ?, ?, 'credit', 'creditSale', ?, ?, 'Credit (book)', "
         "'From the credit book before customers', ?)",
-        [newId(), at, at, deviceId, id, r.read<int>('amount'), r.read<String>('sale'), r.read<String>('cashier')],
+        [
+          newId(),
+          at,
+          at,
+          deviceId,
+          id,
+          r.read<int>('amount'),
+          r.read<String>('sale'),
+          r.read<String>('cashier'),
+        ],
       );
-      await customStatement('UPDATE sales SET customer_id = ? WHERE id = ?', [id, r.read<String>('sale')]);
+      await customStatement('UPDATE sales SET customer_id = ? WHERE id = ?', [
+        id,
+        r.read<String>('sale'),
+      ]);
     }
   }
 
   /// The main branch, the same on every device. Dated 1970 so that a rename
   /// anywhere wins over it.
   Future<void> _ensureMainBranch(String deviceId) => customStatement(
-        'INSERT OR IGNORE INTO branches (id, created_at, updated_at, device_id, name, active) '
-        "VALUES ('$mainBranchId', 0, 0, ?, 'Main branch', 1)",
-        [deviceId],
-      );
+    'INSERT OR IGNORE INTO branches (id, created_at, updated_at, device_id, name, active) '
+    "VALUES ('$mainBranchId', 0, 0, ?, 'Main branch', 1)",
+    [deviceId],
+  );
 
   Future<String> _ensureDeviceId() async {
     final existing = await readMeta(MetaKeys.deviceId);
@@ -730,11 +1022,23 @@ class AppDatabase extends _$AppDatabase {
   /// Raw SQL, like the built-in roles. Not written to the outbox.
   Future<void> _insertBuiltInPayMethods(String deviceId) async {
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    for (final (i, (key, name, kind, on, reference)) in builtInPayMethods.indexed) {
+    for (final (i, (key, name, kind, on, reference))
+        in builtInPayMethods.indexed) {
       await customStatement(
         'INSERT OR IGNORE INTO pay_methods (id, created_at, updated_at, device_id, name, kind, built_in, '
         'active, needs_reference, short_reference, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)',
-        [payMethodRowId(key), now, now, deviceId, name, kind.name, key, on ? 1 : 0, reference ? 1 : 0, i],
+        [
+          payMethodRowId(key),
+          now,
+          now,
+          deviceId,
+          name,
+          kind.name,
+          key,
+          on ? 1 : 0,
+          reference ? 1 : 0,
+          i,
+        ],
       );
     }
   }
@@ -783,13 +1087,15 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<String?> readMeta(String key) async {
-    final row = await (select(meta)..where((t) => t.key.equals(key)))
-        .getSingleOrNull();
+    final row = await (select(
+      meta,
+    )..where((t) => t.key.equals(key))).getSingleOrNull();
     return row?.value;
   }
 
   Future<void> writeMeta(String key, String value) =>
-      into(meta).insertOnConflictUpdate(MetaCompanion.insert(key: key, value: value));
+      into(meta)
+          .insertOnConflictUpdate(MetaCompanion.insert(key: key, value: value));
 
   Future<void> deleteMeta(String key) =>
       (delete(meta)..where((t) => t.key.equals(key))).go();
@@ -809,7 +1115,15 @@ class AppDatabase extends _$AppDatabase {
       'VALUES (?, ?, ?, ?, ?, ?, ?) '
       'ON CONFLICT(id) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at',
       variables: [
-        for (final v in [settingRowId(key, scope, deviceId), now, now, deviceId, key, scope.name, valueJson])
+        for (final v in [
+          settingRowId(key, scope, deviceId),
+          now,
+          now,
+          deviceId,
+          key,
+          scope.name,
+          valueJson,
+        ])
           v is int ? Variable.withInt(v) : Variable.withString(v as String),
       ],
       updates: {settings},
@@ -847,7 +1161,11 @@ class AppDatabase extends _$AppDatabase {
     final now = clock.now();
     await customUpdate(
       'UPDATE ${table.actualTableName} SET deleted_at = ?, updated_at = ? WHERE id = ?',
-      variables: [Variable.withDateTime(now), Variable.withDateTime(now), Variable.withString(id)],
+      variables: [
+        Variable.withDateTime(now),
+        Variable.withDateTime(now),
+        Variable.withString(id),
+      ],
       updates: {table},
       updateKind: UpdateKind.update,
     );
@@ -867,12 +1185,14 @@ class AppDatabase extends _$AppDatabase {
     final json = row.toJson();
     // TODO(sync): agree the wire format with the Laravel API (dates are
     // epoch milliseconds here, enums are names).
-    await into(outbox).insert(OutboxCompanion.insert(
-      entity: table.actualTableName,
-      recordId: json['id'] as String,
-      operation: operation,
-      payload: jsonEncode(json),
-      createdAt: clock.now(),
-    ));
+    await into(outbox).insert(
+      OutboxCompanion.insert(
+        entity: table.actualTableName,
+        recordId: json['id'] as String,
+        operation: operation,
+        payload: jsonEncode(json),
+        createdAt: clock.now(),
+      ),
+    );
   }
 }

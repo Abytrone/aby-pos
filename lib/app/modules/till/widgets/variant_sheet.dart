@@ -53,7 +53,15 @@ class VariantSheet extends GetView<TillController> {
                       for (final v in product.variants)
                         OptionChip(
                           label: v.name ?? product.name,
-                          trailing: formatMoney(v.price),
+                          trailing: [
+                            formatMoney(v.price),
+                            if (controller.leftOfVariant(v, productName: product.name) case final left?)
+                              left <= 0
+                                  ? l.tileOut
+                                  : controller.isLowVariant(v, productName: product.name)
+                                  ? l.tileLowLeft(left)
+                                  : l.tileLeft(left),
+                          ].join(' · '),
                           selected: controller.pickerVariant.value?.id == v.id,
                           onTap: () => controller.pickVariant(v),
                         ),
@@ -62,16 +70,18 @@ class VariantSheet extends GetView<TillController> {
                 ],
                 for (final g in product.groups) ...[
                   const SizedBox(height: AbySpace.s4),
-                  Row(children: [
-                    Text(g.name.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
-                    const SizedBox(width: AbySpace.s2),
-                    Text(
-                      groupRule(l, g),
-                      style: AbyText.caption.copyWith(
-                        color: g.accepts(picked.where((o) => o.groupId == g.id).length) ? c.inkMuted : c.danger,
+                  Row(
+                    children: [
+                      Text(g.name.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
+                      const SizedBox(width: AbySpace.s2),
+                      Text(
+                        groupRule(l, g),
+                        style: AbyText.caption.copyWith(
+                          color: g.accepts(picked.where((o) => o.groupId == g.id).length) ? c.inkMuted : c.danger,
+                        ),
                       ),
-                    ),
-                  ]),
+                    ],
+                  ),
                   const SizedBox(height: AbySpace.s2),
                   Wrap(
                     spacing: AbySpace.s2,
@@ -101,9 +111,11 @@ class VariantSheet extends GetView<TillController> {
                                 goBack<void>();
                               }
                             : null,
-                        child: Text(controller.pickerLineKey == null
-                            ? l.pickerAdd(formatMoney(controller.pickerPrice))
-                            : l.pickerUpdate(formatMoney(controller.pickerPrice))),
+                        child: Text(
+                          controller.pickerLineKey == null
+                              ? l.pickerAdd(formatMoney(controller.pickerPrice))
+                              : l.pickerUpdate(formatMoney(controller.pickerPrice)),
+                        ),
                       ),
                     ),
                   ],
@@ -141,13 +153,16 @@ class _OptionPick extends StatelessWidget {
       onTap: onTap,
     );
     if (!canRemoveOne || count == 0) return chip;
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      chip,
-      IconButton(
-        tooltip: context.l10n.pickerRemoveOne,
-        onPressed: onRemove,
-        icon: const Icon(Icons.remove_circle_outline),
-      ),
-    ]);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        chip,
+        IconButton(
+          tooltip: context.l10n.pickerRemoveOne,
+          onPressed: onRemove,
+          icon: const Icon(Icons.remove_circle_outline),
+        ),
+      ],
+    );
   }
 }

@@ -52,7 +52,8 @@ class Products extends Table with SyncColumns {
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
 
   /// Counted, or weighed / measured (price per kg or litre). v6.
-  TextColumn get sellBy => textEnum<SellBy>().withDefault(const Constant('each'))();
+  TextColumn get sellBy =>
+      textEnum<SellBy>().withDefault(const Constant('each'))();
 
   /// The price is typed at the till ("Miscellaneous"), between the
   /// optional limits (pesewas). The variant's price is the suggestion. v6.
@@ -80,8 +81,14 @@ class ProductVariants extends Table with SyncColumns {
   /// Pesewas.
   IntColumn get price => integer()();
 
-  /// Pesewas. Used when the variant has no recipe to work its cost out.
+  /// Pesewas. Used when no linked stock item or recipe supplies the cost.
   IntColumn get manualCost => integer().nullable()();
+
+  /// A directly tracked retail item. Recipes remain in recipe_items.
+  TextColumn get stockItemId => text().nullable().references(StockItems, #id)();
+
+  /// Base units consumed for one sell unit (one item, kg, or litre).
+  IntColumn get stockQuantity => integer().withDefault(const Constant(1))();
   BoolColumn get active => boolean().withDefault(const Constant(true))();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
 }
@@ -155,7 +162,8 @@ class StockItems extends Table with SyncColumns {
 /// What a variant (or an option) uses up each time it is sold.
 @DataClassName('RecipeItemRow')
 class RecipeItems extends Table with SyncColumns {
-  TextColumn get variantId => text().nullable().references(ProductVariants, #id)();
+  TextColumn get variantId =>
+      text().nullable().references(ProductVariants, #id)();
   TextColumn get optionId => text().nullable().references(OptionItems, #id)();
 
   /// An ingredient of a stock item made here (production). v14.
@@ -319,6 +327,7 @@ class Sales extends Table with SyncColumns {
 
   /// Pesewas.
   IntColumn get total => integer()();
+
   /// Who rang it up. Null for sales from before staff sign-in (schema v1).
   TextColumn get cashierId => text().nullable()();
   TextColumn get cashierName => text()();
@@ -355,15 +364,16 @@ class Sales extends Table with SyncColumns {
 
   @override
   List<Set<Column<Object>>> get uniqueKeys => [
-        {deviceId, number},
-      ];
+    {deviceId, number},
+  ];
 }
 
 @DataClassName('SaleLineRow')
 class SaleLines extends Table with SyncColumns {
   TextColumn get saleId => text().references(Sales, #id)();
   TextColumn get productId => text().references(Products, #id)();
-  TextColumn get variantId => text().nullable().references(ProductVariants, #id)();
+  TextColumn get variantId =>
+      text().nullable().references(ProductVariants, #id)();
 
   /// Names as sold, so the sale reads the same after the menu changes.
   TextColumn get productName => text()();
@@ -375,9 +385,11 @@ class SaleLines extends Table with SyncColumns {
 
   /// Pesewas.
   IntColumn get lineTotal => integer()();
+
   /// The options picked, as sold (JSON). Named addons for history.
-  TextColumn get addons =>
-      text().map(const SoldAddonsConverter()).withDefault(const Constant('[]'))();
+  TextColumn get addons => text()
+      .map(const SoldAddonsConverter())
+      .withDefault(const Constant('[]'))();
 
   /// Pesewas: what the stock used cost (recipes), for profit. v5.
   IntColumn get costTotal => integer().withDefault(const Constant(0))();
@@ -387,7 +399,8 @@ class SaleLines extends Table with SyncColumns {
 
   /// Counted, or weighed (then [quantity] is grams or ml and [unitPrice] is
   /// per kg or litre). v6.
-  TextColumn get sellBy => textEnum<SellBy>().withDefault(const Constant('each'))();
+  TextColumn get sellBy =>
+      textEnum<SellBy>().withDefault(const Constant('each'))();
 
   /// The menu price for one, when the price was overridden or typed in. v6.
   IntColumn get listPrice => integer().nullable()();
@@ -398,7 +411,8 @@ class SaleLines extends Table with SyncColumns {
   /// Pesewas off this line, and its share of the order discount. [lineTotal]
   /// is before both. v6.
   IntColumn get discount => integer().withDefault(const Constant(0))();
-  IntColumn get orderDiscountShare => integer().withDefault(const Constant(0))();
+  IntColumn get orderDiscountShare =>
+      integer().withDefault(const Constant(0))();
 
   /// Pesewas of [discount] that came from automatic promotions, and their
   /// names. v11.
@@ -437,6 +451,7 @@ class Payments extends Table with SyncColumns {
   /// Cash only: pesewas handed over and change given back.
   IntColumn get tendered => integer().nullable()();
   IntColumn get changeGiven => integer().nullable()();
+
   /// The transaction reference (MoMo, bank, cheque). Named for v1.
   TextColumn get momoReference => text().nullable()();
 
@@ -515,10 +530,12 @@ class PayMethods extends Table with SyncColumns {
   BoolColumn get active => boolean().withDefault(const Constant(true))();
 
   /// A transaction reference must be entered (and may not be reused).
-  BoolColumn get needsReference => boolean().withDefault(const Constant(false))();
+  BoolColumn get needsReference =>
+      boolean().withDefault(const Constant(false))();
 
   /// The last 4 characters of the reference are enough.
-  BoolColumn get shortReference => boolean().withDefault(const Constant(false))();
+  BoolColumn get shortReference =>
+      boolean().withDefault(const Constant(false))();
 
   /// The shop's number or merchant ID, shown large to the customer.
   TextColumn get merchantNumber => text().nullable()();
@@ -538,7 +555,8 @@ class Refunds extends Table with SyncColumns {
   IntColumn get total => integer()();
   TextColumn get reason => text()();
   TextColumn get note => text().nullable()();
-  BoolColumn get withoutReceipt => boolean().withDefault(const Constant(false))();
+  BoolColumn get withoutReceipt =>
+      boolean().withDefault(const Constant(false))();
 
   /// Part of an exchange: the value went towards [exchangeSaleId].
   TextColumn get exchangeSaleId => text().nullable()();
@@ -548,8 +566,8 @@ class Refunds extends Table with SyncColumns {
 
   @override
   List<Set<Column<Object>>> get uniqueKeys => [
-        {deviceId, number},
-      ];
+    {deviceId, number},
+  ];
 }
 
 @DataClassName('RefundLineRow')
@@ -563,7 +581,8 @@ class RefundLines extends Table with SyncColumns {
 
   /// How many (grams or ml when weighed).
   IntColumn get quantity => integer()();
-  TextColumn get sellBy => textEnum<SellBy>().withDefault(const Constant('each'))();
+  TextColumn get sellBy =>
+      textEnum<SellBy>().withDefault(const Constant('each'))();
 
   /// Pesewas given back for this line.
   IntColumn get amount => integer()();
@@ -652,8 +671,8 @@ class MomoChecks extends Table with SyncColumns {
 
   @override
   List<Set<Column<Object>>> get uniqueKeys => [
-        {source, itemId},
-      ];
+    {source, itemId},
+  ];
 }
 
 /// What expenses are for: rent, ECG, fuel... The owner edits the list.
@@ -764,7 +783,8 @@ class ParkedOrders extends Table with SyncColumns {
 class StockMovements extends Table with SyncColumns {
   /// v1-v4 movements were per product; from v5 they are per stock item.
   TextColumn get productId => text().nullable().references(Products, #id)();
-  TextColumn get variantId => text().nullable().references(ProductVariants, #id)();
+  TextColumn get variantId =>
+      text().nullable().references(ProductVariants, #id)();
   TextColumn get stockItemId => text().nullable().references(StockItems, #id)();
 
   /// Base units for stock items.
@@ -791,9 +811,11 @@ class Roles extends Table with SyncColumns {
 
   /// BuiltInRole name, or null for roles the owner made.
   TextColumn get builtIn => text().nullable()();
-  TextColumn get permissions =>
-      text().map(const PermissionSetConverter()).withDefault(const Constant('[]'))();
-  IntColumn get maxDiscountPercent => integer().withDefault(const Constant(0))();
+  TextColumn get permissions => text()
+      .map(const PermissionSetConverter())
+      .withDefault(const Constant('[]'))();
+  IntColumn get maxDiscountPercent =>
+      integer().withDefault(const Constant(0))();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
 }
 
@@ -942,8 +964,8 @@ class AuditLog extends Table with SyncColumns {
 
   @override
   List<Set<Column<Object>>> get uniqueKeys => [
-        {deviceId, seq},
-      ];
+    {deviceId, seq},
+  ];
 }
 
 /// Typed settings (see SettingsService). Row IDs are derived from the key
@@ -962,6 +984,7 @@ class Settings extends Table with SyncColumns {
 @DataClassName('OutboxRow')
 class Outbox extends Table {
   IntColumn get seq => integer().autoIncrement()();
+
   /// Name of the synced table, e.g. "sales".
   TextColumn get entity => text()();
   TextColumn get recordId => text()();

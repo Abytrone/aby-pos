@@ -128,6 +128,9 @@ class TillController extends GetxController {
 
   /// Stock on hand per stock item (base units).
   final onHand = <String, int>{}.obs;
+  final lowAt = <String, int>{}.obs;
+  final stockIdByName = <String, String>{}.obs;
+  final stockUnitById = <String, StockUnit>{}.obs;
 
   final tab = Rx<TillTab>(const AllTab());
 
@@ -187,7 +190,7 @@ class TillController extends GetxController {
     final catalogue = await _catalog.load();
     categories.assignAll(catalogue.categories);
     products.assignAll(catalogue.products);
-    onHand.assignAll(await _stock.onHandAll());
+    await _loadStockLevels();
     recentIds.assignAll(await _sales.recentProductIds());
     savedDiscounts.assignAll(await _discounts.discounts());
     discountReasons.assignAll(await _discounts.reasons(ReasonKind.discount));
@@ -201,12 +204,23 @@ class TillController extends GetxController {
   }
 
   var _stockOnly = true;
+  Future<void> _loadStockLevels() async {
+    final items = await _stock.items(includeInactive: true);
+    onHand.assignAll({for (final item in items) item.id: item.onHand});
+    lowAt.assignAll({
+      for (final item in items)
+        if (item.reorderPoint != null) item.id: item.reorderPoint!,
+    });
+    stockIdByName.assignAll({for (final item in items) item.name.toLowerCase(): item.id});
+    stockUnitById.assignAll({for (final item in items) item.id: item.unit});
+  }
+
   void _reloadSoon({bool stockOnly = false}) {
     _stockOnly = _stockOnly && stockOnly;
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () async {
       if (_stockOnly) {
-        onHand.assignAll(await _stock.onHandAll());
+        await _loadStockLevels();
       } else {
         await _load();
       }
@@ -282,9 +296,13 @@ class TillController extends GetxController {
       RecentTab() => recentProducts,
       AllTab() => products,
       CategoryTab(:final id) => () {
-          final ids = {id, for (final c in categories) if (c.parentId == id) c.id};
-          return products.where((p) => ids.contains(p.categoryId)).toList();
-        }(),
+        final ids = {
+          id,
+          for (final c in categories)
+            if (c.parentId == id) c.id,
+        };
+        return products.where((p) => ids.contains(p.categoryId)).toList();
+      }(),
     };
   }
 
@@ -299,14 +317,59 @@ class TillController extends GetxController {
 
   Category? categoryOf(Product product) => categories.firstWhereOrNull((c) => c.id == product.categoryId);
 
-  /// How many can still be made, when one stock item limits it (a tub, a
-  /// waffle's mix). Null when the till cannot tell.
+  /// How many can still be made, limited by the scarcest recipe ingredient.
+  /// Null when the till cannot tell.
   int? leftOf(Product product) {
     if (product.variants.length != 1 || product.weighed) return null;
-    final sole = product.variants.single.soleStockItem;
-    if (sole == null || sole.quantity <= 0) return null;
-    final have = onHand[sole.stockItemId] ?? 0;
-    return have <= 0 ? 0 : have ~/ sole.quantity;
+    return leftOfVariant(
+      product.variants.single,
+      productName: product.name,
+      options: [for (final g in product.groups) ...g.defaults],
+    );
+  }
+
+  int? leftOfVariant(Variant variant, {String? productName, List<Option> options = const []}) {
+    final use = _stockUse(variant, options, productName: productName);
+    if (use.isEmpty) return null;
+    return use.entries.map((entry) => (onHand[entry.key] ?? 0) ~/ entry.value).reduce((a, b) => a < b ? a : b);
+  }
+
+  bool isLowOf(Product product) {
+    if (product.variants.length != 1 || product.weighed) return false;
+    final variant = product.variants.single;
+    final options = [for (final g in product.groups) ...g.defaults];
+    return isLowVariant(variant, productName: product.name, options: options);
+  }
+
+  bool isLowVariant(Variant variant, {String? productName, List<Option> options = const []}) => _stockUse(
+    variant,
+    options,
+    productName: productName,
+  ).keys.any((id) => lowAt.containsKey(id) && (onHand[id] ?? 0) <= lowAt[id]!);
+
+  Map<String, int> _stockUse(Variant variant, List<Option> options, {String? productName}) {
+    final use = <String, int>{};
+    void add(Iterable<RecipeLine> recipe) {
+      for (final line in recipe) {
+        if (line.quantity > 0) use[line.stockItemId] = (use[line.stockItemId] ?? 0) + line.quantity;
+      }
+    }
+
+    add(variant.recipe);
+    if (variant.recipe.isEmpty && productName != null) {
+      final name = variant.name == null || variant.name!.isEmpty ? productName : '$productName - ${variant.name}';
+      final stockId = stockIdByName[name.toLowerCase()];
+      if (stockId != null && stockUnitById[stockId] == StockUnit.piece) use[stockId] = 1;
+    }
+    for (final option in options) {
+      if (option.recipe.isNotEmpty) {
+        add(option.recipe);
+      } else if (option.variantId != null) {
+        final linked = products.expand((p) => p.variants).where((v) => v.id == option.variantId).firstOrNull;
+        if (linked != null) add(linked.recipe);
+      }
+    }
+    return use;
   }
 
   void selectTab(TillTab value) {
@@ -328,7 +391,14 @@ class TillController extends GetxController {
   /// screen opens the picker or the price / weight entry.
   TapResult tapProduct(Product product, {Variant? variant}) {
     final qty = pendingQuantity ?? 1;
-    if (_blockedOut(product)) return TapResult.blocked;
+    if (_blockedOut(
+      product,
+      variant: variant,
+      options: [for (final g in product.groups) ...g.defaults],
+      quantity: qty,
+    )) {
+      return TapResult.blocked;
+    }
     if (product.needsEntry) {
       _pickerQuantity = qty;
       pickerProduct.value = product;
@@ -358,16 +428,21 @@ class TillController extends GetxController {
       openPicker(product, quantity: qty);
       return TapResult.picker;
     }
-    if (_blockedOut(product)) return TapResult.blocked;
+    if (_blockedOut(product, options: [for (final g in product.groups) ...g.defaults], quantity: qty)) {
+      return TapResult.blocked;
+    }
     cart.add(product, options: [for (final g in product.groups) ...g.defaults], quantity: qty);
     clearSearch();
     return TapResult.added;
   }
 
   /// Out of stock: allowed with a warning, or refused, by the shop setting.
-  bool _blockedOut(Product product) {
-    final left = leftOf(product);
-    if (left == null || left > cart.countFor(product.id)) return false;
+  bool _blockedOut(Product product, {Variant? variant, List<Option> options = const [], int quantity = 1}) {
+    if (product.weighed) return false;
+    final selected = variant ?? (product.variants.length == 1 ? product.variants.single : null);
+    if (selected == null) return false;
+    final left = leftOfVariant(selected, productName: product.name, options: options);
+    if (left == null || left >= cart.countForVariant(selected.id) + quantity) return false;
     final l = appL10n();
     if (!_settings.get(AppSettings.allowNegativeStock)) {
       message.value = l.tillOutBlocked(product.name);
@@ -390,10 +465,14 @@ class TillController extends GetxController {
       if (product.maxPrice != null && price > product.maxPrice!) return l.tillPriceHigh(formatMoney(product.maxPrice!));
     }
     if (product.weighed && (amount == null || amount <= 0)) return l.tillWeightInvalid;
+    final options = [for (final g in product.groups) ...g.defaults];
+    if (_blockedOut(product, variant: variant, options: options, quantity: _pickerQuantity)) {
+      return l.tillOutBlocked(product.name);
+    }
     cart.add(
       product,
       variant: variant,
-      options: [for (final g in product.groups) ...g.defaults],
+      options: options,
       quantity: product.weighed ? amount! : _pickerQuantity,
       customPrice: product.openPrice ? price : null,
     );
@@ -530,6 +609,10 @@ class TillController extends GetxController {
     final variant = pickerVariant.value;
     if (product == null || variant == null || !pickerValid) return;
     final editing = pickerLineKey;
+    if (editing == null &&
+        _blockedOut(product, variant: variant, options: pickerOptions.toList(), quantity: _pickerQuantity)) {
+      return;
+    }
     if (editing != null) {
       cart.replacePick(editing, variant: variant, options: pickerOptions.toList());
     } else {
@@ -667,10 +750,7 @@ class TillController extends GetxController {
 
   /// Throwing a parked order away is recorded; it needs voidSale (or a PIN).
   Future<void> discardParked(ParkedOrder order) async {
-    final auth = await _permissions.authorize(
-      Permission.voidSale,
-      reason: appL10n().parkDiscardReason(order.name),
-    );
+    final auth = await _permissions.authorize(Permission.voidSale, reason: appL10n().parkDiscardReason(order.name));
     if (auth == null) return;
     await _parked.discard(order.id, actor: auth.actor, approver: auth.approver);
   }
@@ -714,11 +794,19 @@ class TillController extends GetxController {
     if (clock == null) return true;
     try {
       if (clock.mayNotSell) {
-        final ok = await confirmDialog(title: l.clockInToSellTitle, message: l.clockInToSellBody, confirmLabel: l.clockIn);
+        final ok = await confirmDialog(
+          title: l.clockInToSellTitle,
+          message: l.clockInToSellBody,
+          confirmLabel: l.clockIn,
+        );
         if (!ok) return false;
         await clock.clockIn();
       } else if (clock.mustEndBreak) {
-        final ok = await confirmDialog(title: l.clockOnBreakTitle, message: l.clockOnBreakBody, confirmLabel: l.clockEndBreak);
+        final ok = await confirmDialog(
+          title: l.clockOnBreakTitle,
+          message: l.clockOnBreakBody,
+          confirmLabel: l.clockEndBreak,
+        );
         if (!ok) return false;
         await clock.toggleBreak();
       }

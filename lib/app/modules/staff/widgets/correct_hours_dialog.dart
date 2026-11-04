@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../../core/permissions.dart';
 import '../../../data/repositories/time_repository.dart';
+import '../../../services/clock_service.dart';
 import '../../../services/permission_service.dart';
 import '../../../theme/aby_colors.dart';
 import '../../../theme/aby_theme.dart';
@@ -73,6 +74,7 @@ class _CorrectHoursState extends State<_CorrectHours> {
         by: auth.actor,
         approver: auth.approver,
       );
+      await Get.find<ClockService>().refresh();
       goBack(result: true);
       showMessage(l.timeCorrected, tone: MessageTone.success);
     } on TimeClockException catch (e) {

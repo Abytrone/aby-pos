@@ -54,6 +54,37 @@ class RecipeLine {
   int get cost => costOf(quantity, costMilli);
 }
 
+/// One inventory item directly linked to a sellable variant.
+class VariantStockLink {
+  const VariantStockLink({
+    required this.stockItemId,
+    required this.stockItemName,
+    required this.unit,
+    required this.quantity,
+    required this.costMilli,
+  });
+
+  final String stockItemId;
+  final String stockItemName;
+  final StockUnit unit;
+
+  /// Base units consumed for one sell unit.
+  final int quantity;
+
+  /// Thousandths of a pesewa per base unit.
+  final int costMilli;
+
+  int get cost => costOf(quantity, costMilli);
+
+  RecipeLine get asRecipeLine => RecipeLine(
+        stockItemId: stockItemId,
+        stockItemName: stockItemName,
+        unit: unit,
+        quantity: quantity,
+        costMilli: costMilli,
+      );
+}
+
 /// What is sold and priced. Simple products have one variant with no name.
 class Variant {
   const Variant({
@@ -61,6 +92,7 @@ class Variant {
     required this.price,
     this.name,
     this.manualCost,
+    this.stockLink,
     this.recipe = const [],
     this.barcodes = const [],
   });
@@ -71,17 +103,20 @@ class Variant {
   /// Pesewas.
   final int price;
 
-  /// Pesewas, when there is no recipe.
+  /// Pesewas, when neither a stock link nor recipe supplies the cost.
   final int? manualCost;
+  final VariantStockLink? stockLink;
   final List<RecipeLine> recipe;
   final List<String> barcodes;
 
-  /// Pesewas: from the recipe if there is one, else the manual cost.
-  int? get cost => recipe.isNotEmpty ? recipe.fold<int>(0, (s, r) => s + r.cost) : manualCost;
+  /// Pesewas: recipe cost, direct stock cost, or manual cost, in that order.
+  int? get cost => recipe.isNotEmpty
+      ? recipe.fold<int>(0, (s, r) => s + r.cost)
+      : stockLink?.cost ?? manualCost;
 
   /// The one stock item this uses, when there is exactly one (so the till
   /// can show "12 left").
-  RecipeLine? get soleStockItem => recipe.length == 1 ? recipe.single : null;
+  RecipeLine? get soleStockItem => stockLink?.asRecipeLine ?? (recipe.length == 1 ? recipe.single : null);
 }
 
 class Option {

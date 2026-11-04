@@ -86,14 +86,19 @@ class CatalogueController extends GetxController {
   static int? marginOf(int price, int? cost) =>
       cost == null || price <= 0 ? null : ((price - cost) * 100 / price).round();
 
-  bool belowTarget(Product p) =>
-      p.variants.any((v) => (marginOf(v.price, v.cost) ?? 100) < targetMargin);
+  bool belowTarget(Product p) => p.variants.any((v) => (marginOf(v.price, v.cost) ?? 100) < targetMargin);
 
   List<Product> get visibleProducts {
     final all = catalogue.value?.products ?? const <Product>[];
     final q = query.value.trim().toLowerCase();
     final cat = categoryId.value;
-    final inCategory = cat == null ? null : {cat, for (final c in categories) if (c.parentId == cat) c.id};
+    final inCategory = cat == null
+        ? null
+        : {
+            cat,
+            for (final c in categories)
+              if (c.parentId == cat) c.id,
+          };
     return [
       for (final p in all)
         if (switch (filter.value) {
@@ -122,9 +127,9 @@ class CatalogueController extends GetxController {
   }
 
   Future<void> duplicate(Product p) => _run(Permission.editProducts, appL10n().productsDuplicateReason, (by) async {
-        await _rules.duplicateProduct(p, by: by);
-        message.value = appL10n().productsDuplicated(p.name);
-      });
+    await _rules.duplicateProduct(p, by: by);
+    message.value = appL10n().productsDuplicated(p.name);
+  });
 
   Future<void> setArchived(Product p, bool archived) =>
       _run(Permission.editProducts, appL10n().productsArchiveReason, (by) async {
@@ -166,7 +171,7 @@ class CatalogueController extends GetxController {
     await exportDocument(
       io.priceList(c, shopName: _settings.get(AppSettings.shopName)),
       fileStem: 'products-${DateTime.now().toIso8601String().substring(0, 10)}',
-      csv: io.exportProducts(c),
+      csv: await io.exportProducts(c),
       csvImports: true,
     );
   }
@@ -174,7 +179,9 @@ class CatalogueController extends GetxController {
   /// A filled-in example file for this kind of shop, to edit and import.
   Future<void> downloadSample() => shareOrSaveText(
     'aby-products-sample.csv',
-      Get.find<CatalogueIo>().sampleProducts(BusinessType.values.asNameMap()[_settings.get(AppSettings.shopType)] ?? BusinessType.other),
+    Get.find<CatalogueIo>().sampleProducts(
+      BusinessType.values.asNameMap()[_settings.get(AppSettings.shopType)] ?? BusinessType.other,
+    ),
   );
 
   /// Reads a CSV and returns what it would do (nothing saved yet).
@@ -194,12 +201,15 @@ class CatalogueController extends GetxController {
   // Categories
 
   Future<bool> saveCategory(CategoryDraft d) => _run(Permission.editProducts, appL10n().productsEditReason, (by) async {
-        await _rules.saveCategory(d, by: by);
-        message.value = appL10n().settingsSaved;
-      });
+    await _rules.saveCategory(d, by: by);
+    message.value = appL10n().settingsSaved;
+  });
 
-  Future<void> setCategoryActive(Category c, bool active) =>
-      _run(Permission.editProducts, appL10n().productsEditReason, (by) => _catalog.setCategoryActive(c.id, active: active, by: by));
+  Future<void> setCategoryActive(Category c, bool active) => _run(
+    Permission.editProducts,
+    appL10n().productsEditReason,
+    (by) => _catalog.setCategoryActive(c.id, active: active, by: by),
+  );
 
   Future<int> productCount(Category c) => _catalog.productCount(c.id);
 
@@ -212,30 +222,36 @@ class CatalogueController extends GetxController {
         message.value = appL10n().settingsSaved;
       });
 
-  Future<void> setGroupActive(OptionGroup g, bool active) =>
-      _run(Permission.editProducts, appL10n().productsEditReason, (by) => _catalog.setOptionGroupActive(g.id, active: active, by: by));
+  Future<void> setGroupActive(OptionGroup g, bool active) => _run(
+    Permission.editProducts,
+    appL10n().productsEditReason,
+    (by) => _catalog.setOptionGroupActive(g.id, active: active, by: by),
+  );
 
   /// Products using a group, by name.
   List<String> productsUsing(OptionGroup g) => [
-        for (final p in catalogue.value?.products ?? const <Product>[])
-          if (!p.archived && p.groups.any((x) => x.id == g.id)) p.name,
-      ];
+    for (final p in catalogue.value?.products ?? const <Product>[])
+      if (!p.archived && p.groups.any((x) => x.id == g.id)) p.name,
+  ];
 
   // ---------------------------------------------------------------------------
   // Taxes
 
   Future<bool> saveTaxRate(TaxRateDraft d) => _run(Permission.changeSettings, appL10n().taxApprovalReason, (by) async {
-        await _rules.saveTaxRate(d, by: by);
-        message.value = appL10n().settingsSaved;
-      });
+    await _rules.saveTaxRate(d, by: by);
+    message.value = appL10n().settingsSaved;
+  });
 
-  Future<void> setTaxActive(TaxRate t, bool active) =>
-      _run(Permission.changeSettings, appL10n().taxApprovalReason, (by) => _catalog.setTaxRateActive(t.id, active: active, by: by));
+  Future<void> setTaxActive(TaxRate t, bool active) => _run(
+    Permission.changeSettings,
+    appL10n().taxApprovalReason,
+    (by) => _catalog.setTaxRateActive(t.id, active: active, by: by),
+  );
 
   Future<void> setTaxMode(TaxMode mode) => _run(Permission.changeSettings, appL10n().taxApprovalReason, (by) async {
-        await _settings.set(AppSettings.taxMode, mode.name, by: by);
-        message.value = appL10n().settingsSaved;
-      });
+    await _settings.set(AppSettings.taxMode, mode.name, by: by);
+    message.value = appL10n().settingsSaved;
+  });
 
   /// What a GH₵ 100.00 sale looks like with [rates], for the taxes screen.
   String taxExample(List<TaxRate> rates) {

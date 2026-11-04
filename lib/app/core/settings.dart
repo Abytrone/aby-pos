@@ -25,8 +25,7 @@ abstract final class AppSettings {
 
   /// Minutes after midnight when the business day starts (default 05:00,
   /// up to 10:00), so sales after midnight count on the evening's day.
-  static const businessDayStart =
-      Setting<int>('day.startMinutes', SettingScope.shop, 5 * 60);
+  static const businessDayStart = Setting<int>('day.startMinutes', SettingScope.shop, 5 * 60);
 
   /// The kind of shop chosen at setup (APP-04): iceCream, provision, ...
   static const shopType = Setting<String>('shop.type', SettingScope.shop, 'iceCream');
@@ -39,7 +38,7 @@ abstract final class AppSettings {
   static const taxMode = Setting<String>('tax.mode', SettingScope.shop, 'off');
 
   /// Sell even when the till thinks an item has run out.
-  static const allowNegativeStock = Setting<bool>('stock.allowNegative', SettingScope.shop, true);
+  static const allowNegativeStock = Setting<bool>('stock.allowNegative', SettingScope.shop, false);
 
   /// Ask takeaway, eat-in or delivery on each sale.
   static const orderTypes = Setting<bool>('selling.orderTypes', SettingScope.shop, false);
@@ -81,8 +80,7 @@ abstract final class AppSettings {
 
   // Security
   /// Lock the till after this many idle minutes; 0 turns it off.
-  static const autoLockMinutes =
-      Setting<int>('security.autoLockMinutes', SettingScope.shop, 3);
+  static const autoLockMinutes = Setting<int>('security.autoLockMinutes', SettingScope.shop, 3);
 
   // Data
   /// Automatic backups on or off (the key is from when they were daily).
@@ -93,8 +91,7 @@ abstract final class AppSettings {
   static const backupsToKeep = Setting<int>('backup.keep', SettingScope.shop, 14);
 
   /// Days before the off-device backup reminder turns amber.
-  static const offsiteBackupDays =
-      Setting<int>('backup.offsiteReminderDays', SettingScope.shop, 7);
+  static const offsiteBackupDays = Setting<int>('backup.offsiteReminderDays', SettingScope.shop, 7);
 
   /// INT-05: this device saves last month's accountant pack each month, to
   /// [accountsFolder] (empty = Documents/Aby accounts).

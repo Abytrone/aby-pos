@@ -89,9 +89,12 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => TransferRepository(db, device, audit, Get.find()), fenix: true);
     Get.lazyPut(() => SupplierRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => PurchaseOrderRepository(db, device, audit, Get.find()), fenix: true);
-    Get.lazyPut(() => ReceivingRepository(db, device, audit, Get.find(), Get.find(), Get.find<PurchaseOrderRepository>()), fenix: true);
+    Get.lazyPut(
+      () => ReceivingRepository(db, device, audit, Get.find(), Get.find(), Get.find<PurchaseOrderRepository>()),
+      fenix: true,
+    );
     Get.lazyPut(() => StockCountRepository(db, device, audit, Get.find()), fenix: true);
-    Get.lazyPut(() => CatalogueIo(Get.find(), Get.find(), audit), fenix: true);
+    Get.lazyPut(() => CatalogueIo(Get.find(), Get.find(), Get.find(), audit), fenix: true);
     Get.lazyPut(() => StockIo(db, Get.find(), Get.find(), Get.find(), Get.find(), audit), fenix: true);
     Get.lazyPut(() => CashEventRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => CustomerRepository(db, device, audit), fenix: true);
@@ -101,18 +104,25 @@ class InitialBinding extends Bindings {
     Get.lazyPut(() => ExpenseRepository(db, device, audit, Get.find<CashEventRepository>()), fenix: true);
     Get.lazyPut(() => ProfitRepository(db, Get.find<ExpenseRepository>()), fenix: true);
     Get.lazyPut(
-      () => ReportRepository(db, Get.find<StockRepository>(), Get.find<CustomerRepository>(),
-          branch: () => Get.isRegistered<BranchService>() ? Get.find<BranchService>().viewing.value : null),
+      () => ReportRepository(
+        db,
+        Get.find<StockRepository>(),
+        Get.find<CustomerRepository>(),
+        branch: () => Get.isRegistered<BranchService>() ? Get.find<BranchService>().viewing.value : null,
+      ),
       fenix: true,
     );
-    Get.lazyPut(() => DayCloseRepository(
-          db,
-          device,
-          audit,
-          Get.find<CashEventRepository>(),
-          Get.find<CustomerRepository>(),
-          Get.find<ShiftRepository>(),
-        ), fenix: true);
+    Get.lazyPut(
+      () => DayCloseRepository(
+        db,
+        device,
+        audit,
+        Get.find<CashEventRepository>(),
+        Get.find<CustomerRepository>(),
+        Get.find<ShiftRepository>(),
+      ),
+      fenix: true,
+    );
     Get.lazyPut(() => RefundRepository(db, device, audit, Get.find(), Get.find<CustomerRepository>()), fenix: true);
     Get.lazyPut(() => PayMethodRepository(db, device, audit), fenix: true);
     Get.lazyPut(() => VoucherRepository(db, device, audit), fenix: true);
@@ -159,17 +169,26 @@ class InitialBinding extends Bindings {
     );
     Get.put(HubService(db, device, sync: sync, licenses: licenses), permanent: true);
     Get.put(
-      PinRecoveryService(db, Get.find(), auth, audit, deviceCode: () async {
-        if (licenses.machineCode.isEmpty) await licenses.load();
-        return licenses.machineCode;
-      }),
+      PinRecoveryService(
+        db,
+        Get.find(),
+        auth,
+        audit,
+        deviceCode: () async {
+          if (licenses.machineCode.isEmpty) await licenses.load();
+          return licenses.machineCode;
+        },
+      ),
       permanent: true,
     );
     Get.put(TrainingService(db, audit: audit), permanent: true);
     final backups = Get.put(BackupService(db, audit, settings), permanent: true);
     Get.lazyPut(() => BranchMerge(db, audit, backups), fenix: true);
     Get.put(PriceScheduler(Get.find()), permanent: true);
-    Get.put(PrintService(settings, ReceiptRepository(db), device, audit: audit, signedIn: () => auth.currentUser.value), permanent: true);
+    Get.put(
+      PrintService(settings, ReceiptRepository(db), device, audit: audit, signedIn: () => auth.currentUser.value),
+      permanent: true,
+    );
     // Every branch, whichever one Reports is looking at.
     Get.put(
       AccountsExportService(
@@ -191,7 +210,10 @@ class InitialBinding extends Bindings {
     final cart = Get.put(CartController(), permanent: true);
     Get.put(DisplayService(db, settings), permanent: true).promotions = () {
       final now = DateTime.now();
-      return [for (final p in cart.promotions) if (p.runsAt(now)) p.name];
+      return [
+        for (final p in cart.promotions)
+          if (p.runsAt(now)) p.name,
+      ];
     };
   }
 }

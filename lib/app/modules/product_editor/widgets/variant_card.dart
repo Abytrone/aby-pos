@@ -52,7 +52,6 @@ class VariantCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = Theme.of(context).extension<AbyColors>()!;
     final l = context.l10n;
-    final hasRecipe = form.recipe.any((r) => r.stockItemId != null);
     final cost = ctl.costOf(form);
     final margin = ctl.marginOf(form);
     final name = TextField(
@@ -67,12 +66,18 @@ class VariantCard extends StatelessWidget {
       onChanged: (_) => ctl.changed(),
       decoration: InputDecoration(labelText: l.editorPrice, prefixText: 'GH₵ '),
     );
+    final trackedByStock = form.stockMode != StockTrackingMode.none;
     final costField = !ctl.canSeeCost
         ? null
-        : hasRecipe
+        : trackedByStock
             ? InputDecorator(
-                decoration: InputDecoration(labelText: l.editorCost, helperText: l.editorCostFromRecipe),
-                child: Text(formatMoney(cost ?? 0)),
+                decoration: InputDecoration(
+                  labelText: l.editorCost,
+                  helperText: form.stockMode == StockTrackingMode.recipe
+                      ? l.editorCostFromRecipe
+                      : l.editorCostFromStock,
+                ),
+                child: Text(cost == null ? '—' : formatMoney(cost)),
               )
             : TextField(
                 controller: form.cost,
@@ -147,9 +152,63 @@ class VariantCard extends StatelessWidget {
               ),
             ),
           const SizedBox(height: AbySpace.s3),
-          Text(l.recipeUses.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
-          Text(l.recipeHelp, style: AbyText.caption.copyWith(color: c.inkMuted)),
-          RecipeLinesEditor(lines: form.recipe, stockItems: ctl.stockItems, onChanged: ctl.changed),
+          Text(l.editorStockUsageMode.toUpperCase(), style: AbyText.label.copyWith(color: c.inkMuted)),
+          Text(l.editorStockModeHelp, style: AbyText.caption.copyWith(color: c.inkMuted)),
+          const SizedBox(height: AbySpace.s2),
+          DropdownButtonFormField<StockTrackingMode>(
+            initialValue: form.stockMode,
+            decoration: InputDecoration(labelText: l.editorStockUsageMode),
+            items: [
+              DropdownMenuItem(value: StockTrackingMode.none, child: Text(l.editorStockUsageNone)),
+              DropdownMenuItem(value: StockTrackingMode.item, child: Text(l.editorStockUsageItem)),
+              DropdownMenuItem(value: StockTrackingMode.recipe, child: Text(l.editorStockUsageRecipe)),
+            ],
+            onChanged: (mode) {
+              if (mode != null) ctl.setStockMode(form, mode);
+            },
+          ),
+          if (form.stockMode == StockTrackingMode.item) ...[
+            const SizedBox(height: AbySpace.s2),
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(
+                flex: 3,
+                child: DropdownButtonFormField<String?>(
+                  initialValue: form.stockItemId,
+                  isExpanded: true,
+                  decoration: InputDecoration(labelText: l.editorStockItem),
+                  items: [
+                    DropdownMenuItem<String?>(value: null, child: Text(l.editorStockItemNone)),
+                    for (final item in ctl.stockItems.where(
+                      (item) =>
+                          (item.active && item.unit == ctl.expectedStockUnit) ||
+                          item.id == form.stockItemId,
+                    ))
+                      DropdownMenuItem<String?>(value: item.id, child: Text(item.name, overflow: TextOverflow.ellipsis)),
+                  ],
+                  onChanged: (id) => ctl.setStockItem(form, id),
+                ),
+              ),
+              const SizedBox(width: AbySpace.s3),
+              Expanded(
+                flex: 2,
+                child: TextField(
+                  controller: form.stockQuantity,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  onChanged: (_) => ctl.changed(),
+                  decoration: InputDecoration(
+                    labelText: l.editorStockQuantity,
+                    suffixText: ctl.stockAmountUnit.symbol,
+                  ),
+                ),
+              ),
+            ]),
+            Text(l.editorStockItemHelp, style: AbyText.caption.copyWith(color: c.inkMuted)),
+          ],
+          if (form.stockMode == StockTrackingMode.recipe) ...[
+            const SizedBox(height: AbySpace.s2),
+            Text(l.recipeHelp, style: AbyText.caption.copyWith(color: c.inkMuted)),
+            RecipeLinesEditor(lines: form.recipe, stockItems: ctl.stockItems, onChanged: ctl.changed),
+          ],
           const SizedBox(height: AbySpace.s2),
           Wrap(spacing: AbySpace.s2, runSpacing: AbySpace.s2, crossAxisAlignment: WrapCrossAlignment.center, children: [
             Text(l.editorBarcodes, style: AbyText.label.copyWith(color: c.inkMuted)),

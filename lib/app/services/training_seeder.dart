@@ -80,12 +80,14 @@ class TrainingSeeder {
     final path = file.path;
     await Isolate.run(() async {
       final db = AppDatabase(
-        DatabaseConnection(NativeDatabase(
-          File(path),
-          setup: (raw) => raw
-            ..execute('PRAGMA synchronous = OFF')
-            ..execute('PRAGMA journal_mode = MEMORY'),
-        )),
+        DatabaseConnection(
+          NativeDatabase(
+            File(path),
+            setup: (raw) => raw
+              ..execute('PRAGMA synchronous = OFF')
+              ..execute('PRAGMA journal_mode = MEMORY'),
+          ),
+        ),
         false,
       );
       try {
@@ -99,15 +101,59 @@ class TrainingSeeder {
   /// What the copy keeps from the real shop: who signs in and how the shop
   /// is set up. The local hub's tables go too (training never syncs).
   static const _replaced = [
-    'categories', 'products', 'product_variants', 'option_groups', 'option_items', 'product_option_groups',
-    'stock_items', 'recipe_items', 'product_taxes', 'barcodes', 'product_photos', 'price_changes',
-    'suppliers', 'supplier_ledger', 'stock_receipts', 'stock_receipt_lines', 'stock_counts',
-    'stock_count_lines', 'sales', 'sale_lines', 'sale_taxes', 'payments', 'customers', 'customer_ledger',
-    'refunds', 'refund_lines', 'refund_payments', 'cash_events', 'receipt_photos', 'shifts', 'safe_entries',
-    'momo_checks', 'expenses', 'recurring_expenses', 'owner_money', 'momo_charges', 'discounts',
-    'parked_orders', 'stock_movements', 'day_closes', 'audit_log', 'promotions', 'gift_vouchers',
-    'voucher_entries', 'purchase_orders', 'purchase_order_lines', 'stock_batches', 'time_entries',
-    'hub_changes', 'hub_devices', 'stock_transfers', 'stock_transfer_lines', 'outbox',
+    'categories',
+    'products',
+    'product_variants',
+    'option_groups',
+    'option_items',
+    'product_option_groups',
+    'stock_items',
+    'recipe_items',
+    'product_taxes',
+    'barcodes',
+    'product_photos',
+    'price_changes',
+    'suppliers',
+    'supplier_ledger',
+    'stock_receipts',
+    'stock_receipt_lines',
+    'stock_counts',
+    'stock_count_lines',
+    'sales',
+    'sale_lines',
+    'sale_taxes',
+    'payments',
+    'customers',
+    'customer_ledger',
+    'refunds',
+    'refund_lines',
+    'refund_payments',
+    'cash_events',
+    'receipt_photos',
+    'shifts',
+    'safe_entries',
+    'momo_checks',
+    'expenses',
+    'recurring_expenses',
+    'owner_money',
+    'momo_charges',
+    'discounts',
+    'parked_orders',
+    'stock_movements',
+    'day_closes',
+    'audit_log',
+    'promotions',
+    'gift_vouchers',
+    'voucher_entries',
+    'purchase_orders',
+    'purchase_order_lines',
+    'stock_batches',
+    'time_entries',
+    'hub_changes',
+    'hub_devices',
+    'stock_transfers',
+    'stock_transfer_lines',
+    'outbox',
   ];
 
   /// The till in the sample branch, which receives stock sent there.
@@ -131,6 +177,7 @@ class TrainingSeeder {
   final _groupIds = <String, String>{};
   final _customerIds = <String>[];
   final _vouchers = <String>[];
+
   /// Sales with a weighed line, for the refund that brings one back.
   final _weighed = <String>[];
   final _reasons = <ReasonKind, String>{};
@@ -199,10 +246,18 @@ class TrainingSeeder {
     // Suppliers and stock.
     final suppliers = <String>[];
     for (final s in _shop.suppliers) {
-      suppliers.add(await _r.suppliers.save(
-        SupplierDraft(name: s.name, phone: s.phone, address: s.address, paymentTermsDays: s.termsDays, notes: 'Sample supplier'),
-        by: _manager,
-      ));
+      suppliers.add(
+        await _r.suppliers.save(
+          SupplierDraft(
+            name: s.name,
+            phone: s.phone,
+            address: s.address,
+            paymentTermsDays: s.termsDays,
+            notes: 'Sample supplier',
+          ),
+          by: _manager,
+        ),
+      );
     }
     for (final s in _shop.stock) {
       _stockIds[s.name] = await _r.stock.saveItem(
@@ -254,19 +309,21 @@ class TrainingSeeder {
     // Customers, some with money in their wallet, and the owner's capital.
     for (final c in sampleCustomers) {
       final (month, day) = c.birthday ?? (0, 0);
-      _customerIds.add(await _r.customers.save(
-        CustomerDraft(
-          name: c.name,
-          phone: c.phone,
-          location: c.location,
-          tags: c.tags,
-          creditLimit: c.creditLimit,
-          dueDays: c.dueDays,
-          birthday: c.birthday == null ? null : DateTime(1990, month, day),
-          notes: 'Sample customer',
+      _customerIds.add(
+        await _r.customers.save(
+          CustomerDraft(
+            name: c.name,
+            phone: c.phone,
+            location: c.location,
+            tags: c.tags,
+            creditLimit: c.creditLimit,
+            dueDays: c.dueDays,
+            birthday: c.birthday == null ? null : DateTime(1990, month, day),
+            notes: 'Sample customer',
+          ),
+          by: _manager,
         ),
-        by: _manager,
-      ));
+      );
     }
     await _r.expenses.ownerMoney(
       kind: OwnerMoneyKind.capital,
@@ -312,18 +369,25 @@ class TrainingSeeder {
       made.add((s, role));
     }
     _manager = made.firstWhere((m) => m.$2 == 'manager').$1;
-    _cashiers = [for (final (s, role) in made) if (role == 'cashier') s];
+    _cashiers = [
+      for (final (s, role) in made)
+        if (role == 'cashier') s,
+    ];
     _stockKeeper = made.firstWhere((m) => m.$2 == 'stockKeeper').$1;
   }
 
   Future<void> _payMethods() async {
     final all = await _r.payMethods.list(includeInactive: true);
-    PayMethod kind(PaymentMethod k) => all.firstWhere((m) => m.kind == k && m.active, orElse: () => all.firstWhere((m) => m.kind == k));
+    PayMethod kind(PaymentMethod k) =>
+        all.firstWhere((m) => m.kind == k && m.active, orElse: () => all.firstWhere((m) => m.kind == k));
     _cash = kind(PaymentMethod.cash);
     _credit = kind(PaymentMethod.credit);
     _wallet = kind(PaymentMethod.wallet);
     _voucher = kind(PaymentMethod.voucher);
-    _momo = [for (final m in all) if (m.kind == PaymentMethod.momo && m.active) m];
+    _momo = [
+      for (final m in all)
+        if (m.kind == PaymentMethod.momo && m.active) m,
+    ];
     if (_momo.isEmpty) _momo = [kind(PaymentMethod.momo)];
     _card = all.where((m) => m.kind == PaymentMethod.card && m.active).firstOrNull;
   }
@@ -332,10 +396,14 @@ class TrainingSeeder {
     final taxes = [for (final t in (await _r.catalog.load()).taxRates) t.id];
     final categories = <String, String>{};
     for (final (name, tone) in _shop.categories) {
-      categories[name] = await _r.catalog.saveCategory(CategoryDraft(name: name, tone: tone), by: _manager);
+      categories[name] = await _r.catalog.saveCategory(
+        CategoryDraft(name: name, tone: tone),
+        by: _manager,
+      );
     }
-    List<RecipeDraftLine> recipe(List<(String, int)> uses) =>
-        [for (final (name, qty) in uses) RecipeDraftLine(stockItemId: _stockIds[name]!, quantity: qty)];
+    List<RecipeDraftLine> recipe(List<(String, int)> uses) => [
+      for (final (name, qty) in uses) RecipeDraftLine(stockItemId: _stockIds[name]!, quantity: qty),
+    ];
     for (final g in _shop.groups) {
       _groupIds[g.name] = await _r.catalog.saveOptionGroup(
         OptionGroupDraft(
@@ -344,7 +412,8 @@ class TrainingSeeder {
           maxSelect: g.max,
           allowRepeat: g.repeat,
           options: [
-            for (final o in g.options) OptionDraft(name: o.name, priceDelta: o.price, isDefault: o.isDefault, recipe: recipe(o.uses)),
+            for (final o in g.options)
+              OptionDraft(name: o.name, priceDelta: o.price, isDefault: o.isDefault, recipe: recipe(o.uses)),
           ],
         ),
         by: _manager,
@@ -365,7 +434,8 @@ class TrainingSeeder {
           groupIds: [for (final g in p.groups) _groupIds[g]!],
           taxIds: taxes,
           variants: [
-            for (final v in p.variants) VariantDraft(name: v.name, price: v.price, manualCost: v.cost, recipe: recipe(v.uses)),
+            for (final v in p.variants)
+              VariantDraft(name: v.name, price: v.price, manualCost: v.cost, recipe: recipe(v.uses)),
           ],
         ),
         by: _manager,
@@ -377,10 +447,10 @@ class TrainingSeeder {
     }
     // Shelf labels for what is on the shelf.
     final menu = await _r.catalog.load();
-    await _r.catalog.generateBarcodes(
-      [for (final p in menu.products) if (stocked.contains(p.id)) ...p.variants.map((v) => v.id)],
-      by: _manager,
-    );
+    await _r.catalog.generateBarcodes([
+      for (final p in menu.products)
+        if (stocked.contains(p.id)) ...p.variants.map((v) => v.id),
+    ], by: _manager);
   }
 
   Future<void> _offers(DateTime first) async {
@@ -440,12 +510,22 @@ class TrainingSeeder {
       ('Water bill', 'Water', 6000, 15, MoneySource.momo),
       ('Staff wages', 'Staff wages', 180000, 25, MoneySource.bank),
     ]) {
-      await _r.expenses.saveRecurring(name: name, categoryId: category(cat), amount: amount, dayOfMonth: day, paidFrom: from, by: _manager);
+      await _r.expenses.saveRecurring(
+        name: name,
+        categoryId: category(cat),
+        amount: amount,
+        dayOfMonth: day,
+        paidFrom: from,
+        by: _manager,
+      );
     }
   }
 
   Future<void> _branch() async {
-    final id = await _r.branches.save(BranchDraft(name: _shop.branch, address: 'Tamale', phone: '0244300399'), by: _owner);
+    final id = await _r.branches.save(
+      BranchDraft(name: _shop.branch, address: 'Tamale', phone: '0244300399'),
+      by: _owner,
+    );
     await _r.branches.placeDevice(id, deviceId: branchDeviceId, deviceName: 'Branch till', by: _owner);
     _branchId = id;
   }
@@ -474,7 +554,9 @@ class TrainingSeeder {
         invoiceRef: 'INV-${_between(1000, 9999)}',
         lines: draft,
         paidNow: paid,
-        paidWith: paid == 0 ? null : _pick([SupplierPaymentMethod.cash, SupplierPaymentMethod.momo, SupplierPaymentMethod.bank]),
+        paidWith: paid == 0
+            ? null
+            : _pick([SupplierPaymentMethod.cash, SupplierPaymentMethod.momo, SupplierPaymentMethod.bank]),
       ),
       by: _stockKeeper,
     );
@@ -524,7 +606,11 @@ class TrainingSeeder {
         ExpenseDraft(
           day: day,
           amount: _between(5, 30) * 100,
-          categoryId: _pick(cats.where((c) => const {'Transport', 'Ice', 'Packaging', 'Phone credit and data'}.contains(c.name)).toList()).id,
+          categoryId: _pick(
+            cats
+                .where((c) => const {'Transport', 'Ice', 'Packaging', 'Phone credit and data'}.contains(c.name))
+                .toList(),
+          ).id,
           paidFrom: MoneySource.drawer,
           note: _pick(['Taxi to the market', 'Bought ice', 'Carrier bags', 'Data bundle for the shop phone']),
         ),
@@ -544,7 +630,12 @@ class TrainingSeeder {
     if (d == 6 && _weighed.isNotEmpty) await _refund(_weighed.last, cashier, weighed: true);
     if (sold.length > 3 && d % 5 == 3) {
       _at(_on(day, 16));
-      await _r.sales.voidSale(sold.last.saleId, actor: cashier, approver: _manager, reason: _reasons[ReasonKind.voidSale]!);
+      await _r.sales.voidSale(
+        sold.last.saleId,
+        actor: cashier,
+        approver: _manager,
+        reason: _reasons[ReasonKind.voidSale]!,
+      );
     }
     if (d % 3 == 1) await _repay(day);
     if (d % 5 == 4) await _waste();
@@ -563,7 +654,9 @@ class TrainingSeeder {
       countedCash: counted,
       closedBy: cashier,
       cashCount: _countOf(counted),
-      varianceReason: variance == 0 ? null : (variance < 0 ? 'Short: change given wrongly' : 'Over: customer left change'),
+      varianceReason: variance == 0
+          ? null
+          : (variance < 0 ? 'Short: change given wrongly' : 'Over: customer left change'),
     );
     _at(_on(day, 18, 30));
     for (final s in team) {
@@ -575,12 +668,30 @@ class TrainingSeeder {
       _at(_on(day, 18, 45));
       final inSafe = await _r.safe.balance();
       if (inSafe > 0) {
-        await _r.safe.deposit(inSafe, bank: 'GCB Bank', reference: 'DEP${_between(100000, 999999)}', slip: _receipt(), by: _manager);
+        await _r.safe.deposit(
+          inSafe,
+          bank: 'GCB Bank',
+          reference: 'DEP${_between(100000, 999999)}',
+          slip: _receipt(),
+          by: _manager,
+        );
       }
-      await _r.expenses.ownerMoney(kind: OwnerMoneyKind.drawing, amount: 30000, source: MoneySource.bank, note: 'Weekly drawing', actor: _owner);
+      await _r.expenses.ownerMoney(
+        kind: OwnerMoneyKind.drawing,
+        amount: 30000,
+        source: MoneySource.bank,
+        note: 'Weekly drawing',
+        actor: _owner,
+      );
       for (final s in await _r.suppliers.list()) {
         if (s.balance > 1) {
-          await _r.suppliers.recordPayment(s.id, amount: s.balance ~/ 2, method: SupplierPaymentMethod.momo, reference: 'SP${_between(10000, 99999)}', by: _manager);
+          await _r.suppliers.recordPayment(
+            s.id,
+            amount: s.balance ~/ 2,
+            method: SupplierPaymentMethod.momo,
+            reference: 'SP${_between(10000, 99999)}',
+            by: _manager,
+          );
         }
       }
     }
@@ -614,7 +725,12 @@ class TrainingSeeder {
       final v = menu.products.first.variants.first;
       await _r.catalog.schedulePrice(v.id, v.price + v.price ~/ 10, day.add(const Duration(days: 1)), by: _manager);
       final later = menu.products.last.variants.first;
-      await _r.catalog.schedulePrice(later.id, later.price + later.price ~/ 20, day.add(Duration(days: days + 5)), by: _manager);
+      await _r.catalog.schedulePrice(
+        later.id,
+        later.price + later.price ~/ 20,
+        day.add(Duration(days: days + 5)),
+        by: _manager,
+      );
     }
     if (d == 4) await _r.catalog.applyDuePrices(now: _now);
     if (d == 5) {
@@ -622,7 +738,11 @@ class TrainingSeeder {
       final supplier = (await _r.suppliers.list()).last;
       final item = _shop.stock.firstWhere((s) => s.opening > 0);
       final order = await _r.orders.create(
-        PurchaseOrderDraft(supplierId: supplier.id, lines: [(_stockIds[item.name]!, item.opening ~/ 2)], note: 'Ordered twice by mistake'),
+        PurchaseOrderDraft(
+          supplierId: supplier.id,
+          lines: [(_stockIds[item.name]!, item.opening ~/ 2)],
+          note: 'Ordered twice by mistake',
+        ),
         by: _stockKeeper,
       );
       await _r.orders.cancel(order.id, by: _manager);
@@ -639,7 +759,12 @@ class TrainingSeeder {
     if (d == 18) {
       final owing = await _r.customers.list(owing: true);
       if (owing.isNotEmpty) {
-        await _r.customers.writeOff(owing.last.id, amount: min(1000, owing.last.owed), reason: 'Small balance forgiven', actor: _owner);
+        await _r.customers.writeOff(
+          owing.last.id,
+          amount: min(1000, owing.last.owed),
+          reason: 'Small balance forgiven',
+          actor: _owner,
+        );
       }
     }
   }
@@ -662,17 +787,26 @@ class TrainingSeeder {
           options.add(_pick(g.options));
         }
       }
-      final open = p.openPrice ? _between(((p.minPrice ?? 100) ~/ 100), ((p.maxPrice ?? 5000) ~/ 100) ~/ 3 + 1) * 100 : null;
-      lines.add(CartLine(
-        product: p,
-        variant: _pick(p.variants),
-        options: options,
-        quantity: p.weighed ? _between(2, 10) * 250 : (_chance(0.75) ? 1 : _between(2, 4)),
-        customPrice: open,
-        discount: _chance(0.06)
-            ? Discount(kind: DiscountKind.percent, value: 10, reason: _reasons[ReasonKind.discount]!, name: 'Student 10%')
-            : null,
-      ));
+      final open = p.openPrice
+          ? _between(((p.minPrice ?? 100) ~/ 100), ((p.maxPrice ?? 5000) ~/ 100) ~/ 3 + 1) * 100
+          : null;
+      lines.add(
+        CartLine(
+          product: p,
+          variant: _pick(p.variants),
+          options: options,
+          quantity: p.weighed ? _between(2, 10) * 250 : (_chance(0.75) ? 1 : _between(2, 4)),
+          customPrice: open,
+          discount: _chance(0.06)
+              ? Discount(
+                  kind: DiscountKind.percent,
+                  value: 10,
+                  reason: _reasons[ReasonKind.discount]!,
+                  name: 'Student 10%',
+                )
+              : null,
+        ),
+      );
     }
     if (lines.isEmpty) return null;
 
@@ -687,7 +821,10 @@ class TrainingSeeder {
     var changeToWallet = false;
     final roll = _random.nextDouble();
     if (d == 9 && i == 1 && _vouchers.isNotEmpty) {
-      payments = [PaymentInput.from(_voucher, reference: _vouchers.first, amount: max(1, min(most ~/ 2, 5000))), PaymentInput.from(_cash, tendered: _roundUp(most))];
+      payments = [
+        PaymentInput.from(_voucher, reference: _vouchers.first, amount: max(1, min(most ~/ 2, 5000))),
+        PaymentInput.from(_cash, tendered: _roundUp(most)),
+      ];
     } else if (customer != null && customer.wallet > most && roll < 0.3) {
       payments = [PaymentInput.from(_wallet)];
     } else if (customer != null && customer.creditLimit != null && roll < 0.35) {
@@ -699,7 +836,10 @@ class TrainingSeeder {
       payments = [PaymentInput.from(_pick(_momo), reference: _nextReference())];
     } else if (roll < 0.93 && most > 200) {
       final half = most ~/ 200 * 100;
-      payments = [PaymentInput.from(_cash, amount: half, tendered: half), PaymentInput.from(_pick(_momo), reference: _nextReference())];
+      payments = [
+        PaymentInput.from(_cash, amount: half, tendered: half),
+        PaymentInput.from(_pick(_momo), reference: _nextReference()),
+      ];
     } else if (_card != null) {
       payments = [PaymentInput.from(_card!, reference: 'POS${_between(100000, 999999)}')];
     } else {
@@ -728,8 +868,14 @@ class TrainingSeeder {
         loyalty: loyalty,
         orders: orders,
         orderDiscount: customer != null && _chance(0.1)
-            ? Discount(kind: DiscountKind.percent, value: 5, reason: _reasons[ReasonKind.discount]!, name: 'Regular customer 5%')
+            ? Discount(
+                kind: DiscountKind.percent,
+                value: 5,
+                reason: _reasons[ReasonKind.discount]!,
+                name: 'Regular customer 5%',
+              )
             : null,
+        allowNegativeStock: _get(AppSettings.allowNegativeStock),
       );
       if (sale.orderNumber != null) {
         for (final s in [OrderStatus.preparing, OrderStatus.ready, OrderStatus.collected]) {
@@ -765,7 +911,13 @@ class TrainingSeeder {
     final draft = RefundDraft(
       saleId: saleId,
       lines: [
-        RefundLineDraft(saleLineId: line.saleLineId, name: line.title, quantity: quantity, sellBy: line.sellBy, restock: _chance(0.7)),
+        RefundLineDraft(
+          saleLineId: line.saleLineId,
+          name: line.title,
+          quantity: quantity,
+          sellBy: line.sellBy,
+          restock: _chance(0.7),
+        ),
       ],
       reason: _reasons[ReasonKind.refund]!,
       note: 'Customer brought it back',
@@ -774,7 +926,9 @@ class TrainingSeeder {
     if (total <= 0) return;
     await _r.refunds.refund(
       draft,
-      payments: [RefundPaymentInput(method: PaymentMethod.cash, methodId: _cash.id, methodName: _cash.name, amount: total)],
+      payments: [
+        RefundPaymentInput(method: PaymentMethod.cash, methodId: _cash.id, methodName: _cash.name, amount: total),
+      ],
       actor: cashier,
       approver: _manager,
     );
@@ -811,7 +965,9 @@ class TrainingSeeder {
   /// Orders what is running low and receives it; with [partial], the first
   /// supplier brings only half.
   Future<void> _reorder({bool partial = false}) async {
-    final low = (await _r.stock.items()).where((s) => s.reorderPoint != null && s.onHand <= s.reorderPoint! * 2).toList();
+    final low = (await _r.stock.items())
+        .where((s) => s.reorderPoint != null && s.onHand <= s.reorderPoint! * 2)
+        .toList();
     final bySupplier = <String, List<StockItem>>{};
     for (final s in low) {
       if (s.supplierId != null) bySupplier.putIfAbsent(s.supplierId!, () => []).add(s);
@@ -819,7 +975,12 @@ class TrainingSeeder {
     for (final (i, MapEntry(key: supplier, value: items)) in bySupplier.entries.indexed) {
       final lines = [for (final s in items) (s.id, s.reorderQty!)];
       final order = await _r.orders.create(
-        PurchaseOrderDraft(supplierId: supplier, lines: lines, expectedOn: _now.add(const Duration(days: 1)), note: 'Running low'),
+        PurchaseOrderDraft(
+          supplierId: supplier,
+          lines: lines,
+          expectedOn: _now.add(const Duration(days: 1)),
+          note: 'Running low',
+        ),
         by: _stockKeeper,
       );
       await _deliver(
@@ -849,7 +1010,12 @@ class TrainingSeeder {
   Future<void> _count() async {
     final id = await _r.counts.start(blind: true, note: 'Monthly count', by: _manager);
     for (final s in (await _r.stock.items()).where((s) => s.onHand > 0).take(6)) {
-      await _r.counts.setCount(id, s.id, max(0, s.onHand - (_chance(0.5) ? max(1, s.onHand ~/ 100) : 0)), by: _stockKeeper);
+      await _r.counts.setCount(
+        id,
+        s.id,
+        max(0, s.onHand - (_chance(0.5) ? max(1, s.onHand ~/ 100) : 0)),
+        by: _stockKeeper,
+      );
     }
     await _r.counts.post(id, by: _manager);
   }
@@ -869,7 +1035,9 @@ class TrainingSeeder {
       final lines = [for (final p in menu.products.take(n + 1)) CartLine(product: p)];
       await _r.parked.park(
         name: name,
-        cart: {'lines': [for (final l in lines) l.toJson()]},
+        cart: {
+          'lines': [for (final l in lines) l.toJson()],
+        },
         total: lines.fold(0, (s, l) => s + l.lineTotal),
         itemCount: lines.length,
         by: _cashiers.first,
@@ -919,7 +1087,14 @@ class TrainingSeeder {
     img.fill(image, color: img.ColorRgb8(0xf6, 0xf7, 0xf2));
     img.drawString(image, 'RECEIPT', font: img.arial24, x: 70, y: 24, color: img.ColorRgb8(0x10, 0x13, 0x22));
     for (var y = 80; y < 280; y += 28) {
-      img.fillRect(image, x1: 24, y1: y, x2: 24 + _between(100, 190), y2: y + 8, color: img.ColorRgb8(0xbb, 0xbd, 0xb5));
+      img.fillRect(
+        image,
+        x1: 24,
+        y1: y,
+        x2: 24 + _between(100, 190),
+        y2: y + 8,
+        color: img.ColorRgb8(0xbb, 0xbd, 0xb5),
+      );
     }
     return img.encodePng(image);
   }
@@ -935,22 +1110,22 @@ class _Device implements DeviceInfo {
 /// Every repository the seeder uses, wired as InitialBinding wires them.
 class _Repos {
   _Repos(AppDatabase db, DeviceInfo device, AuditRepository audit)
-      : stock = StockRepository(db, device, audit),
-        cashEvents = CashEventRepository(db, device, audit),
-        customers = CustomerRepository(db, device, audit),
-        shifts = ShiftRepository(db, device, audit),
-        payMethods = PayMethodRepository(db, device, audit),
-        vouchers = VoucherRepository(db, device, audit, random: Random(11)),
-        suppliers = SupplierRepository(db, device, audit),
-        catalog = CatalogRepository(db, device, audit),
-        staff = StaffRepository(db, device, audit),
-        discounts = DiscountRepository(db, device, audit),
-        promotions = PromotionRepository(db, device, audit),
-        parked = ParkedOrderRepository(db, device, audit),
-        branches = BranchRepository(db, device, audit),
-        momo = MomoRepository(db, device, audit),
-        kitchen = OrderRepository(db),
-        times = TimeRepository(db, device) {
+    : stock = StockRepository(db, device, audit),
+      cashEvents = CashEventRepository(db, device, audit),
+      customers = CustomerRepository(db, device, audit),
+      shifts = ShiftRepository(db, device, audit),
+      payMethods = PayMethodRepository(db, device, audit),
+      vouchers = VoucherRepository(db, device, audit, random: Random(11)),
+      suppliers = SupplierRepository(db, device, audit),
+      catalog = CatalogRepository(db, device, audit),
+      staff = StaffRepository(db, device, audit),
+      discounts = DiscountRepository(db, device, audit),
+      promotions = PromotionRepository(db, device, audit),
+      parked = ParkedOrderRepository(db, device, audit),
+      branches = BranchRepository(db, device, audit),
+      momo = MomoRepository(db, device, audit),
+      kitchen = OrderRepository(db),
+      times = TimeRepository(db, device) {
     safe = SafeRepository(db, device, audit, cashEvents);
     expenses = ExpenseRepository(db, device, audit, cashEvents);
     closes = DayCloseRepository(db, device, audit, cashEvents, customers, shifts);

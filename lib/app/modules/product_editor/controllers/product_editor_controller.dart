@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../core/permissions.dart';
 import '../../../core/settings.dart';
+import '../../../core/units.dart' as units;
 import '../../../data/repositories/catalog_repository.dart';
 import '../../../data/repositories/stock_repository.dart';
 import '../../../domain/catalogue_rules.dart';
@@ -24,18 +25,40 @@ import '../../../ui/photo_picker.dart';
 import '../../products/controllers/catalogue_controller.dart';
 import '../../products/widgets/recipe_lines.dart';
 
+enum StockTrackingMode { none, item, recipe }
+
 /// One price row in the editor.
 class VariantForm {
-  VariantForm({this.id, String name = '', String price = '', String cost = '', List<String>? barcodes, List<RecipeLineForm>? recipe})
+  VariantForm({
+    this.id,
+    String name = '',
+    String price = '',
+    String cost = '',
+    this.stockItemId,
+    String stockQuantity = '1',
+    StockTrackingMode? stockMode,
+    List<String>? barcodes,
+    List<RecipeLineForm>? recipe,
+  })
       : name = TextEditingController(text: name),
         price = TextEditingController(text: price),
         cost = TextEditingController(text: cost),
+        stockQuantity = TextEditingController(text: stockQuantity),
         barcodes = barcodes ?? [],
-        recipe = recipe ?? [];
+        recipe = recipe ?? [],
+        stockMode = stockMode ??
+            ((recipe?.isNotEmpty ?? false)
+                ? StockTrackingMode.recipe
+                : stockItemId != null
+                    ? StockTrackingMode.item
+                    : StockTrackingMode.none);
 
   final String? id;
   final TextEditingController name;
   final TextEditingController price;
+  final TextEditingController stockQuantity;
+  String? stockItemId;
+  StockTrackingMode stockMode;
 
   /// Manual cost, used when there is no recipe.
   final TextEditingController cost;
@@ -49,6 +72,7 @@ class VariantForm {
     name.dispose();
     price.dispose();
     cost.dispose();
+    stockQuantity.dispose();
     for (final r in recipe) {
       r.dispose();
     }
@@ -150,6 +174,15 @@ class ProductEditorController extends GetxController {
           name: v.name ?? '',
           price: _plain(v.price),
           cost: v.manualCost == null ? '' : _plain(v.manualCost!),
+          stockItemId: v.stockLink?.stockItemId,
+          stockQuantity: v.stockLink == null
+              ? '1'
+              : units.quantityIn(v.stockLink!.quantity, stockAmountUnit),
+          stockMode: v.recipe.isNotEmpty
+              ? StockTrackingMode.recipe
+              : v.stockLink != null
+                  ? StockTrackingMode.item
+                  : StockTrackingMode.none,
           barcodes: [...v.barcodes],
           recipe: [for (final r in v.recipe) RecipeLineForm.from(r)],
         )..savedPrice = v.price);
@@ -170,6 +203,32 @@ class ProductEditorController extends GetxController {
   static String _plain(int pesewas) => '${pesewas ~/ 100}.${(pesewas % 100).toString().padLeft(2, '0')}';
 
   void changed() => update();
+
+  units.DisplayUnit get stockAmountUnit => switch (sellBy) {
+        SellBy.each => units.DisplayUnit.piece,
+        SellBy.kg => units.DisplayUnit.kg,
+        SellBy.litre => units.DisplayUnit.l,
+      };
+
+  StockUnit get expectedStockUnit => switch (sellBy) {
+        SellBy.each => StockUnit.piece,
+        SellBy.kg => StockUnit.g,
+        SellBy.litre => StockUnit.ml,
+      };
+
+  void setStockMode(VariantForm form, StockTrackingMode mode) {
+    form.stockMode = mode;
+    update();
+  }
+
+  void setStockItem(VariantForm form, String? stockItemId) {
+    form.stockItemId = stockItemId;
+    if (form.stockQuantity.text.trim().isEmpty) form.stockQuantity.text = '1';
+    update();
+  }
+
+  StockItem? stockItemFor(VariantForm form) =>
+      stockItems.where((item) => item.id == form.stockItemId).firstOrNull;
 
   void addVariant() {
     // Turning a simple product into sizes: the first price needs a name.
@@ -241,12 +300,20 @@ class ProductEditorController extends GetxController {
     update();
   }
 
-  /// Pesewas: recipe cost if there is a recipe, else the manual cost.
+  /// Pesewas: recipe cost, linked stock cost, or manual cost.
   int? costOf(VariantForm v) {
-    if (v.recipe.any((r) => r.stockItemId != null)) {
-      return v.recipe.fold<int>(0, (s, r) => s + r.cost(stockItems));
+    switch (v.stockMode) {
+      case StockTrackingMode.none:
+        return parseMoney(v.cost.text);
+      case StockTrackingMode.item:
+        final item = stockItemFor(v);
+        final quantity = units.parseQuantity(v.stockQuantity.text, stockAmountUnit);
+        if (item == null || item.unit != expectedStockUnit || quantity == null) return null;
+        return units.costOf(quantity, item.costMilli);
+      case StockTrackingMode.recipe:
+        if (!v.recipe.any((r) => r.stockItemId != null)) return null;
+        return v.recipe.fold<int>(0, (s, r) => s + r.cost(stockItems));
     }
-    return parseMoney(v.cost.text);
   }
 
   int? marginOf(VariantForm v) {
@@ -321,9 +388,35 @@ class ProductEditorController extends GetxController {
         update();
         return false;
       }
-      final hasRecipe = v.recipe.any((r) => r.stockItemId != null);
-      final cost = v.cost.text.trim().isEmpty || hasRecipe ? null : parseMoney(v.cost.text);
-      if (!hasRecipe && v.cost.text.trim().isNotEmpty && cost == null) {
+      final hasRecipe = v.stockMode == StockTrackingMode.recipe;
+      final stockItem = v.stockMode == StockTrackingMode.item ? stockItemFor(v) : null;
+      final stockQuantity = v.stockMode == StockTrackingMode.item
+          ? units.parseQuantity(v.stockQuantity.text, stockAmountUnit)
+          : null;
+      if (v.stockMode == StockTrackingMode.item && stockItem == null) {
+        error = l.editorStockItemMissing;
+        update();
+        return false;
+      }
+      if (v.stockMode == StockTrackingMode.item && stockItem!.unit != expectedStockUnit) {
+        error = l.editorStockUnitMismatch;
+        update();
+        return false;
+      }
+      if (v.stockMode == StockTrackingMode.item && (stockQuantity == null || stockQuantity <= 0)) {
+        error = l.editorStockQuantityInvalid;
+        update();
+        return false;
+      }
+      if (hasRecipe && !v.recipe.any((r) => r.stockItemId != null)) {
+        error = l.editorRecipeInvalid;
+        update();
+        return false;
+      }
+      final cost = v.stockMode != StockTrackingMode.none || v.cost.text.trim().isEmpty
+          ? null
+          : parseMoney(v.cost.text);
+      if (v.stockMode == StockTrackingMode.none && v.cost.text.trim().isNotEmpty && cost == null) {
         error = l.editorCostInvalid;
         update();
         return false;
@@ -340,8 +433,10 @@ class ProductEditorController extends GetxController {
         name: v.name.text,
         price: price,
         manualCost: cost,
+        stockItemId: v.stockMode == StockTrackingMode.item ? stockItem!.id : null,
+        stockQuantity: stockQuantity ?? 1,
         barcodes: v.barcodes,
-        recipe: [for (final r in v.recipe) ?r.draft(stockItems)],
+        recipe: hasRecipe ? [for (final r in v.recipe) ?r.draft(stockItems)] : const [],
       ));
     }
     if (categoryId == null) {

@@ -46,13 +46,18 @@ class StockRepository {
   }
 
   Future<StockItem?> item(String id) async {
-    final row = await (_db.select(_db.stockItems)..where((s) => s.id.equals(id))).getSingleOrNull();
+    final row = await (_db.select(
+      _db.stockItems,
+    )..where((s) => s.id.equals(id))).getSingleOrNull();
     return row == null ? null : _toItem(row, await onHand(id));
   }
 
   /// Updates as stock moves (for lists that should stay current).
-  Stream<void> watchChanges() =>
-      _db.tableUpdates(TableUpdateQuery.onAllTables([_db.stockItems, _db.stockMovements])).map((_) {});
+  Stream<void> watchChanges() => _db
+      .tableUpdates(
+        TableUpdateQuery.onAllTables([_db.stockItems, _db.stockMovements]),
+      )
+      .map((_) {});
 
   StockItem _toItem(StockItemRow r, int onHand) => StockItem(
     id: r.id,
@@ -68,14 +73,30 @@ class StockRepository {
     batchYield: r.batchYield,
   );
 
-  Future<String> saveItem(StockItemDraft d, {required Staff by}) async {
+  Future<String> saveItem(
+    StockItemDraft d, {
+    required Staff by,
+    bool createNew = false,
+  }) async {
     final name = d.name.trim();
     if (name.isEmpty) throw const StockException('Enter a name.');
-    if (d.costMilli < 0) throw const StockException('The cost cannot be negative.');
+    if (d.costMilli < 0)
+      throw const StockException('The cost cannot be negative.');
     return _db.transaction(() async {
       final now = clock.now();
+      final creating = d.id == null || createNew;
       final id = d.id ?? newId();
-      if (d.id == null) {
+      final named =
+          await (_db.select(_db.stockItems)..where(
+                (s) =>
+                    s.deletedAt.isNull() &
+                    s.name.lower().equals(name.toLowerCase()),
+              ))
+              .get();
+      if (named.any((s) => creating || s.id != id)) {
+        throw StockException('A stock item named "$name" already exists.');
+      }
+      if (creating) {
         await _db.insertTracked(
           _db.stockItems,
           StockItemsCompanion.insert(
@@ -93,9 +114,14 @@ class StockRepository {
           ),
         );
       } else {
-        final row = await (_db.select(_db.stockItems)..where((s) => s.id.equals(id))).getSingle();
-        if (row.unit != d.unit && await onHand(id) != 0) {
-          throw const StockException('The unit can only change while nothing is in stock.');
+        final row = await (_db.select(
+          _db.stockItems,
+        )..where((s) => s.id.equals(id))).getSingle();
+        if (row.unit != d.unit &&
+            (await onHand(id) != 0 || await hasProductUsage(id))) {
+          throw const StockException(
+            'The unit cannot change while the item has stock or is used by a product or recipe.',
+          );
         }
         await _db.updateTracked(
           _db.stockItems,
@@ -116,16 +142,25 @@ class StockRepository {
         actor: by,
         entity: 'stock_items',
         entityId: id,
-        summary: '${d.id == null ? 'Added' : 'Changed'} stock item $name',
+        summary: '${creating ? 'Added' : 'Changed'} stock item $name',
       );
       return id;
     });
   }
 
-  Future<void> setItemActive(String id, {required bool active, required Staff by}) {
+  Future<void> setItemActive(
+    String id, {
+    required bool active,
+    required Staff by,
+  }) {
     return _db.transaction(() async {
-      final row = await (_db.select(_db.stockItems)..where((s) => s.id.equals(id))).getSingle();
-      await _db.updateTracked(_db.stockItems, row.copyWith(active: active, updatedAt: clock.now()));
+      final row = await (_db.select(
+        _db.stockItems,
+      )..where((s) => s.id.equals(id))).getSingle();
+      await _db.updateTracked(
+        _db.stockItems,
+        row.copyWith(active: active, updatedAt: clock.now()),
+      );
       await _audit.record(
         action: AuditAction.stockItemSaved,
         actor: by,
@@ -136,22 +171,56 @@ class StockRepository {
     });
   }
 
-  /// Products whose recipes use the item (names), so the owner knows what a
-  /// change affects.
+  /// Products and options that use this item directly or in a recipe.
   Future<List<String>> usedBy(String stockItemId) async {
     final rows = await _db
         .customSelect(
-          'SELECT DISTINCT COALESCE(p.name, o.name) AS name FROM recipe_items r '
-          'LEFT JOIN product_variants v ON v.id = r.variant_id AND v.active = 1 '
-          'LEFT JOIN products p ON p.id = v.product_id AND p.archived_at IS NULL '
-          'LEFT JOIN option_items o ON o.id = r.option_id AND o.active = 1 '
-          'WHERE r.stock_item_id = ? AND r.deleted_at IS NULL AND (p.id IS NOT NULL OR o.id IS NOT NULL) '
-          'ORDER BY name',
-          variables: [Variable.withString(stockItemId)],
-          readsFrom: {_db.recipeItems, _db.productVariants, _db.products, _db.optionItems},
+          'SELECT name FROM ('
+          '  SELECT DISTINCT COALESCE(p.name, o.name) AS name FROM recipe_items r '
+          '  LEFT JOIN product_variants v ON v.id = r.variant_id AND v.active = 1 '
+          '  LEFT JOIN products p ON p.id = v.product_id AND p.archived_at IS NULL '
+          '  LEFT JOIN option_items o ON o.id = r.option_id AND o.active = 1 '
+          '  WHERE r.stock_item_id = ? AND r.deleted_at IS NULL AND (p.id IS NOT NULL OR o.id IS NOT NULL) '
+          '  UNION '
+          '  SELECT DISTINCT p.name AS name FROM product_variants v '
+          '  JOIN products p ON p.id = v.product_id AND p.archived_at IS NULL '
+          '  WHERE v.stock_item_id = ? AND v.active = 1 AND v.deleted_at IS NULL'
+          ') WHERE name IS NOT NULL ORDER BY name',
+          variables: [
+            Variable.withString(stockItemId),
+            Variable.withString(stockItemId),
+          ],
+          readsFrom: {
+            _db.recipeItems,
+            _db.productVariants,
+            _db.products,
+            _db.optionItems,
+          },
         )
         .get();
     return rows.map((r) => r.read<String>('name')).toList();
+  }
+
+  /// Whether changing this item's unit would reinterpret an existing product
+  /// link or recipe amount.
+  Future<bool> hasProductUsage(String stockItemId) async {
+    final row = await _db
+        .customSelect(
+          'SELECT EXISTS ('
+          '  SELECT 1 FROM product_variants v '
+          '  WHERE v.stock_item_id = ? AND v.deleted_at IS NULL '
+          '  UNION ALL '
+          '  SELECT 1 FROM recipe_items r '
+          '  WHERE r.stock_item_id = ? AND r.deleted_at IS NULL'
+          ') AS used',
+          variables: [
+            Variable.withString(stockItemId),
+            Variable.withString(stockItemId),
+          ],
+          readsFrom: {_db.productVariants, _db.recipeItems},
+        )
+        .getSingle();
+    return row.read<int>('used') != 0;
   }
 
   // ---------------------------------------------------------------------------
@@ -166,22 +235,64 @@ class StockRepository {
     final sum = _db.stockMovements.quantityChange.sum();
     final query = _db.selectOnly(_db.stockMovements)
       ..addColumns([sum])
-      ..where(_db.stockMovements.stockItemId.equals(stockItemId) &
-          _db.stockMovements.deletedAt.isNull() &
-          here.on(_db.stockMovements.deviceId));
+      ..where(
+        _db.stockMovements.stockItemId.equals(stockItemId) &
+            _db.stockMovements.deletedAt.isNull() &
+            here.on(_db.stockMovements.deviceId),
+      );
     return (await query.map((r) => r.read(sum)).getSingle()) ?? 0;
   }
 
   /// (stock item, quantity, cost per base unit now) for a variant or option.
-  Future<List<(String, int, int)>> recipe({String? variantId, String? optionId}) async {
-    final rows = await _db.customSelect(
-      'SELECT r.stock_item_id AS item, r.quantity AS qty, s.cost_milli AS cost '
-      'FROM recipe_items r JOIN stock_items s ON s.id = r.stock_item_id '
-      'WHERE r.deleted_at IS NULL AND ${variantId != null ? 'r.variant_id' : 'r.option_id'} = ?',
-      variables: [Variable.withString(variantId ?? optionId!)],
-      readsFrom: {_db.recipeItems, _db.stockItems},
-    ).get();
-    return [for (final r in rows) (r.read<String>('item'), r.read<int>('qty'), r.read<int>('cost'))];
+  Future<List<(String, int, int)>> recipe({
+    String? variantId,
+    String? optionId,
+  }) async {
+    final rows = await _db
+        .customSelect(
+          'SELECT r.stock_item_id AS item, r.quantity AS qty, s.cost_milli AS cost '
+          'FROM recipe_items r JOIN stock_items s ON s.id = r.stock_item_id '
+          'WHERE r.deleted_at IS NULL AND ${variantId != null ? 'r.variant_id' : 'r.option_id'} = ?',
+          variables: [Variable.withString(variantId ?? optionId!)],
+          readsFrom: {_db.recipeItems, _db.stockItems},
+        )
+        .get();
+    return [
+      for (final r in rows)
+        (r.read<String>('item'), r.read<int>('qty'), r.read<int>('cost')),
+    ];
+  }
+
+  /// Direct stock link when present, otherwise the variant's recipe.
+  Future<List<(String, int, int)>> variantUsage(String variantId) async {
+    final link = await _db
+        .customSelect(
+          'SELECT v.stock_item_id AS item, v.stock_quantity AS qty, s.cost_milli AS cost '
+          'FROM product_variants v JOIN stock_items s ON s.id = v.stock_item_id '
+          'WHERE v.id = ? AND v.stock_item_id IS NOT NULL AND s.deleted_at IS NULL',
+          variables: [Variable.withString(variantId)],
+          readsFrom: {_db.productVariants, _db.stockItems},
+        )
+        .get();
+    if (link.isNotEmpty) {
+      return [
+        for (final r in link)
+          (r.read<String>('item'), r.read<int>('qty'), r.read<int>('cost')),
+      ];
+    }
+    return recipe(variantId: variantId);
+  }
+
+  /// An option's recipe, or the linked product variant for a combo part.
+  Future<List<(String, int, int)>> optionUsage(String optionId) async {
+    final own = await recipe(optionId: optionId);
+    if (own.isNotEmpty) return own;
+    final option =
+        await (_db.select(_db.optionItems)
+              ..where((o) => o.id.equals(optionId) & o.deletedAt.isNull()))
+            .getSingleOrNull();
+    final variantId = option?.variantId;
+    return variantId == null ? const [] : variantUsage(variantId);
   }
 
   /// On hand at this branch (or [scope]) for every stock item that has moved.
@@ -190,11 +301,16 @@ class StockRepository {
     final sum = _db.stockMovements.quantityChange.sum();
     final query = _db.selectOnly(_db.stockMovements)
       ..addColumns([_db.stockMovements.stockItemId, sum])
-      ..where(_db.stockMovements.stockItemId.isNotNull() &
-          _db.stockMovements.deletedAt.isNull() &
-          here.on(_db.stockMovements.deviceId))
+      ..where(
+        _db.stockMovements.stockItemId.isNotNull() &
+            _db.stockMovements.deletedAt.isNull() &
+            here.on(_db.stockMovements.deviceId),
+      )
       ..groupBy([_db.stockMovements.stockItemId]);
-    return {for (final r in await query.get()) r.read(_db.stockMovements.stockItemId)!: r.read(sum) ?? 0};
+    return {
+      for (final r in await query.get())
+        r.read(_db.stockMovements.stockItemId)!: r.read(sum) ?? 0,
+    };
   }
 
   /// Base units used by sales and waste since [since], per stock item (for
@@ -214,13 +330,24 @@ class StockRepository {
   }
 
   /// Newest first.
-  Future<List<StockMovement>> movements(String stockItemId, {int limit = 100}) async {
+  Future<List<StockMovement>> movements(
+    String stockItemId, {
+    int limit = 100,
+  }) async {
     final here = await _here();
     final rows =
         await (_db.select(_db.stockMovements)
-              ..where((m) => m.stockItemId.equals(stockItemId) & m.deletedAt.isNull() & here.on(m.deviceId))
+              ..where(
+                (m) =>
+                    m.stockItemId.equals(stockItemId) &
+                    m.deletedAt.isNull() &
+                    here.on(m.deviceId),
+              )
               ..orderBy([
-                (m) => OrderingTerm(expression: m.createdAt, mode: OrderingMode.desc),
+                (m) => OrderingTerm(
+                  expression: m.createdAt,
+                  mode: OrderingMode.desc,
+                ),
                 (m) => OrderingTerm(expression: m.id, mode: OrderingMode.desc),
               ])
               ..limit(limit))
@@ -283,11 +410,18 @@ class StockRepository {
 
   /// Corrects stock by [change] base units (found more, or less, than the
   /// till thinks) with a note. Audited.
-  Future<void> adjust(String stockItemId, int change, {required String note, required Staff by}) async {
+  Future<void> adjust(
+    String stockItemId,
+    int change, {
+    required String note,
+    required Staff by,
+  }) async {
     if (change == 0) throw const StockException('Enter a change.');
     if (note.trim().isEmpty) throw const StockException('Say why.');
     return _db.transaction(() async {
-      final row = await (_db.select(_db.stockItems)..where((s) => s.id.equals(stockItemId))).getSingle();
+      final row = await (_db.select(
+        _db.stockItems,
+      )..where((s) => s.id.equals(stockItemId))).getSingle();
       await record(
         stockItemId: stockItemId,
         quantityChange: change,
@@ -301,7 +435,8 @@ class StockRepository {
         actor: by,
         entity: 'stock_items',
         entityId: stockItemId,
-        summary: '${row.name}: ${change > 0 ? '+' : ''}${formatQuantity(change, row.unit)} (${note.trim()})',
+        summary:
+            '${row.name}: ${change > 0 ? '+' : ''}${formatQuantity(change, row.unit)} (${note.trim()})',
         details: {'change': change, 'value': costOf(change, row.costMilli)},
       );
     });
@@ -317,7 +452,9 @@ class StockRepository {
   }) async {
     if (quantity <= 0) throw const StockException('Enter how much was lost.');
     return _db.transaction(() async {
-      final row = await (_db.select(_db.stockItems)..where((s) => s.id.equals(stockItemId))).getSingle();
+      final row = await (_db.select(
+        _db.stockItems,
+      )..where((s) => s.id.equals(stockItemId))).getSingle();
       final value = costOf(quantity, row.costMilli);
       await record(
         stockItemId: stockItemId,
@@ -333,7 +470,8 @@ class StockRepository {
         actor: by,
         entity: 'stock_items',
         entityId: stockItemId,
-        summary: '${row.name}: ${formatQuantity(quantity, row.unit)} lost (${reason.name}), ${formatMoney(value)}',
+        summary:
+            '${row.name}: ${formatQuantity(quantity, row.unit)} lost (${reason.name}), ${formatMoney(value)}',
         details: {'quantity': quantity, 'value': value, 'reason': reason.name},
       );
     });
@@ -347,12 +485,19 @@ class StockRepository {
   /// Batches with no date go last.
   Future<List<BatchLeft>> batches({String? stockItemId}) async {
     final here = await _here();
-    final query = _db.select(_db.stockBatches)..where((b) => b.deletedAt.isNull() & here.on(b.deviceId));
-    if (stockItemId != null) query.where((b) => b.stockItemId.equals(stockItemId));
+    final query = _db.select(_db.stockBatches)
+      ..where((b) => b.deletedAt.isNull() & here.on(b.deviceId));
+    if (stockItemId != null)
+      query.where((b) => b.stockItemId.equals(stockItemId));
     final rows = await query.get();
     if (rows.isEmpty) return const [];
     final ids = {for (final r in rows) r.stockItemId};
-    final items = {for (final i in await (_db.select(_db.stockItems)..where((s) => s.id.isIn(ids))).get()) i.id: i};
+    final items = {
+      for (final i in await (_db.select(
+        _db.stockItems,
+      )..where((s) => s.id.isIn(ids))).get())
+        i.id: i,
+    };
     final levels = await onHandAll();
     final byItem = <String, List<StockBatchRow>>{};
     for (final r in rows) {
@@ -365,7 +510,8 @@ class StockRepository {
       // Latest expiry first: these are what is still on the shelf.
       list.sort((a, b) {
         final ea = a.expiresOn, eb = b.expiresOn;
-        if (ea == null || eb == null) return ea == null ? (eb == null ? 0 : -1) : 1;
+        if (ea == null || eb == null)
+          return ea == null ? (eb == null ? 0 : -1) : 1;
         final byDate = eb.compareTo(ea);
         return byDate != 0 ? byDate : b.createdAt.compareTo(a.createdAt);
       });
@@ -373,22 +519,25 @@ class StockRepository {
       for (final b in list) {
         final left = stock <= 0 ? 0 : (stock < b.quantity ? stock : b.quantity);
         stock -= left;
-        out.add(BatchLeft(
-          id: b.id,
-          stockItemId: itemId,
-          itemName: item.name,
-          unit: item.unit,
-          quantity: b.quantity,
-          left: left,
-          receivedAt: b.createdAt,
-          batchNo: b.batchNo,
-          expiresOn: b.expiresOn,
-        ));
+        out.add(
+          BatchLeft(
+            id: b.id,
+            stockItemId: itemId,
+            itemName: item.name,
+            unit: item.unit,
+            quantity: b.quantity,
+            left: left,
+            receivedAt: b.createdAt,
+            batchNo: b.batchNo,
+            expiresOn: b.expiresOn,
+          ),
+        );
       }
     }
     out.sort((a, b) {
       final ea = a.expiresOn, eb = b.expiresOn;
-      if (ea == null || eb == null) return ea == null ? (eb == null ? 0 : 1) : -1;
+      if (ea == null || eb == null)
+        return ea == null ? (eb == null ? 0 : 1) : -1;
       return ea.compareTo(eb);
     });
     return out;
@@ -434,14 +583,25 @@ class StockRepository {
 
   /// The batch recipe of an item made here, or null.
   Future<ProductionRecipe?> productionRecipe(String madeItemId) async {
-    final item = await (_db.select(_db.stockItems)..where((s) => s.id.equals(madeItemId))).getSingleOrNull();
+    final item = await (_db.select(
+      _db.stockItems,
+    )..where((s) => s.id.equals(madeItemId))).getSingleOrNull();
     final batch = item?.batchYield;
     if (batch == null) return null;
-    final rows = await (_db.select(_db.recipeItems)
-          ..where((r) => r.madeItemId.equals(madeItemId) & r.deletedAt.isNull())
-          ..orderBy([(r) => OrderingTerm(expression: r.createdAt), (r) => OrderingTerm(expression: r.id)]))
-        .get();
-    return ProductionRecipe(batchYield: batch, lines: [for (final r in rows) (r.stockItemId, r.quantity)]);
+    final rows =
+        await (_db.select(_db.recipeItems)
+              ..where(
+                (r) => r.madeItemId.equals(madeItemId) & r.deletedAt.isNull(),
+              )
+              ..orderBy([
+                (r) => OrderingTerm(expression: r.createdAt),
+                (r) => OrderingTerm(expression: r.id),
+              ]))
+            .get();
+    return ProductionRecipe(
+      batchYield: batch,
+      lines: [for (final r in rows) (r.stockItemId, r.quantity)],
+    );
   }
 
   /// Makes [madeItemId] something made here: one batch of [lines] makes
@@ -452,14 +612,26 @@ class StockRepository {
     required List<(String, int)> lines,
     required Staff by,
   }) async {
-    if (batchYield != null && batchYield <= 0) throw const StockException('Enter how much one batch makes.');
-    if (lines.any((l) => l.$1 == madeItemId)) throw const StockException('An item cannot be made from itself.');
-    if (lines.any((l) => l.$2 <= 0)) throw const StockException('Each ingredient needs an amount.');
+    if (batchYield != null && batchYield <= 0)
+      throw const StockException('Enter how much one batch makes.');
+    if (lines.any((l) => l.$1 == madeItemId))
+      throw const StockException('An item cannot be made from itself.');
+    if (lines.any((l) => l.$2 <= 0))
+      throw const StockException('Each ingredient needs an amount.');
     return _db.transaction(() async {
       final now = clock.now();
-      final item = await (_db.select(_db.stockItems)..where((s) => s.id.equals(madeItemId))).getSingle();
-      await _db.updateTracked(_db.stockItems, item.copyWith(batchYield: Value(batchYield), updatedAt: now));
-      final old = await (_db.select(_db.recipeItems)..where((r) => r.madeItemId.equals(madeItemId) & r.deletedAt.isNull())).get();
+      final item = await (_db.select(
+        _db.stockItems,
+      )..where((s) => s.id.equals(madeItemId))).getSingle();
+      await _db.updateTracked(
+        _db.stockItems,
+        item.copyWith(batchYield: Value(batchYield), updatedAt: now),
+      );
+      final old =
+          await (_db.select(_db.recipeItems)..where(
+                (r) => r.madeItemId.equals(madeItemId) & r.deletedAt.isNull(),
+              ))
+              .get();
       for (final r in old) {
         await _db.softDeleteTracked(_db.recipeItems, r.id);
       }
@@ -494,18 +666,29 @@ class StockRepository {
   /// A production run: [amount] base units of [madeItemId] made. The
   /// ingredients come off stock in proportion to the batch recipe, and the
   /// made item goes up at what they cost. Returns that cost (pesewas).
-  Future<int> produce(String madeItemId, int amount, {String? note, required Staff by}) async {
+  Future<int> produce(
+    String madeItemId,
+    int amount, {
+    String? note,
+    required Staff by,
+  }) async {
     if (amount <= 0) throw const StockException('Enter how much was made.');
     final recipe = await productionRecipe(madeItemId);
-    if (recipe == null || recipe.lines.isEmpty) throw const StockException('Set what it is made from first.');
+    if (recipe == null || recipe.lines.isEmpty)
+      throw const StockException('Set what it is made from first.');
     return _db.transaction(() async {
       final now = clock.now();
-      final made = await (_db.select(_db.stockItems)..where((s) => s.id.equals(madeItemId))).getSingle();
+      final made = await (_db.select(
+        _db.stockItems,
+      )..where((s) => s.id.equals(madeItemId))).getSingle();
       final runId = newId();
       var costMilliTotal = 0;
       for (final (itemId, perBatch) in recipe.lines) {
-        final ingredient = await (_db.select(_db.stockItems)..where((s) => s.id.equals(itemId))).getSingle();
-        final take = (perBatch * amount + recipe.batchYield ~/ 2) ~/ recipe.batchYield;
+        final ingredient = await (_db.select(
+          _db.stockItems,
+        )..where((s) => s.id.equals(itemId))).getSingle();
+        final take =
+            (perBatch * amount + recipe.batchYield ~/ 2) ~/ recipe.batchYield;
         if (take <= 0) continue;
         costMilliTotal += take * ingredient.costMilli;
         await record(
@@ -531,9 +714,17 @@ class StockRepository {
         byName: by.name,
         at: now,
       );
-      final average = Inventory.averageCost(onHand: before, oldCostMilli: made.costMilli, qty: amount, newCostMilli: unitCost);
+      final average = Inventory.averageCost(
+        onHand: before,
+        oldCostMilli: made.costMilli,
+        qty: amount,
+        newCostMilli: unitCost,
+      );
       if (average != made.costMilli) {
-        await _db.updateTracked(_db.stockItems, made.copyWith(costMilli: average, updatedAt: now));
+        await _db.updateTracked(
+          _db.stockItems,
+          made.copyWith(costMilli: average, updatedAt: now),
+        );
       }
       final cost = (costMilliTotal + 500) ~/ 1000;
       await _audit.record(
@@ -541,7 +732,8 @@ class StockRepository {
         actor: by,
         entity: 'stock_items',
         entityId: madeItemId,
-        summary: 'Made ${formatQuantity(amount, made.unit)} ${made.name} (${formatMoney(cost)} of ingredients)',
+        summary:
+            'Made ${formatQuantity(amount, made.unit)} ${made.name} (${formatMoney(cost)} of ingredients)',
         details: {'amount': amount, 'cost': cost},
       );
       return cost;

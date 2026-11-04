@@ -1162,6 +1162,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editorCostFromRecipe => 'From the recipe';
 
   @override
+  String get editorCostFromStock => 'From the stock item';
+
+  @override
   String get editorCostHelp => 'Optional';
 
   @override
@@ -1218,11 +1221,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editorPriceReason => 'Change prices.';
 
   @override
-  String get recipeUses => 'What it uses';
+  String get editorStockUsageMode => 'Inventory tracking';
+
+  @override
+  String get editorStockModeHelp =>
+      'Choose how a sale affects stock. Use a recipe for a product made from multiple stock items.';
+
+  @override
+  String get editorStockUsageNone => 'Not tracked';
+
+  @override
+  String get editorStockUsageItem => 'One stock item';
+
+  @override
+  String get editorStockUsageRecipe => 'Recipe';
+
+  @override
+  String get editorStockItem => 'Stock item';
+
+  @override
+  String get editorStockItemNone => 'Choose a stock item';
+
+  @override
+  String get editorStockItemHelp =>
+      'Each sale uses this amount from the item. Cost comes from its current stock cost.';
+
+  @override
+  String get editorStockQuantity => 'Per sale unit';
+
+  @override
+  String get editorStockItemMissing => 'Choose a stock item.';
+
+  @override
+  String get editorStockQuantityInvalid => 'Enter an amount greater than zero.';
+
+  @override
+  String get editorStockUnitMismatch =>
+      'Choose a stock item measured in pieces for each, grams for kg, or millilitres for litre.';
+
+  @override
+  String get recipeUses => 'Recipe ingredients';
 
   @override
   String get recipeHelp =>
-      'Each sale takes these from stock and works out the cost.';
+      'Each sale takes these ingredients from stock and works out their cost.';
 
   @override
   String get recipeItem => 'Stock item';
@@ -1974,7 +2016,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsNegativeStockHelp =>
-      'The till warns but still sells. Off: it refuses.';
+      'On: warn but allow the sale. Off: refuse when stock is insufficient.';
 
   @override
   String get settingsDiscounts => 'Saved discounts';
@@ -5014,6 +5056,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String tileLowLeft(Object count) {
+    return '$count left · low';
+  }
+
+  @override
   String pickerAdd(String price) {
     return 'Add $price';
   }
@@ -6676,7 +6723,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importIntro =>
-      'Add or update many products at once from a spreadsheet: one row per product, or one per size when it has several prices.';
+      'Add or update products from a spreadsheet, one row per size when needed. Add on_hand and low_below columns to track each SKU and stop selling at zero.';
 
   @override
   String get importStep1 =>
@@ -6729,8 +6776,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importColOnTill => 'yes or no. No keeps it off the till for now.';
 
   @override
+  String get importColOnHand =>
+      'Count in pieces. Enter it to track the SKU and deduct one per sale; on updates it sets the new counted total. 0 starts out of stock.';
+
+  @override
+  String get importColLowBelow =>
+      'Low-stock threshold in pieces. Only applies when the SKU is stock-tracked.';
+
+  @override
+  String importStockSummary(int created, int updated, int recounted) {
+    return 'Stock: $created new, $updated updated, $recounted counts changed.';
+  }
+
+  @override
   String get importNeverRemoves =>
-      'Importing adds products and updates prices, costs and barcodes. It never removes anything.';
+      'Importing adds products and updates prices, costs, barcodes and optional stock counts. Blank stock fields leave existing stock unchanged; new SKUs stay untracked when both are blank.';
 
   @override
   String get importFixHint =>

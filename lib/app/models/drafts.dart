@@ -18,6 +18,8 @@ class VariantDraft {
     this.name,
     required this.price,
     this.manualCost,
+    this.stockItemId,
+    this.stockQuantity = 1,
     this.barcodes = const [],
     this.recipe = const [],
   });
@@ -28,6 +30,10 @@ class VariantDraft {
   /// Pesewas.
   final int price;
   final int? manualCost;
+  final String? stockItemId;
+
+  /// Base units consumed for one sell unit (one item, kg, or litre).
+  final int stockQuantity;
   final List<String> barcodes;
   final List<RecipeDraftLine> recipe;
 }
