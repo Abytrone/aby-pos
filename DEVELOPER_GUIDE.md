@@ -1,6 +1,6 @@
 # Aby POS: Developer Guide
 
-*For engineers working on the Aby till app. Last updated 1 November 2026 (Aby 1.0.1), at schema version 21.*
+*For engineers working on the Aby till app. Last updated 4 November 2026 (Aby 1.0.1), at schema version 25.*
 
 This guide explains how Aby POS is built: how the code is organised, how data moves through it,
 the rules the code follows, and how to make common changes safely. It sits beside two other
@@ -180,7 +180,7 @@ aby_pos/
 │       └── theme/                   the brand kit's Flutter theme (copied as-is)
 ├── test/                            unit, repository, service and widget tests
 │   └── generated_migrations/        drift schema snapshots for migration tests (generated)
-├── drift_schemas/                   drift_schema_v1.json … v23.json (one per schema version)
+├── drift_schemas/                   drift_schema_v1.json … v25.json (one per schema version)
 ├── tool/license.dart                developer-only licence signing CLI
 ├── installer/                       Inno Setup script (aby_pos.iss) and the EULA
 ├── build_windows.ps1                one-step Windows release + installer
@@ -698,6 +698,10 @@ drift's step-by-step API with generated schema snapshots.
 | 19 | `manageDevices` permission, granted to Manager |
 | 20 | `staff.staff_number`, numbered from 101 by `created_at` |
 | 21 | `staff.recovery_hash`: owner recovery codes |
+| 22 | product and stock item names unique among live rows (partial unique indexes; duplicates renamed) |
+| 23 | explicit stock links for retail variants (`product_variants.stock_item_id`, `stock_quantity`) |
+| 24 | single-item self recipes converted to explicit variant links |
+| 25 | attendance accountability on `time_entries`: `close_source`, `review_status`, `last_activity_at`, `left_open_by_*`, `day_close_id`, `approved_*`, `approval_note` (§13.5) |
 
 ---
 
@@ -956,12 +960,59 @@ asked to clock in, and someone on a break to end it. The shell also offers clock
 sign-in and quick switch (`ShellController.offerClockIn`); saying no there only defers it to Pay.
 
 **Defaults:** both settings default to off, so shops from before them keep working as they did.
-`SetupController` turns both on for a new shop.
+`SetupController` applies `AttendanceMode.standard` to a new shop (below).
 
-**Close day** warns when the day was not started (the float is typed at the close instead) and
-lists people who clocked in on this device and have not clocked out. A close records `shift_id`;
-`DayClose.dayStarted` is false without one, and the Z report prints "Day not started: float typed
-at the close".
+**Accountability principles.** Only the person ends their own stretch (`clockOut(staff)`, with their
+own sign-in). Nobody else rewrites that record: others can only add a labelled correction or a
+decision beside it, with a reason, kept in the audit log. Every entry says how it ended.
+
+**Attendance mode** ([attendance.dart](lib/app/core/attendance.dart)). `AttendanceMode` (solo,
+standard, strict) is a *preset*, not a stored value: `preset` lists the settings it writes
+(`startDayToSell`, `clockInToSell`, `closeWithOthersIn`, `allowMissedClockOutEdit`) and
+`AttendanceMode.current(get)` infers the mode from what is stored, or null (shown as Custom). Picking
+one in Settings writes the preset in one approval (`SettingsController.saveAll`); each setting stays
+editable alone.
+
+**Close day and people still in.** `attendance.closeWithOthersIn` (`CloseWithOthersIn`): `review`
+(default), `block`, `allow`, `auto`. `DayCloseRepository.closeDay(attendance:)` applies it **inside
+the close transaction**, through the optional `TimeRepository` (fourth optional constructor
+argument; registered in `InitialBinding`):
+
+| Value | Effect |
+|---|---|
+| `block` | throws `TimeClockException` *before* writing if `stillIn(deviceId)` is not empty; the whole close rolls back. Enforced here, not only on the screen |
+| `review` | `leaveOpenAtClose(needsReview: true)`: `close_source = unconfirmed`, `review_status = needsReview` |
+| `allow` | `leaveOpenAtClose(needsReview: false)`: unconfirmed, `review_status = ok` |
+| `auto` | `clockOutAtClose`: `clock_out = now`, `close_source = auto`, audited as `timeEntryAutoClockOut` |
+
+`leaveOpenAtClose` never sets `clock_out`. It stores `last_activity_at` (the person's latest sale or
+refund on this device since they clocked in; evidence only), who closed the day, and the
+`day_close_id`. `_open` and `stillIn` skip entries with a `close_source`, so a person left open can
+clock in again the next day and does not count as still in.
+
+**Pay.** `TimesheetEntry.payableMinutes`: 0 while `needsReview`; the approved minutes once decided
+(0 refuses it); else `workedMinutes`. `minutesWorked` (Reports → Staff) and the timesheet export use
+it. `workedMinutes` for an unconfirmed stretch runs to `last_activity_at`, as a guide only.
+
+**Deciding.** `TimeRepository.review(entryId, minutes:, reason:, by:)` needs a reason, works only on
+`needsReview` entries, sets `approved_*` and `approvedMinutes`, and logs `timeEntryReviewed`.
+`correct()` on a `needsReview` entry with a clock out also decides it (`approved`, no
+`approved_minutes`, so the corrected times count) and sets `close_source = corrected`.
+`needingReview()` feeds Staff → Timesheets → *Waiting for your decision*
+([review_hours_dialog.dart](lib/app/modules/staff/widgets/review_hours_dialog.dart)); both need
+`manageStaff` (or an approval). `TimesheetEntry.statusNote` is the plain-English status in exports.
+
+**Close day screen** (`CloseDayController`): `stillClockedIn` holds `TimesheetEntry`s; `canClose` is
+false while `waitingForClockOut`; `correctHours(entry)` opens the correction dialog;
+`attendanceOutcome` tells the finished screen who was left open or clocked out.
+
+**Today's Close day button** is off when `OpenPeriod.hasActivity` is false (no started day, sales,
+voids, refunds, pay-ins/outs, safe drops, no-sales or customer money since the last close);
+`TodayController.refreshCloseState` recomputes it after sales, refunds, the shift and cash actions.
+
+**Close day** warns when the day was not started (the float is typed at the close instead). A close
+records `shift_id`; `DayClose.dayStarted` is false without one, and the Z report prints "Day not
+started: float typed at the close".
 
 **Timesheets** (`TimeRepository.timesheet`):
 
@@ -969,7 +1020,7 @@ at the close".
   back in is neither. `minutesPast` takes the nearer side of midnight, so usual hours may cross it
   (22:00 to 06:00).
 - `workedMinutes` takes off a break still going; Reports → Staff does the same in SQL.
-- A stretch over `longestStretch` (16 hours) is flagged: most likely a forgotten clock out.
+- A stretch over `longestStretch` (16 hours) is flagged: most likely a forgotten clock out (not for unconfirmed stretches, which have no running end).
 - `correct()` changes a stretch's times and break with a reason, kept in `time_entries.note` and
   logged as `timeEntryCorrected` (sensitive, under the Staff filter). It needs `manageStaff`
   (or an approval). Giving a clock out to an open stretch clocks the person out and ends a break
@@ -1370,7 +1421,7 @@ state (`paying`, `done`, `cancelPaying`).
 | `BackupService` schedule | local snapshot every `backup.everyMinutes`, skipped when nothing changed (§19.1) | at start, then every minute |
 | `NotificationService` + `AlertService` | low stock, overdue credit, backups due, day left open, old parked orders, expenses due → phone or Windows notifications, each kind at most once a day unless it grows; per-person opt-out | started after sign-in data exists |
 | `InsightService` | dashboard insights (stock running out, falling margins, late customers, cash short), dismissible | on demand |
-| `ClockService` | whether the signed-in person is clocked in or on a break (`staff.clockInToSell`); offers clocking in after sign-in (§13.5) | reactive |
+| `ClockService` | whether the signed-in person is clocked in or on a break (`staff.clockInToSell`); offers clocking in after sign-in, which the person may refuse; never clocks anyone in by itself (§13.5) | reactive |
 | `StatusService` | the status centre: local and off-device backups, audit chain, sync, printer, recovery code, accountant pack | at start, every 10 min, and after relevant actions (including each backup) |
 | `PrintService` | print queue retries | timer while jobs wait |
 
@@ -1724,7 +1775,9 @@ Open product questions are listed in [FEATURES.md §20](docs/FEATURES.md).
 | **Pesewa** | 1/100 of a Ghana cedi (GH₵). All amounts are integer pesewas. |
 | **Business day** | trading day starting at 05:00 by default |
 | **Start the day** | counting a till's float before its first sale (`shifts` table); **X report** = the day so far |
-| **Clock in / out** | a person's working time (`time_entries`); not the same as starting the day |
+| **Clock in / out** | a person's working time (`time_entries`); not the same as starting the day. Only the person ends their own stretch; anything else is labelled (`ClockOutSource`) |
+| **Unconfirmed hours** | a stretch left open when the day closed (`close_source = unconfirmed`); unpaid until an owner decides (`TimeReview`) |
+| **Attendance mode** | a preset of the attendance settings (`AttendanceMode`: solo, standard, strict); reads Custom when they differ |
 | **Close day / Z report** | end-of-day cash-up that locks the day's sales against voids |
 | **No-sale** | opening the drawer without a sale (needs a reason) |
 | **Pay-in / pay-out** | cash put into or taken out of the drawer |

@@ -593,6 +593,7 @@ What exists today: close day with an opening float and the counted cash. This ex
      setting).
   2. The app then shows the expected amount and the difference.
   3. The cashier gives a reason when the difference is over a set threshold.
+- **Nothing to close:** the Close day button is off when nothing has happened since the last close.
 - **Z report:** the end-of-shift report. Covers sales, refunds, discounts, voids, no-sales,
   paid-ins and paid-outs, payments by method, the cash difference, and who.
 - **Variance history per cashier [Beyond]:** "Ama: 3 shorts in the last 30 days, total GH₵ 26".
@@ -705,6 +706,16 @@ What exists today: close day with an opening float and the counted cash. This ex
 - **Timesheets:** per week, with hours, late arrivals and early leaves. They can be exported for
   wages.
 - **Clocking and selling:** clocking in can be required before someone can sell (setting).
+- **Accountability:** only the person clocks themselves in or out, with their own sign-in, and
+  signing in never clocks anyone in. Anything else is labelled and recorded: a manager's
+  correction (with a reason), an automatic clock-out at close (setting), or hours left open when the
+  day closed. Hours left open are **unconfirmed**: they keep the person's last sale as a guide, are
+  not paid, and wait in a review queue until an owner approves minutes, refuses them, or sets the
+  real time, with a reason. Every step is in the audit log.
+- **Attendance modes:** Solo or family, Standard and Strict set the start-the-day, clock-in and
+  close behaviour together, and each can be changed alone. At close, people still clocked in can be
+  flagged for review, waited for (close is refused), left open without review, or clocked out
+  automatically.
 
 ### STF-05 Auto-lock and quick switch [Standard]
 

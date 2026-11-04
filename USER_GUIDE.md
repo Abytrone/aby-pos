@@ -524,7 +524,11 @@ not started. With it off you can skip this, but close day then asks for the floa
 report says the day was not started, because a float typed at the end was never counted.
 
 Starting the day is about the **cash**. Clocking in is about **people's hours** (14.5): they are
-separate.
+separate. Starting the day never clocks anyone in. Afterwards Aby only **asks** whether you want to
+clock in too, and the choice is yours.
+
+How strict your shop is about starting the day, clocking in and who is still in at close is set in
+one place: Settings → Shop → Features → **Attendance mode** (14.5).
 
 ### 6.2 The X report
 
@@ -559,9 +563,24 @@ should be in your MoMo wallet.
 
 Today → **Close day**. Needs *Close the day*.
 
-Before you count, Aby warns you if the day was not started on this till, and lists anyone who
-clocked in on this till and has not clocked out (if they have gone home, correct their hours in
-Staff → Timesheets).
+The **Close day** button is **off** when nothing has happened since the last close: no started day,
+no sales, refunds, cash in or out or no-sales. Hold the pointer over it to see why. This stops an
+empty Z report being written by accident. It turns on as soon as anything happens, and a started day
+counts even before the first sale.
+
+Before you count, Aby warns you if the day was not started on this till. It also lists **who is
+still clocked in** on this till, when they clocked in, and what closing will do about them. That
+depends on Settings → Shop → Features → **At close, people still clocked in** (14.5):
+
+- **Flag for review** (the usual choice): they stay clocked in, and their hours are **not paid**
+  until an owner decides (14.5).
+- **Wait for them:** you can't close until each person has clocked out on a till, or their hours
+  have been corrected. The list shows **Correct hours** and **Check again**.
+- **Leave open, no review:** they stay clocked in and are paid up to their last sale.
+- **Clock out at closing time:** they are clocked out at the close time, recorded as **automatic**.
+
+Whoever closes the day **can never clock someone else out**. The only choices are to correct their
+hours with a reason (needs *Manage staff*), or to leave them open as above.
 
 1. **Count the drawer**: type the total, or count notes and coins.
 2. Aby shows what was expected: float + cash sales + cash from customers + cash put in − cash
@@ -573,6 +592,7 @@ Staff → Timesheets).
 
 After close day:
 
+- The finished screen names anyone who was left clocked in or clocked out automatically.
 - Those sales are **locked** against voids. Refunds still work.
 - Aby **makes a backup** on the till.
 - The **daily summary** card is ready to send as a picture by WhatsApp: sales, profit before
@@ -1141,7 +1161,8 @@ Owners sign in everywhere.
   break**, **Clock out**.
 - Settings → Shop → Features → **Clock in before selling** (on for new shops) asks people to clock
   in when they sign in, and again at **Pay** if they said not now. Someone on a break is asked to
-  end it before they take payment.
+  end it before they take payment. **Signing in never clocks anyone in**: each person clocks
+  themselves in, and only they can clock themselves out.
 - Staff → **Timesheets** for any week or dates: hours worked, breaks, late arrivals and early
   leaves (with 5 minutes' grace). Late is judged on a person's first stretch of the day and early on
   the last, so going out for lunch is neither. Usual hours can cross midnight (22:00 to 06:00).
@@ -1149,6 +1170,32 @@ Owners sign in everywhere.
 - **Forgot to clock out?** A stretch over 16 hours is marked in red. Someone who may manage staff
   taps the stretch, sets the right times and break, and gives a reason. The change shows on the
   timesheet and in the Activity log.
+
+**Attendance mode.** Settings → Shop → Features → **Attendance mode** sets several settings at once
+for the kind of shop you run. You can still change each one on its own afterwards, and the tile then
+reads **Custom**.
+
+| Mode | Start the day to sell | Clock in to sell | At close, people still clocked in |
+|---|---|---|---|
+| **Solo or family** | off | off | left open, paid up to their last sale |
+| **Standard** (new shops) | on | on | flagged for review, not paid until decided |
+| **Strict** | on | on | close day waits until everyone has clocked out or been corrected |
+
+**Hours left open at close.** When someone is still clocked in at close (in Standard mode), Aby
+keeps what it knows and invents nothing:
+
+- Their stretch shows **not confirmed**, with no clock-out time. Their last sale or refund on that
+  till is kept as a guide, never as their clock-out.
+- It is **not paid** until an owner decides. It shows as **Not paid yet**, and is left out of their
+  total and the exported timesheet.
+- They can clock in again the next day as normal.
+
+**Deciding (the review queue).** Staff → **Timesheets** shows **Waiting for your decision** at the
+top, whatever dates are showing. Tap one (needs *Manage staff*): **Pay up to the last activity**,
+**Pay a set time**, **Do not pay**, or **Set when they really left**. A **reason** is always needed.
+The decision, who made it and the reason show on the timesheet and in the Activity log. Hours
+corrected by a manager, and hours clocked out automatically, are labelled the same way, so a
+person's own clock-out can always be told from someone else's.
 
 ### 14.6 Commission
 
@@ -1477,6 +1524,9 @@ till.
 | What kind of shop? | Chosen at setup; switches features on or off |
 | Expiry dates for new stock | New stock items ask for batches and expiry dates |
 | Takeaway, eat in or delivery | Asked on each sale; shown on the order ticket |
+| Attendance mode | Solo or family, Standard or Strict: sets the three settings below and the start-the-day setting together. Reads Custom when changed one by one |
+| At close, people still clocked in | Flag for review, Wait for them, Leave open without review, or Clock out at closing time (14.5) |
+| Let staff edit a missed clock-out | Staff may enter when they really finished after the day has changed; the reason is logged |
 | Clock in before selling | Staff must clock in to take payment (on for new shops) |
 | Commission | Off, a percent of sales, or per product |
 | Loyalty | Stamps, points or Gold |
@@ -1663,7 +1713,7 @@ or getting your licence key.
 |---|---|
 | **Morning** | Sign in → **Clock in** → Today → Cash → **Start the day** (count the float) |
 | **All day** | Sell, park, refund. Move cash to the safe when the drawer gets full |
-| **Evening** | Check parked sales → **Check MoMo** → **Close day** (count the drawer) → send the daily summary |
+| **Evening** | Everyone **clocks out** → check parked sales → **Check MoMo** → **Close day** (count the drawer) → send the daily summary. Owner: clear **Waiting for your decision** in Staff → Timesheets |
 | **Every week** | **Send a backup off this device** |
 | **Every month** | The accountant's pack (or let Aby save it by itself) |
 
@@ -1690,6 +1740,7 @@ or getting your licence key.
 | **Recipe** | What stock a product uses |
 | **Start the day / X report** | The float counted at the start; the X report is the drawer since then |
 | **Stock item** | Something you count: tubs, crates, bags, grams, litres |
+| **Unconfirmed hours** | Hours of someone still clocked in when the day closed. Not paid until an owner decides |
 | **Status dot** | The dot at the top: is everything safe? |
 | **Training mode** | Practice that never touches real sales |
 | **Void** | Cancelling a sale made by mistake |
